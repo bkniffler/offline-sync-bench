@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { benchmarkRoot } from '../paths';
 import { getStack } from '../stacks';
 import type { BenchmarkAdapter, BenchmarkStatus, JsonValue } from '../types';
 import { createUnsupportedScenarioResult } from '../unsupported';
@@ -15,7 +16,7 @@ function runPowerSyncScenario(scenario: 'bootstrap' | 'online-propagation' | 'of
     'node',
     ['--experimental-strip-types', 'src/adapters/powersync-runner.ts', scenario],
     {
-      cwd: '/Users/bkniffler/GitHub/sync/offline-sync-bench',
+      cwd: benchmarkRoot,
       encoding: 'utf8',
       timeout: 300_000,
       maxBuffer: 10 * 1024 * 1024,

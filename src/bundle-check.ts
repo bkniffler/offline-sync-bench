@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { analyzeTarget, buildAnalysisMarkdown, type BundleAnalysisRow } from './bundle-analyze';
 import { cleanupBundleTemp, getBundleTargetsByIds, resultsRoot } from './bundle-size';
+import { configRoot } from './paths';
 
 interface BundleBudgetTarget {
   id: string;
@@ -30,11 +31,7 @@ function roundKb(value: number): number {
 }
 
 async function main(): Promise<void> {
-  const budgetPath = join(
-    '/Users/bkniffler/GitHub/sync/offline-sync-bench',
-    'config',
-    'bundle-budget.json'
-  );
+  const budgetPath = join(configRoot, 'bundle-budget.json');
   const budget = JSON.parse(
     await readFile(budgetPath, 'utf8')
   ) as BundleBudgetFile;

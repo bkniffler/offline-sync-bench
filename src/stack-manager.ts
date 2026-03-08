@@ -9,6 +9,7 @@ import {
 } from '@rocicorp/zero';
 import { toTableName as toLiveStoreEventlogTableName } from '@livestore/sync-electric';
 import postgres from 'postgres';
+import { benchmarkRoot } from './paths';
 import { getStack } from './stacks';
 import type {
   SeedOptions,
@@ -51,7 +52,7 @@ function runDockerCompose(stack: StackSpec, args: string[]): string {
   const result = Bun.spawnSync(
     ['docker', 'compose', '-f', stack.composeFile, ...args],
     {
-      cwd: '/Users/bkniffler/GitHub/sync/offline-sync-bench',
+      cwd: benchmarkRoot,
       stdout: 'pipe',
       stderr: 'pipe',
     }

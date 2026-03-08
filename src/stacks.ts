@@ -1,12 +1,11 @@
+import { benchmarkRoot } from './paths';
 import type { StackId, StackSpec } from './types';
-
-const root = '/Users/bkniffler/GitHub/sync/offline-sync-bench';
 
 export const stacks: StackSpec[] = [
   {
     id: 'syncular',
     title: 'Syncular',
-    composeFile: `${root}/stacks/syncular/docker-compose.yml`,
+    composeFile: `${benchmarkRoot}/stacks/syncular/docker-compose.yml`,
     composeProjectName: 'offline-sync-bench-syncular',
     databaseUrl: 'postgresql://bench:bench@localhost:55432/bench?sslmode=disable',
     adminBaseUrl: 'http://localhost:3211',
@@ -34,7 +33,7 @@ export const stacks: StackSpec[] = [
   {
     id: 'electric',
     title: 'Electric',
-    composeFile: `${root}/stacks/electric/docker-compose.yml`,
+    composeFile: `${benchmarkRoot}/stacks/electric/docker-compose.yml`,
     composeProjectName: 'offline-sync-bench-electric',
     databaseUrl: 'postgresql://bench:bench@localhost:55433/bench?sslmode=disable',
     adminBaseUrl: 'http://localhost:3212',
@@ -64,7 +63,7 @@ export const stacks: StackSpec[] = [
   {
     id: 'zero',
     title: 'Zero',
-    composeFile: `${root}/stacks/zero/docker-compose.yml`,
+    composeFile: `${benchmarkRoot}/stacks/zero/docker-compose.yml`,
     composeProjectName: 'offline-sync-bench-zero',
     databaseUrl: 'postgresql://bench:bench@localhost:55434/bench?sslmode=disable',
     adminBaseUrl: 'http://localhost:3216',
@@ -93,7 +92,7 @@ export const stacks: StackSpec[] = [
   {
     id: 'powersync',
     title: 'PowerSync',
-    composeFile: `${root}/stacks/powersync/docker-compose.yml`,
+    composeFile: `${benchmarkRoot}/stacks/powersync/docker-compose.yml`,
     composeProjectName: 'offline-sync-bench-powersync',
     databaseUrl: 'postgresql://bench:bench@localhost:55435/bench?sslmode=disable',
     adminBaseUrl: 'http://localhost:3219',
@@ -123,7 +122,7 @@ export const stacks: StackSpec[] = [
   {
     id: 'replicache',
     title: 'Replicache',
-    composeFile: `${root}/stacks/replicache/docker-compose.yml`,
+    composeFile: `${benchmarkRoot}/stacks/replicache/docker-compose.yml`,
     composeProjectName: 'offline-sync-bench-replicache',
     databaseUrl: 'postgresql://bench:bench@localhost:55437/bench?sslmode=disable',
     adminBaseUrl: 'http://localhost:3221',
@@ -152,7 +151,7 @@ export const stacks: StackSpec[] = [
   {
     id: 'livestore',
     title: 'LiveStore',
-    composeFile: `${root}/stacks/livestore/docker-compose.yml`,
+    composeFile: `${benchmarkRoot}/stacks/livestore/docker-compose.yml`,
     composeProjectName: 'offline-sync-bench-livestore',
     databaseUrl: 'postgresql://bench:bench@localhost:55438/bench?sslmode=disable',
     adminBaseUrl: 'http://localhost:3223',

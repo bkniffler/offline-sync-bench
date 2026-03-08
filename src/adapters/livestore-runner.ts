@@ -14,6 +14,7 @@ import {
 import { makeSyncBackend } from '@livestore/sync-electric';
 import { createHttpMeter } from '../http-meter';
 import { average, CpuSampler, MemorySampler, percentile, round } from '../metrics';
+import { tempRoot } from '../paths';
 import {
   ensureStackUp,
   getFixtures,
@@ -57,7 +58,6 @@ interface LiveStoreSession {
 
 const stack = getStack('livestore');
 const scenario = process.argv[2];
-const tempRoot = '/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp';
 
 const tasks = State.SQLite.table({
   name: 'tasks',

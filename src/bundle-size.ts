@@ -2,6 +2,12 @@ import { gzipSync } from 'node:zlib';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { createRequire } from 'node:module';
+import {
+  benchmarkRoot,
+  resultsRoot,
+  syncularRoot,
+  tempRoot as sharedTempRoot,
+} from './paths';
 
 export interface BundleTarget {
   id: string;
@@ -31,9 +37,9 @@ export interface BundleSizeRow {
   error: string | null;
 }
 
-export const cwd = '/Users/bkniffler/GitHub/sync/offline-sync-bench';
-export const tempRoot = join(cwd, '.tmp', 'bundle-size');
-export const resultsRoot = join(cwd, '.results');
+export const cwd = benchmarkRoot;
+export const tempRoot = join(sharedTempRoot, 'bundle-size');
+export { resultsRoot };
 const require = createRequire(import.meta.url);
 
 export const targets: BundleTarget[] = [
@@ -55,7 +61,7 @@ export const targets: BundleTarget[] = [
   {
     id: 'syncular-client-local-root',
     label: 'Syncular Client Local Checkout',
-    importPath: '/Users/bkniffler/GitHub/sync/syncular/packages/client/src/index.ts',
+    importPath: join(syncularRoot, 'packages', 'client', 'src', 'index.ts'),
     displayImportPath: 'local:@syncular/client',
     versionPackageName: 'syncular-local-checkout',
     versionOverride: 'local-checkout',
@@ -80,7 +86,7 @@ export const targets: BundleTarget[] = [
   {
     id: 'syncular-subpath-local-root',
     label: 'Syncular Umbrella Local Checkout',
-    importPath: '/Users/bkniffler/GitHub/sync/syncular/packages/syncular/src/client.ts',
+    importPath: join(syncularRoot, 'packages', 'syncular', 'src', 'client.ts'),
     displayImportPath: 'local:syncular/client',
     versionPackageName: 'syncular-local-checkout',
     versionOverride: 'local-checkout',

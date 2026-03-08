@@ -6,7 +6,7 @@ Services:
 - `syncular` on host port `3210`
 - `admin` on host port `3211`
 
-The Syncular benchmark server runs directly against the local sibling checkout at [`/Users/bkniffler/GitHub/sync/syncular`](/Users/bkniffler/GitHub/sync/syncular), not from a published package.
+The Syncular benchmark server runs directly against the local sibling checkout at `../syncular`, not from a published package.
 
 Current routes:
 

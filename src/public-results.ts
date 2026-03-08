@@ -1,5 +1,11 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
+import {
+  benchmarkRoot,
+  resultsRoot,
+  toBenchmarkRelativePath,
+  toMarkdownPath,
+} from './paths';
 import { scenarios } from './scenarios';
 import { stacks } from './stacks';
 import type { ScenarioId, StackId } from './types';
@@ -24,8 +30,8 @@ interface BundleSizeRow {
   profile?: string;
 }
 
-const ROOT_DIR = process.cwd();
-const RESULTS_DIR = join(ROOT_DIR, '.results');
+const ROOT_DIR = benchmarkRoot;
+const RESULTS_DIR = resultsRoot;
 const OUTPUT_MARKDOWN = join(ROOT_DIR, 'RESULTS.md');
 const OUTPUT_JSON = join(ROOT_DIR, 'RESULTS.json');
 
@@ -54,7 +60,7 @@ async function collectLatestResults(): Promise<
   const latest = new Map<ScenarioId, Map<StackId, StoredBenchmarkResult>>();
 
   for (const filePath of files) {
-    const rel = relative(RESULTS_DIR, filePath).split('/');
+    const rel = relative(RESULTS_DIR, filePath).split(/[\\/]/);
     if (rel.length !== 3) continue;
     const [runId, stackId, fileName] = rel;
     const scenarioId = fileName.replace(/\.json$/, '') as ScenarioId;
@@ -77,7 +83,7 @@ async function collectLatestResults(): Promise<
     if (!existing || parsed.finishedAt > existingFinishedAt) {
       scenarioMap.set(typedStackId, {
         ...parsed,
-        _path: filePath,
+        _path: toBenchmarkRelativePath(filePath),
       });
       latest.set(scenarioId, scenarioMap);
     }
@@ -429,7 +435,7 @@ async function main(): Promise<void> {
       const result = scenarioMap.get(stackId);
       if (!result?._path) continue;
       sections.push(
-        `- ${stacks.find((stack) => stack.id === stackId)?.title ?? stackId}: [${result.runId}](${result._path})`
+        `- ${stacks.find((stack) => stack.id === stackId)?.title ?? stackId}: [${result.runId}](${toMarkdownPath(join(ROOT_DIR, result._path))})`
       );
     }
     sections.push('');

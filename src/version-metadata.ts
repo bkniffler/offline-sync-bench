@@ -1,11 +1,14 @@
 import { readFileSync } from 'node:fs';
 import { cpus, hostname, totalmem } from 'node:os';
 import { join } from 'node:path';
+import {
+  benchmarkRoot,
+  syncularCheckoutLabel,
+  syncularRoot,
+} from './paths';
 import type { JsonObject, StackId, StackSpec } from './types';
 
-const root = '/Users/bkniffler/GitHub/sync/offline-sync-bench';
-const syncularRoot = '/Users/bkniffler/GitHub/sync/syncular';
-const packageJsonPath = join(root, 'package.json');
+const packageJsonPath = join(benchmarkRoot, 'package.json');
 
 interface PackageJsonFile {
   version?: string;
@@ -27,7 +30,7 @@ export function getBenchmarkEnvironmentMetadata(): JsonObject {
   const firstCpu = cpuList[0];
 
   environmentCache = {
-    benchmarkRoot: root,
+    benchmarkRoot: '.',
     bunVersion: Bun.version,
     packageManager: rootPackageJson.packageManager ?? 'unknown',
     platform: process.platform,
@@ -171,7 +174,7 @@ function buildLocalSyncularVersionMetadata(): {
 
   return {
     frameworkVersion,
-    versionSource: 'local syncular checkout at /Users/bkniffler/GitHub/sync/syncular',
+    versionSource: `local syncular checkout at ${syncularCheckoutLabel}`,
     versionComponents: {
       rootVersion,
       gitHead,
@@ -188,7 +191,7 @@ function buildLocalSyncularVersionMetadata(): {
 
 function readInstalledPackageVersion(packageName: string): string | null {
   const packageJson = readJsonFile<{ version?: string }>(
-    join(root, 'node_modules', packageName, 'package.json')
+    join(benchmarkRoot, 'node_modules', packageName, 'package.json')
   );
   return packageJson?.version ?? null;
 }
@@ -226,7 +229,7 @@ function inspectServiceImageReference(
       serviceName,
     ],
     {
-      cwd: root,
+      cwd: benchmarkRoot,
       stdout: 'pipe',
       stderr: 'pipe',
     }
@@ -244,7 +247,7 @@ function inspectServiceImageReference(
   const imageIdResult = Bun.spawnSync(
     ['docker', 'inspect', '--format', '{{.Image}}', containerId],
     {
-      cwd: root,
+      cwd: benchmarkRoot,
       stdout: 'pipe',
       stderr: 'pipe',
     }
@@ -262,7 +265,7 @@ function inspectServiceImageReference(
   const repoDigestResult = Bun.spawnSync(
     ['docker', 'image', 'inspect', '--format', '{{json .RepoDigests}}', imageId],
     {
-      cwd: root,
+      cwd: benchmarkRoot,
       stdout: 'pipe',
       stderr: 'pipe',
     }
@@ -281,7 +284,7 @@ function inspectServiceImageReference(
   const repoTagsResult = Bun.spawnSync(
     ['docker', 'image', 'inspect', '--format', '{{json .RepoTags}}', imageId],
     {
-      cwd: root,
+      cwd: benchmarkRoot,
       stdout: 'pipe',
       stderr: 'pipe',
     }
@@ -302,7 +305,7 @@ function inspectServiceImageReference(
 
 function readGitOutput(args: string[]): string | null {
   const result = Bun.spawnSync(['git', '-C', syncularRoot, ...args], {
-    cwd: root,
+    cwd: benchmarkRoot,
     stdout: 'pipe',
     stderr: 'pipe',
   });
@@ -317,7 +320,7 @@ function readGitOutput(args: string[]): string | null {
 
 function hasGitChanges(repoRoot: string): boolean | null {
   const result = Bun.spawnSync(['git', '-C', repoRoot, 'status', '--porcelain'], {
-    cwd: root,
+    cwd: benchmarkRoot,
     stdout: 'pipe',
     stderr: 'pipe',
   });

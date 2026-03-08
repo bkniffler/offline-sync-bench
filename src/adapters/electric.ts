@@ -10,6 +10,7 @@ import {
   percentile,
   round,
 } from '../metrics';
+import { tempRoot } from '../paths';
 import {
   ensureStackUp,
   getFixtures,
@@ -67,8 +68,6 @@ interface HttpMeterTotals {
   requestBytes: number;
   responseBytes: number;
 }
-
-const tempRoot = '/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp';
 
 class ElectricOutboxStore {
   readonly #db: Database;

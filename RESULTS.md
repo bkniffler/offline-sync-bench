@@ -92,45 +92,45 @@ Numbers are directly comparable within a scenario, but they may come from differ
 
 ### Bootstrap
 
-- Syncular: [2026-03-08T09-41-34-479Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T09-41-34-479Z/syncular/bootstrap.json)
-- Electric: [2026-03-08T00-04-34-429Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/electric/bootstrap.json)
-- Zero: [2026-03-08T00-04-34-429Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/zero/bootstrap.json)
-- PowerSync: [2026-03-08T00-04-34-429Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/powersync/bootstrap.json)
-- Replicache: [2026-03-08T00-04-34-429Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/replicache/bootstrap.json)
-- LiveStore: [2026-03-08T00-04-34-429Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/livestore/bootstrap.json)
+- Syncular: [2026-03-08T09-41-34-479Z](./.results/2026-03-08T09-41-34-479Z/syncular/bootstrap.json)
+- Electric: [2026-03-08T00-04-34-429Z](./.results/2026-03-08T00-04-34-429Z/electric/bootstrap.json)
+- Zero: [2026-03-08T00-04-34-429Z](./.results/2026-03-08T00-04-34-429Z/zero/bootstrap.json)
+- PowerSync: [2026-03-08T00-04-34-429Z](./.results/2026-03-08T00-04-34-429Z/powersync/bootstrap.json)
+- Replicache: [2026-03-08T00-04-34-429Z](./.results/2026-03-08T00-04-34-429Z/replicache/bootstrap.json)
+- LiveStore: [2026-03-08T00-04-34-429Z](./.results/2026-03-08T00-04-34-429Z/livestore/bootstrap.json)
 
 ### Online propagation
 
-- Syncular: [2026-03-08T09-46-49-140Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T09-46-49-140Z/syncular/online-propagation.json)
-- Electric: [2026-03-08T00-04-34-429Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/electric/online-propagation.json)
-- Zero: [2026-03-08T00-04-34-429Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/zero/online-propagation.json)
-- PowerSync: [2026-03-08T00-04-34-429Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/powersync/online-propagation.json)
-- Replicache: [2026-03-08T00-04-34-429Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/replicache/online-propagation.json)
-- LiveStore: [2026-03-07T23-56-55-477Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-07T23-56-55-477Z/livestore/online-propagation.json)
+- Syncular: [2026-03-08T09-46-49-140Z](./.results/2026-03-08T09-46-49-140Z/syncular/online-propagation.json)
+- Electric: [2026-03-08T00-04-34-429Z](./.results/2026-03-08T00-04-34-429Z/electric/online-propagation.json)
+- Zero: [2026-03-08T00-04-34-429Z](./.results/2026-03-08T00-04-34-429Z/zero/online-propagation.json)
+- PowerSync: [2026-03-08T00-04-34-429Z](./.results/2026-03-08T00-04-34-429Z/powersync/online-propagation.json)
+- Replicache: [2026-03-08T00-04-34-429Z](./.results/2026-03-08T00-04-34-429Z/replicache/online-propagation.json)
+- LiveStore: [2026-03-07T23-56-55-477Z](./.results/2026-03-07T23-56-55-477Z/livestore/online-propagation.json)
 
 ### Offline replay
 
-- Syncular: [2026-03-08T10-05-45-365Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T10-05-45-365Z/syncular/offline-replay.json)
-- Electric: [2026-03-08T00-04-34-429Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/electric/offline-replay.json)
-- PowerSync: [2026-03-08T00-04-34-429Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/powersync/offline-replay.json)
-- Replicache: [2026-03-08T00-04-34-429Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/replicache/offline-replay.json)
+- Syncular: [2026-03-08T10-05-45-365Z](./.results/2026-03-08T10-05-45-365Z/syncular/offline-replay.json)
+- Electric: [2026-03-08T00-04-34-429Z](./.results/2026-03-08T00-04-34-429Z/electric/offline-replay.json)
+- PowerSync: [2026-03-08T00-04-34-429Z](./.results/2026-03-08T00-04-34-429Z/powersync/offline-replay.json)
+- Replicache: [2026-03-08T00-04-34-429Z](./.results/2026-03-08T00-04-34-429Z/replicache/offline-replay.json)
 
 ### Reconnect storm
 
-- Syncular: [2026-03-08T16-19-16-140Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T16-19-16-140Z/syncular/reconnect-storm.json)
-- Electric: [2026-03-08T16-19-16-137Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T16-19-16-137Z/electric/reconnect-storm.json)
+- Syncular: [2026-03-08T16-19-16-140Z](./.results/2026-03-08T16-19-16-140Z/syncular/reconnect-storm.json)
+- Electric: [2026-03-08T16-19-16-137Z](./.results/2026-03-08T16-19-16-137Z/electric/reconnect-storm.json)
 
 ### Large offline queue
 
-- Syncular: [2026-03-08T16-19-53-070Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T16-19-53-070Z/syncular/large-offline-queue.json)
-- Electric: [2026-03-08T16-19-53-066Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T16-19-53-066Z/electric/large-offline-queue.json)
+- Syncular: [2026-03-08T16-19-53-070Z](./.results/2026-03-08T16-19-53-070Z/syncular/large-offline-queue.json)
+- Electric: [2026-03-08T16-19-53-066Z](./.results/2026-03-08T16-19-53-066Z/electric/large-offline-queue.json)
 
 ### Local query
 
-- Syncular: [2026-03-08T16-18-57-341Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T16-18-57-341Z/syncular/local-query.json)
-- Electric: [2026-03-08T16-18-57-337Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T16-18-57-337Z/electric/local-query.json)
+- Syncular: [2026-03-08T16-18-57-341Z](./.results/2026-03-08T16-18-57-341Z/syncular/local-query.json)
+- Electric: [2026-03-08T16-18-57-337Z](./.results/2026-03-08T16-18-57-337Z/electric/local-query.json)
 
 ### Permission-change convergence
 
-- Syncular: [2026-03-08T16-15-35-149Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T16-15-35-149Z/syncular/permission-change.json)
-- Electric: [2026-03-08T16-14-40-432Z](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T16-14-40-432Z/electric/permission-change.json)
+- Syncular: [2026-03-08T16-15-35-149Z](./.results/2026-03-08T16-15-35-149Z/syncular/permission-change.json)
+- Electric: [2026-03-08T16-14-40-432Z](./.results/2026-03-08T16-14-40-432Z/electric/permission-change.json)

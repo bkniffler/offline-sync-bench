@@ -26,6 +26,7 @@ import {
   percentile,
   round,
 } from '../metrics';
+import { tempRoot } from '../paths';
 import {
   ensureStackUp,
   getFixtures,
@@ -88,7 +89,6 @@ interface SyncClientWithSync {
   awaitBootstrapComplete(args?: { timeoutMs?: number }): Promise<unknown>;
 }
 
-const tempRoot = '/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp';
 const SYNCULAR_BENCH_BOOTSTRAP_LIMIT_SNAPSHOT_ROWS = 20_000;
 const SYNCULAR_BENCH_BOOTSTRAP_MAX_SNAPSHOT_PAGES = 100;
 

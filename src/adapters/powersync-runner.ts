@@ -11,6 +11,7 @@ import {
 } from '@powersync/node';
 import { createHttpMeter } from '../http-meter.ts';
 import { average, CpuSampler, MemorySampler, percentile, round } from '../metrics.ts';
+import { benchmarkRoot, tempRoot } from '../paths.ts';
 import { getStack } from '../stacks.ts';
 import type {
   BenchmarkStatus,
@@ -47,7 +48,6 @@ interface PowerSyncSession {
 }
 
 const stack = getStack('powersync');
-const tempRoot = '/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp';
 const scenario = process.argv[2];
 
 const AppSchema = new Schema({
@@ -600,7 +600,7 @@ async function waitForUploadQueueCount(
 
 function runDockerCompose(args: string[]): void {
   const result = spawnSync('docker', ['compose', '-f', stack.composeFile, ...args], {
-    cwd: '/Users/bkniffler/GitHub/sync/offline-sync-bench',
+    cwd: benchmarkRoot,
     encoding: 'utf8',
   });
 

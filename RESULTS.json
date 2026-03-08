@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-03-08T16:23:01.916Z",
+  "generatedAt": "2026-03-08T16:38:51.644Z",
   "latestResults": {
     "bootstrap": {
       "syncular": {
         "runId": "2026-03-08T09-41-34-479Z",
         "finishedAt": "2026-03-08T09:41:43.990Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T09-41-34-479Z/syncular/bootstrap.json",
+        "path": ".results/2026-03-08T09-41-34-479Z/syncular/bootstrap.json",
         "metrics": {
           "bootstrap_1000_ms": 42.03,
           "rows_loaded_1000": 1000,
@@ -43,7 +43,7 @@
       "electric": {
         "runId": "2026-03-08T00-04-34-429Z",
         "finishedAt": "2026-03-08T00:05:16.790Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/electric/bootstrap.json",
+        "path": ".results/2026-03-08T00-04-34-429Z/electric/bootstrap.json",
         "metrics": {
           "bootstrap_1000_ms": 43.37,
           "rows_loaded_1000": 1000,
@@ -81,7 +81,7 @@
       "livestore": {
         "runId": "2026-03-08T00-04-34-429Z",
         "finishedAt": "2026-03-08T00:08:31.353Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/livestore/bootstrap.json",
+        "path": ".results/2026-03-08T00-04-34-429Z/livestore/bootstrap.json",
         "metrics": {
           "bootstrap_1000_ms": 488.38,
           "rows_loaded_1000": 1000,
@@ -109,7 +109,7 @@
       "replicache": {
         "runId": "2026-03-08T00-04-34-429Z",
         "finishedAt": "2026-03-08T00:08:11.086Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/replicache/bootstrap.json",
+        "path": ".results/2026-03-08T00-04-34-429Z/replicache/bootstrap.json",
         "metrics": {
           "bootstrap_1000_ms": 32.33,
           "rows_loaded_1000": 1000,
@@ -147,7 +147,7 @@
       "zero": {
         "runId": "2026-03-08T00-04-34-429Z",
         "finishedAt": "2026-03-08T00:05:30.097Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/zero/bootstrap.json",
+        "path": ".results/2026-03-08T00-04-34-429Z/zero/bootstrap.json",
         "metrics": {
           "bootstrap_1000_ms": 112.72,
           "rows_loaded_1000": 1000,
@@ -185,7 +185,7 @@
       "powersync": {
         "runId": "2026-03-08T00-04-34-429Z",
         "finishedAt": "2026-03-08T00:06:53.225Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/powersync/bootstrap.json",
+        "path": ".results/2026-03-08T00-04-34-429Z/powersync/bootstrap.json",
         "metrics": {
           "bootstrap_1000_ms": 5212.48,
           "rows_loaded_1000": 1000,
@@ -225,7 +225,7 @@
       "electric": {
         "runId": "2026-03-08T00-04-34-429Z",
         "finishedAt": "2026-03-08T00:05:21.935Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/electric/offline-replay.json",
+        "path": ".results/2026-03-08T00-04-34-429Z/electric/offline-replay.json",
         "metrics": {
           "queued_write_count": 10,
           "reconnect_convergence_ms": 37.35,
@@ -245,7 +245,7 @@
       "syncular": {
         "runId": "2026-03-08T10-05-45-365Z",
         "finishedAt": "2026-03-08T10:07:39.981Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T10-05-45-365Z/syncular/offline-replay.json",
+        "path": ".results/2026-03-08T10-05-45-365Z/syncular/offline-replay.json",
         "metrics": {
           "queued_write_count": 10,
           "reconnect_convergence_ms": 142.58,
@@ -265,7 +265,7 @@
       "replicache": {
         "runId": "2026-03-08T00-04-34-429Z",
         "finishedAt": "2026-03-08T00:08:25.929Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/replicache/offline-replay.json",
+        "path": ".results/2026-03-08T00-04-34-429Z/replicache/offline-replay.json",
         "metrics": {
           "queued_mutations": 10,
           "replay_visible_ms": 1253.46,
@@ -283,7 +283,7 @@
       "powersync": {
         "runId": "2026-03-08T00-04-34-429Z",
         "finishedAt": "2026-03-08T00:08:07.468Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/powersync/offline-replay.json",
+        "path": ".results/2026-03-08T00-04-34-429Z/powersync/offline-replay.json",
         "metrics": {
           "queued_write_count": 10,
           "reconnect_convergence_ms": 5191.1,
@@ -305,7 +305,7 @@
       "syncular": {
         "runId": "2026-03-08T16-15-35-149Z",
         "finishedAt": "2026-03-08T16:15:40.099Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T16-15-35-149Z/syncular/permission-change.json",
+        "path": ".results/2026-03-08T16-15-35-149Z/syncular/permission-change.json",
         "metrics": {
           "initial_visible_rows": 1000,
           "post_revoke_visible_rows": 500,
@@ -326,7 +326,7 @@
       "electric": {
         "runId": "2026-03-08T16-14-40-432Z",
         "finishedAt": "2026-03-08T16:14:43.178Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T16-14-40-432Z/electric/permission-change.json",
+        "path": ".results/2026-03-08T16-14-40-432Z/electric/permission-change.json",
         "metrics": {
           "initial_visible_rows": 1000,
           "post_revoke_visible_rows": 500,
@@ -349,7 +349,7 @@
       "syncular": {
         "runId": "2026-03-08T09-46-49-140Z",
         "finishedAt": "2026-03-08T09:48:27.852Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T09-46-49-140Z/syncular/online-propagation.json",
+        "path": ".results/2026-03-08T09-46-49-140Z/syncular/online-propagation.json",
         "metrics": {
           "write_ack_ms": 10.4,
           "mirror_visible_p50_ms": 16.13,
@@ -370,7 +370,7 @@
       "electric": {
         "runId": "2026-03-08T00-04-34-429Z",
         "finishedAt": "2026-03-08T00:05:17.979Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/electric/online-propagation.json",
+        "path": ".results/2026-03-08T00-04-34-429Z/electric/online-propagation.json",
         "metrics": {
           "write_ack_ms": 4.06,
           "mirror_visible_p50_ms": 5.26,
@@ -391,7 +391,7 @@
       "livestore": {
         "runId": "2026-03-07T23-56-55-477Z",
         "finishedAt": "2026-03-08T00:01:12.516Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-07T23-56-55-477Z/livestore/online-propagation.json",
+        "path": ".results/2026-03-07T23-56-55-477Z/livestore/online-propagation.json",
         "metrics": {
           "write_ack_ms": 0.59,
           "mirror_visible_p50_ms": 218.22,
@@ -412,7 +412,7 @@
       "replicache": {
         "runId": "2026-03-08T00-04-34-429Z",
         "finishedAt": "2026-03-08T00:08:12.981Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/replicache/online-propagation.json",
+        "path": ".results/2026-03-08T00-04-34-429Z/replicache/online-propagation.json",
         "metrics": {
           "write_ack_ms": 0.25,
           "mirror_visible_p50_ms": 31.78,
@@ -433,7 +433,7 @@
       "zero": {
         "runId": "2026-03-08T00-04-34-429Z",
         "finishedAt": "2026-03-08T00:05:33.410Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/zero/online-propagation.json",
+        "path": ".results/2026-03-08T00-04-34-429Z/zero/online-propagation.json",
         "metrics": {
           "write_ack_ms": 50.64,
           "mirror_visible_p50_ms": 41.56,
@@ -454,7 +454,7 @@
       "powersync": {
         "runId": "2026-03-08T00-04-34-429Z",
         "finishedAt": "2026-03-08T00:07:29.861Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T00-04-34-429Z/powersync/online-propagation.json",
+        "path": ".results/2026-03-08T00-04-34-429Z/powersync/online-propagation.json",
         "metrics": {
           "write_ack_ms": 0.52,
           "mirror_visible_p50_ms": 995.21,
@@ -477,7 +477,7 @@
       "electric": {
         "runId": "2026-03-08T16-19-53-066Z",
         "finishedAt": "2026-03-08T16:20:02.345Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T16-19-53-066Z/electric/large-offline-queue.json",
+        "path": ".results/2026-03-08T16-19-53-066Z/electric/large-offline-queue.json",
         "metrics": {
           "queue_20_queued_writes": 20,
           "queue_20_convergence_ms": 55.9,
@@ -493,7 +493,7 @@
       "syncular": {
         "runId": "2026-03-08T16-19-53-070Z",
         "finishedAt": "2026-03-08T16:20:22.289Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T16-19-53-070Z/syncular/large-offline-queue.json",
+        "path": ".results/2026-03-08T16-19-53-070Z/syncular/large-offline-queue.json",
         "metrics": {
           "queue_20_queued_writes": 20,
           "queue_20_convergence_ms": 186.64,
@@ -511,7 +511,7 @@
       "electric": {
         "runId": "2026-03-08T16-18-57-337Z",
         "finishedAt": "2026-03-08T16:19:03.435Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T16-18-57-337Z/electric/local-query.json",
+        "path": ".results/2026-03-08T16-18-57-337Z/electric/local-query.json",
         "metrics": {
           "row_count": 100000,
           "iterations": 25,
@@ -534,7 +534,7 @@
       "syncular": {
         "runId": "2026-03-08T16-18-57-341Z",
         "finishedAt": "2026-03-08T16:19:09.704Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T16-18-57-341Z/syncular/local-query.json",
+        "path": ".results/2026-03-08T16-18-57-341Z/syncular/local-query.json",
         "metrics": {
           "row_count": 100000,
           "iterations": 25,
@@ -559,7 +559,7 @@
       "syncular": {
         "runId": "2026-03-08T16-19-16-140Z",
         "finishedAt": "2026-03-08T16:19:45.415Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T16-19-16-140Z/syncular/reconnect-storm.json",
+        "path": ".results/2026-03-08T16-19-16-140Z/syncular/reconnect-storm.json",
         "metrics": {
           "client_count": 25,
           "reconnect_convergence_ms": 182.58,
@@ -585,7 +585,7 @@
       "electric": {
         "runId": "2026-03-08T16-19-16-137Z",
         "finishedAt": "2026-03-08T16:19:35.736Z",
-        "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-08T16-19-16-137Z/electric/reconnect-storm.json",
+        "path": ".results/2026-03-08T16-19-16-137Z/electric/reconnect-storm.json",
         "metrics": {
           "client_count": 25,
           "reconnect_convergence_ms": 29.59,

@@ -2,11 +2,9 @@ import { Database } from 'bun:sqlite';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { getMethodologyManifest } from './methodology';
+import { catalogPath, resultsRoot, toBenchmarkRelativePath } from './paths';
 import { getStack } from './stacks';
 import type { BenchmarkResult, BenchmarkRunContext, JsonObject } from './types';
-
-const resultsRoot = '/Users/bkniffler/GitHub/sync/offline-sync-bench/.results';
-const catalogPath = join(resultsRoot, 'catalog.sqlite');
 
 interface SummaryRow {
   runId: string;
@@ -78,7 +76,7 @@ export async function createRunContext(): Promise<BenchmarkRunContext> {
             insert into runs (run_id, run_dir, created_at)
             values (?, ?, ?)
           `,
-          [runId, runDir, new Date().toISOString()]
+          [runId, toBenchmarkRelativePath(runDir), new Date().toISOString()]
         );
 
         return {
@@ -108,9 +106,9 @@ export async function saveResult(
 ): Promise<string> {
   const scenarioDir = join(context.runDir, result.stackId);
   await mkdir(scenarioDir, { recursive: true });
-  const filePath = join(scenarioDir, `${result.scenarioId}.json`);
+  const absoluteFilePath = join(scenarioDir, `${result.scenarioId}.json`);
 
-  await writeFile(filePath, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
+  await writeFile(absoluteFilePath, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
 
   const db = createCatalog();
   db.run(
@@ -140,7 +138,7 @@ export async function saveResult(
       result.durationMs,
       result.startedAt,
       result.finishedAt,
-      filePath,
+      toBenchmarkRelativePath(absoluteFilePath),
       JSON.stringify(result.metrics),
       JSON.stringify(result.notes),
       JSON.stringify(result.metadata),
@@ -148,7 +146,7 @@ export async function saveResult(
   );
   db.close();
 
-  return filePath;
+  return toBenchmarkRelativePath(absoluteFilePath);
 }
 
 export async function writeSummary(
@@ -217,14 +215,16 @@ export async function writeSummary(
   );
   await writeFile(join(resultsRoot, 'LATEST.csv'), csvSummary, 'utf8');
 
-  return filePath;
+  return toBenchmarkRelativePath(filePath);
 }
 
 function createSummaryRow(
   context: BenchmarkRunContext,
   result: BenchmarkResult
 ): SummaryRow {
-  const filePath = join(context.runDir, result.stackId, `${result.scenarioId}.json`);
+  const filePath = toBenchmarkRelativePath(
+    join(context.runDir, result.stackId, `${result.scenarioId}.json`)
+  );
   const stack = getStack(result.stackId);
   return {
     runId: result.runId,

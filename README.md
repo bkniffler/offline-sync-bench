@@ -6,7 +6,7 @@ This repo stays separate from any one product repo. The goal is to compare syste
 
 Current readable report:
 
-- [RESULTS.md](/Users/bkniffler/GitHub/sync/offline-sync-bench/RESULTS.md)
+- [RESULTS.md](./RESULTS.md)
 
 ## Principles
 
@@ -27,14 +27,14 @@ Current readable report:
 
 Detailed specs live in:
 
-- [docs/scenarios/bootstrap.md](/Users/bkniffler/GitHub/sync/offline-sync-bench/docs/scenarios/bootstrap.md)
-- [docs/scenarios/online-propagation.md](/Users/bkniffler/GitHub/sync/offline-sync-bench/docs/scenarios/online-propagation.md)
-- [docs/scenarios/offline-replay.md](/Users/bkniffler/GitHub/sync/offline-sync-bench/docs/scenarios/offline-replay.md)
-- [docs/scenarios/reconnect-storm.md](/Users/bkniffler/GitHub/sync/offline-sync-bench/docs/scenarios/reconnect-storm.md)
-- [docs/scenarios/large-offline-queue.md](/Users/bkniffler/GitHub/sync/offline-sync-bench/docs/scenarios/large-offline-queue.md)
-- [docs/scenarios/local-query.md](/Users/bkniffler/GitHub/sync/offline-sync-bench/docs/scenarios/local-query.md)
-- [docs/scenarios/permission-change.md](/Users/bkniffler/GitHub/sync/offline-sync-bench/docs/scenarios/permission-change.md)
-- [docs/methodology.md](/Users/bkniffler/GitHub/sync/offline-sync-bench/docs/methodology.md)
+- [docs/scenarios/bootstrap.md](./docs/scenarios/bootstrap.md)
+- [docs/scenarios/online-propagation.md](./docs/scenarios/online-propagation.md)
+- [docs/scenarios/offline-replay.md](./docs/scenarios/offline-replay.md)
+- [docs/scenarios/reconnect-storm.md](./docs/scenarios/reconnect-storm.md)
+- [docs/scenarios/large-offline-queue.md](./docs/scenarios/large-offline-queue.md)
+- [docs/scenarios/local-query.md](./docs/scenarios/local-query.md)
+- [docs/scenarios/permission-change.md](./docs/scenarios/permission-change.md)
+- [docs/methodology.md](./docs/methodology.md)
 
 ## Stacks
 
@@ -87,7 +87,7 @@ Detailed specs live in:
   - `local-query`: `unsupported`
   - `permission-change`: `unsupported`
 
-Each stack is defined with Docker Compose under [`stacks/`](/Users/bkniffler/GitHub/sync/offline-sync-bench/stacks).
+Each stack is defined with Docker Compose under [`stacks/`](./stacks/).
 
 ## Shared admin service
 
@@ -189,11 +189,11 @@ The benchmark harness is operational for six stacks, with the expanded scenario 
 The older full-matrix artifact set is still useful for the first six-stack comparison:
 
 - run ID: `2026-03-07T23-10-07-008Z`
-- markdown summary: [.results/2026-03-07T23-10-07-008Z/SUMMARY.md](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-07T23-10-07-008Z/SUMMARY.md)
-- json summary: [.results/2026-03-07T23-10-07-008Z/SUMMARY.json](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-07T23-10-07-008Z/SUMMARY.json)
-- csv summary: [.results/2026-03-07T23-10-07-008Z/SUMMARY.csv](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-07T23-10-07-008Z/SUMMARY.csv)
-- run manifest: [.results/2026-03-07T23-10-07-008Z/RUN_MANIFEST.json](/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/2026-03-07T23-10-07-008Z/RUN_MANIFEST.json)
+- markdown summary: [.results/2026-03-07T23-10-07-008Z/SUMMARY.md](./.results/2026-03-07T23-10-07-008Z/SUMMARY.md)
+- json summary: [.results/2026-03-07T23-10-07-008Z/SUMMARY.json](./.results/2026-03-07T23-10-07-008Z/SUMMARY.json)
+- csv summary: [.results/2026-03-07T23-10-07-008Z/SUMMARY.csv](./.results/2026-03-07T23-10-07-008Z/SUMMARY.csv)
+- run manifest: [.results/2026-03-07T23-10-07-008Z/RUN_MANIFEST.json](./.results/2026-03-07T23-10-07-008Z/RUN_MANIFEST.json)
 
 The current gaps are primarily broader scenario coverage for the non-Syncular/Electric stacks and cleanup/archive tooling, not missing core adapters or missing resource telemetry.
 
-See [TODO.md](/Users/bkniffler/GitHub/sync/offline-sync-bench/TODO.md) for the remaining work.
+See [TODO.md](./TODO.md) for the remaining work.

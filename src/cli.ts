@@ -8,6 +8,7 @@ import { runOfflineReplayScenario } from './runners/offline-replay';
 import { runOnlinePropagationScenario } from './runners/online-propagation';
 import { runPermissionChangeScenario } from './runners/permission-change';
 import { runReconnectStormScenario } from './runners/reconnect-storm';
+import { catalogPath } from './paths';
 import { scenarios } from './scenarios';
 import { stacks } from './stacks';
 import { createRunContext, saveResult, writeSummary } from './store';
@@ -278,10 +279,7 @@ async function runAllCommand(): Promise<void> {
 }
 
 function printCatalog(): void {
-  const db = new Database(
-    '/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/catalog.sqlite',
-    { create: true }
-  );
+  const db = new Database(catalogPath, { create: true });
   const rows = db
     .query(
       `

@@ -1,3 +1,4 @@
+import { syncularCheckoutLabel } from './paths';
 import { scenarios } from './scenarios';
 import { stacks } from './stacks';
 import type { JsonObject } from './types';
@@ -9,7 +10,7 @@ export function getMethodologyManifest(): JsonObject {
     policyVersion: benchmarkPolicyVersion,
     benchmarkMode: 'local-syncular-checkout-vs-published-others',
     benchmarkModeNotes: [
-      'Syncular is currently benchmarked from the local checkout in /Users/bkniffler/GitHub/sync/syncular for both the host-side client path and the Dockerized server stack.',
+      `Syncular is currently benchmarked from the local checkout in ${syncularCheckoutLabel} for both the host-side client path and the Dockerized server stack.`,
       'The other stacks are benchmarked from the package versions and image references installed in offline-sync-bench itself.',
       'These development runs should not be presented as published-package apples-to-apples results without either publishing the local Syncular build or switching the harness back to published packages.',
       'The benchmark compares workload outcomes per scenario, not a single cross-framework score.',
