@@ -1,0 +1,104 @@
+name: offline-sync-bench-powersync
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: bench
+      POSTGRES_USER: bench
+      POSTGRES_PASSWORD: bench
+    ports:
+      - "55435:5432"
+    volumes:
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+      - powersync-bench-pgdata:/var/lib/postgresql/data
+    command:
+      - postgres
+      - -c
+      - wal_level=logical
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bench -d bench"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  storage-postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: powersync_storage
+      POSTGRES_USER: bench
+      POSTGRES_PASSWORD: bench
+    ports:
+      - "55436:5432"
+    volumes:
+      - powersync-storage-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bench -d powersync_storage"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build:
+      context: ../../
+      dockerfile: services/powersync-bench-app/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://bench:bench@postgres:5432/bench
+      PORT: "3000"
+      POWERSYNC_AUDIENCE: powersync
+      POWERSYNC_ISSUER: powersync-bench
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3218:3000"
+
+  powersync:
+    image: journeyapps/powersync-service:latest
+    command: ["start", "-r", "unified"]
+    volumes:
+      - ./config:/config:ro
+    environment:
+      POWERSYNC_CONFIG_PATH: /config/service.yaml
+      PS_DATA_SOURCE_URI: postgres://bench:bench@postgres:5432/bench
+      PS_STORAGE_SOURCE_URI: postgres://bench:bench@storage-postgres:5432/powersync_storage
+      PS_JWKS_URL: http://app:3000/api/auth/keys
+      PS_PORT: "8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      storage-postgres:
+        condition: service_healthy
+      app:
+        condition: service_started
+    ports:
+      - "3217:8080"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:8080/probes/liveness').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"
+        ]
+      interval: 5s
+      timeout: 2s
+      retries: 20
+
+  admin:
+    build:
+      context: ../../
+      dockerfile: services/bench-admin/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://bench:bench@postgres:5432/bench
+      PORT: "3000"
+      STACK_ID: powersync
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3219:3000"
+
+volumes:
+  powersync-bench-pgdata:
+  powersync-storage-pgdata:

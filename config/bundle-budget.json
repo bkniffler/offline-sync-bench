@@ -1,0 +1,12 @@
+{
+  "targets": [
+    {
+      "id": "syncular-client-local-root",
+      "label": "Syncular canonical browser client",
+      "baselineRawKb": 156.82,
+      "baselineGzipKb": 38.05,
+      "maxRawKb": 165,
+      "maxGzipKb": 41
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "powersync-bench-app",
+  "private": true,
+  "type": "module",
+  "packageManager": "bun@1.3.9",
+  "dependencies": {
+    "hono": "^4.12.5",
+    "jose": "^6.2.0",
+    "postgres": "^3.4.8"
+  }
+}

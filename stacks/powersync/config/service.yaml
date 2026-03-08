@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=https://unpkg.com/@powersync/service-schema@latest/json-schema/powersync-config.json
+
+telemetry:
+  disable_telemetry_sharing: true
+
+replication:
+  connections:
+    - type: postgresql
+      uri: !env PS_DATA_SOURCE_URI
+      sslmode: disable
+
+storage:
+  type: postgresql
+  uri: !env PS_STORAGE_SOURCE_URI
+  sslmode: disable
+
+port: !env PS_PORT
+
+sync_rules:
+  content: |
+    bucket_definitions:
+      global:
+        data:
+          - SELECT id, org_id, project_id, owner_id, title, completed, server_version, updated_at FROM tasks
+
+client_auth:
+  jwks_uri: !env PS_JWKS_URL
+  audience: ["powersync"]
+
+api:
+  tokens:
+    - powersync-bench-admin
+
+system:
+  logging:
+    level: warn
+    format: text

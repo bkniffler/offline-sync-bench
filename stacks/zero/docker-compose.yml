@@ -1,0 +1,95 @@
+name: offline-sync-bench-zero
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: bench
+      POSTGRES_USER: bench
+      POSTGRES_PASSWORD: bench
+    ports:
+      - "55434:5432"
+    volumes:
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+      - zero-bench-pgdata:/var/lib/postgresql/data
+    command:
+      - postgres
+      - -c
+      - wal_level=logical
+      - -c
+      - max_wal_senders=10
+      - -c
+      - max_replication_slots=10
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bench -d bench"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build:
+      context: ../../
+      dockerfile: services/zero-bench-app/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://bench:bench@postgres:5432/bench
+      PORT: "3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3215:3000"
+
+  zero-cache:
+    build:
+      context: ./zero-cache
+      dockerfile: Dockerfile
+    environment:
+      ZERO_UPSTREAM_DB: postgresql://bench:bench@postgres:5432/bench?sslmode=disable
+      ZERO_PORT: "4848"
+      ZERO_APP_ID: zero_bench
+      ZERO_REPLICA_FILE: /data/zero.db
+      ZERO_QUERY_URL: http://app:3000/zero/query
+      ZERO_MUTATE_URL: http://app:3000/zero/mutate
+      ZERO_AUTH_SECRET: benchsecret
+      ZERO_ADMIN_PASSWORD: benchadmin
+      ZERO_ENABLE_TELEMETRY: "false"
+      ZERO_LOG_LEVEL: error
+      ZERO_LOG_FORMAT: text
+    depends_on:
+      postgres:
+        condition: service_healthy
+      app:
+        condition: service_started
+    ports:
+      - "3214:4848"
+    volumes:
+      - zero-bench-replica:/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:4848/statz').then(r => (r.status === 200 || r.status === 401 || r.status === 403) ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  admin:
+    build:
+      context: ../../
+      dockerfile: services/bench-admin/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://bench:bench@postgres:5432/bench
+      PORT: "3000"
+      STACK_ID: zero
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3216:3000"
+
+volumes:
+  zero-bench-pgdata:
+  zero-bench-replica:

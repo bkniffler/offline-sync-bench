@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "baseUrl": ".",
+    "paths": {
+      "@syncular/client": ["../syncular/packages/client/src/index.ts"],
+      "@syncular/core": ["../syncular/packages/core/src/index.ts"],
+      "@syncular/dialect-bun-sqlite": [
+        "../syncular/packages/dialect-bun-sqlite/src/index.ts"
+      ],
+      "@syncular/transport-http": [
+        "../syncular/packages/transport-http/src/index.ts"
+      ],
+      "@syncular/transport-ws": [
+        "../syncular/packages/transport-ws/src/index.ts"
+      ]
+    },
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "types": ["bun"],
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "services/bench-admin/src/**/*.ts",
+    "services/livestore-bench-app/src/**/*.ts",
+    "services/replicache-bench-app/src/**/*.ts",
+    "services/zero-bench-app/src/**/*.ts",
+    "services/powersync-bench-app/src/**/*.ts"
+  ]
+}

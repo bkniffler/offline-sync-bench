@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=https://unpkg.com/@powersync/service-sync-rules@latest/schema/sync_rules.json
+
+config:
+  edition: 3
+
+streams:
+  global:
+    auto_subscribe: true
+    queries:
+      - SELECT id, org_id, project_id, owner_id, title, completed, server_version, updated_at FROM tasks

@@ -1,0 +1,67 @@
+name: offline-sync-bench-electric
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: bench
+      POSTGRES_USER: bench
+      POSTGRES_PASSWORD: bench
+    ports:
+      - "55433:5432"
+    volumes:
+      - ./postgres.conf:/etc/postgresql/postgresql.conf:ro
+      - electric-bench-pgdata:/var/lib/postgresql/data
+    command:
+      - postgres
+      - -c
+      - config_file=/etc/postgresql/postgresql.conf
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bench -d bench"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  electric:
+    image: electricsql/electric:canary
+    environment:
+      DATABASE_URL: postgresql://bench:bench@postgres:5432/bench?sslmode=disable
+      ELECTRIC_INSECURE: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3213:3000"
+
+  app:
+    build:
+      context: ../../
+      dockerfile: stacks/electric/app/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://bench:bench@postgres:5432/bench
+      ELECTRIC_BASE_URL: http://electric:3000
+      PORT: "3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      electric:
+        condition: service_started
+    ports:
+      - "3224:3000"
+
+  admin:
+    build:
+      context: ../../
+      dockerfile: services/bench-admin/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://bench:bench@postgres:5432/bench
+      PORT: "3000"
+      STACK_ID: electric
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3212:3000"
+
+volumes:
+  electric-bench-pgdata:

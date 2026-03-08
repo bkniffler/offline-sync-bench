@@ -1,0 +1,24 @@
+{
+  "name": "offline-sync-bench-syncular-app",
+  "private": true,
+  "type": "module",
+  "packageManager": "bun@1.3.9",
+  "scripts": {
+    "start": "bun src/index.ts",
+    "typecheck": "bunx tsc --noEmit"
+  },
+  "dependencies": {
+    "@syncular/server": "^0.0.6-185",
+    "@syncular/server-dialect-postgres": "^0.0.6-185",
+    "@syncular/server-hono": "^0.0.6-185",
+    "hono": "^4.12.5",
+    "kysely": "^0.28.11",
+    "pg": "^8.20.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.10",
+    "@types/pg": "^8.18.0",
+    "typescript": "^5.9.3"
+  }
+}
