@@ -2,6 +2,7 @@
 
 This report is generated from the latest successful result for each stack/scenario pair under `.results/`.
 Numbers are directly comparable within a scenario, but they may come from different run IDs because newer scenarios are being iterated independently.
+Reconnect Storm and Large Offline Queue headline tables prefer current-version medians from recent successful runs when available.
 
 ## Highlights
 
@@ -59,18 +60,18 @@ Numbers are directly comparable within a scenario, but they may come from differ
 
 | Stack | 25 clients | 100 clients | 250 clients | Support |
 | --- | --- | --- | --- | --- |
-| Syncular | 141.5 ms | 278.4 ms | 2254 ms | native |
-| Electric | 71.49 ms | 223.0 ms | 2019 ms | native |
+| Syncular | 115.1 ms | 279.7 ms | 2200 ms | native |
+| Electric | 44.84 ms | 223.0 ms | 2019 ms | native |
 | Zero | n/a | n/a | n/a | unsupported |
 | PowerSync | n/a | n/a | n/a | unsupported |
-| Replicache | 84.44 ms | 2040 ms | 14106 ms | native |
+| Replicache | 81.27 ms | 2040 ms | 14106 ms | native |
 | LiveStore | n/a | n/a | n/a | unsupported |
 
 ## Reconnect Storm Repeat Summary
 
 | Stack | Runs | 25 median | 100 median | 250 median |
 | --- | --- | --- | --- | --- |
-| Syncular | 3 | 142.2 ms | 278.4 ms | 2254 ms |
+| Syncular | 3 | 115.1 ms | 279.7 ms | 2200 ms |
 | Electric | 3 | 44.84 ms | 223.0 ms | 2019 ms |
 | Replicache | 2 | 81.27 ms | 2040 ms | 14106 ms |
 
@@ -78,7 +79,7 @@ Numbers are directly comparable within a scenario, but they may come from differ
 
 | Stack | 250 sync avg mem | 250 postgres avg mem | 250 sync avg CPU | 250 postgres avg CPU | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 105.98 MB | 89.21 MB | 1.88% | 1.36% | native |
+| Syncular | 105.50 MB | 85.66 MB | 0.55% | 0.58% | native |
 | Electric | 303.13 MB | 101.40 MB | 2.83% | 0.12% | native |
 | Replicache | 56.70 MB | 78.84 MB | 1.33% | 1.35% | native |
 

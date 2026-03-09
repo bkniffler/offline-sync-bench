@@ -246,6 +246,25 @@ function median(values: number[]): number | null {
   return (left + right) / 2;
 }
 
+function medianMetricFromRecentResults(args: {
+  latest: Map<ScenarioId, Map<StackId, StoredBenchmarkResult[]>>;
+  scenarioId: ScenarioId;
+  stackId: StackId;
+  limit: number;
+  metricKeys: string[];
+}): number | null {
+  const recentResults = getRecentResults({
+    latest: args.latest,
+    scenarioId: args.scenarioId,
+    stackId: args.stackId,
+    limit: args.limit,
+  });
+  const samples = recentResults
+    .map((result) => firstMetric(result.metrics, args.metricKeys))
+    .filter((value): value is number => typeof value === 'number');
+  return median(samples);
+}
+
 async function readJsonFile<T>(filePath: string): Promise<T> {
   return JSON.parse(await readFile(filePath, 'utf8')) as T;
 }
@@ -309,6 +328,9 @@ async function main(): Promise<void> {
   );
   sections.push(
     'Numbers are directly comparable within a scenario, but they may come from different run IDs because newer scenarios are being iterated independently.'
+  );
+  sections.push(
+    'Reconnect Storm and Large Offline Queue headline tables prefer current-version medians from recent successful runs when available.'
   );
   sections.push('');
   sections.push('## Highlights');
@@ -522,16 +544,38 @@ async function main(): Promise<void> {
   const stormRows = stackOrder
     .map((stackId) => {
       const result = getResult(latest, 'reconnect-storm', stackId);
+      const median25 = medianMetricFromRecentResults({
+        latest,
+        scenarioId: 'reconnect-storm',
+        stackId,
+        limit: 3,
+        metricKeys: ['clients_25_convergence_ms', 'reconnect_convergence_ms'],
+      });
+      const median100 = medianMetricFromRecentResults({
+        latest,
+        scenarioId: 'reconnect-storm',
+        stackId,
+        limit: 3,
+        metricKeys: ['clients_100_convergence_ms'],
+      });
+      const median250 = medianMetricFromRecentResults({
+        latest,
+        scenarioId: 'reconnect-storm',
+        stackId,
+        limit: 3,
+        metricKeys: ['clients_250_convergence_ms'],
+      });
       return [
         stackTitle(stackId),
         formatMs(
-          firstMetric(result?.metrics ?? {}, [
-            'clients_25_convergence_ms',
-            'reconnect_convergence_ms',
-          ])
+          median25 ??
+            firstMetric(result?.metrics ?? {}, [
+              'clients_25_convergence_ms',
+              'reconnect_convergence_ms',
+            ])
         ),
-        formatMs(result?.metrics.clients_100_convergence_ms),
-        formatMs(result?.metrics.clients_250_convergence_ms),
+        formatMs(median100 ?? result?.metrics.clients_100_convergence_ms),
+        formatMs(median250 ?? result?.metrics.clients_250_convergence_ms),
         formatSupport({ result, scenarioId: 'reconnect-storm', stackId }),
       ];
     });
@@ -654,12 +698,40 @@ async function main(): Promise<void> {
   const queueRows = stackOrder
     .map((stackId) => {
       const result = getResult(latest, 'large-offline-queue', stackId);
+      const median100 = medianMetricFromRecentResults({
+        latest,
+        scenarioId: 'large-offline-queue',
+        stackId,
+        limit: 3,
+        metricKeys: ['queue_100_convergence_ms'],
+      });
+      const median500 = medianMetricFromRecentResults({
+        latest,
+        scenarioId: 'large-offline-queue',
+        stackId,
+        limit: 3,
+        metricKeys: ['queue_500_convergence_ms'],
+      });
+      const median1000 = medianMetricFromRecentResults({
+        latest,
+        scenarioId: 'large-offline-queue',
+        stackId,
+        limit: 3,
+        metricKeys: ['queue_1000_convergence_ms'],
+      });
+      const median1000Reqs = medianMetricFromRecentResults({
+        latest,
+        scenarioId: 'large-offline-queue',
+        stackId,
+        limit: 3,
+        metricKeys: ['queue_1000_request_count'],
+      });
       return [
         stackTitle(stackId),
-        formatMs(result?.metrics.queue_100_convergence_ms),
-        formatMs(result?.metrics.queue_500_convergence_ms),
-        formatMs(result?.metrics.queue_1000_convergence_ms),
-        formatCount(result?.metrics.queue_1000_request_count),
+        formatMs(median100 ?? result?.metrics.queue_100_convergence_ms),
+        formatMs(median500 ?? result?.metrics.queue_500_convergence_ms),
+        formatMs(median1000 ?? result?.metrics.queue_1000_convergence_ms),
+        formatCount(median1000Reqs ?? result?.metrics.queue_1000_request_count),
         formatSupport({ result, scenarioId: 'large-offline-queue', stackId }),
       ];
     });
