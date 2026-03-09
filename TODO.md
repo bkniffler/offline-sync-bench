@@ -49,7 +49,7 @@
 ## Coverage
 
 - [x] Mark support levels as `native` / `emulated` / `unsupported`
-- [x] Add reconnect storm / fan-in recovery for Syncular and Electric
+- [x] Add reconnect storm / fan-in recovery for Syncular, Electric, and Replicache
 - [x] Add a larger offline queue replay scenario for Syncular and Electric
 - [x] Extend large-offline-queue to 100 / 500 / 1000 queued writes for Syncular, Replicache, and PowerSync
 - [x] Add local-query benchmarking for Syncular and Electric

@@ -63,7 +63,7 @@ Numbers are directly comparable within a scenario, but they may come from differ
 | Electric | 25 | 44.84 ms | 277.15 MB | 63.14 MB | native |
 | Zero | n/a | n/a | n/a | n/a | native |
 | PowerSync | n/a | n/a | n/a | n/a | native |
-| Replicache | n/a | n/a | n/a | n/a | native |
+| Replicache | 25 | 78.09 ms | 58.85 MB | 75.73 MB | native |
 | LiveStore | n/a | n/a | n/a | n/a | native |
 
 ## Large Offline Queue
@@ -138,6 +138,6 @@ Numbers are directly comparable within a scenario, but they may come from differ
 
 - `native` means the benchmark uses the product’s normal client model.
 - `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.
-- `unsupported` stacks are intentionally omitted instead of being forced through non-native adapters.
+- `unsupported` rows stay visible as `n/a` so the support matrix remains explicit without inventing benchmark-owned adapters.
 - Bootstrap repeat summary uses the latest three successful 100k-row bootstrap runs per stack when available.
 - Bundle sizes are taken from the named-import browser bundle profile in `.results/BUNDLE_SIZES.json`.

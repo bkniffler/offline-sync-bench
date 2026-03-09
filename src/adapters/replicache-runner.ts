@@ -7,15 +7,24 @@ import {
   type WriteTransaction,
 } from 'replicache';
 import { createHttpMeter } from '../http-meter';
-import { average, CpuSampler, MemorySampler, percentile, round } from '../metrics';
+import {
+  average,
+  CpuSampler,
+  DockerServiceSampler,
+  MemorySampler,
+  percentile,
+  round,
+} from '../metrics';
 import {
   ensureStackUp,
   getFixtures,
   listTasks,
+  resolveServiceContainerId,
   seedStack,
   startService,
   stopService,
   waitForUrl,
+  writeTask,
 } from '../stack-manager';
 import { getStack } from '../stacks';
 import type {
@@ -69,11 +78,12 @@ if (
   scenario !== 'bootstrap' &&
   scenario !== 'online-propagation' &&
   scenario !== 'offline-replay' &&
+  scenario !== 'reconnect-storm' &&
   scenario !== 'large-offline-queue' &&
   scenario !== 'local-query'
 ) {
   throw new Error(
-    'Expected scenario argument: bootstrap | online-propagation | offline-replay | large-offline-queue | local-query'
+    'Expected scenario argument: bootstrap | online-propagation | offline-replay | reconnect-storm | large-offline-queue | local-query'
   );
 }
 
@@ -84,6 +94,8 @@ const result =
       ? await runOnlinePropagation()
       : scenario === 'offline-replay'
         ? await runOfflineReplay()
+        : scenario === 'reconnect-storm'
+          ? await runReconnectStorm()
         : scenario === 'large-offline-queue'
           ? await runLargeOfflineQueue()
           : await runLocalQuery();
@@ -257,6 +269,36 @@ async function waitForReplayConvergence(args: {
   throw new Error('Replicache offline replay did not converge before timeout');
 }
 
+async function waitForStormConvergence(args: {
+  clients: Array<{
+    rep: Replicache<ReplicacheMutators>;
+    taskId: string;
+    expectedTitle: string;
+  }>;
+  timeoutMs?: number;
+}): Promise<void> {
+  const timeoutMs = args.timeoutMs ?? 120_000;
+  const startedAt = Date.now();
+
+  while (Date.now() - startedAt < timeoutMs) {
+    await Promise.all(args.clients.map(async ({ rep }) => rep.pull()));
+
+    const visibility = await Promise.all(
+      args.clients.map(async ({ rep, taskId, expectedTitle }) => {
+        return (await getTaskTitle(rep, taskId)) === expectedTitle;
+      })
+    );
+
+    if (visibility.every(Boolean)) {
+      return;
+    }
+
+    await Bun.sleep(50);
+  }
+
+  throw new Error('Replicache reconnect storm did not converge before timeout');
+}
+
 interface LocalQuerySample {
   elapsedMs: number;
   resultCount: number;
@@ -276,6 +318,50 @@ interface ReplicacheOfflineReplayCaseResult {
   pendingBeforeReconnect: number;
   pendingAfterReplay: number;
   expectedTitles: Map<string, string>;
+}
+
+interface ReplicacheReconnectStormCaseResult {
+  clientCount: number;
+  reconnectConvergenceMs: number;
+  requestCount: number;
+  requestBytes: number;
+  responseBytes: number;
+  bytesTransferred: number;
+  syncAvgCpuPct: number;
+  syncPeakCpuPct: number;
+  syncAvgMemoryMb: number;
+  syncPeakMemoryMb: number;
+  syncRxNetworkMb: number;
+  syncTxNetworkMb: number;
+  postgresAvgCpuPct: number;
+  postgresPeakCpuPct: number;
+  postgresAvgMemoryMb: number;
+  postgresPeakMemoryMb: number;
+  postgresRxNetworkMb: number;
+  postgresTxNetworkMb: number;
+}
+
+function diffMeterTotals(
+  current: {
+    requestCount: number;
+    requestBytes: number;
+    responseBytes: number;
+  },
+  baseline: {
+    requestCount: number;
+    requestBytes: number;
+    responseBytes: number;
+  }
+): {
+  requestCount: number;
+  requestBytes: number;
+  responseBytes: number;
+} {
+  return {
+    requestCount: Math.max(0, current.requestCount - baseline.requestCount),
+    requestBytes: Math.max(0, current.requestBytes - baseline.requestBytes),
+    responseBytes: Math.max(0, current.responseBytes - baseline.responseBytes),
+  };
 }
 
 function runReplicacheLocalListQuery(args: {
@@ -577,6 +663,42 @@ async function runOfflineReplay(): Promise<RunnerResult> {
   };
 }
 
+async function runReconnectStorm(): Promise<RunnerResult> {
+  const result = await runReconnectStormCase({ clientCount: 25 });
+
+  return {
+    status: 'completed',
+    metrics: {
+      client_count: result.clientCount,
+      reconnect_convergence_ms: result.reconnectConvergenceMs,
+      request_count: result.requestCount,
+      request_bytes: result.requestBytes,
+      response_bytes: result.responseBytes,
+      bytes_transferred: result.bytesTransferred,
+      sync_avg_cpu_pct: result.syncAvgCpuPct,
+      sync_peak_cpu_pct: result.syncPeakCpuPct,
+      sync_avg_memory_mb: result.syncAvgMemoryMb,
+      sync_peak_memory_mb: result.syncPeakMemoryMb,
+      sync_rx_network_mb: result.syncRxNetworkMb,
+      sync_tx_network_mb: result.syncTxNetworkMb,
+      postgres_avg_cpu_pct: result.postgresAvgCpuPct,
+      postgres_peak_cpu_pct: result.postgresPeakCpuPct,
+      postgres_avg_memory_mb: result.postgresAvgMemoryMb,
+      postgres_peak_memory_mb: result.postgresPeakMemoryMb,
+      postgres_rx_network_mb: result.postgresRxNetworkMb,
+      postgres_tx_network_mb: result.postgresTxNetworkMb,
+    },
+    notes: [
+      'Reconnect storm keeps 25 native Replicache clients bootstrapped, restarts the sync app, applies one external write, and measures convergence once every client has pulled the updated title.',
+      'Request counts and transfer volume are aggregated across all clients after the restart.',
+    ],
+    metadata: {
+      implementation: 'replicache-client-reconnect-storm',
+      productVersion: '15.3.0',
+    },
+  };
+}
+
 async function runLargeOfflineQueue(): Promise<RunnerResult> {
   const queueSizes = [100, 500, 1000];
   const queueResults: ReplicacheOfflineReplayCaseResult[] = [];
@@ -835,6 +957,107 @@ async function runOfflineReplayCase(args: {
     }
     await writer.close();
     await reader.close();
+  }
+}
+
+async function runReconnectStormCase(args: {
+  clientCount: number;
+}): Promise<ReplicacheReconnectStormCaseResult> {
+  await ensureStackUp('replicache');
+  await seedStack('replicache', {
+    resetFirst: true,
+    orgCount: 1,
+    projectsPerOrg: 1,
+    usersPerOrg: 2,
+    tasksPerProject: 200,
+    membershipsPerProject: 2,
+  });
+
+  const fixtures = await getFixtures('replicache');
+  const taskId = fixtures.sampleTaskId;
+  if (!taskId) {
+    throw new Error('Replicache fixtures are missing task data');
+  }
+
+  const baseFetch = globalThis.fetch;
+  const meter = createHttpMeter(baseFetch);
+  globalThis.fetch = meter.fetch;
+
+  const clients = await Promise.all(
+    Array.from({ length: args.clientCount }, async (_, index) => {
+      const rep = createReplicacheClient(`replicache-storm-${index}-${randomUUID()}`);
+      await waitForTaskCount({ rep, expectedRows: 200, timeoutMs: 120_000 });
+      return { rep };
+    })
+  );
+
+  try {
+    const baseline = meter.snapshot();
+    const syncContainerId = resolveServiceContainerId('replicache', 'sync');
+    const postgresContainerId = resolveServiceContainerId('replicache', 'postgres');
+
+    stopService('replicache', 'sync');
+    await waitForAppDown();
+    startService('replicache', 'sync');
+    await waitForUrl(`${stack.appBaseUrl}/health`);
+
+    const sampler = new DockerServiceSampler([
+      { label: 'sync', id: syncContainerId },
+      { label: 'postgres', id: postgresContainerId },
+    ]);
+    sampler.start();
+
+    const expectedTitle = `replicache-storm-${Date.now()}`;
+    const startedAt = performance.now();
+    await writeTask('replicache', {
+      taskId,
+      title: expectedTitle,
+    });
+
+    await waitForStormConvergence({
+      clients: clients.map((client) => ({
+        rep: client.rep,
+        taskId,
+        expectedTitle,
+      })),
+      timeoutMs: 120_000,
+    });
+
+    const convergenceMs = performance.now() - startedAt;
+    const containerMetrics = sampler.stop();
+    const totalMeter = diffMeterTotals(meter.snapshot(), baseline);
+
+    const syncMetrics = containerMetrics.sync;
+    const postgresMetrics = containerMetrics.postgres;
+
+    return {
+      clientCount: args.clientCount,
+      reconnectConvergenceMs: round(convergenceMs),
+      requestCount: totalMeter.requestCount,
+      requestBytes: totalMeter.requestBytes,
+      responseBytes: totalMeter.responseBytes,
+      bytesTransferred: totalMeter.requestBytes + totalMeter.responseBytes,
+      syncAvgCpuPct: syncMetrics?.avgCpuPct ?? 0,
+      syncPeakCpuPct: syncMetrics?.peakCpuPct ?? 0,
+      syncAvgMemoryMb: syncMetrics?.avgMemoryMb ?? 0,
+      syncPeakMemoryMb: syncMetrics?.peakMemoryMb ?? 0,
+      syncRxNetworkMb: syncMetrics?.rxNetworkMb ?? 0,
+      syncTxNetworkMb: syncMetrics?.txNetworkMb ?? 0,
+      postgresAvgCpuPct: postgresMetrics?.avgCpuPct ?? 0,
+      postgresPeakCpuPct: postgresMetrics?.peakCpuPct ?? 0,
+      postgresAvgMemoryMb: postgresMetrics?.avgMemoryMb ?? 0,
+      postgresPeakMemoryMb: postgresMetrics?.peakMemoryMb ?? 0,
+      postgresRxNetworkMb: postgresMetrics?.rxNetworkMb ?? 0,
+      postgresTxNetworkMb: postgresMetrics?.txNetworkMb ?? 0,
+    };
+  } finally {
+    globalThis.fetch = baseFetch;
+    try {
+      startService('replicache', 'sync');
+    } catch {
+      // The service may already be running after normal completion.
+    }
+    await Promise.all(clients.map(async (client) => client.rep.close()));
   }
 }
 

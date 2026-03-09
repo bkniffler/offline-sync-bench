@@ -16,6 +16,7 @@ function runReplicacheScenario(
     | 'bootstrap'
     | 'online-propagation'
     | 'offline-replay'
+    | 'reconnect-storm'
     | 'large-offline-queue'
     | 'local-query'
 ) {
@@ -65,10 +66,7 @@ export class ReplicacheBenchmarkAdapter implements BenchmarkAdapter {
   }
 
   async runReconnectStorm() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Reconnect storm is not implemented for Replicache in this harness yet.'],
-    });
+    return runReplicacheScenario('reconnect-storm');
   }
 
   async runLargeOfflineQueue() {

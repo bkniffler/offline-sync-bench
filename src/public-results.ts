@@ -676,7 +676,7 @@ async function main(): Promise<void> {
   sections.push('');
   sections.push('- `native` means the benchmark uses the product’s normal client model.');
   sections.push('- `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.');
-  sections.push('- `unsupported` stacks are intentionally omitted instead of being forced through non-native adapters.');
+  sections.push('- `unsupported` rows stay visible as `n/a` so the support matrix remains explicit without inventing benchmark-owned adapters.');
   sections.push('- Bootstrap repeat summary uses the latest three successful 100k-row bootstrap runs per stack when available.');
   sections.push('- Bundle sizes are taken from the named-import browser bundle profile in `.results/BUNDLE_SIZES.json`.');
   sections.push('');

@@ -146,7 +146,7 @@ export const stacks: StackSpec[] = [
       bootstrap: 'native',
       onlinePropagation: 'native',
       offlineReplay: 'native',
-      reconnectStorm: 'unsupported',
+      reconnectStorm: 'native',
       largeOfflineQueue: 'native',
       localQuery: 'native',
       permissionChange: 'unsupported',

@@ -76,7 +76,7 @@ Detailed specs live in:
   - `bootstrap`: `native`
   - `online-propagation`: `native`
   - `offline-replay`: `native`
-  - `reconnect-storm`: `unsupported`
+  - `reconnect-storm`: `native`
   - `large-offline-queue`: `native`
   - `local-query`: `native`
   - `permission-change`: `unsupported`
@@ -182,7 +182,7 @@ The benchmark harness is operational for six stacks, with the expanded scenario 
 - Syncular: `bootstrap`, `online-propagation`, `offline-replay`, `reconnect-storm`, `large-offline-queue`, `local-query`, `permission-change`, `blob-flow`
 - Electric: `bootstrap`, `online-propagation`, `offline-replay` (emulated), `reconnect-storm`, `large-offline-queue` (emulated), `local-query`, `permission-change`
 - Zero: `bootstrap`, `online-propagation`, `local-query`
-- Replicache: `bootstrap`, `online-propagation`, `offline-replay`, `large-offline-queue`, `local-query`
+- Replicache: `bootstrap`, `online-propagation`, `offline-replay`, `reconnect-storm`, `large-offline-queue`, `local-query`
 - PowerSync: `bootstrap`, `online-propagation`, `offline-replay`, `large-offline-queue`
 
 The older full-matrix artifact set is still useful for the first six-stack comparison:
