@@ -8,7 +8,7 @@ Numbers are directly comparable within a scenario, but they may come from differ
 - Bootstrap at 100k rows (median of the latest 3 runs where available): Electric is at 416.3 ms; Syncular is at 847.1 ms; Replicache is at 991.8 ms.
 - Online propagation: Electric still leads on tail latency (12.72 ms p95), while Syncular is now at 19.47 ms p95 with 11.35 ms write ack.
 - Native offline replay: Syncular currently converges in 92.32 ms, ahead of Replicache (1253 ms) and PowerSync (5191 ms).
-- Permission change (median of the latest 3 runs where available): Syncular converges in 43.56 ms and Electric in 15.96 ms.
+- Permission change (median of the latest 1 runs where available): Syncular converges in 46.90 ms and Electric in 15.96 ms.
 - Client bundle size: Syncular is currently 829.83 KB raw / 238.32 KB gzip for the named-import browser profile.
 - Blob flow: Syncular currently uploads a 524288 byte blob in 17.60 ms, syncs metadata to a second client in 31.71 ms, re-downloads it after cache clear in 7.01 ms, and recovers an interrupted queued upload in 13.23 ms.
 
@@ -59,7 +59,7 @@ Numbers are directly comparable within a scenario, but they may come from differ
 
 | Stack | 25 clients | 100 clients | 250 clients | Support |
 | --- | --- | --- | --- | --- |
-| Syncular | 241.2 ms | 8068 ms | 16127 ms | native |
+| Syncular | 141.5 ms | 278.4 ms | 2254 ms | native |
 | Electric | 71.49 ms | 223.0 ms | 2019 ms | native |
 | Zero | n/a | n/a | n/a | unsupported |
 | PowerSync | n/a | n/a | n/a | unsupported |
@@ -70,7 +70,7 @@ Numbers are directly comparable within a scenario, but they may come from differ
 
 | Stack | Runs | 25 median | 100 median | 250 median |
 | --- | --- | --- | --- | --- |
-| Syncular | 3 | 251.3 ms | 5072 ms | 16138 ms |
+| Syncular | 3 | 142.2 ms | 278.4 ms | 2254 ms |
 | Electric | 3 | 44.84 ms | 223.0 ms | 2019 ms |
 | Replicache | 2 | 81.27 ms | 2040 ms | 14106 ms |
 
@@ -78,7 +78,7 @@ Numbers are directly comparable within a scenario, but they may come from differ
 
 | Stack | 250 sync avg mem | 250 postgres avg mem | 250 sync avg CPU | 250 postgres avg CPU | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 100.86 MB | 100.25 MB | 1.30% | 0.89% | native |
+| Syncular | 105.98 MB | 89.21 MB | 1.88% | 1.36% | native |
 | Electric | 303.13 MB | 101.40 MB | 2.83% | 0.12% | native |
 | Replicache | 56.70 MB | 78.84 MB | 1.33% | 1.35% | native |
 
@@ -97,7 +97,7 @@ Numbers are directly comparable within a scenario, but they may come from differ
 
 | Stack | Runs | 100 median | 500 median | 1000 median | Latest 1000 |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 3 | 389.4 ms | 1994 ms | 3812 ms | 3812 ms |
+| Syncular | 1 | 389.4 ms | 1994 ms | 3812 ms | 3812 ms |
 | PowerSync | 1 | 5466 ms | 6630 ms | 8019 ms | 8019 ms |
 | Replicache | 1 | 1272 ms | 1280 ms | 1362 ms | 1362 ms |
 
@@ -127,7 +127,7 @@ Numbers are directly comparable within a scenario, but they may come from differ
 
 | Stack | Runs | Median | Min | Max | Latest |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 3 | 43.56 ms | 40.75 ms | 46.90 ms | 46.90 ms |
+| Syncular | 1 | 46.90 ms | 46.90 ms | 46.90 ms | 46.90 ms |
 | Electric | 3 | 15.96 ms | 15.25 ms | 39.36 ms | 39.36 ms |
 | Replicache | 1 | 28.16 ms | 28.16 ms | 28.16 ms | 28.16 ms |
 
@@ -146,7 +146,7 @@ Numbers are directly comparable within a scenario, but they may come from differ
 
 | Stack | Runs | Upload median | Metadata median | Latest retry recovery |
 | --- | --- | --- | --- | --- |
-| Syncular | 3 | 18.25 ms | 36.88 ms | 13.23 ms |
+| Syncular | 2 | 20.66 ms | 34.30 ms | 13.23 ms |
 
 ## Client Bundle Size
 
@@ -164,6 +164,7 @@ Numbers are directly comparable within a scenario, but they may come from differ
 - `native` means the benchmark uses the product’s normal client model.
 - `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.
 - `unsupported` rows stay visible as `n/a` so the support matrix remains explicit without inventing benchmark-owned adapters.
-- Bootstrap repeat summary uses the latest five successful 100k-row bootstrap runs per stack when available.
-- Reconnect storm repeat summary uses the latest three successful runs per stack and reports tier medians for 25 / 100 / 250 clients when available.
+- Repeat summaries use the latest successful runs for the current framework version per stack/scenario.
+- Bootstrap repeat summary uses up to five successful 100k-row runs per current version when available.
+- Reconnect storm repeat summary uses up to three successful runs per current version and reports tier medians for 25 / 100 / 250 clients when available.
 - Bundle sizes are taken from the named-import browser bundle profile in `.results/BUNDLE_SIZES.json`.

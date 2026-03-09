@@ -209,7 +209,26 @@ function getRecentResults(args: {
   stackId: StackId;
   limit: number;
 }): StoredBenchmarkResult[] {
-  return args.latest.get(args.scenarioId)?.get(args.stackId)?.slice(0, args.limit) ?? [];
+  const results = args.latest.get(args.scenarioId)?.get(args.stackId) ?? [];
+  const latestResult = results[0];
+  if (!latestResult) {
+    return [];
+  }
+
+  const latestFrameworkVersion =
+    typeof latestResult.metadata?.frameworkVersion === 'string'
+      ? latestResult.metadata.frameworkVersion
+      : null;
+
+  if (!latestFrameworkVersion) {
+    return results.slice(0, args.limit);
+  }
+
+  return results
+    .filter(
+      (result) => result.metadata?.frameworkVersion === latestFrameworkVersion
+    )
+    .slice(0, args.limit);
 }
 
 function median(values: number[]): number | null {
@@ -874,8 +893,9 @@ async function main(): Promise<void> {
   sections.push('- `native` means the benchmark uses the product’s normal client model.');
   sections.push('- `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.');
   sections.push('- `unsupported` rows stay visible as `n/a` so the support matrix remains explicit without inventing benchmark-owned adapters.');
-  sections.push('- Bootstrap repeat summary uses the latest five successful 100k-row bootstrap runs per stack when available.');
-  sections.push('- Reconnect storm repeat summary uses the latest three successful runs per stack and reports tier medians for 25 / 100 / 250 clients when available.');
+  sections.push('- Repeat summaries use the latest successful runs for the current framework version per stack/scenario.');
+  sections.push('- Bootstrap repeat summary uses up to five successful 100k-row runs per current version when available.');
+  sections.push('- Reconnect storm repeat summary uses up to three successful runs per current version and reports tier medians for 25 / 100 / 250 clients when available.');
   sections.push('- Bundle sizes are taken from the named-import browser bundle profile in `.results/BUNDLE_SIZES.json`.');
   sections.push('');
 
