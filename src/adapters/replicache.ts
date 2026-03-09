@@ -19,6 +19,7 @@ function runReplicacheScenario(
     | 'reconnect-storm'
     | 'large-offline-queue'
     | 'local-query'
+    | 'permission-change'
 ) {
   const result = spawnSync('bun', ['src/adapters/replicache-runner.ts', scenario], {
     cwd: benchmarkRoot,
@@ -78,10 +79,7 @@ export class ReplicacheBenchmarkAdapter implements BenchmarkAdapter {
   }
 
   async runPermissionChange() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Permission-change convergence is not implemented for Replicache in this harness yet.'],
-    });
+    return runReplicacheScenario('permission-change');
   }
 
   async runBlobFlow() {

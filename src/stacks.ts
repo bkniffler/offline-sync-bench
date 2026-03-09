@@ -149,7 +149,7 @@ export const stacks: StackSpec[] = [
       reconnectStorm: 'native',
       largeOfflineQueue: 'native',
       localQuery: 'native',
-      permissionChange: 'unsupported',
+      permissionChange: 'native',
       blobFlow: 'unsupported',
     },
     notes: [
@@ -157,6 +157,7 @@ export const stacks: StackSpec[] = [
       'Pull responses currently use full-dataset patches keyed by a derived cookie instead of server-side diffing.',
       'Local-query coverage runs against the native Replicache local store after bootstrap completes.',
       'Large offline queue replay uses the native Replicache pending-mutation queue persisted in fake-indexeddb under Bun.',
+      'Permission-change coverage uses an actor-scoped Replicache pull path derived from project_memberships in the benchmark server.',
     ],
   },
   {

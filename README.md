@@ -79,7 +79,7 @@ Detailed specs live in:
   - `reconnect-storm`: `native`
   - `large-offline-queue`: `native`
   - `local-query`: `native`
-  - `permission-change`: `unsupported`
+  - `permission-change`: `native` via an actor-scoped benchmark-owned BYOB pull path
 - `livestore`
   - `bootstrap`: `native`
   - `online-propagation`: `native`
@@ -105,6 +105,7 @@ Current admin endpoints:
 - `POST /admin/reset`
 - `POST /admin/seed`
 - `POST /admin/write`
+- `POST /admin/revoke-membership`
 
 ## Scripts
 
@@ -182,7 +183,7 @@ The benchmark harness is operational for six stacks, with the expanded scenario 
 - Syncular: `bootstrap`, `online-propagation`, `offline-replay`, `reconnect-storm`, `large-offline-queue`, `local-query`, `permission-change`, `blob-flow`
 - Electric: `bootstrap`, `online-propagation`, `offline-replay` (emulated), `reconnect-storm`, `large-offline-queue` (emulated), `local-query`, `permission-change`
 - Zero: `bootstrap`, `online-propagation`, `local-query`
-- Replicache: `bootstrap`, `online-propagation`, `offline-replay`, `reconnect-storm`, `large-offline-queue`, `local-query`
+- Replicache: `bootstrap`, `online-propagation`, `offline-replay`, `reconnect-storm`, `large-offline-queue`, `local-query`, `permission-change`
 - PowerSync: `bootstrap`, `online-propagation`, `offline-replay`, `large-offline-queue`
 
 The older full-matrix artifact set is still useful for the first six-stack comparison:

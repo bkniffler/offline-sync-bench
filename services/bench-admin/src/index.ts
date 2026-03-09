@@ -16,6 +16,11 @@ interface WriteRequest {
   completed?: boolean;
 }
 
+interface RevokeMembershipRequest {
+  actorId?: string;
+  projectId?: string;
+}
+
 interface TaskRow {
   id: string;
   org_id: string;
@@ -221,6 +226,30 @@ app.post('/admin/write', async (c) => {
   }
 
   return c.json({ ok: true, stackId, row });
+});
+
+app.post('/admin/revoke-membership', async (c) => {
+  const request = await c.req.json<RevokeMembershipRequest>();
+
+  if (!request.actorId || !request.projectId) {
+    return c.json({ ok: false, error: 'ACTOR_AND_PROJECT_REQUIRED' }, 400);
+  }
+
+  const deleted = await sql<{
+    project_id: string;
+    user_id: string;
+  }[]>`
+    delete from project_memberships
+    where project_id = ${request.projectId}
+      and user_id = ${request.actorId}
+    returning project_id, user_id
+  `;
+
+  return c.json({
+    ok: deleted.length > 0,
+    stackId,
+    deletedCount: deleted.length,
+  });
 });
 
 Bun.serve({

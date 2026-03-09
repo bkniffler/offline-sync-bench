@@ -66,6 +66,14 @@ Numbers are directly comparable within a scenario, but they may come from differ
 | Replicache | 25 | 78.09 ms | 58.85 MB | 75.73 MB | native |
 | LiveStore | n/a | n/a | n/a | n/a | native |
 
+## Reconnect Storm Repeat Summary
+
+| Stack | Runs | Median | Min | Max | Latest |
+| --- | --- | --- | --- | --- | --- |
+| Syncular | 3 | 2009 ms | 251.3 ms | 14103 ms | 251.3 ms |
+| Electric | 2 | 37.22 ms | 29.59 ms | 44.84 ms | 44.84 ms |
+| Replicache | 1 | 78.09 ms | 78.09 ms | 78.09 ms | 78.09 ms |
+
 ## Large Offline Queue
 
 | Stack | 100 writes | 500 writes | 1000 writes | 1000 reqs | Support |
@@ -76,6 +84,14 @@ Numbers are directly comparable within a scenario, but they may come from differ
 | PowerSync | 5466 ms | 6630 ms | 8019 ms | 1007 | native |
 | Replicache | 1272 ms | 1280 ms | 1362 ms | 18 | native |
 | LiveStore | n/a | n/a | n/a | n/a | native |
+
+## Large Offline Queue Repeat Summary
+
+| Stack | Runs | 100 median | 500 median | 1000 median | Latest 1000 |
+| --- | --- | --- | --- | --- | --- |
+| Syncular | 3 | 389.4 ms | 1994 ms | 3812 ms | 3812 ms |
+| PowerSync | 1 | 5466 ms | 6630 ms | 8019 ms | 8019 ms |
+| Replicache | 1 | 1272 ms | 1280 ms | 1362 ms | 1362 ms |
 
 ## Local Query
 
@@ -96,7 +112,7 @@ Numbers are directly comparable within a scenario, but they may come from differ
 | Electric | 1000 | 500 | 0 | 500 | 39.36 ms | native |
 | Zero | n/a | n/a | n/a | n/a | n/a | native |
 | PowerSync | n/a | n/a | n/a | n/a | n/a | native |
-| Replicache | n/a | n/a | n/a | n/a | n/a | native |
+| Replicache | 1000 | 500 | 0 | 500 | 28.16 ms | native |
 | LiveStore | n/a | n/a | n/a | n/a | n/a | native |
 
 ## Permission Change Repeat Summary
@@ -105,6 +121,7 @@ Numbers are directly comparable within a scenario, but they may come from differ
 | --- | --- | --- | --- | --- | --- |
 | Syncular | 3 | 43.56 ms | 40.75 ms | 46.90 ms | 46.90 ms |
 | Electric | 3 | 15.96 ms | 15.25 ms | 39.36 ms | 39.36 ms |
+| Replicache | 1 | 28.16 ms | 28.16 ms | 28.16 ms | 28.16 ms |
 
 ## Blob Flow
 

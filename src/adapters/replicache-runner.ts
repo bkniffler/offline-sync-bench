@@ -80,10 +80,11 @@ if (
   scenario !== 'offline-replay' &&
   scenario !== 'reconnect-storm' &&
   scenario !== 'large-offline-queue' &&
-  scenario !== 'local-query'
+  scenario !== 'local-query' &&
+  scenario !== 'permission-change'
 ) {
   throw new Error(
-    'Expected scenario argument: bootstrap | online-propagation | offline-replay | reconnect-storm | large-offline-queue | local-query'
+    'Expected scenario argument: bootstrap | online-propagation | offline-replay | reconnect-storm | large-offline-queue | local-query | permission-change'
   );
 }
 
@@ -96,16 +97,23 @@ const result =
         ? await runOfflineReplay()
         : scenario === 'reconnect-storm'
           ? await runReconnectStorm()
-        : scenario === 'large-offline-queue'
+          : scenario === 'large-offline-queue'
           ? await runLargeOfflineQueue()
-          : await runLocalQuery();
+          : scenario === 'local-query'
+            ? await runLocalQuery()
+            : await runPermissionChange();
 
 await writeResultAndExit(result);
 
-function createReplicacheClient(name: string): Replicache<ReplicacheMutators> {
+function createReplicacheClient(
+  name: string,
+  actorId?: string
+): Replicache<ReplicacheMutators> {
   return new Replicache<ReplicacheMutators>({
     name,
-    pullURL: `${stack.syncBaseUrl}/replicache/pull`,
+    pullURL: actorId
+      ? `${stack.syncBaseUrl}/replicache/pull?actorId=${encodeURIComponent(actorId)}`
+      : `${stack.syncBaseUrl}/replicache/pull`,
     pushURL: `${stack.syncBaseUrl}/replicache/push`,
     schemaVersion: 'offline-sync-bench-v1',
     pullInterval: null,
@@ -175,6 +183,40 @@ async function getTaskTitle(
 ): Promise<string | null> {
   const value = await rep.query((tx) => tx.get(taskKey(taskId)));
   return typeof value === 'object' && isTaskValue(value) ? value.title : null;
+}
+
+function countRowsForProject(rows: TaskValue[], projectId: string): number {
+  return rows.filter((row) => row.projectId === projectId).length;
+}
+
+async function revokeReplicacheProjectMembership(args: {
+  actorId: string;
+  projectId: string;
+}): Promise<void> {
+  const response = await fetch(`${stack.adminBaseUrl}/admin/revoke-membership`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      actorId: args.actorId,
+      projectId: args.projectId,
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(
+      `Replicache membership revoke failed: ${response.status} ${response.statusText} ${body}`
+    );
+  }
+
+  const body = (await response.json()) as { ok?: boolean; deletedCount?: number };
+  if (!body.ok || body.deletedCount !== 1) {
+    throw new Error(
+      `Replicache membership revoke deleted ${body.deletedCount ?? 0} rows`
+    );
+  }
 }
 
 async function waitForTaskCount(args: {
@@ -843,6 +885,114 @@ async function runLocalQuery(): Promise<RunnerResult> {
     memorySampler.stop();
     cpuSampler.stop();
     await rep.close();
+  }
+}
+
+async function runPermissionChange(): Promise<RunnerResult> {
+  await ensureStackUp('replicache');
+  await seedStack('replicache', {
+    resetFirst: true,
+    orgCount: 1,
+    projectsPerOrg: 2,
+    usersPerOrg: 4,
+    tasksPerProject: 500,
+    membershipsPerProject: 2,
+  });
+
+  const fixtures = await getFixtures('replicache');
+  const actorId = fixtures.sampleUserIds[0];
+  const revokedProjectId = fixtures.sampleProjectIds[0];
+  const retainedProjectId = fixtures.sampleProjectIds[1];
+  if (!actorId || !revokedProjectId || !retainedProjectId) {
+    throw new Error('Replicache fixtures are missing actor or multi-project data');
+  }
+
+  const baseFetch = globalThis.fetch;
+  const meter = createHttpMeter(baseFetch);
+  globalThis.fetch = meter.fetch;
+  const initialRep = createReplicacheClient(
+    `replicache-permission-change-${randomUUID()}`,
+    actorId
+  );
+  const memorySampler = new MemorySampler();
+  const cpuSampler = new CpuSampler();
+  memorySampler.start();
+  cpuSampler.start();
+
+  try {
+    const initialRows = await waitForTaskCount({
+      rep: initialRep,
+      expectedRows: 1000,
+      timeoutMs: 120_000,
+    });
+    const initialVisibleRows = initialRows.length;
+    const meterBaseline = meter.snapshot();
+
+    await revokeReplicacheProjectMembership({
+      actorId,
+      projectId: revokedProjectId,
+    });
+
+    const startedAt = performance.now();
+    const rebootstrapRep = createReplicacheClient(
+      `replicache-permission-change-rebootstrap-${randomUUID()}`,
+      actorId
+    );
+    const finalRows = await waitForTaskCount({
+      rep: rebootstrapRep,
+      expectedRows: 500,
+      timeoutMs: 120_000,
+    });
+    const revokedProjectRows = countRowsForProject(finalRows, revokedProjectId);
+    const retainedProjectRows = countRowsForProject(finalRows, retainedProjectId);
+
+    await rebootstrapRep.close();
+
+    if (revokedProjectRows !== 0 || retainedProjectRows !== 500) {
+      throw new Error(
+        `Replicache permission change did not converge: revoked=${revokedProjectRows}, retained=${retainedProjectRows}`
+      );
+    }
+
+    const convergenceMs = performance.now() - startedAt;
+    const meterSnapshot = diffMeterTotals(meter.snapshot(), meterBaseline);
+    const memoryMetrics = memorySampler.stop();
+    const cpuMetrics = cpuSampler.stop();
+
+    return {
+      status: 'completed',
+      metrics: {
+        initial_visible_rows: initialVisibleRows,
+        post_revoke_visible_rows: finalRows.length,
+        revoked_project_visible_rows_after_revoke: revokedProjectRows,
+        retained_project_visible_rows_after_revoke: retainedProjectRows,
+        permission_revoke_convergence_ms: round(convergenceMs),
+        request_count: meterSnapshot.requestCount,
+        request_bytes: meterSnapshot.requestBytes,
+        response_bytes: meterSnapshot.responseBytes,
+        bytes_transferred: meterSnapshot.requestBytes + meterSnapshot.responseBytes,
+        avg_memory_mb: memoryMetrics.avgMemoryMb,
+        peak_memory_mb: memoryMetrics.peakMemoryMb,
+        avg_cpu_pct: cpuMetrics.avgCpuPct,
+        peak_cpu_pct: cpuMetrics.peakCpuPct,
+      },
+      notes: [
+        'Permission-change convergence uses an actor-scoped Replicache pull path derived from project_memberships in the benchmark-owned BYOB server.',
+        'After revocation, the benchmark re-bootstraps the actor-scoped client view and measures how quickly rows for the revoked project disappear while rows for the still-authorized project remain.',
+      ],
+      metadata: {
+        implementation: 'replicache-auth-scoped-rebootstrap',
+        productVersion: '15.3.0',
+        actorId,
+        revokedProjectId,
+        retainedProjectId,
+      },
+    };
+  } finally {
+    globalThis.fetch = baseFetch;
+    memorySampler.stop();
+    cpuSampler.stop();
+    await initialRep.close();
   }
 }
 

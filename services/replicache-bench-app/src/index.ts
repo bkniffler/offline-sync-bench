@@ -87,16 +87,17 @@ app.get('/health', async (c) => {
 
 app.post('/replicache/pull', async (c) => {
   const request = await c.req.json<PullRequestV1>();
+  const actorId = c.req.query('actorId') ?? null;
   if (request.pullVersion !== 1) {
     return c.json({ error: 'VersionNotSupported', versionType: 'pull' }, 400);
   }
 
-  const cookie = await computeCookie();
+  const cookie = await computeCookie(actorId);
   const cookieChanged = !areCookiesEqual(request.cookie, cookie);
   const lastMutationIDChanges = cookieChanged
     ? await getLastMutationIDChanges()
     : {};
-  const patch = cookieChanged ? await buildFullPatch() : [];
+  const patch = cookieChanged ? await buildFullPatch(actorId) : [];
 
   const response: PullResponseV1 = {
     cookie,
@@ -166,6 +167,25 @@ app.post('/replicache/push', async (c) => {
   return c.body(null, 200);
 });
 
+app.post('/benchmark/revoke-membership', async (c) => {
+  const request = await c.req.json<{
+    actorId?: string;
+    projectId?: string;
+  }>();
+
+  if (!request.actorId || !request.projectId) {
+    return c.json({ error: 'actorId and projectId are required' }, 400);
+  }
+
+  await sql`
+    delete from project_memberships
+    where user_id = ${request.actorId}
+      and project_id = ${request.projectId}
+  `;
+
+  return c.json({ ok: true });
+});
+
 Bun.serve({
   port,
   fetch: app.fetch,
@@ -195,7 +215,7 @@ async function ensureTables(): Promise<void> {
   `;
 }
 
-async function computeCookie(): Promise<ReplicacheCookie> {
+async function computeCookie(actorId: string | null): Promise<ReplicacheCookie> {
   const rows = await sql<{
     task_count: string;
     max_updated_at: string | null;
@@ -206,6 +226,16 @@ async function computeCookie(): Promise<ReplicacheCookie> {
       max(updated_at)::text as max_updated_at,
       coalesce(sum(server_version), 0)::text as version_sum
     from tasks
+    ${actorId
+      ? sql`
+          where exists (
+            select 1
+            from project_memberships
+            where project_memberships.project_id = tasks.project_id
+              and project_memberships.user_id = ${actorId}
+          )
+        `
+      : sql``}
   `;
   const row = rows[0];
 
@@ -231,7 +261,7 @@ async function getLastMutationIDChanges(): Promise<Record<string, number>> {
   );
 }
 
-async function buildFullPatch(): Promise<PullResponseV1['patch']> {
+async function buildFullPatch(actorId: string | null): Promise<PullResponseV1['patch']> {
   const rows = await sql<TaskRow[]>`
     select
       id,
@@ -243,6 +273,16 @@ async function buildFullPatch(): Promise<PullResponseV1['patch']> {
       server_version,
       updated_at::text as updated_at
     from tasks
+    ${actorId
+      ? sql`
+          where exists (
+            select 1
+            from project_memberships
+            where project_memberships.project_id = tasks.project_id
+              and project_memberships.user_id = ${actorId}
+          )
+        `
+      : sql``}
     order by id
   `;
 

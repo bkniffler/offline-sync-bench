@@ -485,6 +485,40 @@ async function main(): Promise<void> {
     })
   );
 
+  const reconnectRepeatRows = stackOrder
+    .map((stackId) => {
+      const recentResults = getRecentResults({
+        latest,
+        scenarioId: 'reconnect-storm',
+        stackId,
+        limit: 3,
+      });
+      if (recentResults.length === 0) return null;
+      const samples = recentResults
+        .map((result) => result.metrics.reconnect_convergence_ms)
+        .filter((value): value is number => typeof value === 'number')
+        .sort((left, right) => left - right);
+      if (samples.length === 0) return null;
+      return [
+        stackTitle(stackId),
+        formatCount(samples.length),
+        formatMs(median(samples)),
+        formatMs(samples[0]),
+        formatMs(samples[samples.length - 1]),
+        formatMs(recentResults[0]?.metrics.reconnect_convergence_ms),
+      ];
+    })
+    .filter((row): row is string[] => row !== null);
+  if (reconnectRepeatRows.length > 0) {
+    sections.push(
+      renderScenarioTable({
+        title: 'Reconnect Storm Repeat Summary',
+        headers: ['Stack', 'Runs', 'Median', 'Min', 'Max', 'Latest'],
+        rows: reconnectRepeatRows,
+      })
+    );
+  }
+
   const queueRows = stackOrder
     .map((stackId) => {
       const result = getResult(latest, 'large-offline-queue', stackId);
@@ -504,6 +538,56 @@ async function main(): Promise<void> {
       rows: queueRows,
     })
   );
+
+  const largeQueueRepeatRows = stackOrder
+    .map((stackId) => {
+      const recentResults = getRecentResults({
+        latest,
+        scenarioId: 'large-offline-queue',
+        stackId,
+        limit: 3,
+      });
+      if (recentResults.length === 0) return null;
+      const queue100Samples = recentResults
+        .map((result) => result.metrics.queue_100_convergence_ms)
+        .filter((value): value is number => typeof value === 'number')
+        .sort((left, right) => left - right);
+      const queue500Samples = recentResults
+        .map((result) => result.metrics.queue_500_convergence_ms)
+        .filter((value): value is number => typeof value === 'number')
+        .sort((left, right) => left - right);
+      const queue1000Samples = recentResults
+        .map((result) => result.metrics.queue_1000_convergence_ms)
+        .filter((value): value is number => typeof value === 'number')
+        .sort((left, right) => left - right);
+
+      if (
+        queue100Samples.length === 0 ||
+        queue500Samples.length === 0 ||
+        queue1000Samples.length === 0
+      ) {
+        return null;
+      }
+
+      return [
+        stackTitle(stackId),
+        formatCount(recentResults.length),
+        formatMs(median(queue100Samples)),
+        formatMs(median(queue500Samples)),
+        formatMs(median(queue1000Samples)),
+        formatMs(recentResults[0]?.metrics.queue_1000_convergence_ms),
+      ];
+    })
+    .filter((row): row is string[] => row !== null);
+  if (largeQueueRepeatRows.length > 0) {
+    sections.push(
+      renderScenarioTable({
+        title: 'Large Offline Queue Repeat Summary',
+        headers: ['Stack', 'Runs', '100 median', '500 median', '1000 median', 'Latest 1000'],
+        rows: largeQueueRepeatRows,
+      })
+    );
+  }
 
   const queryRows = stackOrder
     .map((stackId) => {
@@ -554,12 +638,12 @@ async function main(): Promise<void> {
     })
   );
 
-  const permissionRepeatRows = ['syncular', 'electric']
+  const permissionRepeatRows = stackOrder
     .map((stackId) => {
       const recentResults = getRecentResults({
         latest,
         scenarioId: 'permission-change',
-        stackId: stackId as StackId,
+        stackId,
         limit: 3,
       });
       if (recentResults.length === 0) return null;
