@@ -296,6 +296,29 @@ async function main(): Promise<void> {
       .filter((value): value is number => typeof value === 'number')
   );
 
+  const syncularPermissionRecent = getRecentResults({
+    latest,
+    scenarioId: 'permission-change',
+    stackId: 'syncular',
+    limit: 3,
+  });
+  const electricPermissionRecent = getRecentResults({
+    latest,
+    scenarioId: 'permission-change',
+    stackId: 'electric',
+    limit: 3,
+  });
+  const syncularPermissionMedian = median(
+    syncularPermissionRecent
+      .map((result) => result.metrics.permission_revoke_convergence_ms)
+      .filter((value): value is number => typeof value === 'number')
+  );
+  const electricPermissionMedian = median(
+    electricPermissionRecent
+      .map((result) => result.metrics.permission_revoke_convergence_ms)
+      .filter((value): value is number => typeof value === 'number')
+  );
+
   if (
     electricBootstrapMedian !== null &&
     syncularBootstrapMedian !== null &&
@@ -315,9 +338,12 @@ async function main(): Promise<void> {
       `- Native offline replay: Syncular currently converges in ${formatMs(firstMetric(syncularReplay.metrics, ['reconnect_convergence_ms', 'replay_visible_ms']))}, ahead of Replicache (${formatMs(firstMetric(replicacheReplay.metrics, ['reconnect_convergence_ms', 'replay_visible_ms']))}) and PowerSync (${formatMs(firstMetric(powersyncReplay.metrics, ['reconnect_convergence_ms', 'replay_visible_ms']))}).`
     );
   }
-  if (syncularPermission && electricPermission) {
+  if (
+    syncularPermissionMedian !== null &&
+    electricPermissionMedian !== null
+  ) {
     sections.push(
-      `- Permission change: Syncular and Electric both have real multi-project revocation coverage here; Syncular converges in ${formatMs(syncularPermission.metrics.permission_revoke_convergence_ms)} and Electric in ${formatMs(electricPermission.metrics.permission_revoke_convergence_ms)}.`
+      `- Permission change (median of the latest ${Math.min(syncularPermissionRecent.length, electricPermissionRecent.length)} runs where available): Syncular converges in ${formatMs(syncularPermissionMedian)} and Electric in ${formatMs(electricPermissionMedian)}.`
     );
   }
   if (syncularBundle) {
@@ -538,6 +564,38 @@ async function main(): Promise<void> {
     })
   );
 
+  const permissionRepeatRows = ['syncular', 'electric']
+    .map((stackId) => {
+      const recentResults = getRecentResults({
+        latest,
+        scenarioId: 'permission-change',
+        stackId: stackId as StackId,
+        limit: 3,
+      });
+      if (recentResults.length === 0) return null;
+      const samples = recentResults
+        .map((result) => result.metrics.permission_revoke_convergence_ms)
+        .filter((value): value is number => typeof value === 'number')
+        .sort((left, right) => left - right);
+      if (samples.length === 0) return null;
+      return [
+        stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
+        formatCount(samples.length),
+        formatMs(median(samples)),
+        formatMs(samples[0]),
+        formatMs(samples[samples.length - 1]),
+        formatMs(recentResults[0]?.metrics.permission_revoke_convergence_ms),
+      ];
+    })
+    .filter((row): row is string[] => row !== null);
+  sections.push(
+    renderScenarioTable({
+      title: 'Permission Change Repeat Summary',
+      headers: ['Stack', 'Runs', 'Median', 'Min', 'Max', 'Latest'],
+      rows: permissionRepeatRows,
+    })
+  );
+
   const blobRows = stackOrder
     .map((stackId) => {
       const result = getResult(latest, 'blob-flow', stackId);
@@ -550,6 +608,7 @@ async function main(): Promise<void> {
         formatMs(firstMetric(result.metrics, ['download_after_metadata_ms', 'download_after_clear_ms'])),
         formatMs(result.metrics.retry_recovery_ms),
         formatBytes(result.metrics.transfer_overhead_bytes),
+        formatBytes(result.metrics.sqlite_storage_overhead_bytes_after_upload),
         formatSupport(result),
       ];
     })
@@ -566,9 +625,49 @@ async function main(): Promise<void> {
           'Re-download',
           'Retry recovery',
           'Transfer overhead',
+          'SQLite upload overhead',
           'Support',
         ],
         rows: blobRows,
+      })
+    );
+  }
+
+  const blobRepeatRows = stackOrder
+    .map((stackId) => {
+      const recentResults = getRecentResults({
+        latest,
+        scenarioId: 'blob-flow',
+        stackId,
+        limit: 3,
+      });
+      if (recentResults.length === 0) return null;
+      const uploadSamples = recentResults
+        .map((result) => result.metrics.upload_complete_ms)
+        .filter((value): value is number => typeof value === 'number')
+        .sort((left, right) => left - right);
+      const metadataSamples = recentResults
+        .map((result) => result.metrics.metadata_visible_ms)
+        .filter((value): value is number => typeof value === 'number')
+        .sort((left, right) => left - right);
+      if (uploadSamples.length === 0 || metadataSamples.length === 0) {
+        return null;
+      }
+      return [
+        stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
+        formatCount(uploadSamples.length),
+        formatMs(median(uploadSamples)),
+        formatMs(median(metadataSamples)),
+        formatMs(recentResults[0]?.metrics.retry_recovery_ms),
+      ];
+    })
+    .filter((row): row is string[] => row !== null);
+  if (blobRepeatRows.length > 0) {
+    sections.push(
+      renderScenarioTable({
+        title: 'Blob Flow Repeat Summary',
+        headers: ['Stack', 'Runs', 'Upload median', 'Metadata median', 'Latest retry recovery'],
+        rows: blobRepeatRows,
       })
     );
   }

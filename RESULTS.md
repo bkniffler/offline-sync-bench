@@ -8,9 +8,9 @@ Numbers are directly comparable within a scenario, but they may come from differ
 - Bootstrap at 100k rows (median of the latest 3 runs where available): Electric is at 416.3 ms; Syncular is at 852.8 ms; Replicache is at 1046 ms.
 - Online propagation: Electric still leads on tail latency (12.72 ms p95), while Syncular is now at 19.47 ms p95 with 11.35 ms write ack.
 - Native offline replay: Syncular currently converges in 92.32 ms, ahead of Replicache (1253 ms) and PowerSync (5191 ms).
-- Permission change: Syncular and Electric both have real multi-project revocation coverage here; Syncular converges in 43.56 ms and Electric in 15.96 ms.
+- Permission change (median of the latest 3 runs where available): Syncular converges in 43.56 ms and Electric in 15.96 ms.
 - Client bundle size: Syncular is currently 829.83 KB raw / 238.32 KB gzip for the named-import browser profile.
-- Blob flow: Syncular currently uploads a 524288 byte blob in 18.25 ms, syncs metadata to a second client in 46.78 ms, re-downloads it after cache clear in 9.28 ms, and recovers an interrupted queued upload in 12.53 ms.
+- Blob flow: Syncular currently uploads a 524288 byte blob in 17.60 ms, syncs metadata to a second client in 31.71 ms, re-downloads it after cache clear in 7.01 ms, and recovers an interrupted queued upload in 13.23 ms.
 
 ## Bootstrap
 
@@ -82,14 +82,27 @@ Numbers are directly comparable within a scenario, but they may come from differ
 
 | Stack | Initial rows | After revoke | Revoked rows left | Retained rows left | Convergence | Support |
 | --- | --- | --- | --- | --- | --- | --- |
-| Syncular | 1000 | 500 | 0 | 500 | 43.56 ms | native |
-| Electric | 1000 | 500 | 0 | 500 | 15.96 ms | native |
+| Syncular | 1000 | 500 | 0 | 500 | 46.90 ms | native |
+| Electric | 1000 | 500 | 0 | 500 | 39.36 ms | native |
+
+## Permission Change Repeat Summary
+
+| Stack | Runs | Median | Min | Max | Latest |
+| --- | --- | --- | --- | --- | --- |
+| Syncular | 3 | 43.56 ms | 40.75 ms | 46.90 ms | 46.90 ms |
+| Electric | 3 | 15.96 ms | 15.25 ms | 39.36 ms | 39.36 ms |
 
 ## Blob Flow
 
-| Stack | Blob bytes | Upload | Metadata visible | Re-download | Retry recovery | Transfer overhead | Support |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Syncular | 524288 | 18.25 ms | 46.78 ms | 9.28 ms | 12.53 ms | 7183 B | native |
+| Stack | Blob bytes | Upload | Metadata visible | Re-download | Retry recovery | Transfer overhead | SQLite upload overhead | Support |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Syncular | 524288 | 17.60 ms | 31.71 ms | 7.01 ms | 13.23 ms | 7183 B | 0 B | native |
+
+## Blob Flow Repeat Summary
+
+| Stack | Runs | Upload median | Metadata median | Latest retry recovery |
+| --- | --- | --- | --- | --- |
+| Syncular | 3 | 18.25 ms | 36.88 ms | 13.23 ms |
 
 ## Client Bundle Size
 
