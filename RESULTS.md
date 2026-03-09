@@ -5,18 +5,18 @@ Numbers are directly comparable within a scenario, but they may come from differ
 
 ## Highlights
 
-- Bootstrap at 100k rows: Electric currently leads at 413.7 ms; Syncular is at 833.5 ms and Replicache is at 1046 ms.
+- Bootstrap at 100k rows: Electric currently leads at 413.7 ms; Syncular is at 813.1 ms and Replicache is at 1046 ms.
 - Online propagation: Electric still leads on tail latency (12.72 ms p95), while Syncular is now at 19.47 ms p95 with 11.35 ms write ack.
 - Native offline replay: Syncular currently converges in 92.32 ms, ahead of Replicache (1253 ms) and PowerSync (5191 ms).
 - Permission change: Syncular and Electric both have real multi-project revocation coverage here; Syncular converges in 43.56 ms and Electric in 15.96 ms.
 - Client bundle size: Syncular is currently 829.83 KB raw / 238.32 KB gzip for the named-import browser profile.
-- Blob flow: Syncular currently uploads a 524288 byte blob in 27.49 ms, syncs metadata to a second client in 45.51 ms, and re-downloads it after cache clear in 8.13 ms.
+- Blob flow: Syncular currently uploads a 524288 byte blob in 18.25 ms, syncs metadata to a second client in 46.78 ms, re-downloads it after cache clear in 9.28 ms, and recovers an interrupted queued upload in 12.53 ms.
 
 ## Bootstrap
 
 | Stack | 1k | 10k | 100k | 100k reqs | 100k avg mem | Support |
 | --- | --- | --- | --- | --- | --- | --- |
-| Syncular | 33.31 ms | 117.4 ms | 833.5 ms | 6 | 321.02 MB | native |
+| Syncular | 36.30 ms | 101.8 ms | 813.1 ms | 6 | 308.99 MB | native |
 | Electric | 43.37 ms | 64.49 ms | 413.7 ms | 4 | 537.88 MB | native |
 | Zero | 112.7 ms | 469.4 ms | 4070 ms | 0 | 507.96 MB | native |
 | PowerSync | 5212 ms | 5512 ms | 8158 ms | 1 | 265.52 MB | native |
@@ -73,9 +73,9 @@ Numbers are directly comparable within a scenario, but they may come from differ
 
 ## Blob Flow
 
-| Stack | Blob bytes | Upload | Metadata visible | Re-download | Requests | Avg mem | Support |
+| Stack | Blob bytes | Upload | Metadata visible | Re-download | Retry recovery | Transfer overhead | Support |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Syncular | 524288 | 27.49 ms | 45.51 ms | 8.13 ms | 8 | 250.20 MB | native |
+| Syncular | 524288 | 18.25 ms | 46.78 ms | 9.28 ms | 12.53 ms | 7183 B | native |
 
 ## Client Bundle Size
 

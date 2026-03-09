@@ -55,10 +55,10 @@
 - [x] Add scoped multi-project datasets to permission-change benchmarks so revocation removes only the unauthorized project while retaining still-authorized data
 - [x] Add a first native Syncular blob flow benchmark covering immediate upload, forced cache-miss download, transferred bytes, and client resource use
 - [x] Extend blob benchmarking to cross-client metadata visibility before authenticated re-download
-- [ ] Add interrupted upload recovery and storage-overhead comparisons to blob benchmarking
+- [x] Add interrupted upload recovery and storage-overhead comparisons to blob benchmarking
 - [ ] Add more stacks beyond the current six, likely PowerSync alternatives or CRDT-first systems with clearly marked non-comparable scenarios
 
 ## Cleanup
 
-- [ ] Add a cleanup/archive command for stale failed result directories from early scaffolding runs
-- [ ] Decide whether to keep or delete old `.tmp` investigation databases
+- [x] Add a cleanup/archive command for stale failed result directories from early scaffolding runs
+- [x] Decide whether to keep or delete old `.tmp` investigation databases

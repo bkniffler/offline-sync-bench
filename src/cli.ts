@@ -1,6 +1,7 @@
 import { Database } from 'bun:sqlite';
 import { randomUUID } from 'node:crypto';
 import { createAdapter } from './adapters';
+import { cleanupBenchmarkArtifacts } from './cleanup';
 import { runBootstrapScenario } from './runners/bootstrap';
 import { runBlobFlowScenario } from './runners/blob-flow';
 import { runLargeOfflineQueueScenario } from './runners/large-offline-queue';
@@ -47,9 +48,24 @@ switch (command) {
   case 'report':
     printCatalog();
     break;
+  case 'cleanup':
+    await runCleanupCommand();
+    break;
   default:
     console.error(`Unknown command: ${command}`);
     process.exitCode = 1;
+}
+
+async function runCleanupCommand(): Promise<void> {
+  const summary = await cleanupBenchmarkArtifacts();
+  console.log(`removed_failed_runs=${summary.removedRunIds.length}`);
+  for (const runId of summary.removedRunIds) {
+    console.log(`run=${runId}`);
+  }
+  console.log(`removed_tmp_entries=${summary.removedTmpEntries.length}`);
+  for (const entry of summary.removedTmpEntries) {
+    console.log(`tmp=${entry}`);
+  }
 }
 
 function printScenarios(): void {

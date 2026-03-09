@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import {
@@ -11,7 +11,9 @@ import {
 } from '../../../syncular/packages/client/src/index.ts';
 import {
   decodeSnapshotRows,
+  type SyncCombinedRequest,
   type ScopeValues,
+  type SyncCombinedResponse,
   type SyncBootstrapState,
   type SyncPullSubscriptionResponse,
 } from '../../../syncular/packages/core/src/index.ts';
@@ -108,6 +110,18 @@ interface BootstrapPhaseTotals {
   snapshotDecodeMs: number;
   localApplyMs: number;
 }
+
+interface ServerBootstrapTimings {
+  snapshotQueryMs: number;
+  rowFrameEncodeMs: number;
+  chunkCacheLookupMs: number;
+  chunkGzipMs: number;
+  chunkHashMs: number;
+  chunkPersistMs: number;
+}
+
+const syncularCaptureBootstrapTimings =
+  process.env.SYNCULAR_BENCH_CAPTURE_BOOTSTRAP_TIMINGS === '1';
 
 interface SyncClientWithSync {
   sync(): Promise<unknown>;
@@ -208,6 +222,41 @@ function createBlobPayload(size: number): Uint8Array {
   return bytes;
 }
 
+function createOneShotFailingUploadFetch(baseFetch: typeof fetch): typeof fetch {
+  let failedOnce = false;
+
+  const flakyFetch = Object.assign(
+    async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = input instanceof Request ? input : new Request(input, init);
+      if (!failedOnce && request.method.toUpperCase() === 'PUT') {
+        failedOnce = true;
+        throw new Error('offline-sync-bench induced upload failure');
+      }
+      return baseFetch(request);
+    },
+    typeof baseFetch.preconnect === 'function'
+      ? {
+          preconnect: baseFetch.preconnect.bind(baseFetch),
+        }
+      : {}
+  ) as typeof fetch;
+
+  return flakyFetch;
+}
+
+async function readSqliteStorageBytes(dbPath: string): Promise<number> {
+  const candidates = [dbPath, `${dbPath}-wal`, `${dbPath}-shm`];
+  let totalBytes = 0;
+
+  for (const candidate of candidates) {
+    const fileStats = await stat(candidate).catch(() => null);
+    if (!fileStats) continue;
+    totalBytes += fileStats.size;
+  }
+
+  return totalBytes;
+}
+
 async function ensureLocalTables(db: Kysely<SyncularClientDb>): Promise<void> {
   await db.schema
     .createTable('tasks')
@@ -270,6 +319,62 @@ function createSyncularHttpTransport(args: {
     }),
     ...(args.fetchImpl ? { fetch: args.fetchImpl } : {}),
   });
+}
+
+async function requestSyncularPull(args: {
+  actorId: string;
+  meterFetch: typeof fetch;
+  body: SyncCombinedRequest;
+  captureServerTimings?: boolean;
+}): Promise<{
+  response: SyncCombinedResponse;
+  serverTimings: ServerBootstrapTimings | null;
+}> {
+  const syncRoute = `${getStack('syncular').syncBaseUrl}/sync`;
+  const headers: Record<string, string> = {
+    'content-type': 'application/json',
+    'x-user-id': args.actorId,
+  };
+  if (args.captureServerTimings) {
+    headers['x-syncular-bench-timings'] = '1';
+  }
+  const response = await args.meterFetch(syncRoute, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(args.body),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(
+      `Syncular pull request failed: ${response.status} ${response.statusText} ${text}`
+    );
+  }
+
+  const timingHeader = response.headers.get('x-syncular-bench-pull-timings');
+  const parsedResponse = (await response.json()) as SyncCombinedResponse;
+  let serverTimings: ServerBootstrapTimings | null = null;
+
+  if (timingHeader) {
+    try {
+      const parsed = JSON.parse(timingHeader) as Partial<ServerBootstrapTimings>;
+      serverTimings = {
+        snapshotQueryMs: Number(parsed.snapshotQueryMs ?? 0),
+        rowFrameEncodeMs: Number(parsed.rowFrameEncodeMs ?? 0),
+        chunkCacheLookupMs: Number(parsed.chunkCacheLookupMs ?? 0),
+        chunkGzipMs: Number(parsed.chunkGzipMs ?? 0),
+        chunkHashMs: Number(parsed.chunkHashMs ?? 0),
+        chunkPersistMs: Number(parsed.chunkPersistMs ?? 0),
+      };
+    } catch {
+      serverTimings = null;
+    }
+  }
+
+  return {
+    response: parsedResponse,
+    serverTimings,
+  };
 }
 
 async function writeSyncularExternalTask(args: {
@@ -955,6 +1060,12 @@ async function runDirectBootstrap(args: {
   snapshotFetchMs: number;
   snapshotDecodeMs: number;
   localApplyMs: number;
+  serverSnapshotQueryMs: number;
+  serverRowFrameEncodeMs: number;
+  serverChunkCacheLookupMs: number;
+  serverChunkGzipMs: number;
+  serverChunkHashMs: number;
+  serverChunkPersistMs: number;
 }> {
   const dbPath = await createTempDbPath(`syncular-bootstrap-${args.rowsTarget}`);
   const db = new Kysely<SyncularClientDb>({
@@ -981,18 +1092,31 @@ async function runDirectBootstrap(args: {
     snapshotDecodeMs: 0,
     localApplyMs: 0,
   };
+  const serverTimings: ServerBootstrapTimings = {
+    snapshotQueryMs: 0,
+    rowFrameEncodeMs: 0,
+    chunkCacheLookupMs: 0,
+    chunkGzipMs: 0,
+    chunkHashMs: 0,
+    chunkPersistMs: 0,
+  };
 
   try {
     while (iterations < 200) {
       iterations += 1;
 
       const pullStartedAt = performance.now();
-      const body = await transport.sync({
-        clientId: args.clientId,
-        pull: {
-          limitCommits: 100,
-          limitSnapshotRows: SYNCULAR_BENCH_BOOTSTRAP_LIMIT_SNAPSHOT_ROWS,
-          maxSnapshotPages: SYNCULAR_BENCH_BOOTSTRAP_MAX_SNAPSHOT_PAGES,
+      const { response: body, serverTimings: pullTimings } =
+        await requestSyncularPull({
+          actorId: args.actorId,
+          meterFetch: meter.fetch,
+          captureServerTimings: syncularCaptureBootstrapTimings,
+          body: {
+          clientId: args.clientId,
+          pull: {
+            limitCommits: 100,
+            limitSnapshotRows: SYNCULAR_BENCH_BOOTSTRAP_LIMIT_SNAPSHOT_ROWS,
+            maxSnapshotPages: SYNCULAR_BENCH_BOOTSTRAP_MAX_SNAPSHOT_PAGES,
           subscriptions: [
             {
               id: 'tasks',
@@ -1005,8 +1129,17 @@ async function runDirectBootstrap(args: {
             },
           ],
         },
-      });
+          },
+        });
       phaseTotals.pullRequestMs += performance.now() - pullStartedAt;
+      if (pullTimings) {
+        serverTimings.snapshotQueryMs += pullTimings.snapshotQueryMs;
+        serverTimings.rowFrameEncodeMs += pullTimings.rowFrameEncodeMs;
+        serverTimings.chunkCacheLookupMs += pullTimings.chunkCacheLookupMs;
+        serverTimings.chunkGzipMs += pullTimings.chunkGzipMs;
+        serverTimings.chunkHashMs += pullTimings.chunkHashMs;
+        serverTimings.chunkPersistMs += pullTimings.chunkPersistMs;
+      }
       const subscription = body.pull?.subscriptions?.[0];
       if (!body.ok || !body.pull?.ok || !subscription) {
         throw new Error('Syncular direct bootstrap returned an invalid pull payload');
@@ -1058,6 +1191,12 @@ async function runDirectBootstrap(args: {
       snapshotFetchMs: round(phaseTotals.snapshotFetchMs),
       snapshotDecodeMs: round(phaseTotals.snapshotDecodeMs),
       localApplyMs: round(phaseTotals.localApplyMs),
+      serverSnapshotQueryMs: round(serverTimings.snapshotQueryMs),
+      serverRowFrameEncodeMs: round(serverTimings.rowFrameEncodeMs),
+      serverChunkCacheLookupMs: round(serverTimings.chunkCacheLookupMs),
+      serverChunkGzipMs: round(serverTimings.chunkGzipMs),
+      serverChunkHashMs: round(serverTimings.chunkHashMs),
+      serverChunkPersistMs: round(serverTimings.chunkPersistMs),
     };
   } finally {
     sampler.stop();
@@ -1497,6 +1636,12 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
         snapshotFetchMs: result.snapshotFetchMs,
         snapshotDecodeMs: result.snapshotDecodeMs,
         localApplyMs: result.localApplyMs,
+        serverSnapshotQueryMs: result.serverSnapshotQueryMs,
+        serverRowFrameEncodeMs: result.serverRowFrameEncodeMs,
+        serverChunkCacheLookupMs: result.serverChunkCacheLookupMs,
+        serverChunkGzipMs: result.serverChunkGzipMs,
+        serverChunkHashMs: result.serverChunkHashMs,
+        serverChunkPersistMs: result.serverChunkPersistMs,
       });
     }
 
@@ -1524,6 +1669,30 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
             result.snapshotDecodeMs ?? null,
           ],
           [`local_apply_ms_${result.rowsTarget}`, result.localApplyMs ?? null],
+          [
+            `server_snapshot_query_ms_${result.rowsTarget}`,
+            result.serverSnapshotQueryMs ?? null,
+          ],
+          [
+            `server_row_frame_encode_ms_${result.rowsTarget}`,
+            result.serverRowFrameEncodeMs ?? null,
+          ],
+          [
+            `server_chunk_cache_lookup_ms_${result.rowsTarget}`,
+            result.serverChunkCacheLookupMs ?? null,
+          ],
+          [
+            `server_chunk_gzip_ms_${result.rowsTarget}`,
+            result.serverChunkGzipMs ?? null,
+          ],
+          [
+            `server_chunk_hash_ms_${result.rowsTarget}`,
+            result.serverChunkHashMs ?? null,
+          ],
+          [
+            `server_chunk_persist_ms_${result.rowsTarget}`,
+            result.serverChunkPersistMs ?? null,
+          ],
         ])
       ),
       notes: [
@@ -1548,6 +1717,12 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
           snapshotFetchMs: result.snapshotFetchMs ?? null,
           snapshotDecodeMs: result.snapshotDecodeMs ?? null,
           localApplyMs: result.localApplyMs ?? null,
+          serverSnapshotQueryMs: result.serverSnapshotQueryMs ?? null,
+          serverRowFrameEncodeMs: result.serverRowFrameEncodeMs ?? null,
+          serverChunkCacheLookupMs: result.serverChunkCacheLookupMs ?? null,
+          serverChunkGzipMs: result.serverChunkGzipMs ?? null,
+          serverChunkHashMs: result.serverChunkHashMs ?? null,
+          serverChunkPersistMs: result.serverChunkPersistMs ?? null,
         })),
       },
     };
@@ -2216,6 +2391,7 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
         const cpuSampler = new CpuSampler();
         memorySampler.start();
         cpuSampler.start();
+        const baselineSqliteBytes = await readSqliteStorageBytes(writer.dbPath);
 
         const uploadStartedAt = performance.now();
         const blobRef = await writer.client.blobs.store(payload, {
@@ -2225,6 +2401,7 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
         const uploadCompleteMs = performance.now() - uploadStartedAt;
 
         const uploadCacheStats = await writer.client.blobs.getCacheStats();
+        const sqliteBytesAfterUpload = await readSqliteStorageBytes(writer.dbPath);
         const isLocalAfterUpload = await writer.client.blobs.isLocal(blobRef.hash);
 
         const metadataStartedAt = performance.now();
@@ -2251,6 +2428,33 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
         const downloaded = await writer.client.blobs.retrieve(blobRef);
         const downloadAfterMetadataMs = performance.now() - downloadStartedAt;
         const downloadCacheStats = await writer.client.blobs.getCacheStats();
+        const sqliteBytesAfterDownload = await readSqliteStorageBytes(
+          writer.dbPath
+        );
+
+        const retryBlobSizeBytes = 256 * 1024;
+        const retryPayload = createBlobPayload(retryBlobSizeBytes);
+        const retryBlobRef = await writer.client.blobs.store(retryPayload, {
+          immediate: false,
+          mimeType: blobMimeType,
+        });
+        const retryQueueBefore = await writer.client.blobs.getUploadQueueStats();
+        const retryFirstAttemptStartedAt = performance.now();
+        const retryFirstAttemptResult = await withMeteredGlobalFetch(
+          createOneShotFailingUploadFetch(meter.fetch),
+          () => writer.client.blobs.processUploadQueue()
+        );
+        const retryFirstAttemptMs =
+          performance.now() - retryFirstAttemptStartedAt;
+        const retryQueueAfterFailure = await writer.client.blobs.getUploadQueueStats();
+        const retryRecoveryStartedAt = performance.now();
+        const retryRecoveryResult = await writer.client.blobs.processUploadQueue();
+        const retryRecoveryMs = performance.now() - retryRecoveryStartedAt;
+        const retryQueueAfterRecovery =
+          await writer.client.blobs.getUploadQueueStats();
+        const isRetryBlobLocal = await writer.client.blobs.isLocal(
+          retryBlobRef.hash
+        );
 
         const meterSnapshot = diffMeterTotals(
           writer.meterSnapshot(),
@@ -2264,6 +2468,13 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
             `Syncular blob flow downloaded ${downloaded.byteLength} bytes, expected ${blobSizeBytes}`
           );
         }
+        if (retryQueueAfterRecovery.pending !== 0 || retryRecoveryResult.uploaded !== 1) {
+          throw new Error(
+            `Syncular blob retry recovery did not drain the queue: pending=${retryQueueAfterRecovery.pending}, uploaded=${retryRecoveryResult.uploaded}`
+          );
+        }
+
+        const expectedTransferBytes = blobSizeBytes * 2 + retryBlobSizeBytes;
 
         return {
           status: 'completed',
@@ -2277,10 +2488,36 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
             request_bytes: meterSnapshot.requestBytes,
             response_bytes: meterSnapshot.responseBytes,
             bytes_transferred: meterSnapshot.requestBytes + meterSnapshot.responseBytes,
+            transfer_overhead_bytes:
+              meterSnapshot.requestBytes +
+              meterSnapshot.responseBytes -
+              expectedTransferBytes,
             cache_bytes_after_upload: uploadCacheStats.totalBytes,
             cache_bytes_after_download: downloadCacheStats.totalBytes,
+            cache_overhead_bytes_after_upload:
+              uploadCacheStats.totalBytes - blobSizeBytes,
+            cache_overhead_bytes_after_download:
+              downloadCacheStats.totalBytes - blobSizeBytes,
+            sqlite_storage_bytes_before_upload: baselineSqliteBytes,
+            sqlite_storage_bytes_after_upload: sqliteBytesAfterUpload,
+            sqlite_storage_bytes_after_download: sqliteBytesAfterDownload,
+            sqlite_storage_overhead_bytes_after_upload:
+              sqliteBytesAfterUpload - baselineSqliteBytes - blobSizeBytes,
+            sqlite_storage_overhead_bytes_after_download:
+              sqliteBytesAfterDownload - baselineSqliteBytes - blobSizeBytes,
             is_local_after_upload: isLocalAfterUpload ? 1 : 0,
             is_local_after_clear: isLocalAfterClear ? 1 : 0,
+            retry_blob_size_bytes: retryBlobSizeBytes,
+            retry_queue_pending_before: retryQueueBefore.pending,
+            retry_queue_pending_after_failure: retryQueueAfterFailure.pending,
+            retry_queue_pending_after_recovery: retryQueueAfterRecovery.pending,
+            retry_first_attempt_ms: round(retryFirstAttemptMs),
+            retry_recovery_ms: round(retryRecoveryMs),
+            retry_first_attempt_uploaded: retryFirstAttemptResult.uploaded,
+            retry_first_attempt_failed: retryFirstAttemptResult.failed,
+            retry_recovery_uploaded: retryRecoveryResult.uploaded,
+            retry_recovery_failed: retryRecoveryResult.failed,
+            retry_blob_is_local: isRetryBlobLocal ? 1 : 0,
             avg_memory_mb: memoryMetrics.avgMemoryMb,
             peak_memory_mb: memoryMetrics.peakMemoryMb,
             avg_cpu_pct: cpuMetrics.avgCpuPct,
@@ -2288,7 +2525,8 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
           },
           notes: [
             'Blob flow uses two real Syncular clients for the same authenticated actor with the blob plugin enabled over the standard HTTP sync path: the writer uploads immediately, syncs blob metadata onto a task row, and the reader waits for that metadata before the uploader clears cache and re-downloads through the real server blob routes.',
-            'Request and byte counts include upload-init, direct upload, completion, metadata sync, cache clear, download-url resolution, and the authenticated re-download traffic.',
+            'The same run also measures interrupted upload recovery by enqueueing a second blob, forcing the first direct upload PUT to fail once, then verifying that processUploadQueue successfully retries and drains the outbox on the next pass.',
+            'Request and byte counts include upload-init, direct upload, completion, metadata sync, cache clear, download-url resolution, authenticated re-download traffic, and the retry upload path.',
           ],
           metadata: {
             implementation: 'syncular-native-cross-client-blob-flow',
@@ -2298,6 +2536,7 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
             taskId,
             blobHash: blobRef.hash,
             blobMimeType: blobRef.mimeType,
+            retryBlobHash: retryBlobRef.hash,
           },
         };
       });

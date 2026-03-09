@@ -112,6 +112,11 @@ function formatMb(value: number | null | undefined): string {
   return `${value.toFixed(2)} MB`;
 }
 
+function formatBytes(value: number | null | undefined): string {
+  if (value === null || value === undefined || Number.isNaN(value)) return 'n/a';
+  return `${Math.round(value)} B`;
+}
+
 function formatSupport(result: StoredBenchmarkResult | undefined): string {
   const supportLevel =
     typeof result?.metadata?.supportLevel === 'string'
@@ -251,7 +256,7 @@ async function main(): Promise<void> {
   }
   if (syncularBlobFlow) {
     sections.push(
-      `- Blob flow: Syncular currently uploads a ${formatCount(syncularBlobFlow.metrics.blob_size_bytes)} byte blob in ${formatMs(syncularBlobFlow.metrics.upload_complete_ms)}, syncs metadata to a second client in ${formatMs(syncularBlobFlow.metrics.metadata_visible_ms)}, and re-downloads it after cache clear in ${formatMs(firstMetric(syncularBlobFlow.metrics, ['download_after_metadata_ms', 'download_after_clear_ms']))}.`
+      `- Blob flow: Syncular currently uploads a ${formatCount(syncularBlobFlow.metrics.blob_size_bytes)} byte blob in ${formatMs(syncularBlobFlow.metrics.upload_complete_ms)}, syncs metadata to a second client in ${formatMs(syncularBlobFlow.metrics.metadata_visible_ms)}, re-downloads it after cache clear in ${formatMs(firstMetric(syncularBlobFlow.metrics, ['download_after_metadata_ms', 'download_after_clear_ms']))}, and recovers an interrupted queued upload in ${formatMs(syncularBlobFlow.metrics.retry_recovery_ms)}.`
     );
   }
   sections.push('');
@@ -437,8 +442,8 @@ async function main(): Promise<void> {
         formatMs(result.metrics.upload_complete_ms),
         formatMs(result.metrics.metadata_visible_ms),
         formatMs(firstMetric(result.metrics, ['download_after_metadata_ms', 'download_after_clear_ms'])),
-        formatCount(result.metrics.request_count),
-        formatMb(result.metrics.avg_memory_mb),
+        formatMs(result.metrics.retry_recovery_ms),
+        formatBytes(result.metrics.transfer_overhead_bytes),
         formatSupport(result),
       ];
     })
@@ -453,8 +458,8 @@ async function main(): Promise<void> {
           'Upload',
           'Metadata visible',
           'Re-download',
-          'Requests',
-          'Avg mem',
+          'Retry recovery',
+          'Transfer overhead',
           'Support',
         ],
         rows: blobRows,

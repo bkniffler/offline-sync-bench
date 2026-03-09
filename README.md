@@ -24,6 +24,7 @@ Current readable report:
 - `large-offline-queue`: replay a materially larger queued write set than the baseline offline-replay case
 - `local-query`: run screen-like filtered list, search, and aggregation workloads on the fully synced local client state
 - `permission-change`: revoke scoped access and measure how quickly previously visible local rows disappear
+- `blob-flow`: upload a blob, observe cross-client metadata visibility, force a cache miss, and measure authenticated re-download plus interrupted upload recovery
 
 Detailed specs live in:
 
@@ -34,6 +35,7 @@ Detailed specs live in:
 - [docs/scenarios/large-offline-queue.md](./docs/scenarios/large-offline-queue.md)
 - [docs/scenarios/local-query.md](./docs/scenarios/local-query.md)
 - [docs/scenarios/permission-change.md](./docs/scenarios/permission-change.md)
+- [docs/scenarios/blob-flow.md](./docs/scenarios/blob-flow.md)
 - [docs/methodology.md](./docs/methodology.md)
 
 ## Stacks
@@ -113,6 +115,7 @@ bun run bench:plan
 bun run bench:run -- --stack syncular --scenario bootstrap
 bun run bench:all
 bun run bench:report
+bun run bench:cleanup -- --dry-run
 bun run results:md
 bun run bundle:size
 ```
@@ -176,7 +179,7 @@ Interpretation:
 
 The benchmark harness is operational for six stacks, with the expanded scenario set currently verified for:
 
-- Syncular: `bootstrap`, `online-propagation`, `offline-replay`, `reconnect-storm`, `large-offline-queue`, `local-query`, `permission-change`
+- Syncular: `bootstrap`, `online-propagation`, `offline-replay`, `reconnect-storm`, `large-offline-queue`, `local-query`, `permission-change`, `blob-flow`
 - Electric: `bootstrap`, `online-propagation`, `offline-replay` (emulated), `reconnect-storm`, `large-offline-queue` (emulated), `local-query`, `permission-change`
 
 The older full-matrix artifact set is still useful for the first six-stack comparison:
@@ -187,6 +190,6 @@ The older full-matrix artifact set is still useful for the first six-stack compa
 - csv summary: [.results/2026-03-07T23-10-07-008Z/SUMMARY.csv](./.results/2026-03-07T23-10-07-008Z/SUMMARY.csv)
 - run manifest: [.results/2026-03-07T23-10-07-008Z/RUN_MANIFEST.json](./.results/2026-03-07T23-10-07-008Z/RUN_MANIFEST.json)
 
-The current gaps are primarily broader scenario coverage for the non-Syncular/Electric stacks and cleanup/archive tooling, not missing core adapters or missing resource telemetry.
+The current gaps are primarily broader scenario coverage for the non-Syncular/Electric stacks, not missing core adapters or missing resource telemetry.
 
 See [TODO.md](./TODO.md) for the remaining work.

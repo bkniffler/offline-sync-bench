@@ -126,6 +126,12 @@ export interface BootstrapScaleResult {
   snapshotFetchMs?: number;
   snapshotDecodeMs?: number;
   localApplyMs?: number;
+  serverSnapshotQueryMs?: number;
+  serverRowFrameEncodeMs?: number;
+  serverChunkCacheLookupMs?: number;
+  serverChunkGzipMs?: number;
+  serverChunkHashMs?: number;
+  serverChunkPersistMs?: number;
 }
 
 export interface OnlinePropagationSample {

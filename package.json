@@ -10,6 +10,7 @@
     "bench:run": "bun run src/cli.ts run",
     "bench:all": "bun run src/cli.ts run-all",
     "bench:report": "bun run src/cli.ts report",
+    "bench:cleanup": "bun run src/cli.ts cleanup",
     "results:md": "bun run src/public-results.ts",
     "bundle:size": "bun run src/bundle-size.ts",
     "typecheck": "bunx tsc --noEmit",

@@ -110,10 +110,47 @@ function runDockerBestEffort(args: string[]): void {
 
 function shouldRetryComposeUpAfterCleanup(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
+  const message = error.message;
   return (
-    error.message.includes('is already in use by container') ||
-    error.message.includes('Container') && error.message.includes('Conflict')
+    message.includes('is already in use by container') ||
+    (message.includes('Container') && message.includes('Conflict')) ||
+    message.includes('removal of container') ||
+    message.includes('already in progress') ||
+    message.includes('EOF')
   );
+}
+
+async function runDockerComposeUpWithRetries(
+  stack: StackSpec,
+  upArgs: string[]
+): Promise<void> {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    try {
+      runDockerCompose(stack, upArgs);
+      return;
+    } catch (error) {
+      lastError = error;
+      if (!shouldRetryComposeUpAfterCleanup(error)) {
+        throw error;
+      }
+
+      runDockerBestEffort([
+        'compose',
+        '-f',
+        stack.composeFile,
+        'down',
+        '-v',
+        '--remove-orphans',
+      ]);
+      await Bun.sleep(1_000 * (attempt + 1));
+    }
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error(`docker compose ${upArgs.join(' ')} failed for ${stack.id}`);
 }
 
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
@@ -333,15 +370,7 @@ export async function ensureStackUp(stackId: StackId): Promise<StackSpec> {
   }
 
   const upArgs = fingerprintState.changed ? ['up', '--build', '-d'] : ['up', '-d'];
-  try {
-    runDockerCompose(stack, upArgs);
-  } catch (error) {
-    if (!shouldRetryComposeUpAfterCleanup(error)) {
-      throw error;
-    }
-    runDockerCompose(stack, ['down', '-v', '--remove-orphans']);
-    runDockerCompose(stack, upArgs);
-  }
+  await runDockerComposeUpWithRetries(stack, upArgs);
   await waitForUrl(`${stack.adminBaseUrl}/health`);
 
   switch (stack.id) {
