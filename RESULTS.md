@@ -9,7 +9,7 @@ Numbers are directly comparable within a scenario, but they may come from differ
 - Online propagation: Electric still leads on tail latency (12.72 ms p95), while Syncular is now at 19.47 ms p95 with 11.35 ms write ack.
 - Native offline replay: Syncular currently converges in 92.32 ms, ahead of Replicache (1253 ms) and PowerSync (5191 ms).
 - Permission change: Syncular and Electric both have real multi-project revocation coverage here; Syncular converges in 43.56 ms and Electric in 15.96 ms.
-- Canonical browser client bundle: Syncular is currently 168.06 KB raw / 42.17 KB gzip from the local checkout analysis.
+- Client bundle size: Syncular is currently 829.83 KB raw / 238.32 KB gzip for the named-import browser profile.
 - Blob flow: Syncular currently uploads a 524288 byte blob in 27.49 ms, syncs metadata to a second client in 45.51 ms, and re-downloads it after cache clear in 8.13 ms.
 
 ## Bootstrap
@@ -81,7 +81,7 @@ Numbers are directly comparable within a scenario, but they may come from differ
 
 | Library | Profile | Raw | Gzip |
 | --- | --- | --- | --- |
-| Syncular | canonical client | 168.06 KB | 42.17 KB |
+| Syncular | named import | 829.83 KB | 238.32 KB |
 | Electric | named import | 48.55 KB | 15.38 KB |
 | Zero | named import | 285.61 KB | 92.91 KB |
 | PowerSync | named import | 587.63 KB | 179.43 KB |
@@ -93,4 +93,4 @@ Numbers are directly comparable within a scenario, but they may come from differ
 - `native` means the benchmark uses the product’s normal client model.
 - `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.
 - `unsupported` stacks are intentionally omitted instead of being forced through non-native adapters.
-- Syncular bundle size is taken from the canonical local-checkout browser-client analysis; other libraries use the named-import bundle-size profile from `.results/BUNDLE_SIZES.json`.
+- Bundle sizes are taken from the named-import browser bundle profile in `.results/BUNDLE_SIZES.json`.

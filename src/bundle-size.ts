@@ -5,7 +5,6 @@ import { createRequire } from 'node:module';
 import {
   benchmarkRoot,
   resultsRoot,
-  syncularRoot,
   tempRoot as sharedTempRoot,
 } from './paths';
 
@@ -59,16 +58,6 @@ export const targets: BundleTarget[] = [
     namedImports: ['createClient', 'createClientHandler'],
   },
   {
-    id: 'syncular-client-local-root',
-    label: 'Syncular Client Local Checkout',
-    importPath: join(syncularRoot, 'packages', 'client', 'src', 'index.ts'),
-    displayImportPath: 'local:@syncular/client',
-    versionPackageName: 'syncular-local-checkout',
-    versionOverride: 'local-checkout',
-    profile: 'named-import',
-    namedImports: ['createClient', 'createClientHandler'],
-  },
-  {
     id: 'syncular-umbrella-retained',
     label: 'Syncular Umbrella',
     importPath: 'syncular',
@@ -80,16 +69,6 @@ export const targets: BundleTarget[] = [
     label: 'Syncular Umbrella Root',
     importPath: 'syncular/client',
     versionPackageName: 'syncular',
-    profile: 'named-import',
-    namedImports: ['createClient', 'createClientHandler'],
-  },
-  {
-    id: 'syncular-subpath-local-root',
-    label: 'Syncular Umbrella Local Checkout',
-    importPath: join(syncularRoot, 'packages', 'syncular', 'src', 'client.ts'),
-    displayImportPath: 'local:syncular/client',
-    versionPackageName: 'syncular-local-checkout',
-    versionOverride: 'local-checkout',
     profile: 'named-import',
     namedImports: ['createClient', 'createClientHandler'],
   },

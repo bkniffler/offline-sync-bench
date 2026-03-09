@@ -156,23 +156,14 @@ async function collectBundleRows(): Promise<BundleSizeRow[]> {
   const bundleSizes = await readJsonFile<BundleSizeRow[]>(
     join(RESULTS_DIR, 'BUNDLE_SIZES.json')
   );
-  const bundleAnalysis = await readJsonFile<
-    Array<{ targetId: string; label: string; rawKb: number; gzipKb: number }>
-  >(join(RESULTS_DIR, 'BUNDLE_ANALYSIS.json'));
-
-  const syncularCanonical = bundleAnalysis.find(
-    (entry) => entry.targetId === 'syncular-client-local-root'
-  );
   const lookup = new Map(bundleSizes.map((entry) => [entry.id, entry] as const));
 
   const rows: Array<BundleSizeRow | null> = [
-    syncularCanonical
+    lookup.get('syncular-client-root-named')
       ? {
-          id: 'syncular-canonical',
+          ...lookup.get('syncular-client-root-named')!,
           label: 'Syncular',
-          rawKb: syncularCanonical.rawKb,
-          gzipKb: syncularCanonical.gzipKb,
-          profile: 'canonical client',
+          profile: 'named import',
         }
       : null,
     lookup.get('electric-minimal')
@@ -255,7 +246,7 @@ async function main(): Promise<void> {
   }
   if (syncularBundle) {
     sections.push(
-      `- Canonical browser client bundle: Syncular is currently ${formatKb(syncularBundle.rawKb)} raw / ${formatKb(syncularBundle.gzipKb)} gzip from the local checkout analysis.`
+      `- Client bundle size: Syncular is currently ${formatKb(syncularBundle.rawKb)} raw / ${formatKb(syncularBundle.gzipKb)} gzip for the named-import browser profile.`
     );
   }
   if (syncularBlobFlow) {
@@ -490,7 +481,7 @@ async function main(): Promise<void> {
   sections.push('- `native` means the benchmark uses the product’s normal client model.');
   sections.push('- `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.');
   sections.push('- `unsupported` stacks are intentionally omitted instead of being forced through non-native adapters.');
-  sections.push('- Syncular bundle size is taken from the canonical local-checkout browser-client analysis; other libraries use the named-import bundle-size profile from `.results/BUNDLE_SIZES.json`.');
+  sections.push('- Bundle sizes are taken from the named-import browser bundle profile in `.results/BUNDLE_SIZES.json`.');
   sections.push('');
 
   const markdown = sections.join('\n');

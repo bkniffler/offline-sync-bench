@@ -115,8 +115,6 @@ bun run bench:all
 bun run bench:report
 bun run results:md
 bun run bundle:size
-bun run bundle:analyze
-bun run bundle:check
 ```
 
 Stack helpers:
@@ -169,15 +167,10 @@ Bundle-size reporting now includes:
 - gzip-compressed size per entrypoint
 - emitted artifact count per entrypoint
 - output artifacts: `.results/BUNDLE_SIZES.json` and `.results/BUNDLE_SIZES.md`
-- compiled canonical-client attribution via esbuild metafiles
-- bundle guard output for the saved Syncular local-checkout budget
-- a canonical browser entrypoint guard for the local `@syncular/client` path
-- output artifacts: `.results/BUNDLE_ANALYSIS.json`, `.results/BUNDLE_ANALYSIS.md`, and `.results/BUNDLE_CHECK.md`
 
 Interpretation:
 
-- `bundle:size` is the broad cross-library entrypoint report used for like-for-like comparisons across libraries
-- `bundle:analyze` and `bundle:check` focus on the compiled canonical `@syncular/client` browser client path and are the better tools for identifying or guarding Syncular-specific regressions
+- `bundle:size` is the neutral cross-library entrypoint report used for like-for-like comparisons across libraries
 
 ## Current status
 

@@ -12,8 +12,6 @@
     "bench:report": "bun run src/cli.ts report",
     "results:md": "bun run src/public-results.ts",
     "bundle:size": "bun run src/bundle-size.ts",
-    "bundle:analyze": "bun run src/bundle-analyze.ts",
-    "bundle:check": "bun run src/bundle-check.ts",
     "typecheck": "bunx tsc --noEmit",
     "stacks:syncular:config": "docker compose -f stacks/syncular/docker-compose.yml config",
     "stacks:syncular:up": "docker compose -f stacks/syncular/docker-compose.yml up --build -d",

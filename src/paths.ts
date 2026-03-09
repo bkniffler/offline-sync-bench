@@ -7,7 +7,6 @@ export const benchmarkRoot = resolve(srcDir, '..');
 export const resultsRoot = join(benchmarkRoot, '.results');
 export const tempRoot = join(benchmarkRoot, '.tmp');
 export const catalogPath = join(resultsRoot, 'catalog.sqlite');
-export const configRoot = join(benchmarkRoot, 'config');
 export const syncularRoot = resolve(benchmarkRoot, '..', 'syncular');
 
 function normalizeRelativePath(path: string): string {
