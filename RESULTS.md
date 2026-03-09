@@ -50,8 +50,10 @@ Numbers are directly comparable within a scenario, but they may come from differ
 | --- | --- | --- | --- | --- | --- |
 | Syncular | 10 | 92.32 ms | 1 | 241.56 MB | native |
 | Electric | 10 | 37.35 ms | 2 | 684.30 MB | emulated |
+| Zero | n/a | n/a | n/a | n/a | native |
 | PowerSync | 10 | 5191 ms | 17 | 318.15 MB | native |
 | Replicache | 10 | 1253 ms | 18 | 210.83 MB | native |
+| LiveStore | n/a | n/a | n/a | n/a | native |
 
 ## Reconnect Storm
 
@@ -59,6 +61,10 @@ Numbers are directly comparable within a scenario, but they may come from differ
 | --- | --- | --- | --- | --- | --- |
 | Syncular | 25 | 251.3 ms | 91.50 MB | 56.28 MB | native |
 | Electric | 25 | 44.84 ms | 277.15 MB | 63.14 MB | native |
+| Zero | n/a | n/a | n/a | n/a | native |
+| PowerSync | n/a | n/a | n/a | n/a | native |
+| Replicache | n/a | n/a | n/a | n/a | native |
+| LiveStore | n/a | n/a | n/a | n/a | native |
 
 ## Large Offline Queue
 
@@ -66,8 +72,10 @@ Numbers are directly comparable within a scenario, but they may come from differ
 | --- | --- | --- | --- | --- | --- |
 | Syncular | 389.4 ms | 1994 ms | 3812 ms | 50 | native |
 | Electric | n/a | n/a | n/a | n/a | emulated |
+| Zero | n/a | n/a | n/a | n/a | native |
 | PowerSync | 5466 ms | 6630 ms | 8019 ms | 1007 | native |
 | Replicache | 1272 ms | 1280 ms | 1362 ms | 18 | native |
+| LiveStore | n/a | n/a | n/a | n/a | native |
 
 ## Local Query
 
@@ -76,7 +84,9 @@ Numbers are directly comparable within a scenario, but they may come from differ
 | Syncular | 0.25 ms | 0.10 ms | 5.83 ms | 374.53 MB | native |
 | Electric | 8.56 ms | 2.84 ms | 6.98 ms | 793.22 MB | native |
 | Zero | 8.10 ms | 5.10 ms | 8.74 ms | 392.06 MB | native |
+| PowerSync | n/a | n/a | n/a | n/a | native |
 | Replicache | 12.88 ms | 2.53 ms | 6.48 ms | 300.97 MB | native |
+| LiveStore | n/a | n/a | n/a | n/a | native |
 
 ## Permission Change
 
@@ -84,6 +94,10 @@ Numbers are directly comparable within a scenario, but they may come from differ
 | --- | --- | --- | --- | --- | --- | --- |
 | Syncular | 1000 | 500 | 0 | 500 | 46.90 ms | native |
 | Electric | 1000 | 500 | 0 | 500 | 39.36 ms | native |
+| Zero | n/a | n/a | n/a | n/a | n/a | native |
+| PowerSync | n/a | n/a | n/a | n/a | n/a | native |
+| Replicache | n/a | n/a | n/a | n/a | n/a | native |
+| LiveStore | n/a | n/a | n/a | n/a | n/a | native |
 
 ## Permission Change Repeat Summary
 
@@ -97,6 +111,11 @@ Numbers are directly comparable within a scenario, but they may come from differ
 | Stack | Blob bytes | Upload | Metadata visible | Re-download | Retry recovery | Transfer overhead | SQLite upload overhead | Support |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Syncular | 524288 | 17.60 ms | 31.71 ms | 7.01 ms | 13.23 ms | 7183 B | 0 B | native |
+| Electric | n/a | n/a | n/a | n/a | n/a | n/a | n/a | native |
+| Zero | n/a | n/a | n/a | n/a | n/a | n/a | n/a | native |
+| PowerSync | n/a | n/a | n/a | n/a | n/a | n/a | n/a | native |
+| Replicache | n/a | n/a | n/a | n/a | n/a | n/a | n/a | native |
+| LiveStore | n/a | n/a | n/a | n/a | n/a | n/a | n/a | native |
 
 ## Blob Flow Repeat Summary
 

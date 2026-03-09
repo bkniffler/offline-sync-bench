@@ -231,6 +231,10 @@ function renderScenarioTable(args: {
   return [`## ${args.title}`, '', markdownTable(args.headers, args.rows), ''].join('\n');
 }
 
+function stackTitle(stackId: StackId): string {
+  return stacks.find((stack) => stack.id === stackId)?.title ?? stackId;
+}
+
 async function main(): Promise<void> {
   const latest = await collectLatestResults();
   const bundleRows = await collectBundleRows();
@@ -361,18 +365,16 @@ async function main(): Promise<void> {
   const bootstrapRows = stackOrder
     .map((stackId) => {
       const result = getResult(latest, 'bootstrap', stackId);
-      if (!result) return null;
       return [
-        stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
-        formatMs(result.metrics.bootstrap_1000_ms),
-        formatMs(result.metrics.bootstrap_10000_ms),
-        formatMs(result.metrics.bootstrap_100000_ms),
-        formatCount(result.metrics.request_count_100000),
-        formatMb(result.metrics.avg_memory_mb_100000),
+        stackTitle(stackId),
+        formatMs(result?.metrics.bootstrap_1000_ms),
+        formatMs(result?.metrics.bootstrap_10000_ms),
+        formatMs(result?.metrics.bootstrap_100000_ms),
+        formatCount(result?.metrics.request_count_100000),
+        formatMb(result?.metrics.avg_memory_mb_100000),
         formatSupport(result),
       ];
-    })
-    .filter((row): row is string[] => row !== null);
+    });
   sections.push(
     renderScenarioTable({
       title: 'Bootstrap',
@@ -419,17 +421,15 @@ async function main(): Promise<void> {
   const onlineRows = stackOrder
     .map((stackId) => {
       const result = getResult(latest, 'online-propagation', stackId);
-      if (!result) return null;
       return [
-        stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
-        formatMs(result.metrics.write_ack_ms),
-        formatMs(result.metrics.mirror_visible_p50_ms),
-        formatMs(result.metrics.mirror_visible_p95_ms),
-        formatMb(result.metrics.avg_memory_mb),
+        stackTitle(stackId),
+        formatMs(result?.metrics.write_ack_ms),
+        formatMs(result?.metrics.mirror_visible_p50_ms),
+        formatMs(result?.metrics.mirror_visible_p95_ms),
+        formatMb(result?.metrics.avg_memory_mb),
         formatSupport(result),
       ];
-    })
-    .filter((row): row is string[] => row !== null);
+    });
   sections.push(
     renderScenarioTable({
       title: 'Online Propagation',
@@ -441,17 +441,15 @@ async function main(): Promise<void> {
   const replayRows = stackOrder
     .map((stackId) => {
       const result = getResult(latest, 'offline-replay', stackId);
-      if (!result) return null;
       return [
-        stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
-        formatCount(firstMetric(result.metrics, ['queued_write_count', 'queued_mutations'])),
-        formatMs(firstMetric(result.metrics, ['reconnect_convergence_ms', 'replay_visible_ms'])),
-        formatCount(result.metrics.request_count),
-        formatMb(result.metrics.avg_memory_mb),
+        stackTitle(stackId),
+        formatCount(firstMetric(result?.metrics ?? {}, ['queued_write_count', 'queued_mutations'])),
+        formatMs(firstMetric(result?.metrics ?? {}, ['reconnect_convergence_ms', 'replay_visible_ms'])),
+        formatCount(result?.metrics.request_count),
+        formatMb(result?.metrics.avg_memory_mb),
         formatSupport(result),
       ];
-    })
-    .filter((row): row is string[] => row !== null);
+    });
   sections.push(
     renderScenarioTable({
       title: 'Offline Replay',
@@ -463,17 +461,15 @@ async function main(): Promise<void> {
   const stormRows = stackOrder
     .map((stackId) => {
       const result = getResult(latest, 'reconnect-storm', stackId);
-      if (!result) return null;
       return [
-        stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
-        formatCount(result.metrics.client_count),
-        formatMs(result.metrics.reconnect_convergence_ms),
-        formatMb(result.metrics.sync_avg_memory_mb),
-        formatMb(result.metrics.postgres_avg_memory_mb),
+        stackTitle(stackId),
+        formatCount(result?.metrics.client_count),
+        formatMs(result?.metrics.reconnect_convergence_ms),
+        formatMb(result?.metrics.sync_avg_memory_mb),
+        formatMb(result?.metrics.postgres_avg_memory_mb),
         formatSupport(result),
       ];
-    })
-    .filter((row): row is string[] => row !== null);
+    });
   sections.push(
     renderScenarioTable({
       title: 'Reconnect Storm',
@@ -492,17 +488,15 @@ async function main(): Promise<void> {
   const queueRows = stackOrder
     .map((stackId) => {
       const result = getResult(latest, 'large-offline-queue', stackId);
-      if (!result) return null;
       return [
-        stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
-        formatMs(result.metrics.queue_100_convergence_ms),
-        formatMs(result.metrics.queue_500_convergence_ms),
-        formatMs(result.metrics.queue_1000_convergence_ms),
-        formatCount(result.metrics.queue_1000_request_count),
+        stackTitle(stackId),
+        formatMs(result?.metrics.queue_100_convergence_ms),
+        formatMs(result?.metrics.queue_500_convergence_ms),
+        formatMs(result?.metrics.queue_1000_convergence_ms),
+        formatCount(result?.metrics.queue_1000_request_count),
         formatSupport(result),
       ];
-    })
-    .filter((row): row is string[] => row !== null);
+    });
   sections.push(
     renderScenarioTable({
       title: 'Large Offline Queue',
@@ -514,17 +508,15 @@ async function main(): Promise<void> {
   const queryRows = stackOrder
     .map((stackId) => {
       const result = getResult(latest, 'local-query', stackId);
-      if (!result) return null;
       return [
-        stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
-        formatMs(result.metrics.list_query_p50_ms),
-        formatMs(result.metrics.search_query_p50_ms),
-        formatMs(result.metrics.aggregate_query_p50_ms),
-        formatMb(result.metrics.avg_memory_mb),
+        stackTitle(stackId),
+        formatMs(result?.metrics.list_query_p50_ms),
+        formatMs(result?.metrics.search_query_p50_ms),
+        formatMs(result?.metrics.aggregate_query_p50_ms),
+        formatMb(result?.metrics.avg_memory_mb),
         formatSupport(result),
       ];
-    })
-    .filter((row): row is string[] => row !== null);
+    });
   sections.push(
     renderScenarioTable({
       title: 'Local Query',
@@ -536,18 +528,16 @@ async function main(): Promise<void> {
   const permissionRows = stackOrder
     .map((stackId) => {
       const result = getResult(latest, 'permission-change', stackId);
-      if (!result) return null;
       return [
-        stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
-        formatCount(result.metrics.initial_visible_rows),
-        formatCount(result.metrics.post_revoke_visible_rows),
-        formatCount(result.metrics.revoked_project_visible_rows_after_revoke),
-        formatCount(result.metrics.retained_project_visible_rows_after_revoke),
-        formatMs(result.metrics.permission_revoke_convergence_ms),
+        stackTitle(stackId),
+        formatCount(result?.metrics.initial_visible_rows),
+        formatCount(result?.metrics.post_revoke_visible_rows),
+        formatCount(result?.metrics.revoked_project_visible_rows_after_revoke),
+        formatCount(result?.metrics.retained_project_visible_rows_after_revoke),
+        formatMs(result?.metrics.permission_revoke_convergence_ms),
         formatSupport(result),
       ];
-    })
-    .filter((row): row is string[] => row !== null);
+    });
   sections.push(
     renderScenarioTable({
       title: 'Permission Change',
@@ -599,39 +589,35 @@ async function main(): Promise<void> {
   const blobRows = stackOrder
     .map((stackId) => {
       const result = getResult(latest, 'blob-flow', stackId);
-      if (!result) return null;
       return [
-        stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
-        formatCount(result.metrics.blob_size_bytes),
-        formatMs(result.metrics.upload_complete_ms),
-        formatMs(result.metrics.metadata_visible_ms),
-        formatMs(firstMetric(result.metrics, ['download_after_metadata_ms', 'download_after_clear_ms'])),
-        formatMs(result.metrics.retry_recovery_ms),
-        formatBytes(result.metrics.transfer_overhead_bytes),
-        formatBytes(result.metrics.sqlite_storage_overhead_bytes_after_upload),
+        stackTitle(stackId),
+        formatCount(result?.metrics.blob_size_bytes),
+        formatMs(result?.metrics.upload_complete_ms),
+        formatMs(result?.metrics.metadata_visible_ms),
+        formatMs(firstMetric(result?.metrics ?? {}, ['download_after_metadata_ms', 'download_after_clear_ms'])),
+        formatMs(result?.metrics.retry_recovery_ms),
+        formatBytes(result?.metrics.transfer_overhead_bytes),
+        formatBytes(result?.metrics.sqlite_storage_overhead_bytes_after_upload),
         formatSupport(result),
       ];
+    });
+  sections.push(
+    renderScenarioTable({
+      title: 'Blob Flow',
+      headers: [
+        'Stack',
+        'Blob bytes',
+        'Upload',
+        'Metadata visible',
+        'Re-download',
+        'Retry recovery',
+        'Transfer overhead',
+        'SQLite upload overhead',
+        'Support',
+      ],
+      rows: blobRows,
     })
-    .filter((row): row is string[] => row !== null);
-  if (blobRows.length > 0) {
-    sections.push(
-      renderScenarioTable({
-        title: 'Blob Flow',
-        headers: [
-          'Stack',
-          'Blob bytes',
-          'Upload',
-          'Metadata visible',
-          'Re-download',
-          'Retry recovery',
-          'Transfer overhead',
-          'SQLite upload overhead',
-          'Support',
-        ],
-        rows: blobRows,
-      })
-    );
-  }
+  );
 
   const blobRepeatRows = stackOrder
     .map((stackId) => {
