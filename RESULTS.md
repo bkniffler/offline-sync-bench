@@ -5,7 +5,7 @@ Numbers are directly comparable within a scenario, but they may come from differ
 
 ## Highlights
 
-- Bootstrap at 100k rows (median of the latest 3 runs where available): Electric is at 416.3 ms; Syncular is at 852.8 ms; Replicache is at 1046 ms.
+- Bootstrap at 100k rows (median of the latest 3 runs where available): Electric is at 416.3 ms; Syncular is at 847.1 ms; Replicache is at 991.8 ms.
 - Online propagation: Electric still leads on tail latency (12.72 ms p95), while Syncular is now at 19.47 ms p95 with 11.35 ms write ack.
 - Native offline replay: Syncular currently converges in 92.32 ms, ahead of Replicache (1253 ms) and PowerSync (5191 ms).
 - Permission change (median of the latest 3 runs where available): Syncular converges in 43.56 ms and Electric in 15.96 ms.
@@ -16,22 +16,22 @@ Numbers are directly comparable within a scenario, but they may come from differ
 
 | Stack | 1k | 10k | 100k | 100k reqs | 100k avg mem | Support |
 | --- | --- | --- | --- | --- | --- | --- |
-| Syncular | 30.60 ms | 113.0 ms | 852.8 ms | 6 | 301.06 MB | native |
-| Electric | 43.19 ms | 68.94 ms | 419.6 ms | 4 | 475.67 MB | native |
+| Syncular | 39.74 ms | 98.18 ms | 847.1 ms | 6 | 305.62 MB | native |
+| Electric | 38.60 ms | 64.21 ms | 402.1 ms | 4 | 526.86 MB | native |
 | Zero | 112.7 ms | 469.4 ms | 4070 ms | 0 | 507.96 MB | native |
 | PowerSync | 5212 ms | 5512 ms | 8158 ms | 1 | 265.52 MB | native |
-| Replicache | 37.55 ms | 116.4 ms | 1073 ms | 2 | 376.66 MB | native |
+| Replicache | 30.08 ms | 98.11 ms | 930.7 ms | 2 | 379.26 MB | native |
 | LiveStore | 488.4 ms | 2539 ms | n/a | n/a | n/a | native |
 
 ## Bootstrap Repeat Summary
 
 | Stack | Runs | 100k median | 100k min | 100k max | Latest 100k |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 3 | 852.8 ms | 841.4 ms | 1012 ms | 852.8 ms |
-| Electric | 3 | 416.3 ms | 413.7 ms | 419.6 ms | 419.6 ms |
-| Zero | 3 | 4978 ms | 4070 ms | 6007 ms | 4070 ms |
-| PowerSync | 3 | 8158 ms | 7193 ms | 20290 ms | 8158 ms |
-| Replicache | 3 | 1046 ms | 972.2 ms | 1073 ms | 1073 ms |
+| Syncular | 5 | 847.1 ms | 812.1 ms | 1012 ms | 847.1 ms |
+| Electric | 5 | 416.3 ms | 402.1 ms | 419.6 ms | 402.1 ms |
+| Zero | 5 | 4070 ms | 3781 ms | 6007 ms | 4070 ms |
+| PowerSync | 5 | 7193 ms | 6645 ms | 20290 ms | 8158 ms |
+| Replicache | 5 | 991.8 ms | 930.7 ms | 1073 ms | 930.7 ms |
 
 ## Online Propagation
 
@@ -50,10 +50,10 @@ Numbers are directly comparable within a scenario, but they may come from differ
 | --- | --- | --- | --- | --- | --- |
 | Syncular | 10 | 92.32 ms | 1 | 241.56 MB | native |
 | Electric | 10 | 37.35 ms | 2 | 684.30 MB | emulated |
-| Zero | n/a | n/a | n/a | n/a | native |
+| Zero | n/a | n/a | n/a | n/a | unsupported |
 | PowerSync | 10 | 5191 ms | 17 | 318.15 MB | native |
 | Replicache | 10 | 1253 ms | 18 | 210.83 MB | native |
-| LiveStore | n/a | n/a | n/a | n/a | native |
+| LiveStore | n/a | n/a | n/a | n/a | unsupported |
 
 ## Reconnect Storm
 
@@ -61,10 +61,10 @@ Numbers are directly comparable within a scenario, but they may come from differ
 | --- | --- | --- | --- | --- | --- |
 | Syncular | 25 | 251.3 ms | 91.50 MB | 56.28 MB | native |
 | Electric | 25 | 44.84 ms | 277.15 MB | 63.14 MB | native |
-| Zero | n/a | n/a | n/a | n/a | native |
-| PowerSync | n/a | n/a | n/a | n/a | native |
+| Zero | n/a | n/a | n/a | n/a | unsupported |
+| PowerSync | n/a | n/a | n/a | n/a | unsupported |
 | Replicache | 25 | 78.09 ms | 58.85 MB | 75.73 MB | native |
-| LiveStore | n/a | n/a | n/a | n/a | native |
+| LiveStore | n/a | n/a | n/a | n/a | unsupported |
 
 ## Reconnect Storm Repeat Summary
 
@@ -74,16 +74,24 @@ Numbers are directly comparable within a scenario, but they may come from differ
 | Electric | 2 | 37.22 ms | 29.59 ms | 44.84 ms | 44.84 ms |
 | Replicache | 1 | 78.09 ms | 78.09 ms | 78.09 ms | 78.09 ms |
 
+## Reconnect Storm Resource Summary
+
+| Stack | Sync avg mem | Postgres avg mem | Sync avg CPU | Postgres avg CPU | Support |
+| --- | --- | --- | --- | --- | --- |
+| Syncular | 91.50 MB | 56.28 MB | 0.83% | 1.01% | native |
+| Electric | 277.15 MB | 63.14 MB | 3.69% | 0.09% | native |
+| Replicache | 58.85 MB | 75.73 MB | 0.74% | 1.17% | native |
+
 ## Large Offline Queue
 
 | Stack | 100 writes | 500 writes | 1000 writes | 1000 reqs | Support |
 | --- | --- | --- | --- | --- | --- |
 | Syncular | 389.4 ms | 1994 ms | 3812 ms | 50 | native |
 | Electric | n/a | n/a | n/a | n/a | emulated |
-| Zero | n/a | n/a | n/a | n/a | native |
+| Zero | n/a | n/a | n/a | n/a | unsupported |
 | PowerSync | 5466 ms | 6630 ms | 8019 ms | 1007 | native |
 | Replicache | 1272 ms | 1280 ms | 1362 ms | 18 | native |
-| LiveStore | n/a | n/a | n/a | n/a | native |
+| LiveStore | n/a | n/a | n/a | n/a | unsupported |
 
 ## Large Offline Queue Repeat Summary
 
@@ -100,9 +108,9 @@ Numbers are directly comparable within a scenario, but they may come from differ
 | Syncular | 0.25 ms | 0.10 ms | 5.83 ms | 374.53 MB | native |
 | Electric | 8.56 ms | 2.84 ms | 6.98 ms | 793.22 MB | native |
 | Zero | 8.10 ms | 5.10 ms | 8.74 ms | 392.06 MB | native |
-| PowerSync | n/a | n/a | n/a | n/a | native |
+| PowerSync | n/a | n/a | n/a | n/a | unsupported |
 | Replicache | 12.88 ms | 2.53 ms | 6.48 ms | 300.97 MB | native |
-| LiveStore | n/a | n/a | n/a | n/a | native |
+| LiveStore | n/a | n/a | n/a | n/a | unsupported |
 
 ## Permission Change
 
@@ -110,10 +118,10 @@ Numbers are directly comparable within a scenario, but they may come from differ
 | --- | --- | --- | --- | --- | --- | --- |
 | Syncular | 1000 | 500 | 0 | 500 | 46.90 ms | native |
 | Electric | 1000 | 500 | 0 | 500 | 39.36 ms | native |
-| Zero | n/a | n/a | n/a | n/a | n/a | native |
-| PowerSync | n/a | n/a | n/a | n/a | n/a | native |
+| Zero | n/a | n/a | n/a | n/a | n/a | unsupported |
+| PowerSync | n/a | n/a | n/a | n/a | n/a | unsupported |
 | Replicache | 1000 | 500 | 0 | 500 | 28.16 ms | native |
-| LiveStore | n/a | n/a | n/a | n/a | n/a | native |
+| LiveStore | n/a | n/a | n/a | n/a | n/a | unsupported |
 
 ## Permission Change Repeat Summary
 
@@ -128,11 +136,11 @@ Numbers are directly comparable within a scenario, but they may come from differ
 | Stack | Blob bytes | Upload | Metadata visible | Re-download | Retry recovery | Transfer overhead | SQLite upload overhead | Support |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Syncular | 524288 | 17.60 ms | 31.71 ms | 7.01 ms | 13.23 ms | 7183 B | 0 B | native |
-| Electric | n/a | n/a | n/a | n/a | n/a | n/a | n/a | native |
-| Zero | n/a | n/a | n/a | n/a | n/a | n/a | n/a | native |
-| PowerSync | n/a | n/a | n/a | n/a | n/a | n/a | n/a | native |
-| Replicache | n/a | n/a | n/a | n/a | n/a | n/a | n/a | native |
-| LiveStore | n/a | n/a | n/a | n/a | n/a | n/a | n/a | native |
+| Electric | n/a | n/a | n/a | n/a | n/a | n/a | n/a | unsupported |
+| Zero | n/a | n/a | n/a | n/a | n/a | n/a | n/a | unsupported |
+| PowerSync | n/a | n/a | n/a | n/a | n/a | n/a | n/a | unsupported |
+| Replicache | n/a | n/a | n/a | n/a | n/a | n/a | n/a | unsupported |
+| LiveStore | n/a | n/a | n/a | n/a | n/a | n/a | n/a | unsupported |
 
 ## Blob Flow Repeat Summary
 
@@ -156,5 +164,5 @@ Numbers are directly comparable within a scenario, but they may come from differ
 - `native` means the benchmark uses the product’s normal client model.
 - `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.
 - `unsupported` rows stay visible as `n/a` so the support matrix remains explicit without inventing benchmark-owned adapters.
-- Bootstrap repeat summary uses the latest three successful 100k-row bootstrap runs per stack when available.
+- Bootstrap repeat summary uses the latest five successful 100k-row bootstrap runs per stack when available.
 - Bundle sizes are taken from the named-import browser bundle profile in `.results/BUNDLE_SIZES.json`.

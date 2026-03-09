@@ -7,7 +7,7 @@ import {
 } from './paths';
 import { scenarios } from './scenarios';
 import { stacks } from './stacks';
-import type { ScenarioId, StackId } from './types';
+import type { ScenarioId, StackCapabilities, StackId, SupportLevel } from './types';
 
 interface StoredBenchmarkResult {
   runId: string;
@@ -120,17 +120,59 @@ function formatMb(value: number | null | undefined): string {
   return `${value.toFixed(2)} MB`;
 }
 
+function formatPct(value: number | null | undefined): string {
+  if (value === null || value === undefined || Number.isNaN(value)) return 'n/a';
+  return `${value.toFixed(2)}%`;
+}
+
 function formatBytes(value: number | null | undefined): string {
   if (value === null || value === undefined || Number.isNaN(value)) return 'n/a';
   return `${Math.round(value)} B`;
 }
 
-function formatSupport(result: StoredBenchmarkResult | undefined): string {
-  const supportLevel =
-    typeof result?.metadata?.supportLevel === 'string'
-      ? result.metadata.supportLevel
-      : 'native';
-  return supportLevel;
+function capabilityKeyForScenario(
+  scenarioId: ScenarioId
+): keyof StackCapabilities {
+  switch (scenarioId) {
+    case 'bootstrap':
+      return 'bootstrap';
+    case 'online-propagation':
+      return 'onlinePropagation';
+    case 'offline-replay':
+      return 'offlineReplay';
+    case 'reconnect-storm':
+      return 'reconnectStorm';
+    case 'large-offline-queue':
+      return 'largeOfflineQueue';
+    case 'local-query':
+      return 'localQuery';
+    case 'permission-change':
+      return 'permissionChange';
+    case 'blob-flow':
+      return 'blobFlow';
+  }
+}
+
+function formatSupport(args: {
+  result: StoredBenchmarkResult | undefined;
+  scenarioId: ScenarioId;
+  stackId: StackId;
+}): string {
+  const metadataSupport = args.result?.metadata?.supportLevel;
+  if (
+    metadataSupport === 'native' ||
+    metadataSupport === 'emulated' ||
+    metadataSupport === 'unsupported'
+  ) {
+    return metadataSupport;
+  }
+
+  const stack = stacks.find((entry) => entry.id === args.stackId);
+  if (!stack) {
+    return 'unknown';
+  }
+
+  return stack.capabilities[capabilityKeyForScenario(args.scenarioId)] as SupportLevel;
 }
 
 function firstMetric(
@@ -372,7 +414,7 @@ async function main(): Promise<void> {
         formatMs(result?.metrics.bootstrap_100000_ms),
         formatCount(result?.metrics.request_count_100000),
         formatMb(result?.metrics.avg_memory_mb_100000),
-        formatSupport(result),
+        formatSupport({ result, scenarioId: 'bootstrap', stackId }),
       ];
     });
   sections.push(
@@ -389,7 +431,7 @@ async function main(): Promise<void> {
         latest,
         scenarioId: 'bootstrap',
         stackId,
-        limit: 3,
+        limit: 5,
       });
       if (recentResults.length === 0) return null;
       const bootstrapSamples = recentResults
@@ -427,7 +469,7 @@ async function main(): Promise<void> {
         formatMs(result?.metrics.mirror_visible_p50_ms),
         formatMs(result?.metrics.mirror_visible_p95_ms),
         formatMb(result?.metrics.avg_memory_mb),
-        formatSupport(result),
+        formatSupport({ result, scenarioId: 'online-propagation', stackId }),
       ];
     });
   sections.push(
@@ -447,7 +489,7 @@ async function main(): Promise<void> {
         formatMs(firstMetric(result?.metrics ?? {}, ['reconnect_convergence_ms', 'replay_visible_ms'])),
         formatCount(result?.metrics.request_count),
         formatMb(result?.metrics.avg_memory_mb),
-        formatSupport(result),
+        formatSupport({ result, scenarioId: 'offline-replay', stackId }),
       ];
     });
   sections.push(
@@ -467,7 +509,7 @@ async function main(): Promise<void> {
         formatMs(result?.metrics.reconnect_convergence_ms),
         formatMb(result?.metrics.sync_avg_memory_mb),
         formatMb(result?.metrics.postgres_avg_memory_mb),
-        formatSupport(result),
+        formatSupport({ result, scenarioId: 'reconnect-storm', stackId }),
       ];
     });
   sections.push(
@@ -519,6 +561,37 @@ async function main(): Promise<void> {
     );
   }
 
+  const reconnectResourceRows = stackOrder
+    .map((stackId) => {
+      const result = getResult(latest, 'reconnect-storm', stackId);
+      if (!result) return null;
+      return [
+        stackTitle(stackId),
+        formatMb(result.metrics.sync_avg_memory_mb),
+        formatMb(result.metrics.postgres_avg_memory_mb),
+        formatPct(result.metrics.sync_avg_cpu_pct),
+        formatPct(result.metrics.postgres_avg_cpu_pct),
+        formatSupport({ result, scenarioId: 'reconnect-storm', stackId }),
+      ];
+    })
+    .filter((row): row is string[] => row !== null);
+  if (reconnectResourceRows.length > 0) {
+    sections.push(
+      renderScenarioTable({
+        title: 'Reconnect Storm Resource Summary',
+        headers: [
+          'Stack',
+          'Sync avg mem',
+          'Postgres avg mem',
+          'Sync avg CPU',
+          'Postgres avg CPU',
+          'Support',
+        ],
+        rows: reconnectResourceRows,
+      })
+    );
+  }
+
   const queueRows = stackOrder
     .map((stackId) => {
       const result = getResult(latest, 'large-offline-queue', stackId);
@@ -528,7 +601,7 @@ async function main(): Promise<void> {
         formatMs(result?.metrics.queue_500_convergence_ms),
         formatMs(result?.metrics.queue_1000_convergence_ms),
         formatCount(result?.metrics.queue_1000_request_count),
-        formatSupport(result),
+        formatSupport({ result, scenarioId: 'large-offline-queue', stackId }),
       ];
     });
   sections.push(
@@ -598,7 +671,7 @@ async function main(): Promise<void> {
         formatMs(result?.metrics.search_query_p50_ms),
         formatMs(result?.metrics.aggregate_query_p50_ms),
         formatMb(result?.metrics.avg_memory_mb),
-        formatSupport(result),
+        formatSupport({ result, scenarioId: 'local-query', stackId }),
       ];
     });
   sections.push(
@@ -619,7 +692,7 @@ async function main(): Promise<void> {
         formatCount(result?.metrics.revoked_project_visible_rows_after_revoke),
         formatCount(result?.metrics.retained_project_visible_rows_after_revoke),
         formatMs(result?.metrics.permission_revoke_convergence_ms),
-        formatSupport(result),
+        formatSupport({ result, scenarioId: 'permission-change', stackId }),
       ];
     });
   sections.push(
@@ -682,7 +755,7 @@ async function main(): Promise<void> {
         formatMs(result?.metrics.retry_recovery_ms),
         formatBytes(result?.metrics.transfer_overhead_bytes),
         formatBytes(result?.metrics.sqlite_storage_overhead_bytes_after_upload),
-        formatSupport(result),
+        formatSupport({ result, scenarioId: 'blob-flow', stackId }),
       ];
     });
   sections.push(
@@ -761,7 +834,7 @@ async function main(): Promise<void> {
   sections.push('- `native` means the benchmark uses the product’s normal client model.');
   sections.push('- `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.');
   sections.push('- `unsupported` rows stay visible as `n/a` so the support matrix remains explicit without inventing benchmark-owned adapters.');
-  sections.push('- Bootstrap repeat summary uses the latest three successful 100k-row bootstrap runs per stack when available.');
+  sections.push('- Bootstrap repeat summary uses the latest five successful 100k-row bootstrap runs per stack when available.');
   sections.push('- Bundle sizes are taken from the named-import browser bundle profile in `.results/BUNDLE_SIZES.json`.');
   sections.push('');
 
