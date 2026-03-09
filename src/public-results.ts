@@ -505,10 +505,14 @@ async function main(): Promise<void> {
       const result = getResult(latest, 'reconnect-storm', stackId);
       return [
         stackTitle(stackId),
-        formatCount(result?.metrics.client_count),
-        formatMs(result?.metrics.reconnect_convergence_ms),
-        formatMb(result?.metrics.sync_avg_memory_mb),
-        formatMb(result?.metrics.postgres_avg_memory_mb),
+        formatMs(
+          firstMetric(result?.metrics ?? {}, [
+            'clients_25_convergence_ms',
+            'reconnect_convergence_ms',
+          ])
+        ),
+        formatMs(result?.metrics.clients_100_convergence_ms),
+        formatMs(result?.metrics.clients_250_convergence_ms),
         formatSupport({ result, scenarioId: 'reconnect-storm', stackId }),
       ];
     });
@@ -517,10 +521,9 @@ async function main(): Promise<void> {
       title: 'Reconnect Storm',
       headers: [
         'Stack',
-        'Clients',
-        'Convergence',
-        'Sync avg mem',
-        'Postgres avg mem',
+        '25 clients',
+        '100 clients',
+        '250 clients',
         'Support',
       ],
       rows: stormRows,
@@ -536,18 +539,35 @@ async function main(): Promise<void> {
         limit: 3,
       });
       if (recentResults.length === 0) return null;
-      const samples = recentResults
-        .map((result) => result.metrics.reconnect_convergence_ms)
+      const samples25 = recentResults
+        .map((result) =>
+          firstMetric(result.metrics, [
+            'clients_25_convergence_ms',
+            'reconnect_convergence_ms',
+          ])
+        )
         .filter((value): value is number => typeof value === 'number')
         .sort((left, right) => left - right);
-      if (samples.length === 0) return null;
+      const samples100 = recentResults
+        .map((result) => result.metrics.clients_100_convergence_ms)
+        .filter((value): value is number => typeof value === 'number')
+        .sort((left, right) => left - right);
+      const samples250 = recentResults
+        .map((result) => result.metrics.clients_250_convergence_ms)
+        .filter((value): value is number => typeof value === 'number')
+        .sort((left, right) => left - right);
+      const runCount = Math.max(
+        samples25.length,
+        samples100.length,
+        samples250.length
+      );
+      if (runCount === 0) return null;
       return [
         stackTitle(stackId),
-        formatCount(samples.length),
-        formatMs(median(samples)),
-        formatMs(samples[0]),
-        formatMs(samples[samples.length - 1]),
-        formatMs(recentResults[0]?.metrics.reconnect_convergence_ms),
+        formatCount(runCount),
+        formatMs(samples25.length > 0 ? median(samples25) : null),
+        formatMs(samples100.length > 0 ? median(samples100) : null),
+        formatMs(samples250.length > 0 ? median(samples250) : null),
       ];
     })
     .filter((row): row is string[] => row !== null);
@@ -555,7 +575,7 @@ async function main(): Promise<void> {
     sections.push(
       renderScenarioTable({
         title: 'Reconnect Storm Repeat Summary',
-        headers: ['Stack', 'Runs', 'Median', 'Min', 'Max', 'Latest'],
+        headers: ['Stack', 'Runs', '25 median', '100 median', '250 median'],
         rows: reconnectRepeatRows,
       })
     );
@@ -567,10 +587,30 @@ async function main(): Promise<void> {
       if (!result) return null;
       return [
         stackTitle(stackId),
-        formatMb(result.metrics.sync_avg_memory_mb),
-        formatMb(result.metrics.postgres_avg_memory_mb),
-        formatPct(result.metrics.sync_avg_cpu_pct),
-        formatPct(result.metrics.postgres_avg_cpu_pct),
+        formatMb(
+          firstMetric(result.metrics, [
+            'clients_250_sync_avg_memory_mb',
+            'sync_avg_memory_mb',
+          ])
+        ),
+        formatMb(
+          firstMetric(result.metrics, [
+            'clients_250_postgres_avg_memory_mb',
+            'postgres_avg_memory_mb',
+          ])
+        ),
+        formatPct(
+          firstMetric(result.metrics, [
+            'clients_250_sync_avg_cpu_pct',
+            'sync_avg_cpu_pct',
+          ])
+        ),
+        formatPct(
+          firstMetric(result.metrics, [
+            'clients_250_postgres_avg_cpu_pct',
+            'postgres_avg_cpu_pct',
+          ])
+        ),
         formatSupport({ result, scenarioId: 'reconnect-storm', stackId }),
       ];
     })
@@ -581,10 +621,10 @@ async function main(): Promise<void> {
         title: 'Reconnect Storm Resource Summary',
         headers: [
           'Stack',
-          'Sync avg mem',
-          'Postgres avg mem',
-          'Sync avg CPU',
-          'Postgres avg CPU',
+          '250 sync avg mem',
+          '250 postgres avg mem',
+          '250 sync avg CPU',
+          '250 postgres avg CPU',
           'Support',
         ],
         rows: reconnectResourceRows,
@@ -835,6 +875,7 @@ async function main(): Promise<void> {
   sections.push('- `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.');
   sections.push('- `unsupported` rows stay visible as `n/a` so the support matrix remains explicit without inventing benchmark-owned adapters.');
   sections.push('- Bootstrap repeat summary uses the latest five successful 100k-row bootstrap runs per stack when available.');
+  sections.push('- Reconnect storm repeat summary uses the latest three successful runs per stack and reports tier medians for 25 / 100 / 250 clients when available.');
   sections.push('- Bundle sizes are taken from the named-import browser bundle profile in `.results/BUNDLE_SIZES.json`.');
   sections.push('');
 

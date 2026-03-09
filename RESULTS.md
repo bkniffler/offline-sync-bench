@@ -57,30 +57,30 @@ Numbers are directly comparable within a scenario, but they may come from differ
 
 ## Reconnect Storm
 
-| Stack | Clients | Convergence | Sync avg mem | Postgres avg mem | Support |
-| --- | --- | --- | --- | --- | --- |
-| Syncular | 25 | 251.3 ms | 91.50 MB | 56.28 MB | native |
-| Electric | 25 | 44.84 ms | 277.15 MB | 63.14 MB | native |
-| Zero | n/a | n/a | n/a | n/a | unsupported |
-| PowerSync | n/a | n/a | n/a | n/a | unsupported |
-| Replicache | 25 | 78.09 ms | 58.85 MB | 75.73 MB | native |
-| LiveStore | n/a | n/a | n/a | n/a | unsupported |
+| Stack | 25 clients | 100 clients | 250 clients | Support |
+| --- | --- | --- | --- | --- |
+| Syncular | 241.2 ms | 8068 ms | 16127 ms | native |
+| Electric | 71.49 ms | 223.0 ms | 2019 ms | native |
+| Zero | n/a | n/a | n/a | unsupported |
+| PowerSync | n/a | n/a | n/a | unsupported |
+| Replicache | 84.44 ms | 2040 ms | 14106 ms | native |
+| LiveStore | n/a | n/a | n/a | unsupported |
 
 ## Reconnect Storm Repeat Summary
 
-| Stack | Runs | Median | Min | Max | Latest |
-| --- | --- | --- | --- | --- | --- |
-| Syncular | 3 | 2009 ms | 251.3 ms | 14103 ms | 251.3 ms |
-| Electric | 2 | 37.22 ms | 29.59 ms | 44.84 ms | 44.84 ms |
-| Replicache | 1 | 78.09 ms | 78.09 ms | 78.09 ms | 78.09 ms |
+| Stack | Runs | 25 median | 100 median | 250 median |
+| --- | --- | --- | --- | --- |
+| Syncular | 3 | 251.3 ms | 5072 ms | 16138 ms |
+| Electric | 3 | 44.84 ms | 223.0 ms | 2019 ms |
+| Replicache | 2 | 81.27 ms | 2040 ms | 14106 ms |
 
 ## Reconnect Storm Resource Summary
 
-| Stack | Sync avg mem | Postgres avg mem | Sync avg CPU | Postgres avg CPU | Support |
+| Stack | 250 sync avg mem | 250 postgres avg mem | 250 sync avg CPU | 250 postgres avg CPU | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 91.50 MB | 56.28 MB | 0.83% | 1.01% | native |
-| Electric | 277.15 MB | 63.14 MB | 3.69% | 0.09% | native |
-| Replicache | 58.85 MB | 75.73 MB | 0.74% | 1.17% | native |
+| Syncular | 100.86 MB | 100.25 MB | 1.30% | 0.89% | native |
+| Electric | 303.13 MB | 101.40 MB | 2.83% | 0.12% | native |
+| Replicache | 56.70 MB | 78.84 MB | 1.33% | 1.35% | native |
 
 ## Large Offline Queue
 
@@ -165,4 +165,5 @@ Numbers are directly comparable within a scenario, but they may come from differ
 - `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.
 - `unsupported` rows stay visible as `n/a` so the support matrix remains explicit without inventing benchmark-owned adapters.
 - Bootstrap repeat summary uses the latest five successful 100k-row bootstrap runs per stack when available.
+- Reconnect storm repeat summary uses the latest three successful runs per stack and reports tier medians for 25 / 100 / 250 clients when available.
 - Bundle sizes are taken from the named-import browser bundle profile in `.results/BUNDLE_SIZES.json`.

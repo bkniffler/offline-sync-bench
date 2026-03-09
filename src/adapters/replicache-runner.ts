@@ -706,37 +706,66 @@ async function runOfflineReplay(): Promise<RunnerResult> {
 }
 
 async function runReconnectStorm(): Promise<RunnerResult> {
-  const result = await runReconnectStormCase({ clientCount: 25 });
+  const clientCounts = [25, 100, 250];
+  const results: ReplicacheReconnectStormCaseResult[] = [];
+
+  for (const clientCount of clientCounts) {
+    results.push(await runReconnectStormCase({ clientCount }));
+  }
+
+  const baseline = results[0];
+  if (!baseline) {
+    throw new Error('Replicache reconnect storm produced no results');
+  }
 
   return {
     status: 'completed',
-    metrics: {
-      client_count: result.clientCount,
-      reconnect_convergence_ms: result.reconnectConvergenceMs,
-      request_count: result.requestCount,
-      request_bytes: result.requestBytes,
-      response_bytes: result.responseBytes,
-      bytes_transferred: result.bytesTransferred,
-      sync_avg_cpu_pct: result.syncAvgCpuPct,
-      sync_peak_cpu_pct: result.syncPeakCpuPct,
-      sync_avg_memory_mb: result.syncAvgMemoryMb,
-      sync_peak_memory_mb: result.syncPeakMemoryMb,
-      sync_rx_network_mb: result.syncRxNetworkMb,
-      sync_tx_network_mb: result.syncTxNetworkMb,
-      postgres_avg_cpu_pct: result.postgresAvgCpuPct,
-      postgres_peak_cpu_pct: result.postgresPeakCpuPct,
-      postgres_avg_memory_mb: result.postgresAvgMemoryMb,
-      postgres_peak_memory_mb: result.postgresPeakMemoryMb,
-      postgres_rx_network_mb: result.postgresRxNetworkMb,
-      postgres_tx_network_mb: result.postgresTxNetworkMb,
-    },
+    metrics: Object.fromEntries(
+      results.flatMap((result) => [
+        [`clients_${result.clientCount}_convergence_ms`, result.reconnectConvergenceMs],
+        [`clients_${result.clientCount}_request_count`, result.requestCount],
+        [`clients_${result.clientCount}_request_bytes`, result.requestBytes],
+        [`clients_${result.clientCount}_response_bytes`, result.responseBytes],
+        [`clients_${result.clientCount}_bytes_transferred`, result.bytesTransferred],
+        [`clients_${result.clientCount}_sync_avg_cpu_pct`, result.syncAvgCpuPct],
+        [`clients_${result.clientCount}_sync_peak_cpu_pct`, result.syncPeakCpuPct],
+        [`clients_${result.clientCount}_sync_avg_memory_mb`, result.syncAvgMemoryMb],
+        [`clients_${result.clientCount}_sync_peak_memory_mb`, result.syncPeakMemoryMb],
+        [`clients_${result.clientCount}_sync_rx_network_mb`, result.syncRxNetworkMb],
+        [`clients_${result.clientCount}_sync_tx_network_mb`, result.syncTxNetworkMb],
+        [`clients_${result.clientCount}_postgres_avg_cpu_pct`, result.postgresAvgCpuPct],
+        [`clients_${result.clientCount}_postgres_peak_cpu_pct`, result.postgresPeakCpuPct],
+        [`clients_${result.clientCount}_postgres_avg_memory_mb`, result.postgresAvgMemoryMb],
+        [`clients_${result.clientCount}_postgres_peak_memory_mb`, result.postgresPeakMemoryMb],
+        [`clients_${result.clientCount}_postgres_rx_network_mb`, result.postgresRxNetworkMb],
+        [`clients_${result.clientCount}_postgres_tx_network_mb`, result.postgresTxNetworkMb],
+      ])
+    ),
     notes: [
-      'Reconnect storm keeps 25 native Replicache clients bootstrapped, restarts the sync app, applies one external write, and measures convergence once every client has pulled the updated title.',
-      'Request counts and transfer volume are aggregated across all clients after the restart.',
+      'Reconnect storm keeps native Replicache clients bootstrapped at 25 / 100 / 250 clients, restarts the sync app, applies one external write, and measures convergence once every client has pulled the updated title.',
+      'Request counts and transfer volume are aggregated across all clients after each restart.',
     ],
     metadata: {
       implementation: 'replicache-client-reconnect-storm',
+      clientCounts,
+      scales: results.map((result) => ({
+        clientCount: result.clientCount,
+        reconnectConvergenceMs: result.reconnectConvergenceMs,
+        requestCount: result.requestCount,
+        requestBytes: result.requestBytes,
+        responseBytes: result.responseBytes,
+        bytesTransferred: result.bytesTransferred,
+        syncAvgCpuPct: result.syncAvgCpuPct,
+        syncPeakCpuPct: result.syncPeakCpuPct,
+        syncAvgMemoryMb: result.syncAvgMemoryMb,
+        syncPeakMemoryMb: result.syncPeakMemoryMb,
+        postgresAvgCpuPct: result.postgresAvgCpuPct,
+        postgresPeakCpuPct: result.postgresPeakCpuPct,
+        postgresAvgMemoryMb: result.postgresAvgMemoryMb,
+        postgresPeakMemoryMb: result.postgresPeakMemoryMb,
+      })),
       productVersion: '15.3.0',
+      clientCount: baseline.clientCount,
     },
   };
 }
