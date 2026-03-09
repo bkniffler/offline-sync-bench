@@ -1,3 +1,6 @@
+import { createHash } from 'node:crypto';
+import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
+import { dirname, join, relative } from 'node:path';
 import {
   ANYONE_CAN_DO_ANYTHING,
   boolean,
@@ -9,7 +12,7 @@ import {
 } from '@rocicorp/zero';
 import { toTableName as toLiveStoreEventlogTableName } from '@livestore/sync-electric';
 import postgres from 'postgres';
-import { benchmarkRoot } from './paths';
+import { benchmarkRoot, tempRoot } from './paths';
 import { getStack } from './stacks';
 import type {
   SeedOptions,
@@ -19,6 +22,18 @@ import type {
   StackStats,
   TaskRecord,
 } from './types';
+
+const dockerFingerprintRoot = join(tempRoot, 'docker-fingerprints');
+const ignoredDockerContextEntries = new Set([
+  '.DS_Store',
+  '.git',
+  '.next',
+  '.tmp',
+  '.turbo',
+  'coverage',
+  'dist',
+  'node_modules',
+]);
 
 const zeroPermissions = definePermissions(
   createSchema({
@@ -69,6 +84,38 @@ function runDockerCompose(stack: StackSpec, args: string[]): string {
   return stdout.trim();
 }
 
+function runDocker(args: string[]): string {
+  const result = Bun.spawnSync(['docker', ...args], {
+    cwd: benchmarkRoot,
+    stdout: 'pipe',
+    stderr: 'pipe',
+  });
+
+  const stdout = new TextDecoder().decode(result.stdout);
+  const stderr = new TextDecoder().decode(result.stderr);
+  if (result.exitCode !== 0) {
+    throw new Error(`docker ${args.join(' ')} failed\n${stdout}\n${stderr}`);
+  }
+
+  return stdout.trim();
+}
+
+function runDockerBestEffort(args: string[]): void {
+  try {
+    runDocker(args);
+  } catch {
+    // Best-effort cleanup should not break benchmark runs.
+  }
+}
+
+function shouldRetryComposeUpAfterCleanup(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  return (
+    error.message.includes('is already in use by container') ||
+    error.message.includes('Container') && error.message.includes('Conflict')
+  );
+}
+
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, init);
   if (!response.ok) {
@@ -108,9 +155,193 @@ export async function waitForUrl(
   throw new Error(`Timed out waiting for ${url}: ${lastError}`);
 }
 
+async function isUrlHealthy(
+  url: string,
+  options: { acceptResponse?: (response: Response) => boolean } = {}
+): Promise<boolean> {
+  const acceptResponse = options.acceptResponse ?? ((response: Response) => response.ok);
+
+  try {
+    const response = await fetch(url);
+    return acceptResponse(response);
+  } catch {
+    return false;
+  }
+}
+
+async function isStackHealthy(stack: StackSpec): Promise<boolean> {
+  if (!(await isUrlHealthy(`${stack.adminBaseUrl}/health`))) {
+    return false;
+  }
+
+  switch (stack.id) {
+    case 'syncular':
+      return isUrlHealthy(`${stack.syncBaseUrl.replace(/\/api$/, '')}/health`);
+    case 'electric':
+      if (
+        !(await isUrlHealthy(`${stack.syncBaseUrl}/v1/shape?table=tasks&offset=-1`, {
+          acceptResponse: (response) => response.status < 500,
+        }))
+      ) {
+        return false;
+      }
+      return stack.appBaseUrl ? isUrlHealthy(`${stack.appBaseUrl}/health`) : true;
+    case 'zero':
+      if (
+        !(await isUrlHealthy(`${stack.syncBaseUrl}/statz`, {
+          acceptResponse: (response) =>
+            response.ok || response.status === 401 || response.status === 403,
+        }))
+      ) {
+        return false;
+      }
+      return stack.appBaseUrl ? isUrlHealthy(`${stack.appBaseUrl}/health`) : true;
+    case 'powersync':
+      if (!(await isUrlHealthy(`${stack.syncBaseUrl}/probes/liveness`))) {
+        return false;
+      }
+      return stack.appBaseUrl ? isUrlHealthy(`${stack.appBaseUrl}/health`) : true;
+    case 'replicache':
+      return stack.appBaseUrl ? isUrlHealthy(`${stack.appBaseUrl}/health`) : true;
+    case 'livestore':
+      if (stack.appBaseUrl && !(await isUrlHealthy(`${stack.appBaseUrl}/health`))) {
+        return false;
+      }
+      return isUrlHealthy(
+        `${stack.syncBaseUrl}/v1/shape?table=${encodeURIComponent(
+          toLiveStoreEventlogTableName('benchmark')
+        )}&offset=-1`,
+        {
+          acceptResponse: (response) => response.status < 500,
+        }
+      );
+  }
+}
+
+async function walkFingerprintPath(
+  rootPath: string,
+  hash: ReturnType<typeof createHash>
+): Promise<void> {
+  const rootStats = await stat(rootPath);
+  if (rootStats.isFile()) {
+    hash.update(relative(benchmarkRoot, rootPath));
+    hash.update(String(rootStats.size));
+    hash.update(String(rootStats.mtimeMs));
+    return;
+  }
+
+  const entries = (await readdir(rootPath, { withFileTypes: true })).sort((left, right) =>
+    left.name.localeCompare(right.name)
+  );
+
+  for (const entry of entries) {
+    if (ignoredDockerContextEntries.has(entry.name)) {
+      continue;
+    }
+
+    const entryPath = join(rootPath, entry.name);
+    const entryStats = await stat(entryPath);
+
+    if (entry.isDirectory()) {
+      await walkFingerprintPath(entryPath, hash);
+      continue;
+    }
+
+    hash.update(relative(benchmarkRoot, entryPath));
+    hash.update(String(entryStats.size));
+    hash.update(String(entryStats.mtimeMs));
+  }
+}
+
+function getBuildFingerprintFile(stack: StackSpec): string {
+  return join(dockerFingerprintRoot, `${stack.id}.sha256`);
+}
+
+function getBuildFingerprintPaths(stack: StackSpec): string[] {
+  const fingerprintPaths = new Set<string>([
+    dirname(stack.composeFile),
+    join(benchmarkRoot, 'services', 'bench-admin'),
+  ]);
+
+  for (const path of stack.buildFingerprintPaths ?? []) {
+    fingerprintPaths.add(path);
+  }
+
+  return [...fingerprintPaths];
+}
+
+async function computeBuildFingerprint(stack: StackSpec): Promise<string | null> {
+  const fingerprintPaths = getBuildFingerprintPaths(stack);
+  if (fingerprintPaths.length === 0) {
+    return null;
+  }
+
+  const hash = createHash('sha256');
+  hash.update(stack.composeProjectName);
+
+  for (const fingerprintPath of fingerprintPaths.sort((left, right) =>
+    left.localeCompare(right)
+  )) {
+    await walkFingerprintPath(fingerprintPath, hash);
+  }
+
+  return hash.digest('hex');
+}
+
+async function hasBuildFingerprintChanged(stack: StackSpec): Promise<{
+  changed: boolean;
+  fingerprint: string | null;
+}> {
+  const fingerprint = await computeBuildFingerprint(stack);
+  if (!fingerprint) {
+    return { changed: false, fingerprint: null };
+  }
+
+  try {
+    const previousFingerprint = (await readFile(getBuildFingerprintFile(stack), 'utf8')).trim();
+    return { changed: previousFingerprint !== fingerprint, fingerprint };
+  } catch {
+    return { changed: true, fingerprint };
+  }
+}
+
+async function persistBuildFingerprint(stack: StackSpec, fingerprint: string | null): Promise<void> {
+  if (!fingerprint) {
+    return;
+  }
+
+  await mkdir(dockerFingerprintRoot, { recursive: true });
+  await writeFile(getBuildFingerprintFile(stack), `${fingerprint}\n`, 'utf8');
+}
+
+function pruneComposeImages(stack: StackSpec): void {
+  runDockerBestEffort([
+    'image',
+    'prune',
+    '-f',
+    '--filter',
+    `label=com.docker.compose.project=${stack.composeProjectName}`,
+  ]);
+}
+
 export async function ensureStackUp(stackId: StackId): Promise<StackSpec> {
   const stack = getStack(stackId);
-  runDockerCompose(stack, ['up', '--build', '-d']);
+  const fingerprintState = await hasBuildFingerprintChanged(stack);
+
+  if (!fingerprintState.changed && (await isStackHealthy(stack))) {
+    return stack;
+  }
+
+  const upArgs = fingerprintState.changed ? ['up', '--build', '-d'] : ['up', '-d'];
+  try {
+    runDockerCompose(stack, upArgs);
+  } catch (error) {
+    if (!shouldRetryComposeUpAfterCleanup(error)) {
+      throw error;
+    }
+    runDockerCompose(stack, ['down', '-v', '--remove-orphans']);
+    runDockerCompose(stack, upArgs);
+  }
   await waitForUrl(`${stack.adminBaseUrl}/health`);
 
   switch (stack.id) {
@@ -161,6 +392,9 @@ export async function ensureStackUp(stackId: StackId): Promise<StackSpec> {
       break;
   }
 
+  await persistBuildFingerprint(stack, fingerprintState.fingerprint);
+  pruneComposeImages(stack);
+
   return stack;
 }
 
@@ -189,6 +423,7 @@ async function ensureZeroPermissions(stack: StackSpec): Promise<void> {
 export function downStack(stackId: StackId): void {
   const stack = getStack(stackId);
   runDockerCompose(stack, ['down', '-v', '--remove-orphans']);
+  pruneComposeImages(stack);
 }
 
 export function stopService(stackId: StackId, service: keyof StackSpec['services']): void {

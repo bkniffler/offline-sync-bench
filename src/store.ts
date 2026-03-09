@@ -266,6 +266,8 @@ function getSupportLevel(result: BenchmarkResult): string {
       return capabilities.localQuery;
     case 'permission-change':
       return capabilities.permissionChange;
+    case 'blob-flow':
+      return capabilities.blobFlow;
   }
 }
 

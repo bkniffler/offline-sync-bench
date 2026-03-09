@@ -1434,4 +1434,11 @@ export class ElectricBenchmarkAdapter implements BenchmarkAdapter {
       },
     };
   }
+
+  async runBlobFlow() {
+    return createUnsupportedScenarioResult({
+      implementation: 'unsupported',
+      notes: ['Blob flow benchmarking is not implemented for Electric in this harness yet.'],
+    });
+  }
 }

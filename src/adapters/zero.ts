@@ -88,4 +88,11 @@ export class ZeroBenchmarkAdapter implements BenchmarkAdapter {
       notes: ['Permission-change convergence is not implemented for Zero in this harness yet.'],
     });
   }
+
+  async runBlobFlow() {
+    return createUnsupportedScenarioResult({
+      implementation: 'unsupported',
+      notes: ['Blob flow benchmarking is not implemented for Zero in this harness yet.'],
+    });
+  }
 }

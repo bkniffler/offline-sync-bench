@@ -12,7 +12,8 @@ export type ScenarioId =
   | 'reconnect-storm'
   | 'large-offline-queue'
   | 'local-query'
-  | 'permission-change';
+  | 'permission-change'
+  | 'blob-flow';
 export type SupportLevel = 'native' | 'emulated' | 'unsupported';
 export type BenchmarkStatus = 'completed' | 'failed' | 'unsupported';
 
@@ -44,6 +45,7 @@ export interface StackCapabilities {
   largeOfflineQueue: SupportLevel;
   localQuery: SupportLevel;
   permissionChange: SupportLevel;
+  blobFlow: SupportLevel;
 }
 
 export interface StackServices {
@@ -59,6 +61,7 @@ export interface StackSpec {
   title: string;
   composeFile: string;
   composeProjectName: string;
+  buildFingerprintPaths?: string[];
   databaseUrl?: string;
   adminBaseUrl: string;
   syncBaseUrl: string;
@@ -119,6 +122,10 @@ export interface BootstrapScaleResult {
   peakMemoryMb: number;
   avgCpuPct: number;
   peakCpuPct: number;
+  pullRequestMs?: number;
+  snapshotFetchMs?: number;
+  snapshotDecodeMs?: number;
+  localApplyMs?: number;
 }
 
 export interface OnlinePropagationSample {
@@ -185,6 +192,12 @@ export interface BenchmarkAdapter {
     metadata: JsonObject;
   }>;
   runPermissionChange(): Promise<{
+    status: BenchmarkStatus;
+    metrics: Record<string, number | null>;
+    notes: string[];
+    metadata: JsonObject;
+  }>;
+  runBlobFlow(): Promise<{
     status: BenchmarkStatus;
     metrics: Record<string, number | null>;
     notes: string[];

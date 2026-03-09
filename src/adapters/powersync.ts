@@ -88,4 +88,11 @@ export class PowerSyncBenchmarkAdapter implements BenchmarkAdapter {
       notes: ['Permission-change convergence is not implemented for PowerSync in this harness yet.'],
     });
   }
+
+  async runBlobFlow() {
+    return createUnsupportedScenarioResult({
+      implementation: 'unsupported',
+      notes: ['Blob flow benchmarking is not implemented for PowerSync in this harness yet.'],
+    });
+  }
 }

@@ -1,22 +1,31 @@
 import {
   configureSyncTelemetry,
+  createBlobManager,
+  createDatabaseBlobStorageAdapter,
   createDefaultScopeCacheKey,
+  createHmacTokenSigner,
   createMemoryScopeCache,
   createServerHandler,
+  ensureBlobStorageSchemaPostgres,
   ensureSyncSchema,
   notifyExternalDataChange,
   notifyExternalRowChanges,
+  type ScopeCacheBackend,
+  type SyncBlobDb,
   type SyncTelemetry,
   type SyncCoreDb,
-} from '../../packages/server/src/index.ts';
-import { createPostgresServerDialect } from '../../packages/server-dialect-postgres/src/index.ts';
-import { createSyncServer } from '../../packages/server-hono/src/index.ts';
+} from '@syncular/server';
+import { createPostgresServerDialect } from '@syncular/server-dialect-postgres';
+import {
+  createBlobRoutes,
+  createSyncServer,
+} from '@syncular/server-hono';
 import { Hono } from 'hono';
 import { upgradeWebSocket, websocket } from 'hono/bun';
 import { Kysely, PostgresDialect, sql } from 'kysely';
 import { Pool } from 'pg';
 
-interface BenchDb extends SyncCoreDb {
+interface BenchDb extends SyncCoreDb, SyncBlobDb {
   organizations: {
     id: string;
     name: string;
@@ -46,6 +55,15 @@ interface BenchDb extends SyncCoreDb {
     server_version: number;
     updated_at: Date;
   };
+  task_blob_entries: {
+    id: string;
+    project_id: string;
+    blob_hash: string | null;
+    blob_size: number | null;
+    blob_mime_type: string | null;
+    server_version: number;
+    updated_at: Date;
+  };
 }
 
 interface BenchAuth {
@@ -56,17 +74,48 @@ const databaseUrl =
   process.env.DATABASE_URL ??
   'postgresql://bench:bench@postgres:5432/bench';
 const port = Number(process.env.PORT ?? '3000');
-const snapshotBundleMaxBytes = Math.max(
-  64 * 1024,
-  Number(process.env.SYNCULAR_BENCH_SNAPSHOT_BUNDLE_MAX_BYTES ?? 4 * 1024 * 1024)
-);
-const scopeCache = createMemoryScopeCache();
+const publicSyncBaseUrl =
+  process.env.PUBLIC_SYNC_BASE_URL ?? 'http://localhost:3210/api/sync';
+const blobTokenSecret = process.env.BLOB_TOKEN_SECRET ?? 'syncular-bench-blob-secret';
+const snapshotBundleMaxBytesEnv =
+  process.env.SYNCULAR_BENCH_SNAPSHOT_BUNDLE_MAX_BYTES;
+const snapshotBundleMaxBytes =
+  snapshotBundleMaxBytesEnv &&
+  Number.isFinite(Number(snapshotBundleMaxBytesEnv)) &&
+  Number(snapshotBundleMaxBytesEnv) > 0
+    ? Math.max(64 * 1024, Number(snapshotBundleMaxBytesEnv))
+    : undefined;
+const benchmarkMaxPullLimitSnapshotRows = 20_000;
+const benchmarkMaxPullMaxSnapshotPages = 100;
+let activeScopeCache = createMemoryScopeCache();
+const scopeCache: ScopeCacheBackend = {
+  name: 'bench-memory-delegate',
+  async get(args) {
+    return activeScopeCache.get(args);
+  },
+  async set(args) {
+    return activeScopeCache.set(args);
+  },
+  async delete(args) {
+    return activeScopeCache.delete?.(args);
+  },
+};
 
 const pool = new Pool({ connectionString: databaseUrl });
 const db = new Kysely<BenchDb>({
   dialect: new PostgresDialect({ pool }),
 });
 const dialect = createPostgresServerDialect();
+const blobTokenSigner = createHmacTokenSigner(blobTokenSecret);
+const blobAdapter = createDatabaseBlobStorageAdapter({
+  db,
+  baseUrl: publicSyncBaseUrl,
+  tokenSigner: blobTokenSigner,
+});
+const blobManager = createBlobManager({
+  db,
+  adapter: blobAdapter,
+});
 
 const benchmarkTelemetry: SyncTelemetry = {
   log() {},
@@ -102,6 +151,7 @@ configureSyncTelemetry(benchmarkTelemetry);
 
 await ensureBenchmarkSchema();
 await ensureSyncSchema(db, dialect);
+await ensureBlobStorageSchemaPostgres(db);
 
 const tasksHandler = createServerHandler<
   BenchDb,
@@ -122,7 +172,29 @@ const tasksHandler = createServerHandler<
       project_id: memberships.map((row) => row.project_id),
     };
   },
-  snapshotBundleMaxBytes,
+  ...(snapshotBundleMaxBytes ? { snapshotBundleMaxBytes } : {}),
+});
+
+const taskBlobsHandler = createServerHandler<
+  BenchDb,
+  BenchDb,
+  'task_blob_entries',
+  BenchAuth
+>({
+  table: 'task_blob_entries',
+  scopes: ['project:{project_id}'],
+  resolveScopes: async (ctx) => {
+    const memberships = await ctx.db
+      .selectFrom('project_memberships')
+      .select('project_memberships.project_id as project_id')
+      .where('project_memberships.user_id', '=', ctx.actorId)
+      .execute();
+
+    return {
+      project_id: memberships.map((row) => row.project_id),
+    };
+  },
+  ...(snapshotBundleMaxBytes ? { snapshotBundleMaxBytes } : {}),
 });
 
 const { syncRoutes } = createSyncServer<BenchDb, BenchAuth>({
@@ -138,18 +210,38 @@ const { syncRoutes } = createSyncServer<BenchDb, BenchAuth>({
       }
       return { actorId };
     },
-    handlers: [tasksHandler],
+    handlers: [tasksHandler, taskBlobsHandler],
   },
   scopeCache,
   routes: {
     rateLimit: false,
+    maxPullLimitSnapshotRows: benchmarkMaxPullLimitSnapshotRows,
+    maxPullMaxSnapshotPages: benchmarkMaxPullMaxSnapshotPages,
   },
   upgradeWebSocket,
 });
 
 const app = new Hono();
+const blobRoutes = createBlobRoutes({
+  blobManager,
+  db,
+  authenticate: async (c) => {
+    const actorId =
+      c.req.header('x-user-id') ?? c.req.query('userId') ?? null;
+    if (!actorId) {
+      return null;
+    }
+    return { actorId };
+  },
+  tokenSigner: blobTokenSigner,
+  canAccessBlob: async ({ actorId, hash, partitionId }) => {
+    const record = await blobManager.getUploadRecord(hash, { partitionId });
+    return record?.status === 'complete' && record.actorId === actorId;
+  },
+});
 
 app.route('/api/sync', syncRoutes);
+app.route('/api/sync', blobRoutes);
 
 app.get('/health', async (c) => {
   await db.selectFrom('tasks').select('id').limit(1).execute();
@@ -283,6 +375,55 @@ app.post('/benchmark/revoke-membership', async (c) => {
   });
 });
 
+app.post('/benchmark/reset-scope-cache', async (c) => {
+  activeScopeCache = createMemoryScopeCache();
+  return c.json({ ok: true });
+});
+
+app.post('/benchmark/init-task-blobs', async (c) => {
+  const request = await c.req
+    .json<{ projectId?: string }>()
+    .catch(() => ({ projectId: undefined }));
+
+  const inserted = await sql<{ count: number }>`
+    with source_tasks as (
+      select tasks.id as task_id, tasks.project_id
+      from tasks
+      ${request.projectId ? sql`where tasks.project_id = ${request.projectId}` : sql``}
+    ),
+    inserted_rows as (
+      insert into task_blob_entries (
+        id,
+        project_id,
+        blob_hash,
+        blob_size,
+        blob_mime_type,
+        server_version,
+        updated_at
+      )
+      select
+        source_tasks.task_id,
+        source_tasks.project_id,
+        null,
+        null,
+        null,
+        1,
+        now()
+      from source_tasks
+      left join task_blob_entries
+        on task_blob_entries.id = source_tasks.task_id
+      where task_blob_entries.id is null
+      returning 1
+    )
+    select count(*)::int as count from inserted_rows
+  `.execute(db);
+
+  return c.json({
+    ok: true,
+    inserted: inserted.rows[0]?.count ?? 0,
+  });
+});
+
 const server = Bun.serve({
   port,
   fetch: app.fetch,
@@ -363,6 +504,91 @@ async function ensureBenchmarkSchema(): Promise<void> {
         col.notNull().defaultTo(sql`now()`)
       )
       .execute();
+
+    await db.schema
+      .createTable('task_blob_entries')
+      .ifNotExists()
+      .addColumn('id', 'text', (col) =>
+        col.primaryKey().references('tasks.id').onDelete('cascade')
+      )
+      .addColumn('project_id', 'text', (col) =>
+        col.notNull().references('projects.id').onDelete('cascade')
+      )
+      .addColumn('blob_hash', 'text')
+      .addColumn('blob_size', 'bigint')
+      .addColumn('blob_mime_type', 'text')
+      .addColumn('server_version', 'bigint', (col) =>
+        col.notNull().defaultTo(1)
+      )
+      .addColumn('updated_at', 'timestamptz', (col) =>
+        col.notNull().defaultTo(sql`now()`)
+      )
+      .execute();
+
+    await sql`
+      create index if not exists idx_projects_org_id
+      on projects (org_id)
+    `.execute(db);
+
+    await sql`
+      create index if not exists idx_app_users_org_id
+      on app_users (org_id)
+    `.execute(db);
+
+    await sql`
+      create index if not exists idx_project_memberships_user_id
+      on project_memberships (user_id)
+    `.execute(db);
+
+    await sql`
+      create index if not exists idx_tasks_project_id
+      on tasks (project_id)
+    `.execute(db);
+
+    await sql`
+      create index if not exists idx_tasks_project_id_id
+      on tasks (project_id, id)
+    `.execute(db);
+
+    await sql`
+      create index if not exists idx_tasks_owner_id
+      on tasks (owner_id)
+    `.execute(db);
+
+    await sql`
+      create index if not exists idx_task_blob_entries_project_id_id
+      on task_blob_entries (project_id, id)
+    `.execute(db);
+
+    await sql`
+      alter table task_blob_entries
+      add column if not exists blob_hash text
+    `.execute(db);
+
+    await sql`
+      alter table task_blob_entries
+      add column if not exists blob_size bigint
+    `.execute(db);
+
+    await sql`
+      alter table task_blob_entries
+      add column if not exists blob_mime_type text
+    `.execute(db);
+
+    await sql`
+      alter table tasks
+      drop column if exists blob_hash
+    `.execute(db);
+
+    await sql`
+      alter table tasks
+      drop column if exists blob_size
+    `.execute(db);
+
+    await sql`
+      alter table tasks
+      drop column if exists blob_mime_type
+    `.execute(db);
   } finally {
     await sql`select pg_advisory_unlock(${schemaLockId})`.execute(db);
   }

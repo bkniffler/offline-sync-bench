@@ -4,7 +4,6 @@ import {
   benchmarkRoot,
   resultsRoot,
   toBenchmarkRelativePath,
-  toMarkdownPath,
 } from './paths';
 import { scenarios } from './scenarios';
 import { stacks } from './stacks';
@@ -33,7 +32,6 @@ interface BundleSizeRow {
 const ROOT_DIR = benchmarkRoot;
 const RESULTS_DIR = resultsRoot;
 const OUTPUT_MARKDOWN = join(ROOT_DIR, 'RESULTS.md');
-const OUTPUT_JSON = join(ROOT_DIR, 'RESULTS.json');
 
 async function walkJsonFiles(dir: string): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -142,6 +140,14 @@ function markdownTable(headers: string[], rows: string[][]): string {
   return [head, sep, body].join('\n');
 }
 
+function getResult(
+  latest: Map<ScenarioId, Map<StackId, StoredBenchmarkResult>>,
+  scenarioId: ScenarioId,
+  stackId: StackId
+): StoredBenchmarkResult | undefined {
+  return latest.get(scenarioId)?.get(stackId);
+}
+
 async function readJsonFile<T>(filePath: string): Promise<T> {
   return JSON.parse(await readFile(filePath, 'utf8')) as T;
 }
@@ -202,16 +208,6 @@ async function main(): Promise<void> {
   const bundleRows = await collectBundleRows();
 
   const stackOrder = stacks.map((stack) => stack.id);
-  const scenarioOrder: ScenarioId[] = [
-    'bootstrap',
-    'online-propagation',
-    'offline-replay',
-    'reconnect-storm',
-    'large-offline-queue',
-    'local-query',
-    'permission-change',
-  ];
-
   const sections: string[] = [];
   sections.push('# Benchmark Results');
   sections.push('');
@@ -224,11 +220,49 @@ async function main(): Promise<void> {
   sections.push('');
   sections.push('## Highlights');
   sections.push('');
-  sections.push('- Bootstrap at 100k rows: Electric is currently fastest in this harness; Syncular is now below 1 second and close to Replicache on this workload.');
-  sections.push('- Online propagation: Electric still leads on raw tail latency, but Syncular is now in the low-double-digit millisecond range and clearly ahead of Zero, PowerSync, and LiveStore.');
-  sections.push('- Native offline replay: Syncular currently has the best convergence among the native durable-write paths measured here.');
-  sections.push('- Permission change: Syncular and Electric both now have real multi-project revocation coverage, with unauthorized rows disappearing while retained-project rows stay local.');
-  sections.push('- Canonical browser client bundle: Syncular is currently 156.82 KB raw / 38.05 KB gzip from the local checkout analysis.');
+  const syncularBootstrap = getResult(latest, 'bootstrap', 'syncular');
+  const electricBootstrap = getResult(latest, 'bootstrap', 'electric');
+  const replicacheBootstrap = getResult(latest, 'bootstrap', 'replicache');
+  const syncularOnline = getResult(latest, 'online-propagation', 'syncular');
+  const electricOnline = getResult(latest, 'online-propagation', 'electric');
+  const syncularReplay = getResult(latest, 'offline-replay', 'syncular');
+  const replicacheReplay = getResult(latest, 'offline-replay', 'replicache');
+  const powersyncReplay = getResult(latest, 'offline-replay', 'powersync');
+  const syncularPermission = getResult(latest, 'permission-change', 'syncular');
+  const electricPermission = getResult(latest, 'permission-change', 'electric');
+  const syncularBlobFlow = getResult(latest, 'blob-flow', 'syncular');
+  const syncularBundle = bundleRows.find((row) => row.label === 'Syncular');
+
+  if (electricBootstrap && syncularBootstrap && replicacheBootstrap) {
+    sections.push(
+      `- Bootstrap at 100k rows: Electric currently leads at ${formatMs(electricBootstrap.metrics.bootstrap_100000_ms)}; Syncular is at ${formatMs(syncularBootstrap.metrics.bootstrap_100000_ms)} and Replicache is at ${formatMs(replicacheBootstrap.metrics.bootstrap_100000_ms)}.`
+    );
+  }
+  if (electricOnline && syncularOnline) {
+    sections.push(
+      `- Online propagation: Electric still leads on tail latency (${formatMs(electricOnline.metrics.mirror_visible_p95_ms)} p95), while Syncular is now at ${formatMs(syncularOnline.metrics.mirror_visible_p95_ms)} p95 with ${formatMs(syncularOnline.metrics.write_ack_ms)} write ack.`
+    );
+  }
+  if (syncularReplay && replicacheReplay && powersyncReplay) {
+    sections.push(
+      `- Native offline replay: Syncular currently converges in ${formatMs(firstMetric(syncularReplay.metrics, ['reconnect_convergence_ms', 'replay_visible_ms']))}, ahead of Replicache (${formatMs(firstMetric(replicacheReplay.metrics, ['reconnect_convergence_ms', 'replay_visible_ms']))}) and PowerSync (${formatMs(firstMetric(powersyncReplay.metrics, ['reconnect_convergence_ms', 'replay_visible_ms']))}).`
+    );
+  }
+  if (syncularPermission && electricPermission) {
+    sections.push(
+      `- Permission change: Syncular and Electric both have real multi-project revocation coverage here; Syncular converges in ${formatMs(syncularPermission.metrics.permission_revoke_convergence_ms)} and Electric in ${formatMs(electricPermission.metrics.permission_revoke_convergence_ms)}.`
+    );
+  }
+  if (syncularBundle) {
+    sections.push(
+      `- Canonical browser client bundle: Syncular is currently ${formatKb(syncularBundle.rawKb)} raw / ${formatKb(syncularBundle.gzipKb)} gzip from the local checkout analysis.`
+    );
+  }
+  if (syncularBlobFlow) {
+    sections.push(
+      `- Blob flow: Syncular currently uploads a ${formatCount(syncularBlobFlow.metrics.blob_size_bytes)} byte blob in ${formatMs(syncularBlobFlow.metrics.upload_complete_ms)}, syncs metadata to a second client in ${formatMs(syncularBlobFlow.metrics.metadata_visible_ms)}, and re-downloads it after cache clear in ${formatMs(firstMetric(syncularBlobFlow.metrics, ['download_after_metadata_ms', 'download_after_clear_ms']))}.`
+    );
+  }
   sections.push('');
 
   const bootstrapRows = stackOrder
@@ -402,6 +436,41 @@ async function main(): Promise<void> {
     })
   );
 
+  const blobRows = stackOrder
+    .map((stackId) => {
+      const result = latest.get('blob-flow')?.get(stackId);
+      if (!result) return null;
+      return [
+        stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
+        formatCount(result.metrics.blob_size_bytes),
+        formatMs(result.metrics.upload_complete_ms),
+        formatMs(result.metrics.metadata_visible_ms),
+        formatMs(firstMetric(result.metrics, ['download_after_metadata_ms', 'download_after_clear_ms'])),
+        formatCount(result.metrics.request_count),
+        formatMb(result.metrics.avg_memory_mb),
+        formatSupport(result),
+      ];
+    })
+    .filter((row): row is string[] => row !== null);
+  if (blobRows.length > 0) {
+    sections.push(
+      renderScenarioTable({
+        title: 'Blob Flow',
+        headers: [
+          'Stack',
+          'Blob bytes',
+          'Upload',
+          'Metadata visible',
+          'Re-download',
+          'Requests',
+          'Avg mem',
+          'Support',
+        ],
+        rows: blobRows,
+      })
+    );
+  }
+
   const bundleTable = markdownTable(
     ['Library', 'Profile', 'Raw', 'Gzip'],
     bundleRows.map((row) => [
@@ -424,53 +493,10 @@ async function main(): Promise<void> {
   sections.push('- Syncular bundle size is taken from the canonical local-checkout browser-client analysis; other libraries use the named-import bundle-size profile from `.results/BUNDLE_SIZES.json`.');
   sections.push('');
 
-  sections.push('## Source Artifacts');
-  sections.push('');
-  for (const scenarioId of scenarioOrder) {
-    const scenarioMap = latest.get(scenarioId);
-    if (!scenarioMap || scenarioMap.size === 0) continue;
-    sections.push(`### ${scenarios.find((scenario) => scenario.id === scenarioId)?.title ?? scenarioId}`);
-    sections.push('');
-    for (const stackId of stackOrder) {
-      const result = scenarioMap.get(stackId);
-      if (!result?._path) continue;
-      sections.push(
-        `- ${stacks.find((stack) => stack.id === stackId)?.title ?? stackId}: [${result.runId}](${toMarkdownPath(join(ROOT_DIR, result._path))})`
-      );
-    }
-    sections.push('');
-  }
-
   const markdown = sections.join('\n');
-  const json = {
-    generatedAt: new Date().toISOString(),
-    latestResults: Object.fromEntries(
-      Array.from(latest.entries()).map(([scenarioId, scenarioMap]) => [
-        scenarioId,
-        Object.fromEntries(
-          Array.from(scenarioMap.entries()).map(([stackId, result]) => [
-            stackId,
-            {
-              runId: result.runId,
-              finishedAt: result.finishedAt,
-              path: result._path ?? null,
-              metrics: result.metrics,
-              supportLevel:
-                typeof result.metadata?.supportLevel === 'string'
-                  ? result.metadata.supportLevel
-                  : null,
-            },
-          ])
-        ),
-      ])
-    ),
-    bundleRows,
-  };
 
   await writeFile(OUTPUT_MARKDOWN, markdown);
-  await writeFile(OUTPUT_JSON, JSON.stringify(json, null, 2));
   console.log(`Wrote ${OUTPUT_MARKDOWN}`);
-  console.log(`Wrote ${OUTPUT_JSON}`);
 }
 
 await main();

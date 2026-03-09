@@ -4,8 +4,9 @@ WORKDIR /workspace/syncular
 
 COPY syncular ./
 RUN bun install --frozen-lockfile --ignore-scripts --linker hoisted
-RUN bun add pg@latest --ignore-scripts
 
+COPY offline-sync-bench/stacks/syncular/syncular-app/package.json .bench-syncular-app/package.json
+RUN cd .bench-syncular-app && bun install --ignore-scripts --production
 COPY offline-sync-bench/stacks/syncular/syncular-app/src .bench-syncular-app/src
 
 EXPOSE 3000

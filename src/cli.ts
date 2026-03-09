@@ -2,6 +2,7 @@ import { Database } from 'bun:sqlite';
 import { randomUUID } from 'node:crypto';
 import { createAdapter } from './adapters';
 import { runBootstrapScenario } from './runners/bootstrap';
+import { runBlobFlowScenario } from './runners/blob-flow';
 import { runLargeOfflineQueueScenario } from './runners/large-offline-queue';
 import { runLocalQueryScenario } from './runners/local-query';
 import { runOfflineReplayScenario } from './runners/offline-replay';
@@ -64,7 +65,7 @@ function printStacks(): void {
     console.log(`${stack.id}: ${stack.title}`);
     console.log(`  compose: ${stack.composeFile}`);
     console.log(
-      `  support: bootstrap=${stack.capabilities.bootstrap}, online=${stack.capabilities.onlinePropagation}, offline=${stack.capabilities.offlineReplay}, reconnect=${stack.capabilities.reconnectStorm}, queue=${stack.capabilities.largeOfflineQueue}, query=${stack.capabilities.localQuery}, permission=${stack.capabilities.permissionChange}`
+      `  support: bootstrap=${stack.capabilities.bootstrap}, online=${stack.capabilities.onlinePropagation}, offline=${stack.capabilities.offlineReplay}, reconnect=${stack.capabilities.reconnectStorm}, queue=${stack.capabilities.largeOfflineQueue}, query=${stack.capabilities.localQuery}, permission=${stack.capabilities.permissionChange}, blob=${stack.capabilities.blobFlow}`
     );
   }
 }
@@ -109,10 +110,11 @@ function parseScenarioFlag(): ScenarioId {
     scenarioId !== 'reconnect-storm' &&
     scenarioId !== 'large-offline-queue' &&
     scenarioId !== 'local-query' &&
-    scenarioId !== 'permission-change'
+    scenarioId !== 'permission-change' &&
+    scenarioId !== 'blob-flow'
   ) {
     throw new Error(
-      '--scenario must be one of: bootstrap, online-propagation, offline-replay, reconnect-storm, large-offline-queue, local-query, permission-change'
+      '--scenario must be one of: bootstrap, online-propagation, offline-replay, reconnect-storm, large-offline-queue, local-query, permission-change, blob-flow'
     );
   }
   return scenarioId;
@@ -137,7 +139,12 @@ async function executeScenario(args: {
                 ? await runLargeOfflineQueueScenario(args.context, args.adapter)
                 : args.scenarioId === 'local-query'
                   ? await runLocalQueryScenario(args.context, args.adapter)
-                  : await runPermissionChangeScenario(args.context, args.adapter);
+                  : args.scenarioId === 'permission-change'
+                    ? await runPermissionChangeScenario(
+                        args.context,
+                        args.adapter
+                      )
+                    : await runBlobFlowScenario(args.context, args.adapter);
 
     return {
       ...partialResult,
@@ -158,6 +165,7 @@ async function executeScenario(args: {
       case 'large-offline-queue':
       case 'local-query':
       case 'permission-change':
+      case 'blob-flow':
         return {
           runId: args.context.runId,
           resultId: randomUUID(),
@@ -226,6 +234,8 @@ function getScenarioSupportLevel(stackId: StackId, scenarioId: ScenarioId): stri
       return stack.capabilities.localQuery;
     case 'permission-change':
       return stack.capabilities.permissionChange;
+    case 'blob-flow':
+      return stack.capabilities.blobFlow;
     default:
       return 'unknown';
   }
@@ -255,6 +265,7 @@ async function runAllCommand(): Promise<void> {
     'large-offline-queue',
     'local-query',
     'permission-change',
+    'blob-flow',
   ];
   const results: BenchmarkResult[] = [];
 

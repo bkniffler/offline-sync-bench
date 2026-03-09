@@ -115,4 +115,21 @@ export const scenarios: BenchmarkScenario[] = [
       'Use the same seeded multi-project dataset and revoke the same project membership shape across comparable stacks.',
     ],
   },
+  {
+    id: 'blob-flow',
+    title: 'Blob flow',
+    summary:
+      'Measure a real cross-client blob upload, metadata sync, and authenticated re-download through the product blob APIs.',
+    primaryMetrics: [
+      'blob_size_bytes',
+      'upload_complete_ms',
+      'metadata_visible_ms',
+      'download_after_metadata_ms',
+      'bytes_transferred',
+    ],
+    notes: [
+      'Use the product’s real blob client and server routes instead of a benchmark-owned upload helper.',
+      'Include upload completion, metadata visibility on a second client, and authenticated re-download readiness so media-heavy flows expose end-to-end cost.',
+    ],
+  },
 ];

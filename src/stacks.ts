@@ -1,4 +1,5 @@
 import { benchmarkRoot } from './paths';
+import { syncularRoot } from './paths';
 import type { StackId, StackSpec } from './types';
 
 export const stacks: StackSpec[] = [
@@ -7,6 +8,7 @@ export const stacks: StackSpec[] = [
     title: 'Syncular',
     composeFile: `${benchmarkRoot}/stacks/syncular/docker-compose.yml`,
     composeProjectName: 'offline-sync-bench-syncular',
+    buildFingerprintPaths: [syncularRoot],
     databaseUrl: 'postgresql://bench:bench@localhost:55432/bench?sslmode=disable',
     adminBaseUrl: 'http://localhost:3211',
     syncBaseUrl: 'http://localhost:3210/api',
@@ -24,6 +26,7 @@ export const stacks: StackSpec[] = [
       largeOfflineQueue: 'native',
       localQuery: 'native',
       permissionChange: 'native',
+      blobFlow: 'native',
     },
     notes: [
       'Uses the real Syncular client and server packages.',
@@ -53,6 +56,7 @@ export const stacks: StackSpec[] = [
       largeOfflineQueue: 'emulated',
       localQuery: 'native',
       permissionChange: 'native',
+      blobFlow: 'unsupported',
     },
     notes: [
       'Uses Electric shape feeds directly for bootstrap and visibility timing.',
@@ -83,6 +87,7 @@ export const stacks: StackSpec[] = [
       largeOfflineQueue: 'unsupported',
       localQuery: 'unsupported',
       permissionChange: 'unsupported',
+      blobFlow: 'unsupported',
     },
     notes: [
       'Uses a real zero-cache service plus a minimal benchmark app implementing query and mutate endpoints.',
@@ -113,6 +118,7 @@ export const stacks: StackSpec[] = [
       largeOfflineQueue: 'unsupported',
       localQuery: 'unsupported',
       permissionChange: 'unsupported',
+      blobFlow: 'unsupported',
     },
     notes: [
       'Uses the official PowerSync service with Postgres-backed bucket storage and a benchmark-owned Bun backend.',
@@ -142,6 +148,7 @@ export const stacks: StackSpec[] = [
       largeOfflineQueue: 'unsupported',
       localQuery: 'unsupported',
       permissionChange: 'unsupported',
+      blobFlow: 'unsupported',
     },
     notes: [
       'Uses a benchmark-owned Bun BYOB server with the real Replicache client running against fake-indexeddb under Bun.',
@@ -171,6 +178,7 @@ export const stacks: StackSpec[] = [
       largeOfflineQueue: 'unsupported',
       localQuery: 'unsupported',
       permissionChange: 'unsupported',
+      blobFlow: 'unsupported',
     },
     notes: [
       'Uses the real LiveStore Bun node adapter with the official sync-electric package and a benchmark-owned proxy/admin service.',

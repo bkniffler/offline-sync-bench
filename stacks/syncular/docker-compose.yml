@@ -24,7 +24,9 @@ services:
     environment:
       DATABASE_URL: postgresql://bench:bench@postgres:5432/bench
       PORT: "3000"
-      SYNCULAR_BENCH_SNAPSHOT_BUNDLE_MAX_BYTES: "${SYNCULAR_BENCH_SNAPSHOT_BUNDLE_MAX_BYTES:-4194304}"
+      PUBLIC_SYNC_BASE_URL: http://localhost:3210/api/sync
+      BLOB_TOKEN_SECRET: syncular-bench-blob-secret
+      SYNCULAR_BENCH_SNAPSHOT_BUNDLE_MAX_BYTES: "${SYNCULAR_BENCH_SNAPSHOT_BUNDLE_MAX_BYTES-}"
     depends_on:
       postgres:
         condition: service_healthy

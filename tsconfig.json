@@ -10,6 +10,15 @@
       "@syncular/dialect-bun-sqlite": [
         "../syncular/packages/dialect-bun-sqlite/src/index.ts"
       ],
+      "@syncular/server": [
+        "../syncular/packages/server/src/index.ts"
+      ],
+      "@syncular/server-dialect-postgres": [
+        "../syncular/packages/server-dialect-postgres/src/index.ts"
+      ],
+      "@syncular/server-hono": [
+        "../syncular/packages/server-hono/src/index.ts"
+      ],
       "@syncular/transport-http": [
         "../syncular/packages/transport-http/src/index.ts"
       ],
@@ -28,6 +37,7 @@
     "services/bench-admin/src/**/*.ts",
     "services/livestore-bench-app/src/**/*.ts",
     "services/replicache-bench-app/src/**/*.ts",
+    "stacks/syncular/syncular-app/src/**/*.ts",
     "services/zero-bench-app/src/**/*.ts",
     "services/powersync-bench-app/src/**/*.ts"
   ]
