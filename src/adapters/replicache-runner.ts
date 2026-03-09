@@ -470,7 +470,7 @@ function runReplicacheLocalAggregateQuery(args: {
 async function runBootstrap(): Promise<RunnerResult> {
   await ensureStackUp('replicache');
 
-  const scales = [1000, 10_000, 100_000];
+  const scales = [1000, 10_000, 100_000, 250_000, 500_000];
   const scaleResults: BootstrapScaleResult[] = [];
 
   for (const rowsTarget of scales) {

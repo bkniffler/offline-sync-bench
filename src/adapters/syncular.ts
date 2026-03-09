@@ -1604,7 +1604,7 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
     metadata: { [key: string]: JsonValue };
   }> {
     await ensureStackUp('syncular');
-    const scales = [1000, 10_000, 100_000];
+    const scales = [1000, 10_000, 100_000, 250_000, 500_000];
     const scaleResults: BootstrapScaleResult[] = [];
 
     for (const rowsTarget of scales) {

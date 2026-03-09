@@ -6,7 +6,7 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 ## Highlights
 
-- Bootstrap at 100k rows (median of the latest 3 runs where available): Electric is at 416.3 ms; Syncular is at 847.1 ms; Replicache is at 991.8 ms.
+- Bootstrap at 100k rows (median of the latest 1 runs where available): Electric is at 416.3 ms; Syncular is at 882.2 ms; Replicache is at 991.8 ms.
 - Online propagation: Electric still leads on tail latency (12.72 ms p95), while Syncular is now at 19.47 ms p95 with 11.35 ms write ack.
 - Native offline replay: Syncular currently converges in 92.32 ms, ahead of Replicache (1253 ms) and PowerSync (5191 ms).
 - Permission change (median of the latest 1 runs where available): Syncular converges in 46.90 ms and Electric in 15.96 ms.
@@ -17,22 +17,33 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | 1k | 10k | 100k | 100k reqs | 100k avg mem | Support |
 | --- | --- | --- | --- | --- | --- | --- |
-| Syncular | 39.74 ms | 98.18 ms | 847.1 ms | 6 | 305.62 MB | native |
-| Electric | 38.60 ms | 64.21 ms | 402.1 ms | 4 | 526.86 MB | native |
+| Syncular | 42.32 ms | 107.4 ms | 882.2 ms | 6 | 304.69 MB | native |
+| Electric | 43.04 ms | 71.15 ms | 425.5 ms | 4 | 500.60 MB | native |
 | Zero | 112.7 ms | 469.4 ms | 4070 ms | 0 | 507.96 MB | native |
 | PowerSync | 5212 ms | 5512 ms | 8158 ms | 1 | 265.52 MB | native |
-| Replicache | 30.08 ms | 98.11 ms | 930.7 ms | 2 | 379.26 MB | native |
+| Replicache | 40.37 ms | 108.4 ms | 1001 ms | 2 | 377.82 MB | native |
 | LiveStore | 488.4 ms | 2539 ms | n/a | n/a | n/a | native |
 
 ## Bootstrap Repeat Summary
 
 | Stack | Runs | 100k median | 100k min | 100k max | Latest 100k |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 5 | 847.1 ms | 812.1 ms | 1012 ms | 847.1 ms |
-| Electric | 5 | 416.3 ms | 402.1 ms | 419.6 ms | 402.1 ms |
+| Syncular | 1 | 882.2 ms | 882.2 ms | 882.2 ms | 882.2 ms |
+| Electric | 5 | 416.3 ms | 402.1 ms | 425.5 ms | 425.5 ms |
 | Zero | 5 | 4070 ms | 3781 ms | 6007 ms | 4070 ms |
 | PowerSync | 5 | 7193 ms | 6645 ms | 20290 ms | 8158 ms |
-| Replicache | 5 | 991.8 ms | 930.7 ms | 1073 ms | 930.7 ms |
+| Replicache | 5 | 991.8 ms | 930.7 ms | 1073 ms | 1001 ms |
+
+## Bootstrap Scale Study
+
+| Stack | 250k rows | 500k rows | 500k avg mem | Support |
+| --- | --- | --- | --- | --- |
+| Syncular | 2687 ms | 4179 ms | 440.92 MB | native |
+| Electric | 949.4 ms | 1878 ms | 1324.90 MB | native |
+| Zero | n/a | n/a | n/a | native |
+| PowerSync | n/a | n/a | n/a | native |
+| Replicache | 2551 ms | 5345 ms | 1819.74 MB | native |
+| LiveStore | n/a | n/a | n/a | native |
 
 ## Online Propagation
 

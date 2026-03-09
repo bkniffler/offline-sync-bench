@@ -513,6 +513,25 @@ async function main(): Promise<void> {
     })
   );
 
+  const bootstrapScaleRows = stackOrder
+    .map((stackId) => {
+      const result = getResult(latest, 'bootstrap', stackId);
+      return [
+        stackTitle(stackId),
+        formatMs(result?.metrics.bootstrap_250000_ms),
+        formatMs(result?.metrics.bootstrap_500000_ms),
+        formatMb(result?.metrics.avg_memory_mb_500000),
+        formatSupport({ result, scenarioId: 'bootstrap', stackId }),
+      ];
+    });
+  sections.push(
+    renderScenarioTable({
+      title: 'Bootstrap Scale Study',
+      headers: ['Stack', '250k rows', '500k rows', '500k avg mem', 'Support'],
+      rows: bootstrapScaleRows,
+    })
+  );
+
   const onlineRows = stackOrder
     .map((stackId) => {
       const result = getResult(latest, 'online-propagation', stackId);

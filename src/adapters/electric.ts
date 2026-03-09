@@ -796,7 +796,7 @@ export class ElectricBenchmarkAdapter implements BenchmarkAdapter {
   }> {
     await ensureStackUp('electric');
 
-    const scales = [1000, 10_000, 100_000];
+    const scales = [1000, 10_000, 100_000, 250_000, 500_000];
     const scaleResults: BootstrapScaleResult[] = [];
     let productVersion: string | null = null;
 
