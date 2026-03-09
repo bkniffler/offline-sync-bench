@@ -73,8 +73,9 @@ export const scenarios: BenchmarkScenario[] = [
     primaryMetrics: [
       'queue_100_convergence_ms',
       'queue_500_convergence_ms',
-      'queue_500_request_count',
-      'queue_500_bytes_transferred',
+      'queue_1000_convergence_ms',
+      'queue_1000_request_count',
+      'queue_1000_bytes_transferred',
     ],
     notes: [
       'Use multiple queue sizes so the benchmark shows scaling, not just a single point.',

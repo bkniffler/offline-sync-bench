@@ -116,7 +116,10 @@ function shouldRetryComposeUpAfterCleanup(error: unknown): boolean {
     (message.includes('Container') && message.includes('Conflict')) ||
     message.includes('removal of container') ||
     message.includes('already in progress') ||
-    message.includes('EOF')
+    message.includes('EOF') ||
+    message.includes('network') ||
+    message.includes('Network') ||
+    message.includes('failed to set up container networking')
   );
 }
 

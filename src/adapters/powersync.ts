@@ -11,14 +11,20 @@ interface RunnerResult {
   metadata: { [key: string]: JsonValue };
 }
 
-function runPowerSyncScenario(scenario: 'bootstrap' | 'online-propagation' | 'offline-replay') {
+function runPowerSyncScenario(
+  scenario:
+    | 'bootstrap'
+    | 'online-propagation'
+    | 'offline-replay'
+    | 'large-offline-queue'
+) {
   const result = spawnSync(
     'node',
     ['--experimental-strip-types', 'src/adapters/powersync-runner.ts', scenario],
     {
       cwd: benchmarkRoot,
       encoding: 'utf8',
-      timeout: 300_000,
+      timeout: 900_000,
       maxBuffer: 10 * 1024 * 1024,
     }
   );
@@ -69,10 +75,7 @@ export class PowerSyncBenchmarkAdapter implements BenchmarkAdapter {
   }
 
   async runLargeOfflineQueue() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Large offline queue replay is not implemented for PowerSync in this harness yet.'],
-    });
+    return runPowerSyncScenario('large-offline-queue');
   }
 
   async runLocalQuery() {

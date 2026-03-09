@@ -789,16 +789,19 @@ async function waitForNextPushResult(
   });
 }
 
-async function waitForOutboxClear(
-  db: Kysely<SyncularClientDb>,
-  timeoutMs = 30_000
-): Promise<void> {
+async function waitForOutboxClear(args: {
+  client: SyncClientWithSync;
+  db: Kysely<SyncularClientDb>;
+  timeoutMs?: number;
+}): Promise<void> {
+  const timeoutMs = args.timeoutMs ?? 30_000;
   const startedAt = Date.now();
-  const pollIntervalMs = 10;
+  const pollIntervalMs = 25;
   while (Date.now() - startedAt < timeoutMs) {
-    if ((await countOutbox(db)) === 0) {
+    if ((await countOutbox(args.db)) === 0) {
       return;
     }
+    await args.client.sync();
     await Bun.sleep(pollIntervalMs);
   }
 
@@ -1274,6 +1277,7 @@ async function runSyncularOfflineReplayCase(args: {
   memorySampler.start();
   cpuSampler.start();
   let replaySession: SyncularClientSession | null = null;
+  const replayTimeoutMs = Math.max(120_000, args.queueSize * 500);
 
   try {
     stopService('syncular', 'sync');
@@ -1313,14 +1317,18 @@ async function runSyncularOfflineReplayCase(args: {
 
     const startedAt = performance.now();
     await replaySession.client.start();
-    await waitForOutboxClear(replaySession.db, 120_000);
+    await waitForOutboxClear({
+      client: replaySession.client,
+      db: replaySession.db,
+      timeoutMs: replayTimeoutMs,
+    });
 
     for (const [taskId, expectedTitle] of expectedTitles) {
       await waitForLocalTitle({
         db: replaySession.db,
         taskId,
         expectedTitle,
-        timeoutMs: 120_000,
+        timeoutMs: replayTimeoutMs,
       });
     }
 
@@ -1982,7 +1990,7 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
     notes: string[];
     metadata: { [key: string]: JsonValue };
   }> {
-    const queueSizes = [20];
+    const queueSizes = [100, 500, 1000];
     const queueResults = [];
 
     for (const queueSize of queueSizes) {
@@ -2013,7 +2021,7 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
       ),
       notes: [
         'Large offline queue replay reuses the real Syncular durable outbox path with much larger queued write sets.',
-        'The current default scale is 20 queued writes so the benchmark stays materially above the baseline replay case without making run-all impractically slow.',
+        'The benchmark measures 100 / 500 / 1000 queued writes so scaling behavior is visible instead of a single queue-size point.',
       ],
       metadata: {
         implementation: 'local-syncular-client-native-outbox-large-queue',

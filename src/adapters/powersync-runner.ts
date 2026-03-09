@@ -47,6 +47,22 @@ interface PowerSyncSession {
   destroy: () => Promise<void>;
 }
 
+interface PowerSyncOfflineReplayCaseResult {
+  queuedWriteCount: number;
+  reconnectConvergenceMs: number;
+  conflictCount: number;
+  replayedWriteSuccessRate: number;
+  requestCount: number;
+  requestBytes: number;
+  responseBytes: number;
+  bytesTransferred: number;
+  avgMemoryMb: number;
+  peakMemoryMb: number;
+  avgCpuPct: number;
+  peakCpuPct: number;
+  queuedTaskIds: string[];
+}
+
 const stack = getStack('powersync');
 const scenario = process.argv[2];
 
@@ -72,9 +88,12 @@ const AppSchema = new Schema({
 if (
   scenario !== 'bootstrap' &&
   scenario !== 'online-propagation' &&
-  scenario !== 'offline-replay'
+  scenario !== 'offline-replay' &&
+  scenario !== 'large-offline-queue'
 ) {
-  throw new Error('Expected scenario argument: bootstrap | online-propagation | offline-replay');
+  throw new Error(
+    'Expected scenario argument: bootstrap | online-propagation | offline-replay | large-offline-queue'
+  );
 }
 
 const result =
@@ -82,7 +101,9 @@ const result =
     ? await runBootstrap()
     : scenario === 'online-propagation'
       ? await runOnlinePropagation()
-      : await runOfflineReplay();
+      : scenario === 'offline-replay'
+        ? await runOfflineReplay()
+        : await runLargeOfflineQueue();
 
 await writeResultAndExit(result);
 
@@ -342,13 +363,102 @@ async function runOnlinePropagation(): Promise<RunnerResult> {
 }
 
 async function runOfflineReplay(): Promise<RunnerResult> {
+  const result = await runOfflineReplayCase({
+    queueSize: 10,
+    titlePrefix: 'powersync-offline',
+  });
+
+  return {
+    status: 'completed',
+    metrics: {
+      queued_write_count: result.queuedWriteCount,
+      reconnect_convergence_ms: result.reconnectConvergenceMs,
+      conflict_count: result.conflictCount,
+      replayed_write_success_rate: result.replayedWriteSuccessRate,
+      request_count: result.requestCount,
+      request_bytes: result.requestBytes,
+      response_bytes: result.responseBytes,
+      bytes_transferred: result.bytesTransferred,
+      avg_memory_mb: result.avgMemoryMb,
+      peak_memory_mb: result.peakMemoryMb,
+      avg_cpu_pct: result.avgCpuPct,
+      peak_cpu_pct: result.peakCpuPct,
+    },
+    notes: [
+      'Offline replay uses the native PowerSync upload queue by taking the app backend offline while keeping the local SQLite client active.',
+      'Convergence completes when the writer queue drains and a second PowerSync client observes all replayed titles.',
+    ],
+    metadata: {
+      implementation: 'powersync-native-upload-queue',
+      productVersion: '0.18.0',
+      queuedTaskIds: result.queuedTaskIds,
+    },
+  };
+}
+
+async function runLargeOfflineQueue(): Promise<RunnerResult> {
+  const queueSizes = [100, 500, 1000];
+  const queueResults: PowerSyncOfflineReplayCaseResult[] = [];
+
+  for (const queueSize of queueSizes) {
+    queueResults.push(
+      await runOfflineReplayCase({
+        queueSize,
+        titlePrefix: `powersync-large-offline-${queueSize}`,
+      })
+    );
+  }
+
+  return {
+    status: 'completed',
+    metrics: Object.fromEntries(
+      queueResults.flatMap((result, index) => {
+        const queueSize = queueSizes[index]!;
+        return [
+          [`queue_${queueSize}_queued_writes`, result.queuedWriteCount],
+          [`queue_${queueSize}_convergence_ms`, result.reconnectConvergenceMs],
+          [`queue_${queueSize}_request_count`, result.requestCount],
+          [`queue_${queueSize}_bytes_transferred`, result.bytesTransferred],
+          [`queue_${queueSize}_avg_memory_mb`, result.avgMemoryMb],
+          [`queue_${queueSize}_peak_memory_mb`, result.peakMemoryMb],
+          [`queue_${queueSize}_avg_cpu_pct`, result.avgCpuPct],
+          [`queue_${queueSize}_peak_cpu_pct`, result.peakCpuPct],
+        ];
+      })
+    ),
+    notes: [
+      'Large offline queue replay extends the native PowerSync upload queue path to 100 / 500 / 1000 queued writes.',
+      'Convergence completes when the writer queue drains and a second PowerSync client observes all replayed titles.',
+    ],
+    metadata: {
+      implementation: 'powersync-native-upload-queue-large-queue',
+      productVersion: '0.18.0',
+      scales: queueResults.map((result, index) => ({
+        queueSize: queueSizes[index],
+        queuedWriteCount: result.queuedWriteCount,
+        reconnectConvergenceMs: result.reconnectConvergenceMs,
+        requestCount: result.requestCount,
+        bytesTransferred: result.bytesTransferred,
+        avgMemoryMb: result.avgMemoryMb,
+        peakMemoryMb: result.peakMemoryMb,
+        avgCpuPct: result.avgCpuPct,
+        peakCpuPct: result.peakCpuPct,
+      })),
+    },
+  };
+}
+
+async function runOfflineReplayCase(args: {
+  queueSize: number;
+  titlePrefix: string;
+}): Promise<PowerSyncOfflineReplayCaseResult> {
   await ensureStackUp();
   await seedStack({
     resetFirst: true,
     orgCount: 1,
     projectsPerOrg: 1,
     usersPerOrg: 2,
-    tasksPerProject: 200,
+    tasksPerProject: Math.max(200, args.queueSize + 25),
     membershipsPerProject: 2,
   });
 
@@ -358,12 +468,16 @@ async function runOfflineReplay(): Promise<RunnerResult> {
     throw new Error('PowerSync fixtures are missing project data');
   }
 
-  const candidateTasks = await listTasks({ projectId, limit: 20 });
-  if (candidateTasks.length < 10) {
-    throw new Error('Need at least 10 tasks for PowerSync offline replay');
+  const candidateTasks = await listTasks({
+    projectId,
+    limit: args.queueSize + 10,
+  });
+  if (candidateTasks.length < args.queueSize) {
+    throw new Error(`Need at least ${args.queueSize} tasks for PowerSync offline replay`);
   }
 
   const baseFetch = globalThis.fetch;
+  const replayTimeoutMs = Math.max(120_000, args.queueSize * 500);
   const meter = createHttpMeter(baseFetch);
   globalThis.fetch = meter.fetch;
   const memorySampler = new MemorySampler();
@@ -377,15 +491,16 @@ async function runOfflineReplay(): Promise<RunnerResult> {
   try {
     await writer.db.waitForFirstSync();
     await reader.db.waitForFirstSync();
-    await waitForRowCount(writer.db, 200);
-    await waitForRowCount(reader.db, 200);
+    const expectedRows = Math.max(200, args.queueSize + 25);
+    await waitForRowCount(writer.db, expectedRows);
+    await waitForRowCount(reader.db, expectedRows);
 
-    const offlineTargets = candidateTasks.slice(0, 10);
+    const offlineTargets = candidateTasks.slice(0, args.queueSize);
     const expectedTitles = new Map<string, string>();
     for (let index = 0; index < offlineTargets.length; index += 1) {
       const task = offlineTargets[index];
       if (!task) continue;
-      expectedTitles.set(task.id, `powersync-offline-${index}-${Date.now()}`);
+      expectedTitles.set(task.id, `${args.titlePrefix}-${index}-${Date.now()}`);
     }
 
     stopService('app');
@@ -402,11 +517,11 @@ async function runOfflineReplay(): Promise<RunnerResult> {
     startService('app');
     await waitForUrl(`${stack.appBaseUrl}/health`);
 
-    await waitForUploadQueueCount(writer.db, 0);
+    await waitForUploadQueueCount(writer.db, 0, replayTimeoutMs);
     await waitForTaskTitles({
       db: reader.db,
       expectedTitles,
-      timeoutMs: 60_000,
+      timeoutMs: replayTimeoutMs,
     });
 
     const convergenceMs = performance.now() - startedAt;
@@ -416,33 +531,22 @@ async function runOfflineReplay(): Promise<RunnerResult> {
     const cpuMetrics = cpuSampler.stop();
 
     return {
-      status: 'completed',
-      metrics: {
-        queued_write_count: queuedStats.count,
-        reconnect_convergence_ms: round(convergenceMs),
-        conflict_count: 0,
-        replayed_write_success_rate:
-          queuedStats.count === 0
-            ? 0
-            : round(expectedTitles.size / queuedStats.count, 4),
-        request_count: meterSnapshot.requestCount,
-        request_bytes: meterSnapshot.requestBytes,
-        response_bytes: meterSnapshot.responseBytes,
-        bytes_transferred: bytes,
-        avg_memory_mb: memoryMetrics.avgMemoryMb,
-        peak_memory_mb: memoryMetrics.peakMemoryMb,
-        avg_cpu_pct: cpuMetrics.avgCpuPct,
-        peak_cpu_pct: cpuMetrics.peakCpuPct,
-      },
-      notes: [
-        'Offline replay uses the native PowerSync upload queue by taking the app backend offline while keeping the local SQLite client active.',
-        'Convergence completes when the writer queue drains and a second PowerSync client observes all replayed titles.',
-      ],
-      metadata: {
-        implementation: 'powersync-native-upload-queue',
-        productVersion: '0.18.0',
-        queuedTaskIds: Array.from(expectedTitles.keys()),
-      },
+      queuedWriteCount: queuedStats.count,
+      reconnectConvergenceMs: round(convergenceMs),
+      conflictCount: 0,
+      replayedWriteSuccessRate:
+        queuedStats.count === 0
+          ? 0
+          : round(expectedTitles.size / queuedStats.count, 4),
+      requestCount: meterSnapshot.requestCount,
+      requestBytes: meterSnapshot.requestBytes,
+      responseBytes: meterSnapshot.responseBytes,
+      bytesTransferred: bytes,
+      avgMemoryMb: memoryMetrics.avgMemoryMb,
+      peakMemoryMb: memoryMetrics.peakMemoryMb,
+      avgCpuPct: cpuMetrics.avgCpuPct,
+      peakCpuPct: cpuMetrics.peakCpuPct,
+      queuedTaskIds: Array.from(expectedTitles.keys()),
     };
   } finally {
     globalThis.fetch = baseFetch;

@@ -37,6 +37,7 @@
 ## Reporting
 
 - [x] Generate markdown summary tables from raw JSON results
+- [x] Add repeated-run bootstrap reporting so the public report shows recent median/min/max instead of only one noisy point
 - [x] Keep a machine-readable results catalog
 - [x] Export chart-friendly CSV artifacts
 - [x] Export a normalized JSON summary artifact per run
@@ -50,7 +51,9 @@
 - [x] Mark support levels as `native` / `emulated` / `unsupported`
 - [x] Add reconnect storm / fan-in recovery for Syncular and Electric
 - [x] Add a larger offline queue replay scenario for Syncular and Electric
+- [x] Extend large-offline-queue to 100 / 500 / 1000 queued writes for Syncular, Replicache, and PowerSync
 - [x] Add local-query benchmarking for Syncular and Electric
+- [x] Extend local-query benchmarking to Zero and Replicache on their native local client paths
 - [x] Add permission change convergence with native Syncular coverage and an auth-scoped Electric benchmark path, while keeping the remaining stacks explicitly unsupported
 - [x] Add scoped multi-project datasets to permission-change benchmarks so revocation removes only the unauthorized project while retaining still-authorized data
 - [x] Add a first native Syncular blob flow benchmark covering immediate upload, forced cache-miss download, transferred bytes, and client resource use

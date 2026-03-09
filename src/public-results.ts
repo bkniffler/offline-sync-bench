@@ -52,10 +52,10 @@ async function walkJsonFiles(dir: string): Promise<string[]> {
 }
 
 async function collectLatestResults(): Promise<
-  Map<ScenarioId, Map<StackId, StoredBenchmarkResult>>
+  Map<ScenarioId, Map<StackId, StoredBenchmarkResult[]>>
 > {
   const files = await walkJsonFiles(RESULTS_DIR);
-  const latest = new Map<ScenarioId, Map<StackId, StoredBenchmarkResult>>();
+  const history = new Map<ScenarioId, Map<StackId, StoredBenchmarkResult[]>>();
 
   for (const filePath of files) {
     const rel = relative(RESULTS_DIR, filePath).split(/[\\/]/);
@@ -75,19 +75,27 @@ async function collectLatestResults(): Promise<
     }
 
     if (parsed.status !== 'completed') continue;
-    const scenarioMap = latest.get(scenarioId) ?? new Map<StackId, StoredBenchmarkResult>();
-    const existing = scenarioMap.get(typedStackId);
-    const existingFinishedAt = existing?.finishedAt ?? '';
-    if (!existing || parsed.finishedAt > existingFinishedAt) {
-      scenarioMap.set(typedStackId, {
-        ...parsed,
-        _path: toBenchmarkRelativePath(filePath),
-      });
-      latest.set(scenarioId, scenarioMap);
+    const scenarioMap =
+      history.get(scenarioId) ?? new Map<StackId, StoredBenchmarkResult[]>();
+    const stackResults = scenarioMap.get(typedStackId) ?? [];
+    stackResults.push({
+      ...parsed,
+      _path: toBenchmarkRelativePath(filePath),
+    });
+    scenarioMap.set(typedStackId, stackResults);
+    history.set(scenarioId, scenarioMap);
+  }
+
+  for (const scenarioMap of history.values()) {
+    for (const [stackId, results] of scenarioMap) {
+      scenarioMap.set(
+        stackId,
+        results.sort((left, right) => right.finishedAt.localeCompare(left.finishedAt))
+      );
     }
   }
 
-  return latest;
+  return history;
 }
 
 function formatMs(value: number | null | undefined): string {
@@ -146,11 +154,35 @@ function markdownTable(headers: string[], rows: string[][]): string {
 }
 
 function getResult(
-  latest: Map<ScenarioId, Map<StackId, StoredBenchmarkResult>>,
+  latest: Map<ScenarioId, Map<StackId, StoredBenchmarkResult[]>>,
   scenarioId: ScenarioId,
   stackId: StackId
 ): StoredBenchmarkResult | undefined {
-  return latest.get(scenarioId)?.get(stackId);
+  return latest.get(scenarioId)?.get(stackId)?.[0];
+}
+
+function getRecentResults(args: {
+  latest: Map<ScenarioId, Map<StackId, StoredBenchmarkResult[]>>;
+  scenarioId: ScenarioId;
+  stackId: StackId;
+  limit: number;
+}): StoredBenchmarkResult[] {
+  return args.latest.get(args.scenarioId)?.get(args.stackId)?.slice(0, args.limit) ?? [];
+}
+
+function median(values: number[]): number | null {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((left, right) => left - right);
+  const middle = Math.floor(sorted.length / 2);
+  if (sorted.length % 2 === 1) {
+    return sorted[middle] ?? null;
+  }
+  const left = sorted[middle - 1];
+  const right = sorted[middle];
+  if (left === undefined || right === undefined) {
+    return null;
+  }
+  return (left + right) / 2;
 }
 
 async function readJsonFile<T>(filePath: string): Promise<T> {
@@ -229,9 +261,48 @@ async function main(): Promise<void> {
   const syncularBlobFlow = getResult(latest, 'blob-flow', 'syncular');
   const syncularBundle = bundleRows.find((row) => row.label === 'Syncular');
 
-  if (electricBootstrap && syncularBootstrap && replicacheBootstrap) {
+  const syncularBootstrapRecent = getRecentResults({
+    latest,
+    scenarioId: 'bootstrap',
+    stackId: 'syncular',
+    limit: 3,
+  });
+  const electricBootstrapRecent = getRecentResults({
+    latest,
+    scenarioId: 'bootstrap',
+    stackId: 'electric',
+    limit: 3,
+  });
+  const replicacheBootstrapRecent = getRecentResults({
+    latest,
+    scenarioId: 'bootstrap',
+    stackId: 'replicache',
+    limit: 3,
+  });
+
+  const syncularBootstrapMedian = median(
+    syncularBootstrapRecent
+      .map((result) => result.metrics.bootstrap_100000_ms)
+      .filter((value): value is number => typeof value === 'number')
+  );
+  const electricBootstrapMedian = median(
+    electricBootstrapRecent
+      .map((result) => result.metrics.bootstrap_100000_ms)
+      .filter((value): value is number => typeof value === 'number')
+  );
+  const replicacheBootstrapMedian = median(
+    replicacheBootstrapRecent
+      .map((result) => result.metrics.bootstrap_100000_ms)
+      .filter((value): value is number => typeof value === 'number')
+  );
+
+  if (
+    electricBootstrapMedian !== null &&
+    syncularBootstrapMedian !== null &&
+    replicacheBootstrapMedian !== null
+  ) {
     sections.push(
-      `- Bootstrap at 100k rows: Electric currently leads at ${formatMs(electricBootstrap.metrics.bootstrap_100000_ms)}; Syncular is at ${formatMs(syncularBootstrap.metrics.bootstrap_100000_ms)} and Replicache is at ${formatMs(replicacheBootstrap.metrics.bootstrap_100000_ms)}.`
+      `- Bootstrap at 100k rows (median of the latest ${Math.min(electricBootstrapRecent.length, syncularBootstrapRecent.length, replicacheBootstrapRecent.length)} runs where available): Electric is at ${formatMs(electricBootstrapMedian)}; Syncular is at ${formatMs(syncularBootstrapMedian)}; Replicache is at ${formatMs(replicacheBootstrapMedian)}.`
     );
   }
   if (electricOnline && syncularOnline) {
@@ -263,7 +334,7 @@ async function main(): Promise<void> {
 
   const bootstrapRows = stackOrder
     .map((stackId) => {
-      const result = latest.get('bootstrap')?.get(stackId);
+      const result = getResult(latest, 'bootstrap', stackId);
       if (!result) return null;
       return [
         stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
@@ -284,9 +355,44 @@ async function main(): Promise<void> {
     })
   );
 
+  const bootstrapRepeatRows = stackOrder
+    .map((stackId) => {
+      const recentResults = getRecentResults({
+        latest,
+        scenarioId: 'bootstrap',
+        stackId,
+        limit: 3,
+      });
+      if (recentResults.length === 0) return null;
+      const bootstrapSamples = recentResults
+        .map((result) => result.metrics.bootstrap_100000_ms)
+        .filter((value): value is number => typeof value === 'number')
+        .sort((left, right) => left - right);
+      if (bootstrapSamples.length === 0) return null;
+      const latestResult = recentResults[0];
+      const minSample = bootstrapSamples[0];
+      const maxSample = bootstrapSamples[bootstrapSamples.length - 1];
+      return [
+        stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
+        formatCount(bootstrapSamples.length),
+        formatMs(median(bootstrapSamples)),
+        formatMs(minSample),
+        formatMs(maxSample),
+        formatMs(latestResult?.metrics.bootstrap_100000_ms),
+      ];
+    })
+    .filter((row): row is string[] => row !== null);
+  sections.push(
+    renderScenarioTable({
+      title: 'Bootstrap Repeat Summary',
+      headers: ['Stack', 'Runs', '100k median', '100k min', '100k max', 'Latest 100k'],
+      rows: bootstrapRepeatRows,
+    })
+  );
+
   const onlineRows = stackOrder
     .map((stackId) => {
-      const result = latest.get('online-propagation')?.get(stackId);
+      const result = getResult(latest, 'online-propagation', stackId);
       if (!result) return null;
       return [
         stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
@@ -308,7 +414,7 @@ async function main(): Promise<void> {
 
   const replayRows = stackOrder
     .map((stackId) => {
-      const result = latest.get('offline-replay')?.get(stackId);
+      const result = getResult(latest, 'offline-replay', stackId);
       if (!result) return null;
       return [
         stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
@@ -330,7 +436,7 @@ async function main(): Promise<void> {
 
   const stormRows = stackOrder
     .map((stackId) => {
-      const result = latest.get('reconnect-storm')?.get(stackId);
+      const result = getResult(latest, 'reconnect-storm', stackId);
       if (!result) return null;
       return [
         stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
@@ -359,14 +465,14 @@ async function main(): Promise<void> {
 
   const queueRows = stackOrder
     .map((stackId) => {
-      const result = latest.get('large-offline-queue')?.get(stackId);
+      const result = getResult(latest, 'large-offline-queue', stackId);
       if (!result) return null;
       return [
         stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
-        formatCount(result.metrics.queue_20_queued_writes),
-        formatMs(result.metrics.queue_20_convergence_ms),
-        formatCount(result.metrics.queue_20_request_count),
-        formatMb(result.metrics.queue_20_avg_memory_mb),
+        formatMs(result.metrics.queue_100_convergence_ms),
+        formatMs(result.metrics.queue_500_convergence_ms),
+        formatMs(result.metrics.queue_1000_convergence_ms),
+        formatCount(result.metrics.queue_1000_request_count),
         formatSupport(result),
       ];
     })
@@ -374,14 +480,14 @@ async function main(): Promise<void> {
   sections.push(
     renderScenarioTable({
       title: 'Large Offline Queue',
-      headers: ['Stack', 'Queued writes', 'Convergence', 'Requests', 'Avg mem', 'Support'],
+      headers: ['Stack', '100 writes', '500 writes', '1000 writes', '1000 reqs', 'Support'],
       rows: queueRows,
     })
   );
 
   const queryRows = stackOrder
     .map((stackId) => {
-      const result = latest.get('local-query')?.get(stackId);
+      const result = getResult(latest, 'local-query', stackId);
       if (!result) return null;
       return [
         stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
@@ -403,7 +509,7 @@ async function main(): Promise<void> {
 
   const permissionRows = stackOrder
     .map((stackId) => {
-      const result = latest.get('permission-change')?.get(stackId);
+      const result = getResult(latest, 'permission-change', stackId);
       if (!result) return null;
       return [
         stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
@@ -434,7 +540,7 @@ async function main(): Promise<void> {
 
   const blobRows = stackOrder
     .map((stackId) => {
-      const result = latest.get('blob-flow')?.get(stackId);
+      const result = getResult(latest, 'blob-flow', stackId);
       if (!result) return null;
       return [
         stacks.find((stack) => stack.id === stackId)?.title ?? stackId,
@@ -486,6 +592,7 @@ async function main(): Promise<void> {
   sections.push('- `native` means the benchmark uses the product’s normal client model.');
   sections.push('- `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.');
   sections.push('- `unsupported` stacks are intentionally omitted instead of being forced through non-native adapters.');
+  sections.push('- Bootstrap repeat summary uses the latest three successful 100k-row bootstrap runs per stack when available.');
   sections.push('- Bundle sizes are taken from the named-import browser bundle profile in `.results/BUNDLE_SIZES.json`.');
   sections.push('');
 

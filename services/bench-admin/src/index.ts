@@ -97,7 +97,7 @@ app.get('/admin/tasks', async (c) => {
   const projectId = c.req.query('projectId');
   const limit = Number(c.req.query('limit') ?? '25');
   const normalizedLimit = Number.isFinite(limit)
-    ? Math.max(1, Math.min(500, Math.floor(limit)))
+    ? Math.max(1, Math.min(5_000, Math.floor(limit)))
     : 25;
 
   const rows = projectId

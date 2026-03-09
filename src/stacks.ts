@@ -1,5 +1,5 @@
-import { benchmarkRoot } from './paths';
-import { syncularRoot } from './paths';
+import { benchmarkRoot } from './paths.ts';
+import { syncularRoot } from './paths.ts';
 import type { StackId, StackSpec } from './types';
 
 export const stacks: StackSpec[] = [
@@ -85,13 +85,14 @@ export const stacks: StackSpec[] = [
       offlineReplay: 'unsupported',
       reconnectStorm: 'unsupported',
       largeOfflineQueue: 'unsupported',
-      localQuery: 'unsupported',
+      localQuery: 'native',
       permissionChange: 'unsupported',
       blobFlow: 'unsupported',
     },
     notes: [
       'Uses a real zero-cache service plus a minimal benchmark app implementing query and mutate endpoints.',
       'Offline replay is marked unsupported because Zero does not target durable offline write queues in this deployment model.',
+      'Local-query coverage uses the native Zero local cache and query materialization path.',
     ],
   },
   {
@@ -115,7 +116,7 @@ export const stacks: StackSpec[] = [
       onlinePropagation: 'native',
       offlineReplay: 'native',
       reconnectStorm: 'unsupported',
-      largeOfflineQueue: 'unsupported',
+      largeOfflineQueue: 'native',
       localQuery: 'unsupported',
       permissionChange: 'unsupported',
       blobFlow: 'unsupported',
@@ -123,6 +124,7 @@ export const stacks: StackSpec[] = [
     notes: [
       'Uses the official PowerSync service with Postgres-backed bucket storage and a benchmark-owned Bun backend.',
       'Client-side benchmarks run through the real Node SDK and its native upload queue.',
+      'Large offline queue replay extends the same native upload queue path to 100 / 500 / 1000 queued writes.',
     ],
   },
   {
@@ -145,14 +147,16 @@ export const stacks: StackSpec[] = [
       onlinePropagation: 'native',
       offlineReplay: 'native',
       reconnectStorm: 'unsupported',
-      largeOfflineQueue: 'unsupported',
-      localQuery: 'unsupported',
+      largeOfflineQueue: 'native',
+      localQuery: 'native',
       permissionChange: 'unsupported',
       blobFlow: 'unsupported',
     },
     notes: [
       'Uses a benchmark-owned Bun BYOB server with the real Replicache client running against fake-indexeddb under Bun.',
       'Pull responses currently use full-dataset patches keyed by a derived cookie instead of server-side diffing.',
+      'Local-query coverage runs against the native Replicache local store after bootstrap completes.',
+      'Large offline queue replay uses the native Replicache pending-mutation queue persisted in fake-indexeddb under Bun.',
     ],
   },
   {

@@ -1,4 +1,5 @@
 import {
+  type ScopeValue,
   configureSyncTelemetry,
   createBlobManager,
   createDatabaseBlobStorageAdapter,
@@ -68,6 +69,104 @@ interface BenchDb extends SyncCoreDb, SyncBlobDb {
 
 interface BenchAuth {
   actorId: string;
+}
+
+function resolveProjectScopeValues(
+  scopeValues: Partial<Record<string, ScopeValue>>
+) {
+  const projectScope = scopeValues.project_id;
+  if (projectScope === undefined) {
+    return [];
+  }
+  return Array.isArray(projectScope) ? projectScope : [projectScope];
+}
+
+async function snapshotTasks(args: {
+  db: Kysely<BenchDb>;
+  scopeValues: Partial<Record<string, ScopeValue>>;
+  cursor: string | null;
+  limit: number;
+}): Promise<{ rows: Array<BenchDb['tasks']>; nextCursor: string | null }> {
+  const projectIds = resolveProjectScopeValues(args.scopeValues);
+  if (projectIds.length === 0) {
+    return { rows: [], nextCursor: null };
+  }
+
+  const pageSize = Math.max(1, args.limit);
+  const rows = await args.db
+    .selectFrom('tasks')
+    .select([
+      'id',
+      'org_id',
+      'project_id',
+      'owner_id',
+      'title',
+      'completed',
+      'server_version',
+      'updated_at',
+    ])
+    .$if(projectIds.length === 1, (qb) =>
+      qb.where('project_id', '=', projectIds[0] ?? '')
+    )
+    .$if(projectIds.length > 1, (qb) => qb.where('project_id', 'in', projectIds))
+    .$if(args.cursor !== null, (qb) => qb.where('id', '>', args.cursor ?? ''))
+    .orderBy('id', 'asc')
+    .limit(pageSize + 1)
+    .execute();
+
+  const hasMore = rows.length > pageSize;
+  const pageRows = hasMore ? rows.slice(0, pageSize) : rows;
+  const lastRow = pageRows[pageRows.length - 1];
+
+  return {
+    rows: pageRows,
+    nextCursor: hasMore ? lastRow?.id ?? null : null,
+  };
+}
+
+async function snapshotTaskBlobs(args: {
+  db: Kysely<BenchDb>;
+  scopeValues: Partial<Record<string, ScopeValue>>;
+  cursor: string | null;
+  limit: number;
+}): Promise<{
+  rows: Array<BenchDb['task_blob_entries']>;
+  nextCursor: string | null;
+}> {
+  const projectIds = resolveProjectScopeValues(args.scopeValues);
+  if (projectIds.length === 0) {
+    return { rows: [], nextCursor: null };
+  }
+
+  const pageSize = Math.max(1, args.limit);
+  const rows = await args.db
+    .selectFrom('task_blob_entries')
+    .select([
+      'id',
+      'project_id',
+      'blob_hash',
+      'blob_size',
+      'blob_mime_type',
+      'server_version',
+      'updated_at',
+    ])
+    .$if(projectIds.length === 1, (qb) =>
+      qb.where('project_id', '=', projectIds[0] ?? '')
+    )
+    .$if(projectIds.length > 1, (qb) => qb.where('project_id', 'in', projectIds))
+    .$if(args.cursor !== null, (qb) => qb.where('id', '>', args.cursor ?? ''))
+    .orderBy('id', 'asc')
+    .limit(pageSize + 1)
+    .execute();
+
+  const hasMore = rows.length > pageSize;
+  const pageRows = hasMore ? rows.slice(0, pageSize) : rows;
+  const lastRow = pageRows[pageRows.length - 1];
+
+  return {
+    rows: pageRows,
+    nextCursor: hasMore ? lastRow?.id ?? null : null,
+  };
 }
 
 const databaseUrl =
@@ -172,6 +271,13 @@ const tasksHandler = createServerHandler<
       project_id: memberships.map((row) => row.project_id),
     };
   },
+  snapshot: async (ctx) =>
+    snapshotTasks({
+      db: ctx.db,
+      scopeValues: ctx.scopeValues,
+      cursor: ctx.cursor,
+      limit: ctx.limit,
+    }),
   ...(snapshotBundleMaxBytes ? { snapshotBundleMaxBytes } : {}),
 });
 
@@ -194,6 +300,13 @@ const taskBlobsHandler = createServerHandler<
       project_id: memberships.map((row) => row.project_id),
     };
   },
+  snapshot: async (ctx) =>
+    snapshotTaskBlobs({
+      db: ctx.db,
+      scopeValues: ctx.scopeValues,
+      cursor: ctx.cursor,
+      limit: ctx.limit,
+    }),
   ...(snapshotBundleMaxBytes ? { snapshotBundleMaxBytes } : {}),
 });
 
@@ -435,16 +548,17 @@ console.log(`[syncular-bench] listening on ${server.url}`);
 
 async function ensureBenchmarkSchema(): Promise<void> {
   const schemaLockId = 32010;
-  await sql`select pg_advisory_lock(${schemaLockId})`.execute(db);
-  try {
-    await db.schema
+  await db.transaction().execute(async (trx) => {
+    await sql`select pg_advisory_xact_lock(${schemaLockId})`.execute(trx);
+
+    await trx.schema
       .createTable('organizations')
       .ifNotExists()
       .addColumn('id', 'text', (col) => col.primaryKey())
       .addColumn('name', 'text', (col) => col.notNull())
       .execute();
 
-    await db.schema
+    await trx.schema
       .createTable('projects')
       .ifNotExists()
       .addColumn('id', 'text', (col) => col.primaryKey())
@@ -454,7 +568,7 @@ async function ensureBenchmarkSchema(): Promise<void> {
       .addColumn('name', 'text', (col) => col.notNull())
       .execute();
 
-    await db.schema
+    await trx.schema
       .createTable('app_users')
       .ifNotExists()
       .addColumn('id', 'text', (col) => col.primaryKey())
@@ -464,7 +578,7 @@ async function ensureBenchmarkSchema(): Promise<void> {
       .addColumn('email', 'text', (col) => col.notNull().unique())
       .execute();
 
-    await db.schema
+    await trx.schema
       .createTable('project_memberships')
       .ifNotExists()
       .addColumn('project_id', 'text', (col) =>
@@ -480,7 +594,7 @@ async function ensureBenchmarkSchema(): Promise<void> {
       )
       .execute();
 
-    await db.schema
+    await trx.schema
       .createTable('tasks')
       .ifNotExists()
       .addColumn('id', 'text', (col) => col.primaryKey())
@@ -505,7 +619,7 @@ async function ensureBenchmarkSchema(): Promise<void> {
       )
       .execute();
 
-    await db.schema
+    await trx.schema
       .createTable('task_blob_entries')
       .ifNotExists()
       .addColumn('id', 'text', (col) =>
@@ -528,68 +642,66 @@ async function ensureBenchmarkSchema(): Promise<void> {
     await sql`
       create index if not exists idx_projects_org_id
       on projects (org_id)
-    `.execute(db);
+    `.execute(trx);
 
     await sql`
       create index if not exists idx_app_users_org_id
       on app_users (org_id)
-    `.execute(db);
+    `.execute(trx);
 
     await sql`
       create index if not exists idx_project_memberships_user_id
       on project_memberships (user_id)
-    `.execute(db);
+    `.execute(trx);
 
     await sql`
       create index if not exists idx_tasks_project_id
       on tasks (project_id)
-    `.execute(db);
+    `.execute(trx);
 
     await sql`
       create index if not exists idx_tasks_project_id_id
       on tasks (project_id, id)
-    `.execute(db);
+    `.execute(trx);
 
     await sql`
       create index if not exists idx_tasks_owner_id
       on tasks (owner_id)
-    `.execute(db);
+    `.execute(trx);
 
     await sql`
       create index if not exists idx_task_blob_entries_project_id_id
       on task_blob_entries (project_id, id)
-    `.execute(db);
+    `.execute(trx);
 
     await sql`
       alter table task_blob_entries
       add column if not exists blob_hash text
-    `.execute(db);
+    `.execute(trx);
 
     await sql`
       alter table task_blob_entries
       add column if not exists blob_size bigint
-    `.execute(db);
+    `.execute(trx);
 
     await sql`
       alter table task_blob_entries
       add column if not exists blob_mime_type text
-    `.execute(db);
+    `.execute(trx);
 
     await sql`
       alter table tasks
       drop column if exists blob_hash
-    `.execute(db);
+    `.execute(trx);
 
     await sql`
       alter table tasks
       drop column if exists blob_size
-    `.execute(db);
+    `.execute(trx);
 
     await sql`
       alter table tasks
       drop column if exists blob_mime_type
-    `.execute(db);
-  } finally {
-    await sql`select pg_advisory_unlock(${schemaLockId})`.execute(db);
-  }
+    `.execute(trx);
+  });
 }

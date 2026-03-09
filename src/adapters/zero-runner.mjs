@@ -67,9 +67,12 @@ const mutators = defineMutators({
 if (
   scenario !== 'bootstrap' &&
   scenario !== 'online-propagation' &&
-  scenario !== 'offline-replay'
+  scenario !== 'offline-replay' &&
+  scenario !== 'local-query'
 ) {
-  throw new Error('Expected scenario argument: bootstrap | online-propagation | offline-replay');
+  throw new Error(
+    'Expected scenario argument: bootstrap | online-propagation | offline-replay | local-query'
+  );
 }
 
 const result =
@@ -77,7 +80,9 @@ const result =
     ? await runBootstrap()
     : scenario === 'online-propagation'
       ? await runOnlinePropagation()
-      : await runOfflineReplay();
+      : scenario === 'offline-replay'
+        ? await runOfflineReplay()
+        : await runLocalQuery();
 
 await writeResultAndExit(result);
 
@@ -143,6 +148,57 @@ async function waitForZeroTaskTitle({
   }
 
   throw new Error(`Zero reader did not observe ${taskId}=${expectedTitle}`);
+}
+
+function runZeroLocalListQuery({ rows, projectId, ownerId }) {
+  const startedAt = performance.now();
+  const filteredRows = rows
+    .filter(
+      (row) =>
+        row.project_id === projectId &&
+        row.owner_id === ownerId &&
+        !row.completed
+    )
+    .sort((left, right) => right.updated_at - left.updated_at)
+    .slice(0, 50);
+
+  return {
+    elapsedMs: round(performance.now() - startedAt),
+    resultCount: filteredRows.length,
+  };
+}
+
+function runZeroLocalSearchQuery({ rows, projectId }) {
+  const startedAt = performance.now();
+  const filteredRows = rows
+    .filter(
+      (row) =>
+        row.project_id === projectId &&
+        row.id.startsWith('org-1-project-1-task-00')
+    )
+    .sort((left, right) => left.id.localeCompare(right.id))
+    .slice(0, 100);
+
+  return {
+    elapsedMs: round(performance.now() - startedAt),
+    resultCount: filteredRows.length,
+  };
+}
+
+function runZeroLocalAggregateQuery({ rows, projectId }) {
+  const startedAt = performance.now();
+  const grouped = new Map();
+
+  for (const row of rows) {
+    if (row.project_id !== projectId) continue;
+    const key = `${row.owner_id}:${row.completed ? '1' : '0'}`;
+    grouped.set(key, (grouped.get(key) ?? 0) + 1);
+  }
+
+  return {
+    elapsedMs: round(performance.now() - startedAt),
+    resultCount: grouped.size,
+  };
 }
 
 async function closeZero(zero) {
@@ -368,6 +424,108 @@ async function runOfflineReplay() {
       implementation: 'unsupported',
     },
   };
+}
+
+async function runLocalQuery() {
+  await ensureStackUp('zero');
+  await seedStack('zero', {
+    resetFirst: true,
+    orgCount: 1,
+    projectsPerOrg: 1,
+    usersPerOrg: 2,
+    tasksPerProject: 100_000,
+    membershipsPerProject: 2,
+  });
+
+  const fixtures = await getFixtures('zero');
+  const projectId = fixtures.sampleProjectId;
+  const ownerId = fixtures.sampleUserIds[1] ?? fixtures.sampleUserIds[0];
+  if (!projectId || !ownerId) {
+    throw new Error('Zero fixtures are missing project or owner data');
+  }
+
+  const zero = await createZeroClient({
+    userId: 'zero-local-query',
+    storageKey: 'local-query',
+  });
+  const memorySampler = new MemorySampler();
+  const cpuSampler = new CpuSampler();
+  memorySampler.start();
+  cpuSampler.start();
+
+  try {
+    const rows = await waitForZeroRowCount({
+      zero,
+      expectedRows: 100_000,
+      timeoutMs: 120_000,
+    });
+    const iterations = 25;
+    const listSamples = [];
+    const searchSamples = [];
+    const aggregateSamples = [];
+    let listResultCount = 0;
+    let searchResultCount = 0;
+    let aggregateResultCount = 0;
+
+    for (let iteration = 0; iteration < iterations; iteration += 1) {
+      const listResult = runZeroLocalListQuery({
+        rows,
+        projectId,
+        ownerId,
+      });
+      const searchResult = runZeroLocalSearchQuery({
+        rows,
+        projectId,
+      });
+      const aggregateResult = runZeroLocalAggregateQuery({
+        rows,
+        projectId,
+      });
+
+      listSamples.push(listResult.elapsedMs);
+      searchSamples.push(searchResult.elapsedMs);
+      aggregateSamples.push(aggregateResult.elapsedMs);
+      listResultCount = listResult.resultCount;
+      searchResultCount = searchResult.resultCount;
+      aggregateResultCount = aggregateResult.resultCount;
+    }
+
+    const memoryMetrics = memorySampler.stop();
+    const cpuMetrics = cpuSampler.stop();
+
+    return {
+      status: 'completed',
+      metrics: {
+        row_count: rows.length,
+        iterations,
+        list_query_p50_ms: percentile(listSamples, 50),
+        list_query_p95_ms: percentile(listSamples, 95),
+        search_query_p50_ms: percentile(searchSamples, 50),
+        search_query_p95_ms: percentile(searchSamples, 95),
+        aggregate_query_p50_ms: percentile(aggregateSamples, 50),
+        aggregate_query_p95_ms: percentile(aggregateSamples, 95),
+        list_result_count: listResultCount,
+        search_result_count: searchResultCount,
+        aggregate_result_count: aggregateResultCount,
+        avg_memory_mb: memoryMetrics.avgMemoryMb,
+        peak_memory_mb: memoryMetrics.peakMemoryMb,
+        avg_cpu_pct: cpuMetrics.avgCpuPct,
+        peak_cpu_pct: cpuMetrics.peakCpuPct,
+      },
+      notes: [
+        'Local query benchmarks run against the native Zero local cache after the client has materialized the full dataset.',
+        'The workload covers a filtered list query, an ID-prefix search query, and a grouped aggregation over the same task corpus.',
+      ],
+      metadata: {
+        implementation: 'zero-client-local-query',
+        productVersion: zero.version,
+      },
+    };
+  } finally {
+    memorySampler.stop();
+    cpuSampler.stop();
+    await closeZero(zero);
+  }
 }
 
 async function writeResultAndExit(result) {

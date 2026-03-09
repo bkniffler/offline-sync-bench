@@ -12,12 +12,17 @@ interface RunnerResult {
 }
 
 function runReplicacheScenario(
-  scenario: 'bootstrap' | 'online-propagation' | 'offline-replay'
+  scenario:
+    | 'bootstrap'
+    | 'online-propagation'
+    | 'offline-replay'
+    | 'large-offline-queue'
+    | 'local-query'
 ) {
   const result = spawnSync('bun', ['src/adapters/replicache-runner.ts', scenario], {
     cwd: benchmarkRoot,
     encoding: 'utf8',
-    timeout: 300_000,
+    timeout: 900_000,
     maxBuffer: 10 * 1024 * 1024,
   });
 
@@ -67,17 +72,11 @@ export class ReplicacheBenchmarkAdapter implements BenchmarkAdapter {
   }
 
   async runLargeOfflineQueue() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Large offline queue replay is not implemented for Replicache in this harness yet.'],
-    });
+    return runReplicacheScenario('large-offline-queue');
   }
 
   async runLocalQuery() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Local query benchmarking is not implemented for Replicache in this harness yet.'],
-    });
+    return runReplicacheScenario('local-query');
   }
 
   async runPermissionChange() {

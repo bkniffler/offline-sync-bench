@@ -68,9 +68,13 @@ Object.assign(globalThis, {
 if (
   scenario !== 'bootstrap' &&
   scenario !== 'online-propagation' &&
-  scenario !== 'offline-replay'
+  scenario !== 'offline-replay' &&
+  scenario !== 'large-offline-queue' &&
+  scenario !== 'local-query'
 ) {
-  throw new Error('Expected scenario argument: bootstrap | online-propagation | offline-replay');
+  throw new Error(
+    'Expected scenario argument: bootstrap | online-propagation | offline-replay | large-offline-queue | local-query'
+  );
 }
 
 const result =
@@ -78,7 +82,11 @@ const result =
     ? await runBootstrap()
     : scenario === 'online-propagation'
       ? await runOnlinePropagation()
-      : await runOfflineReplay();
+      : scenario === 'offline-replay'
+        ? await runOfflineReplay()
+        : scenario === 'large-offline-queue'
+          ? await runLargeOfflineQueue()
+          : await runLocalQuery();
 
 await writeResultAndExit(result);
 
@@ -247,6 +255,88 @@ async function waitForReplayConvergence(args: {
   }
 
   throw new Error('Replicache offline replay did not converge before timeout');
+}
+
+interface LocalQuerySample {
+  elapsedMs: number;
+  resultCount: number;
+}
+
+interface ReplicacheOfflineReplayCaseResult {
+  queuedWriteCount: number;
+  replayVisibleMs: number;
+  requestCount: number;
+  requestBytes: number;
+  responseBytes: number;
+  bytesTransferred: number;
+  avgMemoryMb: number;
+  peakMemoryMb: number;
+  avgCpuPct: number;
+  peakCpuPct: number;
+  pendingBeforeReconnect: number;
+  pendingAfterReplay: number;
+  expectedTitles: Map<string, string>;
+}
+
+function runReplicacheLocalListQuery(args: {
+  rows: TaskValue[];
+  projectId: string;
+  ownerId: string;
+}): LocalQuerySample {
+  const startedAt = performance.now();
+  const rows = args.rows
+    .filter(
+      (row) =>
+        row.projectId === args.projectId &&
+        row.ownerId === args.ownerId &&
+        !row.completed
+    )
+    .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
+    .slice(0, 50);
+
+  return {
+    elapsedMs: round(performance.now() - startedAt),
+    resultCount: rows.length,
+  };
+}
+
+function runReplicacheLocalSearchQuery(args: {
+  rows: TaskValue[];
+  projectId: string;
+}): LocalQuerySample {
+  const startedAt = performance.now();
+  const rows = args.rows
+    .filter(
+      (row) =>
+        row.projectId === args.projectId &&
+        row.id.startsWith('org-1-project-1-task-00')
+    )
+    .sort((left, right) => left.id.localeCompare(right.id))
+    .slice(0, 100);
+
+  return {
+    elapsedMs: round(performance.now() - startedAt),
+    resultCount: rows.length,
+  };
+}
+
+function runReplicacheLocalAggregateQuery(args: {
+  rows: TaskValue[];
+  projectId: string;
+}): LocalQuerySample {
+  const startedAt = performance.now();
+  const grouped = new Map<string, number>();
+
+  for (const row of args.rows) {
+    if (row.projectId !== args.projectId) continue;
+    const key = `${row.ownerId}:${row.completed ? '1' : '0'}`;
+    grouped.set(key, (grouped.get(key) ?? 0) + 1);
+  }
+
+  return {
+    elapsedMs: round(performance.now() - startedAt),
+    resultCount: grouped.size,
+  };
 }
 
 async function runBootstrap(): Promise<RunnerResult> {
@@ -454,12 +544,197 @@ async function runOnlinePropagation(): Promise<RunnerResult> {
 
 async function runOfflineReplay(): Promise<RunnerResult> {
   await ensureStackUp('replicache');
+  const result = await runOfflineReplayCase({
+    queueSize: 10,
+    titlePrefix: 'replicache-offline',
+  });
+
+  return {
+    status: 'completed',
+    metrics: {
+      queued_mutations: result.pendingBeforeReconnect,
+      replay_visible_ms: round(result.replayVisibleMs),
+      request_count: result.requestCount,
+      request_bytes: result.requestBytes,
+      response_bytes: result.responseBytes,
+      bytes_transferred: result.bytesTransferred,
+      avg_memory_mb: result.avgMemoryMb,
+      peak_memory_mb: result.peakMemoryMb,
+      avg_cpu_pct: result.avgCpuPct,
+      peak_cpu_pct: result.peakCpuPct,
+    },
+    notes: [
+      'Offline replay uses Replicache pending mutations persisted in IndexedDB-compatible storage and a manual push after the backend comes back.',
+      'Convergence completes when pending mutations are gone and a second client has pulled every expected title.',
+    ],
+    metadata: {
+      implementation: 'replicache-client-fake-indexeddb',
+      productVersion: '15.3.0',
+      pendingBeforeReconnect: result.pendingBeforeReconnect,
+      pendingAfterReplay: result.pendingAfterReplay,
+      expectedTitles: Object.fromEntries(result.expectedTitles),
+    },
+  };
+}
+
+async function runLargeOfflineQueue(): Promise<RunnerResult> {
+  const queueSizes = [100, 500, 1000];
+  const queueResults: ReplicacheOfflineReplayCaseResult[] = [];
+
+  for (const queueSize of queueSizes) {
+    queueResults.push(
+      await runOfflineReplayCase({
+        queueSize,
+        titlePrefix: `replicache-large-offline-${queueSize}`,
+      })
+    );
+  }
+
+  return {
+    status: 'completed',
+    metrics: Object.fromEntries(
+      queueResults.flatMap((result, index) => {
+        const queueSize = queueSizes[index]!;
+        return [
+          [`queue_${queueSize}_queued_writes`, result.queuedWriteCount],
+          [`queue_${queueSize}_convergence_ms`, round(result.replayVisibleMs)],
+          [`queue_${queueSize}_request_count`, result.requestCount],
+          [`queue_${queueSize}_bytes_transferred`, result.bytesTransferred],
+          [`queue_${queueSize}_avg_memory_mb`, result.avgMemoryMb],
+          [`queue_${queueSize}_peak_memory_mb`, result.peakMemoryMb],
+          [`queue_${queueSize}_avg_cpu_pct`, result.avgCpuPct],
+          [`queue_${queueSize}_peak_cpu_pct`, result.peakCpuPct],
+        ];
+      })
+    ),
+    notes: [
+      'Large offline queue replay uses the native Replicache pending mutation queue persisted in fake-indexeddb under Bun.',
+      'The benchmark measures 100 / 500 / 1000 queued writes so scaling behavior is visible instead of a single queue-size point.',
+    ],
+    metadata: {
+      implementation: 'replicache-client-fake-indexeddb-large-queue',
+      productVersion: '15.3.0',
+      scales: queueResults.map((result, index) => ({
+        queueSize: queueSizes[index],
+        queuedWriteCount: result.queuedWriteCount,
+        replayVisibleMs: round(result.replayVisibleMs),
+        requestCount: result.requestCount,
+        bytesTransferred: result.bytesTransferred,
+        avgMemoryMb: result.avgMemoryMb,
+        peakMemoryMb: result.peakMemoryMb,
+        avgCpuPct: result.avgCpuPct,
+        peakCpuPct: result.peakCpuPct,
+      })),
+    },
+  };
+}
+
+async function runLocalQuery(): Promise<RunnerResult> {
+  await ensureStackUp('replicache');
   await seedStack('replicache', {
     resetFirst: true,
     orgCount: 1,
     projectsPerOrg: 1,
     usersPerOrg: 2,
-    tasksPerProject: 200,
+    tasksPerProject: 100_000,
+    membershipsPerProject: 2,
+  });
+
+  const fixtures = await getFixtures('replicache');
+  const projectId = fixtures.sampleProjectId;
+  const ownerId = fixtures.sampleUserIds[1] ?? fixtures.sampleUserIds[0];
+  if (!projectId || !ownerId) {
+    throw new Error('Replicache fixtures are missing project or owner data');
+  }
+
+  const rep = createReplicacheClient(`replicache-local-query-${randomUUID()}`);
+  const memorySampler = new MemorySampler();
+  const cpuSampler = new CpuSampler();
+  memorySampler.start();
+  cpuSampler.start();
+
+  try {
+    const rows = await waitForTaskCount({ rep, expectedRows: 100_000, timeoutMs: 120_000 });
+    const iterations = 25;
+    const listSamples: number[] = [];
+    const searchSamples: number[] = [];
+    const aggregateSamples: number[] = [];
+    let listResultCount = 0;
+    let searchResultCount = 0;
+    let aggregateResultCount = 0;
+
+    for (let iteration = 0; iteration < iterations; iteration += 1) {
+      const listResult = runReplicacheLocalListQuery({
+        rows,
+        projectId,
+        ownerId,
+      });
+      const searchResult = runReplicacheLocalSearchQuery({
+        rows,
+        projectId,
+      });
+      const aggregateResult = runReplicacheLocalAggregateQuery({
+        rows,
+        projectId,
+      });
+
+      listSamples.push(listResult.elapsedMs);
+      searchSamples.push(searchResult.elapsedMs);
+      aggregateSamples.push(aggregateResult.elapsedMs);
+      listResultCount = listResult.resultCount;
+      searchResultCount = searchResult.resultCount;
+      aggregateResultCount = aggregateResult.resultCount;
+    }
+
+    const memoryMetrics = memorySampler.stop();
+    const cpuMetrics = cpuSampler.stop();
+
+    return {
+      status: 'completed',
+      metrics: {
+        row_count: rows.length,
+        iterations,
+        list_query_p50_ms: percentile(listSamples, 50),
+        list_query_p95_ms: percentile(listSamples, 95),
+        search_query_p50_ms: percentile(searchSamples, 50),
+        search_query_p95_ms: percentile(searchSamples, 95),
+        aggregate_query_p50_ms: percentile(aggregateSamples, 50),
+        aggregate_query_p95_ms: percentile(aggregateSamples, 95),
+        list_result_count: listResultCount,
+        search_result_count: searchResultCount,
+        aggregate_result_count: aggregateResultCount,
+        avg_memory_mb: memoryMetrics.avgMemoryMb,
+        peak_memory_mb: memoryMetrics.peakMemoryMb,
+        avg_cpu_pct: cpuMetrics.avgCpuPct,
+        peak_cpu_pct: cpuMetrics.peakCpuPct,
+      },
+      notes: [
+        'Local query benchmarks run against the native Replicache local store after bootstrap completes.',
+        'The workload covers a filtered list query, an ID-prefix search query, and a grouped aggregation over the same task corpus.',
+      ],
+      metadata: {
+        implementation: 'replicache-client-local-query',
+        productVersion: '15.3.0',
+      },
+    };
+  } finally {
+    memorySampler.stop();
+    cpuSampler.stop();
+    await rep.close();
+  }
+}
+
+async function runOfflineReplayCase(args: {
+  queueSize: number;
+  titlePrefix: string;
+}): Promise<ReplicacheOfflineReplayCaseResult> {
+  await ensureStackUp('replicache');
+  await seedStack('replicache', {
+    resetFirst: true,
+    orgCount: 1,
+    projectsPerOrg: 1,
+    usersPerOrg: 2,
+    tasksPerProject: Math.max(200, args.queueSize + 25),
     membershipsPerProject: 2,
   });
 
@@ -469,12 +744,18 @@ async function runOfflineReplay(): Promise<RunnerResult> {
     throw new Error('Replicache fixtures are missing project data');
   }
 
-  const candidateTasks = await listTasks('replicache', { projectId, limit: 20 });
-  if (candidateTasks.length < 10) {
-    throw new Error('Need at least 10 tasks for Replicache offline replay');
+  const candidateTasks = await listTasks('replicache', {
+    projectId,
+    limit: args.queueSize + 10,
+  });
+  if (candidateTasks.length < args.queueSize) {
+    throw new Error(
+      `Need at least ${args.queueSize} tasks for Replicache offline replay`
+    );
   }
 
   const baseFetch = globalThis.fetch;
+  const replayTimeoutMs = Math.max(120_000, args.queueSize * 500);
   const meter = createHttpMeter(baseFetch);
   globalThis.fetch = meter.fetch;
   const memorySampler = new MemorySampler();
@@ -482,19 +763,24 @@ async function runOfflineReplay(): Promise<RunnerResult> {
   memorySampler.start();
   cpuSampler.start();
 
-  const writer = createReplicacheClient(`replicache-offline-writer-${randomUUID()}`);
-  const reader = createReplicacheClient(`replicache-offline-reader-${randomUUID()}`);
+  const writer = createReplicacheClient(
+    `replicache-offline-writer-${args.queueSize}-${randomUUID()}`
+  );
+  const reader = createReplicacheClient(
+    `replicache-offline-reader-${args.queueSize}-${randomUUID()}`
+  );
 
   try {
-    await waitForTaskCount({ rep: writer, expectedRows: 200 });
-    await waitForTaskCount({ rep: reader, expectedRows: 200 });
+    const expectedRows = Math.max(200, args.queueSize + 25);
+    await waitForTaskCount({ rep: writer, expectedRows, timeoutMs: 120_000 });
+    await waitForTaskCount({ rep: reader, expectedRows, timeoutMs: 120_000 });
 
-    const offlineTargets = candidateTasks.slice(0, 10);
+    const offlineTargets = candidateTasks.slice(0, args.queueSize);
     const expectedTitles = new Map<string, string>();
     for (let index = 0; index < offlineTargets.length; index += 1) {
       const task = offlineTargets[index];
       if (!task) continue;
-      expectedTitles.set(task.id, `replicache-offline-${index}-${Date.now()}`);
+      expectedTitles.set(task.id, `${args.titlePrefix}-${index}-${Date.now()}`);
     }
 
     stopService('replicache', 'app');
@@ -515,43 +801,38 @@ async function runOfflineReplay(): Promise<RunnerResult> {
       writer,
       reader,
       expectedTitles,
+      timeoutMs: replayTimeoutMs,
     });
-    const replayDurationMs = performance.now() - startedAt;
+    const replayVisibleMs = performance.now() - startedAt;
     const meterSnapshot = meter.snapshot();
-    const bytes = meterSnapshot.requestBytes + meterSnapshot.responseBytes;
+    const bytesTransferred = meterSnapshot.requestBytes + meterSnapshot.responseBytes;
     const memoryMetrics = memorySampler.stop();
     const cpuMetrics = cpuSampler.stop();
 
     return {
-      status: 'completed',
-      metrics: {
-        queued_mutations: pendingBeforeReconnect,
-        replay_visible_ms: round(replayDurationMs),
-        request_count: meterSnapshot.requestCount,
-        request_bytes: meterSnapshot.requestBytes,
-        response_bytes: meterSnapshot.responseBytes,
-        bytes_transferred: bytes,
-        avg_memory_mb: memoryMetrics.avgMemoryMb,
-        peak_memory_mb: memoryMetrics.peakMemoryMb,
-        avg_cpu_pct: cpuMetrics.avgCpuPct,
-        peak_cpu_pct: cpuMetrics.peakCpuPct,
-      },
-      notes: [
-        'Offline replay uses Replicache pending mutations persisted in IndexedDB-compatible storage and a manual push after the backend comes back.',
-        'Convergence completes when pending mutations are gone and a second client has pulled every expected title.',
-      ],
-      metadata: {
-        implementation: 'replicache-client-fake-indexeddb',
-        productVersion: '15.3.0',
-        pendingBeforeReconnect,
-        pendingAfterReplay,
-        expectedTitles: Object.fromEntries(expectedTitles),
-      },
+      queuedWriteCount: pendingBeforeReconnect,
+      replayVisibleMs: round(replayVisibleMs),
+      requestCount: meterSnapshot.requestCount,
+      requestBytes: meterSnapshot.requestBytes,
+      responseBytes: meterSnapshot.responseBytes,
+      bytesTransferred,
+      avgMemoryMb: memoryMetrics.avgMemoryMb,
+      peakMemoryMb: memoryMetrics.peakMemoryMb,
+      avgCpuPct: cpuMetrics.avgCpuPct,
+      peakCpuPct: cpuMetrics.peakCpuPct,
+      pendingBeforeReconnect,
+      pendingAfterReplay,
+      expectedTitles,
     };
   } finally {
     globalThis.fetch = baseFetch;
     memorySampler.stop();
     cpuSampler.stop();
+    try {
+      startService('replicache', 'app');
+    } catch {
+      // The app may already be running if the scenario completed normally.
+    }
     await writer.close();
     await reader.close();
   }

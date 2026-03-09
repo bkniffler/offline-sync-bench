@@ -11,14 +11,20 @@ interface RunnerResult {
   metadata: { [key: string]: JsonValue };
 }
 
-function runZeroScenario(scenario: 'bootstrap' | 'online-propagation' | 'offline-replay') {
+function runZeroScenario(
+  scenario:
+    | 'bootstrap'
+    | 'online-propagation'
+    | 'offline-replay'
+    | 'local-query'
+) {
   const result = spawnSync(
     'bun',
     ['src/adapters/zero-runner.mjs', scenario],
     {
       cwd: benchmarkRoot,
       encoding: 'utf8',
-      timeout: 300_000,
+      timeout: 900_000,
       maxBuffer: 10 * 1024 * 1024,
     }
   );
@@ -76,10 +82,7 @@ export class ZeroBenchmarkAdapter implements BenchmarkAdapter {
   }
 
   async runLocalQuery() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Local query benchmarking is not implemented for Zero in this harness yet.'],
-    });
+    return runZeroScenario('local-query');
   }
 
   async runPermissionChange() {
