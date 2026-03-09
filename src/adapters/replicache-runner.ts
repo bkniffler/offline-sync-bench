@@ -706,7 +706,7 @@ async function runOfflineReplay(): Promise<RunnerResult> {
 }
 
 async function runReconnectStorm(): Promise<RunnerResult> {
-  const clientCounts = [25, 100, 250];
+  const clientCounts = [25, 100, 250, 500];
   const results: ReplicacheReconnectStormCaseResult[] = [];
 
   for (const clientCount of clientCounts) {
@@ -742,11 +742,11 @@ async function runReconnectStorm(): Promise<RunnerResult> {
       ])
     ),
     notes: [
-      'Reconnect storm keeps native Replicache clients bootstrapped at 25 / 100 / 250 clients, restarts the sync app, applies one external write, and measures convergence once every client has pulled the updated title.',
+      'Reconnect storm keeps native Replicache clients bootstrapped at 25 / 100 / 250 / 500 clients, restarts the sync app, applies one external write, and measures convergence once every client has pulled the updated title.',
       'Request counts and transfer volume are aggregated across all clients after each restart.',
     ],
     metadata: {
-      implementation: 'replicache-client-reconnect-storm',
+      implementation: 'replicache-client-reconnect-storm-v2',
       clientCounts,
       scales: results.map((result) => ({
         clientCount: result.clientCount,

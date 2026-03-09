@@ -195,6 +195,33 @@ export async function waitForUrl(
   throw new Error(`Timed out waiting for ${url}: ${lastError}`);
 }
 
+export async function waitForUrlDown(
+  url: string,
+  options: {
+    timeoutMs?: number;
+    intervalMs?: number;
+  } = {}
+): Promise<void> {
+  const timeoutMs = options.timeoutMs ?? 30_000;
+  const intervalMs = options.intervalMs ?? 250;
+  const startedAt = Date.now();
+
+  while (Date.now() - startedAt < timeoutMs) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        return;
+      }
+    } catch {
+      return;
+    }
+
+    await Bun.sleep(intervalMs);
+  }
+
+  throw new Error(`Timed out waiting for ${url} to go down`);
+}
+
 async function isUrlHealthy(
   url: string,
   options: { acceptResponse?: (response: Response) => boolean } = {}

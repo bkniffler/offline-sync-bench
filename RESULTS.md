@@ -58,30 +58,30 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 ## Reconnect Storm
 
-| Stack | 25 clients | 100 clients | 250 clients | Support |
-| --- | --- | --- | --- | --- |
-| Syncular | 115.1 ms | 279.7 ms | 2200 ms | native |
-| Electric | 44.84 ms | 223.0 ms | 2019 ms | native |
-| Zero | n/a | n/a | n/a | unsupported |
-| PowerSync | n/a | n/a | n/a | unsupported |
-| Replicache | 81.27 ms | 2040 ms | 14106 ms | native |
-| LiveStore | n/a | n/a | n/a | unsupported |
+| Stack | 25 clients | 100 clients | 250 clients | 500 clients | Support |
+| --- | --- | --- | --- | --- | --- |
+| Syncular | 223.4 ms | 2091 ms | 2212 ms | 6073 ms | native |
+| Electric | 71.49 ms | 4057 ms | 2032 ms | 3037 ms | native |
+| Zero | n/a | n/a | n/a | n/a | unsupported |
+| PowerSync | n/a | n/a | n/a | n/a | unsupported |
+| Replicache | 88.58 ms | 2019 ms | 4083 ms | 5100 ms | native |
+| LiveStore | n/a | n/a | n/a | n/a | unsupported |
 
 ## Reconnect Storm Repeat Summary
 
-| Stack | Runs | 25 median | 100 median | 250 median |
-| --- | --- | --- | --- | --- |
-| Syncular | 3 | 115.1 ms | 279.7 ms | 2200 ms |
-| Electric | 3 | 44.84 ms | 223.0 ms | 2019 ms |
-| Replicache | 2 | 81.27 ms | 2040 ms | 14106 ms |
+| Stack | Runs | 25 median | 100 median | 250 median | 500 median |
+| --- | --- | --- | --- | --- | --- |
+| Syncular | 3 | 223.4 ms | 2091 ms | 2212 ms | 6073 ms |
+| Electric | 3 | 71.49 ms | 4057 ms | 2032 ms | 3037 ms |
+| Replicache | 3 | 88.58 ms | 2019 ms | 4083 ms | 5100 ms |
 
 ## Reconnect Storm Resource Summary
 
-| Stack | 250 sync avg mem | 250 postgres avg mem | 250 sync avg CPU | 250 postgres avg CPU | Support |
+| Stack | 500 sync avg mem | 500 postgres avg mem | 500 sync avg CPU | 500 postgres avg CPU | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 105.50 MB | 85.66 MB | 0.55% | 0.58% | native |
-| Electric | 303.13 MB | 101.40 MB | 2.83% | 0.12% | native |
-| Replicache | 56.70 MB | 78.84 MB | 1.33% | 1.35% | native |
+| Syncular | 109.91 MB | 83.08 MB | 0.70% | 0.36% | native |
+| Electric | 286.58 MB | 85.01 MB | 4.01% | 1.05% | native |
+| Replicache | 36.14 MB | 61.07 MB | 1.20% | 0.22% | native |
 
 ## Large Offline Queue
 
@@ -167,5 +167,5 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 - `unsupported` rows stay visible as `n/a` so the support matrix remains explicit without inventing benchmark-owned adapters.
 - Repeat summaries use the latest successful runs for the current framework version per stack/scenario.
 - Bootstrap repeat summary uses up to five successful 100k-row runs per current version when available.
-- Reconnect storm repeat summary uses up to three successful runs per current version and reports tier medians for 25 / 100 / 250 clients when available.
+- Reconnect storm repeat summary uses up to three successful runs per current version and reports tier medians for 25 / 100 / 250 / 500 clients when available.
 - Bundle sizes are taken from the named-import browser bundle profile in `.results/BUNDLE_SIZES.json`.

@@ -19,6 +19,7 @@ import {
   seedStack,
   startService,
   stopService,
+  waitForUrlDown,
   writeTask,
 } from '../stack-manager';
 import { getStack } from '../stacks';
@@ -645,6 +646,7 @@ async function runElectricReconnectStormCase(args: {
   const postgresContainerId = resolveServiceContainerId('electric', 'postgres');
 
   stopService('electric', 'sync');
+  await waitForUrlDown(`${getStack('electric').syncBaseUrl}/v1/shape?table=tasks&offset=-1`);
   startService('electric', 'sync');
   await ensureStackUp('electric');
 
@@ -1117,7 +1119,7 @@ export class ElectricBenchmarkAdapter implements BenchmarkAdapter {
     notes: string[];
     metadata: { [key: string]: JsonValue };
   }> {
-    const clientCounts = [25, 100, 250];
+    const clientCounts = [25, 100, 250, 500];
     const results = [];
 
     for (const clientCount of clientCounts) {
@@ -1157,11 +1159,11 @@ export class ElectricBenchmarkAdapter implements BenchmarkAdapter {
         ])
       ),
       notes: [
-        'Reconnect storm uses already-bootstrapped Electric live-shape clients at 25 / 100 / 250 clients reconnecting to the same changed row.',
+        'Reconnect storm uses already-bootstrapped Electric live-shape clients at 25 / 100 / 250 / 500 clients reconnecting to the same changed row.',
         'Server resource metrics sample the Electric sync service and Postgres containers during each reconnect window.',
       ],
       metadata: {
-        implementation: 'electric-live-shape-reconnect-storm',
+        implementation: 'electric-live-shape-reconnect-storm-v2',
         clientCounts,
         productVersion: baseline.productVersion ?? 'unknown',
         scales: results.map((result) => ({

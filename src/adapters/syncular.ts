@@ -44,6 +44,7 @@ import {
   seedStack,
   startService,
   stopService,
+  waitForUrlDown,
   writeTask,
 } from '../stack-manager';
 import { getStack } from '../stacks';
@@ -131,7 +132,6 @@ interface SyncClientWithSync {
 const SYNCULAR_BENCH_BOOTSTRAP_LIMIT_SNAPSHOT_ROWS = 20_000;
 const SYNCULAR_BENCH_BOOTSTRAP_MAX_SNAPSHOT_PAGES = 100;
 const LOCAL_TASK_INSERT_BATCH_ROWS = 2_000;
-
 async function createTempDbPath(prefix: string): Promise<string> {
   await mkdir(tempRoot, { recursive: true });
   const dir = await mkdtemp(join(tempRoot, `${prefix}-`));
@@ -1434,6 +1434,9 @@ async function runSyncularReconnectStormCase(args: {
     const postgresContainerId = resolveServiceContainerId('syncular', 'postgres');
 
     stopService('syncular', 'sync');
+    await waitForUrlDown(
+      `${getStack('syncular').syncBaseUrl.replace(/\/api$/, '')}/health`
+    );
     startService('syncular', 'sync');
     await ensureStackUp('syncular');
     await waitForSyncularApiReady({ actorId, projectId });
@@ -1947,7 +1950,7 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
     notes: string[];
     metadata: { [key: string]: JsonValue };
   }> {
-    const clientCounts = [25, 100, 250];
+    const clientCounts = [25, 100, 250, 500];
     const results = [];
 
     for (const clientCount of clientCounts) {
@@ -1987,11 +1990,11 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
         ])
       ),
       notes: [
-        'Reconnect storm uses already-bootstrapped Syncular HTTP clients at 25 / 100 / 250 clients catching up after the sync service restarts.',
+        'Reconnect storm uses already-bootstrapped Syncular HTTP clients at 25 / 100 / 250 / 500 clients catching up after the sync service restarts.',
         'Server resource metrics sample the sync service and Postgres containers during each reconnect window.',
       ],
       metadata: {
-        implementation: 'syncular-http-reconnect-storm',
+        implementation: 'syncular-http-reconnect-storm-v2',
         clientCounts,
         scales: results.map((result) => ({
           clientCount: result.clientCount,
