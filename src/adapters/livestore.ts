@@ -12,7 +12,10 @@ interface RunnerResult {
 }
 
 function runLiveStoreScenario(
-  scenario: 'bootstrap' | 'online-propagation' | 'offline-replay'
+  scenario:
+    | 'bootstrap'
+    | 'online-propagation'
+    | 'offline-replay'
 ) {
   const result = spawnSync('bun', ['src/adapters/livestore-runner.ts', scenario], {
     cwd: benchmarkRoot,
@@ -76,7 +79,9 @@ export class LiveStoreBenchmarkAdapter implements BenchmarkAdapter {
   async runLocalQuery() {
     return createUnsupportedScenarioResult({
       implementation: 'unsupported',
-      notes: ['Local query benchmarking is not implemented for LiveStore in this harness yet.'],
+      notes: [
+        'Local-query is currently unsupported for LiveStore in this harness at the shared 100000-row scale.',
+      ],
     });
   }
 

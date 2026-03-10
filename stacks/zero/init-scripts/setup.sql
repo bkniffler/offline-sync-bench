@@ -1,3 +1,14 @@
+create table if not exists public.organizations (
+  id text primary key,
+  name text not null
+);
+
+create table if not exists public.projects (
+  id text primary key,
+  org_id text not null default '',
+  name text not null
+);
+
 create table if not exists public.tasks (
   id text primary key,
   org_id text not null default '',

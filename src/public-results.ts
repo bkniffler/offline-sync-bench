@@ -534,6 +534,56 @@ async function main(): Promise<void> {
     })
   );
 
+  const bootstrapResourceRows = stackOrder.map((stackId) => {
+    const result = getResult(latest, 'bootstrap', stackId);
+    return [
+      stackTitle(stackId),
+      formatMb(
+        firstMetric(result?.metrics ?? {}, [
+          'avg_memory_mb_500000',
+          'avg_memory_mb_250000',
+          'avg_memory_mb_100000',
+        ])
+      ),
+      formatPct(
+        firstMetric(result?.metrics ?? {}, [
+          'avg_cpu_pct_500000',
+          'avg_cpu_pct_250000',
+          'avg_cpu_pct_100000',
+        ])
+      ),
+      formatMb(
+        firstMetric(result?.metrics ?? {}, [
+          'peak_memory_mb_500000',
+          'peak_memory_mb_250000',
+          'peak_memory_mb_100000',
+        ])
+      ),
+      formatPct(
+        firstMetric(result?.metrics ?? {}, [
+          'peak_cpu_pct_500000',
+          'peak_cpu_pct_250000',
+          'peak_cpu_pct_100000',
+        ])
+      ),
+      formatSupport({ result, scenarioId: 'bootstrap', stackId }),
+    ];
+  });
+  sections.push(
+    renderScenarioTable({
+      title: 'Bootstrap Resource Summary',
+      headers: [
+        'Stack',
+        'Largest avg mem',
+        'Largest avg CPU',
+        'Largest peak mem',
+        'Largest peak CPU',
+        'Support',
+      ],
+      rows: bootstrapResourceRows,
+    })
+  );
+
   const onlineRows = stackOrder
     .map((stackId) => {
       const result = getResult(latest, 'online-propagation', stackId);
@@ -895,6 +945,53 @@ async function main(): Promise<void> {
     })
   );
 
+  const deepQueryRepeatRows = stackOrder
+    .map((stackId) => {
+      const recentResults = getRecentResults({
+        latest,
+        scenarioId: 'deep-relationship-query',
+        stackId,
+        limit: 3,
+      });
+      if (recentResults.length === 0) return null;
+      const dashboardSamples = recentResults
+        .map((result) => result.metrics.dashboard_query_p50_ms)
+        .filter((value): value is number => typeof value === 'number')
+        .sort((left, right) => left - right);
+      const detailSamples = recentResults
+        .map((result) => result.metrics.detail_join_query_p50_ms)
+        .filter((value): value is number => typeof value === 'number')
+        .sort((left, right) => left - right);
+      if (dashboardSamples.length === 0 || detailSamples.length === 0) {
+        return null;
+      }
+      return [
+        stackTitle(stackId),
+        formatCount(Math.min(dashboardSamples.length, detailSamples.length)),
+        formatMs(median(dashboardSamples)),
+        formatMs(median(detailSamples)),
+        formatMs(recentResults[0]?.metrics.dashboard_query_p50_ms),
+        formatMs(recentResults[0]?.metrics.detail_join_query_p50_ms),
+      ];
+    })
+    .filter((row): row is string[] => row !== null);
+  if (deepQueryRepeatRows.length > 0) {
+    sections.push(
+      renderScenarioTable({
+        title: 'Deep Relationship Repeat Summary',
+        headers: [
+          'Stack',
+          'Runs',
+          'Dashboard median',
+          'Detail median',
+          'Latest dashboard',
+          'Latest detail',
+        ],
+        rows: deepQueryRepeatRows,
+      })
+    );
+  }
+
   const permissionRows = stackOrder
     .map((stackId) => {
       const result = getResult(latest, 'permission-change', stackId);
@@ -1047,6 +1144,7 @@ async function main(): Promise<void> {
   sections.push('- `native` means the benchmark uses the product’s normal client model.');
   sections.push('- `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.');
   sections.push('- `unsupported` rows stay visible as `n/a` so the support matrix remains explicit without inventing benchmark-owned adapters.');
+  sections.push('- LiveStore local-query remains unsupported at the shared 100000-row scale because the current wa-sqlite configuration aborts with a wasm heap OOM in this harness.');
   sections.push('- Repeat summaries use the latest successful runs for the current framework version per stack/scenario.');
   sections.push('- Bootstrap repeat summary uses up to five successful 100k-row runs per current version when available.');
   sections.push('- Reconnect storm repeat summary uses up to three successful runs per current version and reports tier medians for 25 / 100 / 250 / 500 clients when available.');

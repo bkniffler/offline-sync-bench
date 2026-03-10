@@ -67,7 +67,7 @@ Detailed specs live in:
   - `reconnect-storm`: `unsupported`
   - `large-offline-queue`: `unsupported`
   - `local-query`: `native`
-  - `deep-relationship-query`: `unsupported`
+  - `deep-relationship-query`: `native`
   - `permission-change`: `unsupported`
 - `powersync`
   - `bootstrap`: `native`
@@ -85,7 +85,7 @@ Detailed specs live in:
   - `reconnect-storm`: `native`
   - `large-offline-queue`: `native`
   - `local-query`: `native`
-  - `deep-relationship-query`: `unsupported`
+  - `deep-relationship-query`: `native`
   - `permission-change`: `native` via an actor-scoped benchmark-owned BYOB pull path
 - `livestore`
   - `bootstrap`: `native`
@@ -93,7 +93,7 @@ Detailed specs live in:
   - `offline-replay`: `unsupported` in this harness for the official Node adapter + `sync-electric` path
   - `reconnect-storm`: `unsupported`
   - `large-offline-queue`: `unsupported`
-  - `local-query`: `unsupported`
+  - `local-query`: `unsupported` at the shared `100000`-row scale in this harness
   - `deep-relationship-query`: `unsupported`
   - `permission-change`: `unsupported`
 
@@ -190,8 +190,8 @@ The benchmark harness is operational for six stacks, with the expanded scenario 
 
 - Syncular: `bootstrap`, `online-propagation`, `offline-replay`, `reconnect-storm`, `large-offline-queue`, `local-query`, `deep-relationship-query`, `permission-change`, `blob-flow`
 - Electric: `bootstrap`, `online-propagation`, `offline-replay` (emulated), `reconnect-storm`, `large-offline-queue` (emulated), `local-query`, `permission-change`
-- Zero: `bootstrap`, `online-propagation`, `local-query`
-- Replicache: `bootstrap`, `online-propagation`, `offline-replay`, `reconnect-storm`, `large-offline-queue`, `local-query`, `permission-change`
+- Zero: `bootstrap`, `online-propagation`, `local-query`, `deep-relationship-query`
+- Replicache: `bootstrap`, `online-propagation`, `offline-replay`, `reconnect-storm`, `large-offline-queue`, `local-query`, `deep-relationship-query`, `permission-change`
 - PowerSync: `bootstrap`, `online-propagation`, `offline-replay`, `large-offline-queue`, `local-query`, `deep-relationship-query`
 
 The older full-matrix artifact set is still useful for the first six-stack comparison:

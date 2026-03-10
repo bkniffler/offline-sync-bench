@@ -59,6 +59,19 @@ type TaskValue = Readonly<{
 }> &
   Readonly<Record<string, ReadonlyJSONValue>>;
 
+type OrganizationValue = Readonly<{
+  id: string;
+  name: string;
+}> &
+  Readonly<Record<string, ReadonlyJSONValue>>;
+
+type ProjectValue = Readonly<{
+  id: string;
+  orgId: string;
+  name: string;
+}> &
+  Readonly<Record<string, ReadonlyJSONValue>>;
+
 interface ReplicacheMutators extends MutatorDefs {
   updateTask: (
     tx: WriteTransaction,
@@ -81,10 +94,11 @@ if (
   scenario !== 'reconnect-storm' &&
   scenario !== 'large-offline-queue' &&
   scenario !== 'local-query' &&
+  scenario !== 'deep-relationship-query' &&
   scenario !== 'permission-change'
 ) {
   throw new Error(
-    'Expected scenario argument: bootstrap | online-propagation | offline-replay | reconnect-storm | large-offline-queue | local-query | permission-change'
+    'Expected scenario argument: bootstrap | online-propagation | offline-replay | reconnect-storm | large-offline-queue | local-query | deep-relationship-query | permission-change'
   );
 }
 
@@ -98,10 +112,12 @@ const result =
         : scenario === 'reconnect-storm'
           ? await runReconnectStorm()
           : scenario === 'large-offline-queue'
-          ? await runLargeOfflineQueue()
-          : scenario === 'local-query'
-            ? await runLocalQuery()
-            : await runPermissionChange();
+            ? await runLargeOfflineQueue()
+            : scenario === 'local-query'
+              ? await runLocalQuery()
+              : scenario === 'deep-relationship-query'
+                ? await runDeepRelationshipQuery()
+                : await runPermissionChange();
 
 await writeResultAndExit(result);
 
@@ -164,6 +180,31 @@ function isTaskValue(value: ReadonlyJSONValue | undefined): value is TaskValue {
   );
 }
 
+function isOrganizationValue(
+  value: ReadonlyJSONValue | undefined
+): value is OrganizationValue {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return false;
+  }
+
+  return (
+    typeof Reflect.get(value, 'id') === 'string' &&
+    typeof Reflect.get(value, 'name') === 'string'
+  );
+}
+
+function isProjectValue(value: ReadonlyJSONValue | undefined): value is ProjectValue {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return false;
+  }
+
+  return (
+    typeof Reflect.get(value, 'id') === 'string' &&
+    typeof Reflect.get(value, 'orgId') === 'string' &&
+    typeof Reflect.get(value, 'name') === 'string'
+  );
+}
+
 async function readAllTasks(rep: Replicache<ReplicacheMutators>): Promise<TaskValue[]> {
   const values = await rep.query((tx) => tx.scan({ prefix: 'task/' }).toArray());
   const tasks: TaskValue[] = [];
@@ -175,6 +216,36 @@ async function readAllTasks(rep: Replicache<ReplicacheMutators>): Promise<TaskVa
   }
 
   return tasks.sort((left, right) => left.id.localeCompare(right.id));
+}
+
+async function readAllOrganizations(
+  rep: Replicache<ReplicacheMutators>
+): Promise<OrganizationValue[]> {
+  const values = await rep.query((tx) => tx.scan({ prefix: 'org/' }).toArray());
+  const organizations: OrganizationValue[] = [];
+
+  for (const value of values) {
+    if (isOrganizationValue(value)) {
+      organizations.push(value);
+    }
+  }
+
+  return organizations.sort((left, right) => left.id.localeCompare(right.id));
+}
+
+async function readAllProjects(
+  rep: Replicache<ReplicacheMutators>
+): Promise<ProjectValue[]> {
+  const values = await rep.query((tx) => tx.scan({ prefix: 'project/' }).toArray());
+  const projects: ProjectValue[] = [];
+
+  for (const value of values) {
+    if (isProjectValue(value)) {
+      projects.push(value);
+    }
+  }
+
+  return projects.sort((left, right) => left.id.localeCompare(right.id));
 }
 
 async function getTaskTitle(
@@ -464,6 +535,97 @@ function runReplicacheLocalAggregateQuery(args: {
   return {
     elapsedMs: round(performance.now() - startedAt),
     resultCount: grouped.size,
+  };
+}
+
+function runReplicacheDashboardQuery(args: {
+  organizations: OrganizationValue[];
+  projects: ProjectValue[];
+  tasks: TaskValue[];
+  orgId: string;
+}): LocalQuerySample {
+  const startedAt = performance.now();
+  const organization = args.organizations.find((row) => row.id === args.orgId);
+  if (!organization) {
+    return {
+      elapsedMs: round(performance.now() - startedAt),
+      resultCount: 0,
+    };
+  }
+
+  const rows = args.projects
+    .filter((project) => project.orgId === args.orgId)
+    .map((project) => {
+      let taskCount = 0;
+      let openTaskCount = 0;
+
+      for (const task of args.tasks) {
+        if (task.projectId !== project.id) continue;
+        taskCount += 1;
+        if (!task.completed) {
+          openTaskCount += 1;
+        }
+      }
+
+      return {
+        orgName: organization.name,
+        projectId: project.id,
+        projectName: project.name,
+        taskCount,
+        openTaskCount,
+      };
+    })
+    .sort((left, right) => {
+      if (right.openTaskCount !== left.openTaskCount) {
+        return right.openTaskCount - left.openTaskCount;
+      }
+      return left.projectId.localeCompare(right.projectId);
+    })
+    .slice(0, 20);
+
+  return {
+    elapsedMs: round(performance.now() - startedAt),
+    resultCount: rows.length,
+  };
+}
+
+function runReplicacheDetailJoinQuery(args: {
+  organizations: OrganizationValue[];
+  projects: ProjectValue[];
+  tasks: TaskValue[];
+  projectId: string;
+}): LocalQuerySample {
+  const startedAt = performance.now();
+  const project = args.projects.find((row) => row.id === args.projectId);
+  if (!project) {
+    return {
+      elapsedMs: round(performance.now() - startedAt),
+      resultCount: 0,
+    };
+  }
+
+  const organization = args.organizations.find((row) => row.id === project.orgId);
+  if (!organization) {
+    return {
+      elapsedMs: round(performance.now() - startedAt),
+      resultCount: 0,
+    };
+  }
+
+  const rows = args.tasks
+    .filter((task) => task.projectId === args.projectId)
+    .sort((left, right) => left.id.localeCompare(right.id))
+    .slice(0, 100)
+    .map((task) => ({
+      taskId: task.id,
+      taskTitle: task.title,
+      projectName: project.name,
+      orgName: organization.name,
+    }));
+
+  return {
+    elapsedMs: round(performance.now() - startedAt),
+    resultCount: rows.length,
   };
 }
 
@@ -907,6 +1069,107 @@ async function runLocalQuery(): Promise<RunnerResult> {
       ],
       metadata: {
         implementation: 'replicache-client-local-query',
+        productVersion: '15.3.0',
+      },
+    };
+  } finally {
+    memorySampler.stop();
+    cpuSampler.stop();
+    await rep.close();
+  }
+}
+
+async function runDeepRelationshipQuery(): Promise<RunnerResult> {
+  await ensureStackUp('replicache');
+  await seedStack('replicache', {
+    resetFirst: true,
+    orgCount: 1,
+    projectsPerOrg: 4,
+    usersPerOrg: 10,
+    tasksPerProject: 25_000,
+    membershipsPerProject: 4,
+  });
+
+  const fixtures = await getFixtures('replicache');
+  const orgId = fixtures.sampleOrgId;
+  const projectId = fixtures.sampleProjectId;
+  if (!orgId || !projectId) {
+    throw new Error('Replicache fixtures are missing org or project data');
+  }
+
+  const rep = createReplicacheClient(`replicache-deep-relationship-${randomUUID()}`);
+  const memorySampler = new MemorySampler();
+  const cpuSampler = new CpuSampler();
+  memorySampler.start();
+  cpuSampler.start();
+
+  try {
+    const tasks = await waitForTaskCount({
+      rep,
+      expectedRows: 100_000,
+      timeoutMs: 120_000,
+    });
+    const organizations = await readAllOrganizations(rep);
+    const projects = await readAllProjects(rep);
+    if (organizations.length !== 1 || projects.length !== 4) {
+      throw new Error(
+        `Replicache deep relationship expected 1 organization and 4 projects, got ${organizations.length} and ${projects.length}`
+      );
+    }
+
+    const iterations = 25;
+    const dashboardSamples: number[] = [];
+    const detailJoinSamples: number[] = [];
+    let dashboardResultCount = 0;
+    let detailJoinResultCount = 0;
+
+    for (let iteration = 0; iteration < iterations; iteration += 1) {
+      const dashboardResult = runReplicacheDashboardQuery({
+        organizations,
+        projects,
+        tasks,
+        orgId,
+      });
+      const detailJoinResult = runReplicacheDetailJoinQuery({
+        organizations,
+        projects,
+        tasks,
+        projectId,
+      });
+
+      dashboardSamples.push(dashboardResult.elapsedMs);
+      detailJoinSamples.push(detailJoinResult.elapsedMs);
+      dashboardResultCount = dashboardResult.resultCount;
+      detailJoinResultCount = detailJoinResult.resultCount;
+    }
+
+    const memoryMetrics = memorySampler.stop();
+    const cpuMetrics = cpuSampler.stop();
+
+    return {
+      status: 'completed',
+      metrics: {
+        org_count: organizations.length,
+        project_count: projects.length,
+        row_count: tasks.length,
+        iterations,
+        dashboard_query_p50_ms: percentile(dashboardSamples, 50),
+        dashboard_query_p95_ms: percentile(dashboardSamples, 95),
+        detail_join_query_p50_ms: percentile(detailJoinSamples, 50),
+        detail_join_query_p95_ms: percentile(detailJoinSamples, 95),
+        dashboard_result_count: dashboardResultCount,
+        detail_join_result_count: detailJoinResultCount,
+        avg_memory_mb: memoryMetrics.avgMemoryMb,
+        peak_memory_mb: memoryMetrics.peakMemoryMb,
+        avg_cpu_pct: cpuMetrics.avgCpuPct,
+        peak_cpu_pct: cpuMetrics.peakCpuPct,
+      },
+      notes: [
+        'Deep relationship benchmarks run against the native Replicache local key-value store after organizations, projects, and tasks are fully materialized.',
+        'The workload covers an organization dashboard rollup and a project-scoped detail join assembled from org/, project/, and task/ records in the local store.',
+      ],
+      metadata: {
+        implementation: 'replicache-client-deep-relationship-query',
         productVersion: '15.3.0',
       },
     };

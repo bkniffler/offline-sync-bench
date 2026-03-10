@@ -148,7 +148,9 @@ if (
   scenario !== 'online-propagation' &&
   scenario !== 'offline-replay'
 ) {
-  throw new Error('Expected scenario argument: bootstrap | online-propagation | offline-replay');
+  throw new Error(
+    'Expected scenario argument: bootstrap | online-propagation | offline-replay'
+  );
 }
 
 const result =

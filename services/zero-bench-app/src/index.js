@@ -25,6 +25,21 @@ const sql = postgres(databaseUrl, { max: 5 });
 
 await ensureTasksTable();
 
+const organizations = table('organizations')
+  .columns({
+    id: string(),
+    name: string(),
+  })
+  .primaryKey('id');
+
+const projects = table('projects')
+  .columns({
+    id: string(),
+    org_id: string(),
+    name: string(),
+  })
+  .primaryKey('id');
+
 const tasks = table('tasks')
   .columns({
     id: string(),
@@ -39,7 +54,7 @@ const tasks = table('tasks')
   .primaryKey('id');
 
 const schema = createSchema({
-  tables: [tasks],
+  tables: [organizations, projects, tasks],
   enableLegacyQueries: false,
   enableLegacyMutators: false,
 });
@@ -47,6 +62,12 @@ const schema = createSchema({
 const zql = createBuilder(schema);
 
 const queries = defineQueries({
+  organizations: {
+    all: defineQuery(() => zql.organizations.orderBy('id', 'asc')),
+  },
+  projects: {
+    all: defineQuery(() => zql.projects.orderBy('id', 'asc')),
+  },
   tasks: {
     all: defineQuery(() => zql.tasks.orderBy('id', 'asc')),
   },
@@ -107,6 +128,19 @@ Bun.serve({
 console.log(`[zero-bench-app] listening on :${port}`);
 
 async function ensureTasksTable() {
+  await sql`
+    create table if not exists organizations (
+      id text primary key,
+      name text not null
+    )
+  `;
+  await sql`
+    create table if not exists projects (
+      id text primary key,
+      org_id text not null default '',
+      name text not null
+    )
+  `;
   await sql`
     create table if not exists tasks (
       id text primary key,

@@ -45,6 +45,17 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 | Replicache | 2551 ms | 5345 ms | 1819.74 MB | native |
 | LiveStore | n/a | n/a | n/a | native |
 
+## Bootstrap Resource Summary
+
+| Stack | Largest avg mem | Largest avg CPU | Largest peak mem | Largest peak CPU | Support |
+| --- | --- | --- | --- | --- | --- |
+| Syncular | 440.92 MB | 66.10% | 540.30 MB | 112.44% | native |
+| Electric | 1324.90 MB | 67.01% | 1642.41 MB | 182.11% | native |
+| Zero | 507.96 MB | 59.75% | 569.28 MB | 149.24% | native |
+| PowerSync | 265.52 MB | 21.73% | 271.50 MB | 410.85% | native |
+| Replicache | 1819.74 MB | 100.16% | 3018.59 MB | 112.90% | native |
+| LiveStore | n/a | n/a | n/a | n/a | native |
+
 ## Online Propagation
 
 | Stack | Write ack | Visible p50 | Visible p95 | Avg mem | Support |
@@ -130,10 +141,19 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 | --- | --- | --- | --- | --- |
 | Syncular | 187.9 ms | 0.69 ms | 390.04 MB | native |
 | Electric | n/a | n/a | n/a | unsupported |
-| Zero | n/a | n/a | n/a | unsupported |
+| Zero | 3.35 ms | 2.27 ms | 351.05 MB | native |
 | PowerSync | 564.4 ms | 9.05 ms | 302.01 MB | native |
-| Replicache | n/a | n/a | n/a | unsupported |
+| Replicache | 3.32 ms | 1.92 ms | 261.82 MB | native |
 | LiveStore | n/a | n/a | n/a | unsupported |
+
+## Deep Relationship Repeat Summary
+
+| Stack | Runs | Dashboard median | Detail median | Latest dashboard | Latest detail |
+| --- | --- | --- | --- | --- | --- |
+| Syncular | 2 | 126.4 ms | 0.51 ms | 187.9 ms | 0.69 ms |
+| Zero | 1 | 3.35 ms | 2.27 ms | 3.35 ms | 2.27 ms |
+| PowerSync | 1 | 564.4 ms | 9.05 ms | 564.4 ms | 9.05 ms |
+| Replicache | 1 | 3.32 ms | 1.92 ms | 3.32 ms | 1.92 ms |
 
 ## Permission Change
 
@@ -187,6 +207,7 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 - `native` means the benchmark uses the product’s normal client model.
 - `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.
 - `unsupported` rows stay visible as `n/a` so the support matrix remains explicit without inventing benchmark-owned adapters.
+- LiveStore local-query remains unsupported at the shared 100000-row scale because the current wa-sqlite configuration aborts with a wasm heap OOM in this harness.
 - Repeat summaries use the latest successful runs for the current framework version per stack/scenario.
 - Bootstrap repeat summary uses up to five successful 100k-row runs per current version when available.
 - Reconnect storm repeat summary uses up to three successful runs per current version and reports tier medians for 25 / 100 / 250 / 500 clients when available.

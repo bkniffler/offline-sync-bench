@@ -19,6 +19,7 @@ function runReplicacheScenario(
     | 'reconnect-storm'
     | 'large-offline-queue'
     | 'local-query'
+    | 'deep-relationship-query'
     | 'permission-change'
 ) {
   const result = spawnSync('bun', ['src/adapters/replicache-runner.ts', scenario], {
@@ -79,12 +80,7 @@ export class ReplicacheBenchmarkAdapter implements BenchmarkAdapter {
   }
 
   async runDeepRelationshipQuery() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: [
-        'Deep relationship querying is not implemented for Replicache in this harness yet.',
-      ],
-    });
+    return runReplicacheScenario('deep-relationship-query');
   }
 
   async runPermissionChange() {

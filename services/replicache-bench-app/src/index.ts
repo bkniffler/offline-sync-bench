@@ -12,8 +12,21 @@ interface TaskRow {
   updated_at: string;
 }
 
+interface OrganizationRow {
+  id: string;
+  name: string;
+}
+
+interface ProjectRow {
+  id: string;
+  org_id: string;
+  name: string;
+}
+
 interface ReplicacheCookie {
   order: number;
+  orgCount: number;
+  projectCount: number;
   taskCount: number;
   maxUpdatedAt: string;
   versionSum: number;
@@ -33,6 +46,23 @@ interface PullResponseV1 {
   patch: Array<
     | {
         op: 'clear';
+      }
+    | {
+        op: 'put';
+        key: string;
+        value: {
+          id: string;
+          name: string;
+        };
+      }
+    | {
+        op: 'put';
+        key: string;
+        value: {
+          id: string;
+          orgId: string;
+          name: string;
+        };
       }
     | {
         op: 'put';
@@ -217,15 +247,21 @@ async function ensureTables(): Promise<void> {
 
 async function computeCookie(actorId: string | null): Promise<ReplicacheCookie> {
   const rows = await sql<{
+    org_count: string;
+    project_count: string;
     task_count: string;
     max_updated_at: string | null;
     version_sum: string;
   }[]>`
     select
+      count(distinct organizations.id)::text as org_count,
+      count(distinct projects.id)::text as project_count,
       count(*)::text as task_count,
       max(updated_at)::text as max_updated_at,
       coalesce(sum(server_version), 0)::text as version_sum
     from tasks
+    join projects on projects.id = tasks.project_id
+    join organizations on organizations.id = projects.org_id
     ${actorId
       ? sql`
           where exists (
@@ -241,6 +277,8 @@ async function computeCookie(actorId: string | null): Promise<ReplicacheCookie> 
 
   return {
     order: Number(row?.version_sum ?? '0'),
+    orgCount: Number(row?.org_count ?? '0'),
+    projectCount: Number(row?.project_count ?? '0'),
     taskCount: Number(row?.task_count ?? '0'),
     maxUpdatedAt: row?.max_updated_at ?? '',
     versionSum: Number(row?.version_sum ?? '0'),
@@ -262,6 +300,44 @@ async function getLastMutationIDChanges(): Promise<Record<string, number>> {
 }
 
 async function buildFullPatch(actorId: string | null): Promise<PullResponseV1['patch']> {
+  const organizations = await sql<OrganizationRow[]>`
+    select distinct
+      organizations.id,
+      organizations.name
+    from organizations
+    ${actorId
+      ? sql`
+          where exists (
+            select 1
+            from project_memberships
+            join projects on projects.id = project_memberships.project_id
+            where projects.org_id = organizations.id
+              and project_memberships.user_id = ${actorId}
+          )
+        `
+      : sql``}
+    order by organizations.id
+  `;
+
+  const projects = await sql<ProjectRow[]>`
+    select
+      projects.id,
+      projects.org_id,
+      projects.name
+    from projects
+    ${actorId
+      ? sql`
+          where exists (
+            select 1
+            from project_memberships
+            where project_memberships.project_id = projects.id
+              and project_memberships.user_id = ${actorId}
+          )
+        `
+      : sql``}
+    order by projects.id
+  `;
+
   const rows = await sql<TaskRow[]>`
     select
       id,
@@ -288,6 +364,23 @@ async function buildFullPatch(actorId: string | null): Promise<PullResponseV1['p
 
   return [
     { op: 'clear' },
+    ...organizations.map((row) => ({
+      op: 'put' as const,
+      key: `org/${row.id}`,
+      value: {
+        id: row.id,
+        name: row.name,
+      },
+    })),
+    ...projects.map((row) => ({
+      op: 'put' as const,
+      key: `project/${row.id}`,
+      value: {
+        id: row.id,
+        orgId: row.org_id,
+        name: row.name,
+      },
+    })),
     ...rows.map((row) => ({
       op: 'put' as const,
       key: `task/${row.id}`,
@@ -315,6 +408,8 @@ function areCookiesEqual(
 
   return (
     left.order === right.order &&
+    left.orgCount === right.orgCount &&
+    left.projectCount === right.projectCount &&
     left.taskCount === right.taskCount &&
     left.maxUpdatedAt === right.maxUpdatedAt &&
     left.versionSum === right.versionSum

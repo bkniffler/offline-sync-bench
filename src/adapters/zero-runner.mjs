@@ -21,6 +21,21 @@ const stack = getStack('zero');
 const zeroSecret = new TextEncoder().encode('benchsecret');
 const scenario = process.argv[2];
 
+const organizations = table('organizations')
+  .columns({
+    id: string(),
+    name: string(),
+  })
+  .primaryKey('id');
+
+const projects = table('projects')
+  .columns({
+    id: string(),
+    org_id: string(),
+    name: string(),
+  })
+  .primaryKey('id');
+
 const tasks = table('tasks')
   .columns({
     id: string(),
@@ -35,7 +50,7 @@ const tasks = table('tasks')
   .primaryKey('id');
 
 const schema = createSchema({
-  tables: [tasks],
+  tables: [organizations, projects, tasks],
   enableLegacyQueries: false,
   enableLegacyMutators: false,
 });
@@ -43,6 +58,12 @@ const schema = createSchema({
 const zql = createBuilder(schema);
 
 const queries = defineQueries({
+  organizations: {
+    all: defineQuery(() => zql.organizations.orderBy('id', 'asc')),
+  },
+  projects: {
+    all: defineQuery(() => zql.projects.orderBy('id', 'asc')),
+  },
   tasks: {
     all: defineQuery(() => zql.tasks.orderBy('id', 'asc')),
   },
@@ -68,10 +89,11 @@ if (
   scenario !== 'bootstrap' &&
   scenario !== 'online-propagation' &&
   scenario !== 'offline-replay' &&
-  scenario !== 'local-query'
+  scenario !== 'local-query' &&
+  scenario !== 'deep-relationship-query'
 ) {
   throw new Error(
-    'Expected scenario argument: bootstrap | online-propagation | offline-replay | local-query'
+    'Expected scenario argument: bootstrap | online-propagation | offline-replay | local-query | deep-relationship-query'
   );
 }
 
@@ -82,7 +104,9 @@ const result =
       ? await runOnlinePropagation()
       : scenario === 'offline-replay'
         ? await runOfflineReplay()
-        : await runLocalQuery();
+        : scenario === 'local-query'
+          ? await runLocalQuery()
+          : await runDeepRelationshipQuery();
 
 await writeResultAndExit(result);
 
@@ -125,6 +149,47 @@ async function waitForZeroRowCount({ zero, expectedRows, timeoutMs = 60_000 }) {
   }
 
   throw new Error(`Zero did not reach ${expectedRows} rows before timeout`);
+}
+
+async function waitForZeroRelationshipData({
+  zero,
+  expectedOrgRows,
+  expectedProjectRows,
+  expectedTaskRows,
+  timeoutMs = 120_000,
+}) {
+  const orgView = zero.materialize(queries.organizations.all());
+  const projectView = zero.materialize(queries.projects.all());
+  const taskView = zero.materialize(queries.tasks.all());
+  const startedAt = Date.now();
+
+  try {
+    while (Date.now() - startedAt < timeoutMs) {
+      const orgRows = Array.from(orgView.data);
+      const projectRows = Array.from(projectView.data);
+      const taskRows = Array.from(taskView.data);
+      if (
+        orgRows.length === expectedOrgRows &&
+        projectRows.length === expectedProjectRows &&
+        taskRows.length === expectedTaskRows
+      ) {
+        return {
+          orgRows,
+          projectRows,
+          taskRows,
+        };
+      }
+      await Bun.sleep(50);
+    }
+  } finally {
+    orgView.destroy();
+    projectView.destroy();
+    taskView.destroy();
+  }
+
+  throw new Error(
+    `Zero did not reach org/project/task counts ${expectedOrgRows}/${expectedProjectRows}/${expectedTaskRows} before timeout`
+  );
 }
 
 async function waitForZeroTaskTitle({
@@ -198,6 +263,86 @@ function runZeroLocalAggregateQuery({ rows, projectId }) {
   return {
     elapsedMs: round(performance.now() - startedAt),
     resultCount: grouped.size,
+  };
+}
+
+function runZeroDashboardQuery({ organizations, projects, tasks, orgId }) {
+  const startedAt = performance.now();
+  const organization = organizations.find((row) => row.id === orgId);
+  if (!organization) {
+    return {
+      elapsedMs: round(performance.now() - startedAt),
+      resultCount: 0,
+    };
+  }
+
+  const rows = projects
+    .filter((project) => project.org_id === orgId)
+    .map((project) => {
+      let taskCount = 0;
+      let openTaskCount = 0;
+
+      for (const task of tasks) {
+        if (task.project_id !== project.id) continue;
+        taskCount += 1;
+        if (!task.completed) {
+          openTaskCount += 1;
+        }
+      }
+
+      return {
+        orgName: organization.name,
+        projectId: project.id,
+        projectName: project.name,
+        taskCount,
+        openTaskCount,
+      };
+    })
+    .sort((left, right) => {
+      if (right.openTaskCount !== left.openTaskCount) {
+        return right.openTaskCount - left.openTaskCount;
+      }
+      return left.projectId.localeCompare(right.projectId);
+    })
+    .slice(0, 20);
+
+  return {
+    elapsedMs: round(performance.now() - startedAt),
+    resultCount: rows.length,
+  };
+}
+
+function runZeroDetailJoinQuery({ organizations, projects, tasks, projectId }) {
+  const startedAt = performance.now();
+  const project = projects.find((row) => row.id === projectId);
+  if (!project) {
+    return {
+      elapsedMs: round(performance.now() - startedAt),
+      resultCount: 0,
+    };
+  }
+  const organization = organizations.find((row) => row.id === project.org_id);
+  if (!organization) {
+    return {
+      elapsedMs: round(performance.now() - startedAt),
+      resultCount: 0,
+    };
+  }
+
+  const rows = tasks
+    .filter((task) => task.project_id === projectId)
+    .sort((left, right) => left.id.localeCompare(right.id))
+    .slice(0, 100)
+    .map((task) => ({
+      taskId: task.id,
+      taskTitle: task.title,
+      projectName: project.name,
+      orgName: organization.name,
+    }));
+
+  return {
+    elapsedMs: round(performance.now() - startedAt),
+    resultCount: rows.length,
   };
 }
 
@@ -518,6 +663,104 @@ async function runLocalQuery() {
       ],
       metadata: {
         implementation: 'zero-client-local-query',
+        productVersion: zero.version,
+      },
+    };
+  } finally {
+    memorySampler.stop();
+    cpuSampler.stop();
+    await closeZero(zero);
+  }
+}
+
+async function runDeepRelationshipQuery() {
+  await ensureStackUp('zero');
+  await seedStack('zero', {
+    resetFirst: true,
+    orgCount: 1,
+    projectsPerOrg: 4,
+    usersPerOrg: 10,
+    tasksPerProject: 25_000,
+    membershipsPerProject: 4,
+  });
+
+  const fixtures = await getFixtures('zero');
+  const orgId = fixtures.sampleOrgId;
+  const projectId = fixtures.sampleProjectId;
+  if (!orgId || !projectId) {
+    throw new Error('Zero fixtures are missing org or project data');
+  }
+
+  const zero = await createZeroClient({
+    userId: 'zero-deep-relationship-query',
+    storageKey: 'deep-relationship-query',
+  });
+  const memorySampler = new MemorySampler();
+  const cpuSampler = new CpuSampler();
+  memorySampler.start();
+  cpuSampler.start();
+
+  try {
+    const { orgRows, projectRows, taskRows } = await waitForZeroRelationshipData({
+      zero,
+      expectedOrgRows: 1,
+      expectedProjectRows: 4,
+      expectedTaskRows: 100_000,
+      timeoutMs: 120_000,
+    });
+    const iterations = 25;
+    const dashboardSamples = [];
+    const detailJoinSamples = [];
+    let dashboardResultCount = 0;
+    let detailJoinResultCount = 0;
+
+    for (let iteration = 0; iteration < iterations; iteration += 1) {
+      const dashboardResult = runZeroDashboardQuery({
+        organizations: orgRows,
+        projects: projectRows,
+        tasks: taskRows,
+        orgId,
+      });
+      const detailJoinResult = runZeroDetailJoinQuery({
+        organizations: orgRows,
+        projects: projectRows,
+        tasks: taskRows,
+        projectId,
+      });
+
+      dashboardSamples.push(dashboardResult.elapsedMs);
+      detailJoinSamples.push(detailJoinResult.elapsedMs);
+      dashboardResultCount = dashboardResult.resultCount;
+      detailJoinResultCount = detailJoinResult.resultCount;
+    }
+
+    const memoryMetrics = memorySampler.stop();
+    const cpuMetrics = cpuSampler.stop();
+
+    return {
+      status: 'completed',
+      metrics: {
+        org_count: orgRows.length,
+        project_count: projectRows.length,
+        row_count: taskRows.length,
+        iterations,
+        dashboard_query_p50_ms: percentile(dashboardSamples, 50),
+        dashboard_query_p95_ms: percentile(dashboardSamples, 95),
+        detail_join_query_p50_ms: percentile(detailJoinSamples, 50),
+        detail_join_query_p95_ms: percentile(detailJoinSamples, 95),
+        dashboard_result_count: dashboardResultCount,
+        detail_join_result_count: detailJoinResultCount,
+        avg_memory_mb: memoryMetrics.avgMemoryMb,
+        peak_memory_mb: memoryMetrics.peakMemoryMb,
+        avg_cpu_pct: cpuMetrics.avgCpuPct,
+        peak_cpu_pct: cpuMetrics.peakCpuPct,
+      },
+      notes: [
+        'Deep relationship benchmarks run against the native Zero local cache after organizations, projects, and tasks are materialized.',
+        'The workload covers an organization dashboard rollup and a project-scoped detail join over the same local relational dataset.',
+      ],
+      metadata: {
+        implementation: 'zero-client-deep-relationship-query',
         productVersion: zero.version,
       },
     };

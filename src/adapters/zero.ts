@@ -17,6 +17,7 @@ function runZeroScenario(
     | 'online-propagation'
     | 'offline-replay'
     | 'local-query'
+    | 'deep-relationship-query'
 ) {
   const result = spawnSync(
     'bun',
@@ -86,10 +87,7 @@ export class ZeroBenchmarkAdapter implements BenchmarkAdapter {
   }
 
   async runDeepRelationshipQuery() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Deep relationship querying is not implemented for Zero in this harness yet.'],
-    });
+    return runZeroScenario('deep-relationship-query');
   }
 
   async runPermissionChange() {

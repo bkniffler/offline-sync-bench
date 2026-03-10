@@ -55,11 +55,13 @@
 - [x] Add local-query benchmarking for Syncular and Electric
 - [x] Extend local-query benchmarking to Zero and Replicache on their native local client paths
 - [x] Add native deep-relationship querying for Syncular and PowerSync over a fully synced multi-table local dataset
+- [x] Extend deep-relationship querying to Zero and Replicache on their native local client paths
 - [x] Add permission change convergence with native Syncular coverage plus auth-scoped Electric and Replicache benchmark paths, while keeping the remaining stacks explicitly unsupported
 - [x] Add scoped multi-project datasets to permission-change benchmarks so revocation removes only the unauthorized project while retaining still-authorized data
 - [x] Add a first native Syncular blob flow benchmark covering immediate upload, forced cache-miss download, transferred bytes, and client resource use
 - [x] Extend blob benchmarking to cross-client metadata visibility before authenticated re-download
 - [x] Add interrupted upload recovery and storage-overhead comparisons to blob benchmarking
+- [x] Keep LiveStore local-query unsupported at the shared 100000-row benchmark scale after verifying the current wa-sqlite configuration OOMs in this harness
 - [ ] Add more stacks beyond the current six, likely PowerSync alternatives or CRDT-first systems with clearly marked non-comparable scenarios
 
 ## Cleanup
