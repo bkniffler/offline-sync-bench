@@ -82,7 +82,7 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | 25 clients | 100 clients | 250 clients | 500 clients | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 113.1 ms | 1133 ms | 10090 ms | 2126 ms | native |
+| Syncular | 145.5 ms | 2048 ms | 2186 ms | 2326 ms | native |
 | Electric | 71.49 ms | 4057 ms | 2032 ms | 3037 ms | native |
 | Zero | n/a | n/a | n/a | n/a | unsupported |
 | PowerSync | n/a | n/a | n/a | n/a | unsupported |
@@ -93,7 +93,7 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | Runs | 25 median | 100 median | 250 median | 500 median |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 2 | 113.1 ms | 1133 ms | 10090 ms | 2126 ms |
+| Syncular | 3 | 145.5 ms | 2048 ms | 2186 ms | 2326 ms |
 | Electric | 3 | 71.49 ms | 4057 ms | 2032 ms | 3037 ms |
 | Replicache | 3 | 88.58 ms | 2019 ms | 4083 ms | 5100 ms |
 
@@ -101,7 +101,7 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | 500 sync avg mem | 500 postgres avg mem | 500 sync avg CPU | 500 postgres avg CPU | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 114.25 MB | 54.48 MB | 4.51% | 6.57% | native |
+| Syncular | 112.57 MB | 54.99 MB | 1.82% | 1.60% | native |
 | Electric | 286.58 MB | 85.01 MB | 4.01% | 1.05% | native |
 | Replicache | 36.14 MB | 61.07 MB | 1.20% | 0.22% | native |
 
