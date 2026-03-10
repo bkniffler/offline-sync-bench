@@ -4,6 +4,7 @@ import { createAdapter } from './adapters';
 import { cleanupBenchmarkArtifacts } from './cleanup';
 import { runBootstrapScenario } from './runners/bootstrap';
 import { runBlobFlowScenario } from './runners/blob-flow';
+import { runDeepRelationshipQueryScenario } from './runners/deep-relationship-query';
 import { runLargeOfflineQueueScenario } from './runners/large-offline-queue';
 import { runLocalQueryScenario } from './runners/local-query';
 import { runOfflineReplayScenario } from './runners/offline-replay';
@@ -83,6 +84,9 @@ function printStacks(): void {
     console.log(
       `  support: bootstrap=${stack.capabilities.bootstrap}, online=${stack.capabilities.onlinePropagation}, offline=${stack.capabilities.offlineReplay}, reconnect=${stack.capabilities.reconnectStorm}, queue=${stack.capabilities.largeOfflineQueue}, query=${stack.capabilities.localQuery}, permission=${stack.capabilities.permissionChange}, blob=${stack.capabilities.blobFlow}`
     );
+    console.log(
+      `  support+: deep-query=${stack.capabilities.deepRelationshipQuery}`
+    );
   }
 }
 
@@ -126,11 +130,12 @@ function parseScenarioFlag(): ScenarioId {
     scenarioId !== 'reconnect-storm' &&
     scenarioId !== 'large-offline-queue' &&
     scenarioId !== 'local-query' &&
+    scenarioId !== 'deep-relationship-query' &&
     scenarioId !== 'permission-change' &&
     scenarioId !== 'blob-flow'
   ) {
     throw new Error(
-      '--scenario must be one of: bootstrap, online-propagation, offline-replay, reconnect-storm, large-offline-queue, local-query, permission-change, blob-flow'
+      '--scenario must be one of: bootstrap, online-propagation, offline-replay, reconnect-storm, large-offline-queue, local-query, deep-relationship-query, permission-change, blob-flow'
     );
   }
   return scenarioId;
@@ -155,6 +160,11 @@ async function executeScenario(args: {
                 ? await runLargeOfflineQueueScenario(args.context, args.adapter)
                 : args.scenarioId === 'local-query'
                   ? await runLocalQueryScenario(args.context, args.adapter)
+                  : args.scenarioId === 'deep-relationship-query'
+                    ? await runDeepRelationshipQueryScenario(
+                        args.context,
+                        args.adapter
+                      )
                   : args.scenarioId === 'permission-change'
                     ? await runPermissionChangeScenario(
                         args.context,
@@ -180,6 +190,7 @@ async function executeScenario(args: {
       case 'reconnect-storm':
       case 'large-offline-queue':
       case 'local-query':
+      case 'deep-relationship-query':
       case 'permission-change':
       case 'blob-flow':
         return {
@@ -248,6 +259,8 @@ function getScenarioSupportLevel(stackId: StackId, scenarioId: ScenarioId): stri
       return stack.capabilities.largeOfflineQueue;
     case 'local-query':
       return stack.capabilities.localQuery;
+    case 'deep-relationship-query':
+      return stack.capabilities.deepRelationshipQuery;
     case 'permission-change':
       return stack.capabilities.permissionChange;
     case 'blob-flow':
@@ -280,6 +293,7 @@ async function runAllCommand(): Promise<void> {
     'reconnect-storm',
     'large-offline-queue',
     'local-query',
+    'deep-relationship-query',
     'permission-change',
     'blob-flow',
   ];

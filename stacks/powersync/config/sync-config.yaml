@@ -7,4 +7,6 @@ streams:
   global:
     auto_subscribe: true
     queries:
+      - SELECT id, name FROM organizations
+      - SELECT id, org_id, name FROM projects
       - SELECT id, org_id, project_id, owner_id, title, completed, server_version, updated_at FROM tasks

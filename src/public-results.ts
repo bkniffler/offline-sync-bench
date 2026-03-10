@@ -146,6 +146,8 @@ function capabilityKeyForScenario(
       return 'largeOfflineQueue';
     case 'local-query':
       return 'localQuery';
+    case 'deep-relationship-query':
+      return 'deepRelationshipQuery';
     case 'permission-change':
       return 'permissionChange';
     case 'blob-flow':
@@ -867,6 +869,29 @@ async function main(): Promise<void> {
       title: 'Local Query',
       headers: ['Stack', 'List p50', 'Search p50', 'Aggregate p50', 'Avg mem', 'Support'],
       rows: queryRows,
+    })
+  );
+
+  const deepQueryRows = stackOrder
+    .map((stackId) => {
+      const result = getResult(latest, 'deep-relationship-query', stackId);
+      return [
+        stackTitle(stackId),
+        formatMs(result?.metrics.dashboard_query_p50_ms),
+        formatMs(result?.metrics.detail_join_query_p50_ms),
+        formatMb(result?.metrics.avg_memory_mb),
+        formatSupport({
+          result,
+          scenarioId: 'deep-relationship-query',
+          stackId,
+        }),
+      ];
+    });
+  sections.push(
+    renderScenarioTable({
+      title: 'Deep Relationship Query',
+      headers: ['Stack', 'Dashboard p50', 'Detail join p50', 'Avg mem', 'Support'],
+      rows: deepQueryRows,
     })
   );
 

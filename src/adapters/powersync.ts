@@ -16,6 +16,8 @@ function runPowerSyncScenario(
     | 'bootstrap'
     | 'online-propagation'
     | 'offline-replay'
+    | 'local-query'
+    | 'deep-relationship-query'
     | 'large-offline-queue'
 ) {
   const result = spawnSync(
@@ -79,10 +81,11 @@ export class PowerSyncBenchmarkAdapter implements BenchmarkAdapter {
   }
 
   async runLocalQuery() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Local query benchmarking is not implemented for PowerSync in this harness yet.'],
-    });
+    return runPowerSyncScenario('local-query');
+  }
+
+  async runDeepRelationshipQuery() {
+    return runPowerSyncScenario('deep-relationship-query');
   }
 
   async runPermissionChange() {

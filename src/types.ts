@@ -12,6 +12,7 @@ export type ScenarioId =
   | 'reconnect-storm'
   | 'large-offline-queue'
   | 'local-query'
+  | 'deep-relationship-query'
   | 'permission-change'
   | 'blob-flow';
 export type SupportLevel = 'native' | 'emulated' | 'unsupported';
@@ -44,6 +45,7 @@ export interface StackCapabilities {
   reconnectStorm: SupportLevel;
   largeOfflineQueue: SupportLevel;
   localQuery: SupportLevel;
+  deepRelationshipQuery: SupportLevel;
   permissionChange: SupportLevel;
   blobFlow: SupportLevel;
 }
@@ -192,6 +194,12 @@ export interface BenchmarkAdapter {
     metadata: JsonObject;
   }>;
   runLocalQuery(): Promise<{
+    status: BenchmarkStatus;
+    metrics: Record<string, number | null>;
+    notes: string[];
+    metadata: JsonObject;
+  }>;
+  runDeepRelationshipQuery(): Promise<{
     status: BenchmarkStatus;
     metrics: Record<string, number | null>;
     notes: string[];

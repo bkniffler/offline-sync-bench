@@ -67,6 +67,17 @@ interface LocalTaskRow {
   updated_at: string;
 }
 
+interface LocalOrganizationRow {
+  id: string;
+  name: string;
+}
+
+interface LocalProjectRow {
+  id: string;
+  org_id: string;
+  name: string;
+}
+
 interface LocalTaskBlobRow {
   id: string;
   project_id: string;
@@ -78,6 +89,8 @@ interface LocalTaskBlobRow {
 }
 
 interface SyncularClientDb extends SyncClientDb {
+  organizations: LocalOrganizationRow;
+  projects: LocalProjectRow;
   tasks: LocalTaskRow;
   task_blob_entries: LocalTaskBlobRow;
 }
@@ -259,6 +272,21 @@ async function readSqliteStorageBytes(dbPath: string): Promise<number> {
 
 async function ensureLocalTables(db: Kysely<SyncularClientDb>): Promise<void> {
   await db.schema
+    .createTable('organizations')
+    .ifNotExists()
+    .addColumn('id', 'text', (column) => column.primaryKey())
+    .addColumn('name', 'text', (column) => column.notNull())
+    .execute();
+
+  await db.schema
+    .createTable('projects')
+    .ifNotExists()
+    .addColumn('id', 'text', (column) => column.primaryKey())
+    .addColumn('org_id', 'text', (column) => column.notNull())
+    .addColumn('name', 'text', (column) => column.notNull())
+    .execute();
+
+  await db.schema
     .createTable('tasks')
     .ifNotExists()
     .addColumn('id', 'text', (column) => column.primaryKey())
@@ -286,6 +314,11 @@ async function ensureLocalTables(db: Kysely<SyncularClientDb>): Promise<void> {
     )
     .addColumn('updated_at', 'text', (column) => column.notNull())
     .execute();
+
+  await sql`
+    create index if not exists idx_projects_org_id
+    on projects (org_id)
+  `.execute(db);
 
   await sql`
     create index if not exists idx_tasks_project_owner_completed_updated_at
@@ -637,6 +670,28 @@ async function countLocalTasks(db: Kysely<SyncularClientDb>): Promise<number> {
   return row.count;
 }
 
+async function countLocalOrganizations(
+  db: Kysely<SyncularClientDb>
+): Promise<number> {
+  const row = await db
+    .selectFrom('organizations')
+    .select((expressionBuilder) => expressionBuilder.fn.countAll<number>().as('count'))
+    .executeTakeFirstOrThrow();
+
+  return row.count;
+}
+
+async function countLocalProjects(
+  db: Kysely<SyncularClientDb>
+): Promise<number> {
+  const row = await db
+    .selectFrom('projects')
+    .select((expressionBuilder) => expressionBuilder.fn.countAll<number>().as('count'))
+    .executeTakeFirstOrThrow();
+
+  return row.count;
+}
+
 async function countLocalTasksForProject(
   db: Kysely<SyncularClientDb>,
   projectId: string
@@ -906,6 +961,23 @@ function normalizeTaskRow(row: Record<string, JsonValue>): LocalTaskRow {
   };
 }
 
+function normalizeOrganizationRow(
+  row: Record<string, JsonValue>
+): LocalOrganizationRow {
+  return {
+    id: typeof row.id === 'string' ? row.id : '',
+    name: typeof row.name === 'string' ? row.name : '',
+  };
+}
+
+function normalizeProjectRow(row: Record<string, JsonValue>): LocalProjectRow {
+  return {
+    id: typeof row.id === 'string' ? row.id : '',
+    org_id: typeof row.org_id === 'string' ? row.org_id : '',
+    name: typeof row.name === 'string' ? row.name : '',
+  };
+}
+
 function isJsonRecord(value: unknown): value is Record<string, JsonValue> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -952,6 +1024,72 @@ async function materializeSyncularSnapshotRows(args: {
   }
 
   return rows;
+}
+
+async function materializeSyncularSnapshotJsonRows(args: {
+  snapshot: NonNullable<SyncPullSubscriptionResponse['snapshots']>[number];
+  transport: ReturnType<typeof createHttpTransport>;
+  scopeValues?: ScopeValues;
+}): Promise<Array<Record<string, JsonValue>>> {
+  const rows: Array<Record<string, JsonValue>> = [];
+
+  for (const row of args.snapshot.rows ?? []) {
+    if (!isJsonRecord(row)) {
+      throw new Error('Syncular snapshot contained a non-object row');
+    }
+    rows.push(row);
+  }
+
+  for (const chunk of args.snapshot.chunks ?? []) {
+    const bytes = await args.transport.fetchSnapshotChunk({
+      chunkId: chunk.id,
+      scopeValues: args.scopeValues,
+    });
+
+    for (const decodedRow of decodeSnapshotRows(bytes)) {
+      if (!isJsonRecord(decodedRow)) {
+        throw new Error('Syncular snapshot chunk contained a non-object row');
+      }
+      rows.push(decodedRow);
+    }
+  }
+
+  return rows;
+}
+
+async function insertLocalOrganizationRows(
+  db: Kysely<SyncularClientDb>,
+  rows: LocalOrganizationRow[]
+): Promise<void> {
+  for (const row of rows) {
+    await db
+      .insertInto('organizations')
+      .values(row)
+      .onConflict((oc) =>
+        oc.column('id').doUpdateSet({
+          name: row.name,
+        })
+      )
+      .execute();
+  }
+}
+
+async function insertLocalProjectRows(
+  db: Kysely<SyncularClientDb>,
+  rows: LocalProjectRow[]
+): Promise<void> {
+  for (const row of rows) {
+    await db
+      .insertInto('projects')
+      .values(row)
+      .onConflict((oc) =>
+        oc.column('id').doUpdateSet({
+          org_id: row.org_id,
+          name: row.name,
+        })
+      )
+      .execute();
+  }
 }
 
 async function insertLocalTaskRows(
@@ -1038,6 +1176,84 @@ async function applySyncularSubscriptionPayload(args: {
           normalizeTaskRow(rowJson),
           args.phaseTotals
         );
+      }
+    }
+  });
+}
+
+async function applySyncularRelationshipSubscriptionPayload(args: {
+  db: Kysely<SyncularClientDb>;
+  subscription: SyncPullSubscriptionResponse;
+  transport: ReturnType<typeof createHttpTransport>;
+}): Promise<void> {
+  await args.db.transaction().execute(async (trx) => {
+    for (const snapshot of args.subscription.snapshots ?? []) {
+      const rows = await materializeSyncularSnapshotJsonRows({
+        snapshot,
+        transport: args.transport,
+        scopeValues: args.subscription.scopes,
+      });
+
+      if (args.subscription.id === 'organizations') {
+        await insertLocalOrganizationRows(
+          trx,
+          rows.map((row) => normalizeOrganizationRow(row))
+        );
+        continue;
+      }
+
+      if (args.subscription.id === 'projects') {
+        await insertLocalProjectRows(
+          trx,
+          rows.map((row) => normalizeProjectRow(row))
+        );
+        continue;
+      }
+
+      if (args.subscription.id === 'tasks') {
+        await insertLocalTaskRows(
+          trx,
+          rows.map((row) => normalizeTaskRow(row))
+        );
+      }
+    }
+
+    for (const commit of args.subscription.commits ?? []) {
+      for (const change of commit.changes ?? []) {
+        const rowId = change.row_id;
+        if (!rowId) continue;
+
+        if (change.op === 'delete') {
+          if (args.subscription.id === 'organizations') {
+            await trx.deleteFrom('organizations').where('id', '=', rowId).execute();
+            continue;
+          }
+          if (args.subscription.id === 'projects') {
+            await trx.deleteFrom('projects').where('id', '=', rowId).execute();
+            continue;
+          }
+          if (args.subscription.id === 'tasks') {
+            await trx.deleteFrom('tasks').where('id', '=', rowId).execute();
+          }
+          continue;
+        }
+
+        const rowJson = change.row_json;
+        if (!isJsonRecord(rowJson)) continue;
+
+        if (args.subscription.id === 'organizations') {
+          await insertLocalOrganizationRows(trx, [normalizeOrganizationRow(rowJson)]);
+          continue;
+        }
+
+        if (args.subscription.id === 'projects') {
+          await insertLocalProjectRows(trx, [normalizeProjectRow(rowJson)]);
+          continue;
+        }
+
+        if (args.subscription.id === 'tasks') {
+          await upsertLocalTaskRow(trx, normalizeTaskRow(rowJson));
+        }
       }
     }
   });
@@ -1591,6 +1807,70 @@ async function runSyncularLocalAggregateQuery(args: {
   return {
     elapsedMs: round(performance.now() - startedAt),
     resultCount: rows.length,
+  };
+}
+
+async function runSyncularDashboardQuery(args: {
+  db: Kysely<SyncularClientDb>;
+  orgId: string;
+}): Promise<LocalQuerySample> {
+  const startedAt = performance.now();
+  const rows = await sql<{
+    org_name: string;
+    project_id: string;
+    project_name: string;
+    task_count: number;
+    open_task_count: number;
+  }[]>`
+    select
+      organizations.name as org_name,
+      projects.id as project_id,
+      projects.name as project_name,
+      count(tasks.id) as task_count,
+      sum(case when tasks.completed = 0 then 1 else 0 end) as open_task_count
+    from organizations
+    join projects on projects.org_id = organizations.id
+    left join tasks on tasks.project_id = projects.id
+    where organizations.id = ${args.orgId}
+    group by organizations.name, projects.id, projects.name
+    order by open_task_count desc, projects.id asc
+    limit 20
+  `.execute(args.db);
+
+  return {
+    elapsedMs: round(performance.now() - startedAt),
+    resultCount: rows.rows.length,
+  };
+}
+
+async function runSyncularDetailJoinQuery(args: {
+  db: Kysely<SyncularClientDb>;
+  projectId: string;
+}): Promise<LocalQuerySample> {
+  const startedAt = performance.now();
+  const rows = await sql<{
+    id: string;
+    title: string;
+    project_name: string;
+    org_name: string;
+  }[]>`
+    select
+      tasks.id,
+      tasks.title,
+      projects.name as project_name,
+      organizations.name as org_name
+    from tasks
+    join projects on projects.id = tasks.project_id
+    join organizations on organizations.id = projects.org_id
+    where projects.id = ${args.projectId}
+      and tasks.id like ${'org-1-project-1-task-00%'}
+    order by tasks.id asc
+    limit 100
+  `.execute(args.db);
+
+  return {
+    elapsedMs: round(performance.now() - startedAt),
+    resultCount: rows.rows.length,
   };
 }
 
@@ -2226,6 +2506,182 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
         implementation: 'direct-sync-protocol-local-query-workload',
         rowCount,
         iterations,
+      },
+    };
+  }
+
+  async runDeepRelationshipQuery(): Promise<{
+    status: BenchmarkStatus;
+    metrics: Record<string, number | null>;
+    notes: string[];
+    metadata: { [key: string]: JsonValue };
+  }> {
+    await ensureStackUp('syncular');
+    await seedSyncularStack({
+      resetFirst: true,
+      orgCount: 1,
+      projectsPerOrg: 4,
+      usersPerOrg: 10,
+      tasksPerProject: 25_000,
+      membershipsPerProject: 4,
+    });
+
+    const fixtures = await getFixtures('syncular');
+    const actorId = fixtures.sampleUserIds[0];
+    const orgId = fixtures.sampleOrgId;
+    const projectIds = fixtures.sampleProjectIds;
+    const detailProjectId = projectIds[0];
+    if (!actorId || !orgId || !detailProjectId || projectIds.length === 0) {
+      throw new Error('Syncular deep query fixtures are missing org or project data');
+    }
+
+    const dbPath = await createTempDbPath('syncular-deep-relationship-query');
+    const db = new Kysely<SyncularClientDb>({
+      dialect: createBunSqliteDialect({ path: dbPath }),
+    });
+    await ensureLocalTables(db);
+
+    const transport = createSyncularHttpTransport({ actorId });
+    const subscriptions: Array<{
+      id: 'organizations' | 'projects' | 'tasks';
+      table: 'organizations' | 'projects' | 'tasks';
+      scopes: Record<string, string | string[]>;
+      cursor: number;
+      bootstrapState: SyncBootstrapState | null;
+    }> = [
+      {
+        id: 'organizations',
+        table: 'organizations',
+        scopes: { id: orgId },
+        cursor: -1,
+        bootstrapState: null,
+      },
+      {
+        id: 'projects',
+        table: 'projects',
+        scopes: { id: projectIds },
+        cursor: -1,
+        bootstrapState: null,
+      },
+      {
+        id: 'tasks',
+        table: 'tasks',
+        scopes: { project_id: projectIds },
+        cursor: -1,
+        bootstrapState: null,
+      },
+    ];
+
+    for (const state of subscriptions) {
+      let iterationsGuard = 0;
+      while (iterationsGuard < 200) {
+        iterationsGuard += 1;
+        const body = await transport.sync({
+          clientId: 'syncular-deep-relationship-query',
+          pull: {
+            limitCommits: 100,
+            limitSnapshotRows: SYNCULAR_BENCH_BOOTSTRAP_LIMIT_SNAPSHOT_ROWS,
+            maxSnapshotPages: SYNCULAR_BENCH_BOOTSTRAP_MAX_SNAPSHOT_PAGES,
+            subscriptions: [
+              {
+                id: state.id,
+                table: state.table,
+                scopes: state.scopes,
+                cursor: state.cursor,
+                bootstrapState: state.bootstrapState,
+              },
+            ],
+          },
+        });
+
+        const subscription = body.pull?.subscriptions?.[0];
+        if (!body.ok || !body.pull?.ok || !subscription) {
+          throw new Error('Syncular deep relationship bootstrap returned an invalid payload');
+        }
+        if (subscription.status === 'revoked') {
+          throw new Error('Syncular deep relationship bootstrap subscription was revoked');
+        }
+
+        await applySyncularRelationshipSubscriptionPayload({
+          db,
+          subscription,
+          transport,
+        });
+
+        state.cursor =
+          typeof subscription.nextCursor === 'number'
+            ? subscription.nextCursor
+            : state.cursor;
+        state.bootstrapState = subscription.bootstrapState ?? null;
+
+        if (state.bootstrapState === null) {
+          break;
+        }
+      }
+    }
+
+    const iterations = 25;
+    const dashboardSamples: number[] = [];
+    const detailJoinSamples: number[] = [];
+    let dashboardResultCount = 0;
+    let detailJoinResultCount = 0;
+    const memorySampler = new MemorySampler();
+    const cpuSampler = new CpuSampler();
+    memorySampler.start();
+    cpuSampler.start();
+
+    for (let iteration = 0; iteration < iterations; iteration += 1) {
+      const dashboardResult = await runSyncularDashboardQuery({ db, orgId });
+      const detailJoinResult = await runSyncularDetailJoinQuery({
+        db,
+        projectId: detailProjectId,
+      });
+
+      dashboardSamples.push(dashboardResult.elapsedMs);
+      detailJoinSamples.push(detailJoinResult.elapsedMs);
+      dashboardResultCount = dashboardResult.resultCount;
+      detailJoinResultCount = detailJoinResult.resultCount;
+    }
+
+    const taskCount = await countLocalTasks(db);
+    const organizationCount = await countLocalOrganizations(db);
+    const projectCount = await countLocalProjects(db);
+    const memoryMetrics = memorySampler.stop();
+    const cpuMetrics = cpuSampler.stop();
+
+    await db.destroy();
+    await rm(dbPath.replace(/\/client\.sqlite$/, ''), {
+      recursive: true,
+      force: true,
+    });
+
+    return {
+      status: 'completed',
+      metrics: {
+        org_count: organizationCount,
+        project_count: projectCount,
+        row_count: taskCount,
+        iterations,
+        dashboard_query_p50_ms: percentile(dashboardSamples, 50),
+        dashboard_query_p95_ms: percentile(dashboardSamples, 95),
+        detail_join_query_p50_ms: percentile(detailJoinSamples, 50),
+        detail_join_query_p95_ms: percentile(detailJoinSamples, 95),
+        dashboard_result_count: dashboardResultCount,
+        detail_join_result_count: detailJoinResultCount,
+        avg_memory_mb: memoryMetrics.avgMemoryMb,
+        peak_memory_mb: memoryMetrics.peakMemoryMb,
+        avg_cpu_pct: cpuMetrics.avgCpuPct,
+        peak_cpu_pct: cpuMetrics.peakCpuPct,
+      },
+      notes: [
+        'Deep relationship benchmarks run against the local Syncular SQLite cache after organizations, projects, and tasks are all materialized.',
+        'The workload covers an organization dashboard rollup and a project-scoped detail join over the same local relational dataset.',
+      ],
+      metadata: {
+        implementation: 'direct-sync-protocol-deep-relationship-query',
+        orgCount: organizationCount,
+        projectCount,
+        rowCount: taskCount,
       },
     };
   }

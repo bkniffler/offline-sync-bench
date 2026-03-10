@@ -23,6 +23,7 @@ Current readable report:
 - `reconnect-storm`: restart sync, then fan out one change to many already-bootstrapped clients while sampling server resources
 - `large-offline-queue`: replay a materially larger queued write set than the baseline offline-replay case
 - `local-query`: run screen-like filtered list, search, and aggregation workloads on the fully synced local client state
+- `deep-relationship-query`: run organization dashboard rollups and project detail joins over a fully synced multi-table local relational dataset
 - `permission-change`: revoke scoped access and measure how quickly previously visible local rows disappear
 - `blob-flow`: upload a blob, observe cross-client metadata visibility, force a cache miss, and measure authenticated re-download plus interrupted upload recovery
 
@@ -34,6 +35,7 @@ Detailed specs live in:
 - [docs/scenarios/reconnect-storm.md](./docs/scenarios/reconnect-storm.md)
 - [docs/scenarios/large-offline-queue.md](./docs/scenarios/large-offline-queue.md)
 - [docs/scenarios/local-query.md](./docs/scenarios/local-query.md)
+- [docs/scenarios/deep-relationship-query.md](./docs/scenarios/deep-relationship-query.md)
 - [docs/scenarios/permission-change.md](./docs/scenarios/permission-change.md)
 - [docs/scenarios/blob-flow.md](./docs/scenarios/blob-flow.md)
 - [docs/methodology.md](./docs/methodology.md)
@@ -47,6 +49,7 @@ Detailed specs live in:
   - `reconnect-storm`: `native`
   - `large-offline-queue`: `native`
   - `local-query`: `native`
+  - `deep-relationship-query`: `native`
   - `permission-change`: `native`
 - `electric`
   - `bootstrap`: `native`
@@ -55,6 +58,7 @@ Detailed specs live in:
   - `reconnect-storm`: `native`
   - `large-offline-queue`: `emulated`
   - `local-query`: `native`
+  - `deep-relationship-query`: `unsupported`
   - `permission-change`: `native` via a benchmark-owned auth-scoped Electric shape proxy
 - `zero`
   - `bootstrap`: `native`
@@ -63,6 +67,7 @@ Detailed specs live in:
   - `reconnect-storm`: `unsupported`
   - `large-offline-queue`: `unsupported`
   - `local-query`: `native`
+  - `deep-relationship-query`: `unsupported`
   - `permission-change`: `unsupported`
 - `powersync`
   - `bootstrap`: `native`
@@ -70,7 +75,8 @@ Detailed specs live in:
   - `offline-replay`: `native`
   - `reconnect-storm`: `unsupported`
   - `large-offline-queue`: `native`
-  - `local-query`: `unsupported`
+  - `local-query`: `native`
+  - `deep-relationship-query`: `native`
   - `permission-change`: `unsupported`
 - `replicache`
   - `bootstrap`: `native`
@@ -79,6 +85,7 @@ Detailed specs live in:
   - `reconnect-storm`: `native`
   - `large-offline-queue`: `native`
   - `local-query`: `native`
+  - `deep-relationship-query`: `unsupported`
   - `permission-change`: `native` via an actor-scoped benchmark-owned BYOB pull path
 - `livestore`
   - `bootstrap`: `native`
@@ -87,6 +94,7 @@ Detailed specs live in:
   - `reconnect-storm`: `unsupported`
   - `large-offline-queue`: `unsupported`
   - `local-query`: `unsupported`
+  - `deep-relationship-query`: `unsupported`
   - `permission-change`: `unsupported`
 
 Each stack is defined with Docker Compose under [`stacks/`](./stacks/).
@@ -180,11 +188,11 @@ Interpretation:
 
 The benchmark harness is operational for six stacks, with the expanded scenario set currently verified for:
 
-- Syncular: `bootstrap`, `online-propagation`, `offline-replay`, `reconnect-storm`, `large-offline-queue`, `local-query`, `permission-change`, `blob-flow`
+- Syncular: `bootstrap`, `online-propagation`, `offline-replay`, `reconnect-storm`, `large-offline-queue`, `local-query`, `deep-relationship-query`, `permission-change`, `blob-flow`
 - Electric: `bootstrap`, `online-propagation`, `offline-replay` (emulated), `reconnect-storm`, `large-offline-queue` (emulated), `local-query`, `permission-change`
 - Zero: `bootstrap`, `online-propagation`, `local-query`
 - Replicache: `bootstrap`, `online-propagation`, `offline-replay`, `reconnect-storm`, `large-offline-queue`, `local-query`, `permission-change`
-- PowerSync: `bootstrap`, `online-propagation`, `offline-replay`, `large-offline-queue`
+- PowerSync: `bootstrap`, `online-propagation`, `offline-replay`, `large-offline-queue`, `local-query`, `deep-relationship-query`
 
 The older full-matrix artifact set is still useful for the first six-stack comparison:
 

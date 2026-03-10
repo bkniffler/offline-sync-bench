@@ -78,6 +78,15 @@ export class ReplicacheBenchmarkAdapter implements BenchmarkAdapter {
     return runReplicacheScenario('local-query');
   }
 
+  async runDeepRelationshipQuery() {
+    return createUnsupportedScenarioResult({
+      implementation: 'unsupported',
+      notes: [
+        'Deep relationship querying is not implemented for Replicache in this harness yet.',
+      ],
+    });
+  }
+
   async runPermissionChange() {
     return runReplicacheScenario('permission-change');
   }

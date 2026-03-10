@@ -281,6 +281,52 @@ const tasksHandler = createServerHandler<
   ...(snapshotBundleMaxBytes ? { snapshotBundleMaxBytes } : {}),
 });
 
+const organizationsHandler = createServerHandler<
+  BenchDb,
+  BenchDb,
+  'organizations',
+  BenchAuth
+>({
+  table: 'organizations',
+  scopes: ['org:{id}'],
+  resolveScopes: async (ctx) => {
+    const organizations = await ctx.db
+      .selectFrom('project_memberships')
+      .innerJoin('projects', 'projects.id', 'project_memberships.project_id')
+      .select('projects.org_id as id')
+      .where('project_memberships.user_id', '=', ctx.actorId)
+      .groupBy('projects.org_id')
+      .execute();
+
+    return {
+      id: organizations.map((row) => row.id),
+    };
+  },
+  ...(snapshotBundleMaxBytes ? { snapshotBundleMaxBytes } : {}),
+});
+
+const projectsHandler = createServerHandler<
+  BenchDb,
+  BenchDb,
+  'projects',
+  BenchAuth
+>({
+  table: 'projects',
+  scopes: ['project:{id}'],
+  resolveScopes: async (ctx) => {
+    const memberships = await ctx.db
+      .selectFrom('project_memberships')
+      .select('project_memberships.project_id as id')
+      .where('project_memberships.user_id', '=', ctx.actorId)
+      .execute();
+
+    return {
+      id: memberships.map((row) => row.id),
+    };
+  },
+  ...(snapshotBundleMaxBytes ? { snapshotBundleMaxBytes } : {}),
+});
+
 const taskBlobsHandler = createServerHandler<
   BenchDb,
   BenchDb,
@@ -323,7 +369,7 @@ const { syncRoutes } = createSyncServer<BenchDb, BenchAuth>({
       }
       return { actorId };
     },
-    handlers: [tasksHandler, taskBlobsHandler],
+    handlers: [organizationsHandler, projectsHandler, tasksHandler, taskBlobsHandler],
   },
   scopeCache,
   routes: {

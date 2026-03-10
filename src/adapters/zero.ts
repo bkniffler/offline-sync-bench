@@ -85,6 +85,13 @@ export class ZeroBenchmarkAdapter implements BenchmarkAdapter {
     return runZeroScenario('local-query');
   }
 
+  async runDeepRelationshipQuery() {
+    return createUnsupportedScenarioResult({
+      implementation: 'unsupported',
+      notes: ['Deep relationship querying is not implemented for Zero in this harness yet.'],
+    });
+  }
+
   async runPermissionChange() {
     return createUnsupportedScenarioResult({
       implementation: 'unsupported',

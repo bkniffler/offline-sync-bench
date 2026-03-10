@@ -1342,6 +1342,20 @@ export class ElectricBenchmarkAdapter implements BenchmarkAdapter {
     };
   }
 
+  async runDeepRelationshipQuery(): Promise<{
+    status: BenchmarkStatus;
+    metrics: Record<string, number | null>;
+    notes: string[];
+    metadata: { [key: string]: JsonValue };
+  }> {
+    return createUnsupportedScenarioResult({
+      implementation: 'unsupported',
+      notes: [
+        'Deep relationship querying is not implemented for Electric in this harness yet.',
+      ],
+    });
+  }
+
   async runPermissionChange(): Promise<{
     status: BenchmarkStatus;
     metrics: Record<string, number | null>;

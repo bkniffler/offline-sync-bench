@@ -54,6 +54,7 @@
 - [x] Extend large-offline-queue to 100 / 500 / 1000 queued writes for Syncular, Replicache, and PowerSync
 - [x] Add local-query benchmarking for Syncular and Electric
 - [x] Extend local-query benchmarking to Zero and Replicache on their native local client paths
+- [x] Add native deep-relationship querying for Syncular and PowerSync over a fully synced multi-table local dataset
 - [x] Add permission change convergence with native Syncular coverage plus auth-scoped Electric and Replicache benchmark paths, while keeping the remaining stacks explicitly unsupported
 - [x] Add scoped multi-project datasets to permission-change benchmarks so revocation removes only the unauthorized project while retaining still-authorized data
 - [x] Add a first native Syncular blob flow benchmark covering immediate upload, forced cache-miss download, transferred bytes, and client resource use

@@ -99,6 +99,22 @@ export const scenarios: BenchmarkScenario[] = [
     ],
   },
   {
+    id: 'deep-relationship-query',
+    title: 'Deep relationship query',
+    summary:
+      'Measure local multi-table relationship workloads after organizations, projects, and tasks are all materialized on the client.',
+    primaryMetrics: [
+      'dashboard_query_p50_ms',
+      'dashboard_query_p95_ms',
+      'detail_join_query_p50_ms',
+      'detail_join_query_p95_ms',
+    ],
+    notes: [
+      'This benchmark is only native when the client really holds the related tables locally.',
+      'The baseline workload joins organizations -> projects -> tasks and measures a dashboard rollup plus a detail join query.',
+    ],
+  },
+  {
     id: 'permission-change',
     title: 'Permission-change convergence',
     summary:

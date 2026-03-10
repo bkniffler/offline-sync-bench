@@ -264,6 +264,8 @@ function getSupportLevel(result: BenchmarkResult): string {
       return capabilities.largeOfflineQueue;
     case 'local-query':
       return capabilities.localQuery;
+    case 'deep-relationship-query':
+      return capabilities.deepRelationshipQuery;
     case 'permission-change':
       return capabilities.permissionChange;
     case 'blob-flow':

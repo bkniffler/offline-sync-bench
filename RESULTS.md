@@ -8,7 +8,7 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 - Bootstrap at 100k rows (median of the latest 1 runs where available): Electric is at 416.3 ms; Syncular is at 882.2 ms; Replicache is at 991.8 ms.
 - Online propagation: Electric still leads on tail latency (12.72 ms p95), while Syncular is now at 19.47 ms p95 with 11.35 ms write ack.
-- Native offline replay: Syncular currently converges in 92.32 ms, ahead of Replicache (1253 ms) and PowerSync (5191 ms).
+- Native offline replay: Syncular currently converges in 93.40 ms, ahead of Replicache (1253 ms) and PowerSync (5191 ms).
 - Permission change (median of the latest 1 runs where available): Syncular converges in 46.90 ms and Electric in 15.96 ms.
 - Client bundle size: Syncular is currently 829.83 KB raw / 238.32 KB gzip for the named-import browser profile.
 - Blob flow: Syncular currently uploads a 524288 byte blob in 17.60 ms, syncs metadata to a second client in 31.71 ms, re-downloads it after cache clear in 7.01 ms, and recovers an interrupted queued upload in 13.23 ms.
@@ -60,7 +60,7 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | Queued writes | Convergence | Requests | Avg mem | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 10 | 92.32 ms | 1 | 241.56 MB | native |
+| Syncular | 10 | 93.40 ms | 1 | 239.99 MB | native |
 | Electric | 10 | 37.35 ms | 2 | 684.30 MB | emulated |
 | Zero | n/a | n/a | n/a | n/a | unsupported |
 | PowerSync | 10 | 5191 ms | 17 | 318.15 MB | native |
@@ -71,7 +71,7 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | 25 clients | 100 clients | 250 clients | 500 clients | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 223.4 ms | 2091 ms | 2212 ms | 6073 ms | native |
+| Syncular | 113.1 ms | 1133 ms | 10090 ms | 2126 ms | native |
 | Electric | 71.49 ms | 4057 ms | 2032 ms | 3037 ms | native |
 | Zero | n/a | n/a | n/a | n/a | unsupported |
 | PowerSync | n/a | n/a | n/a | n/a | unsupported |
@@ -82,7 +82,7 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | Runs | 25 median | 100 median | 250 median | 500 median |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 3 | 223.4 ms | 2091 ms | 2212 ms | 6073 ms |
+| Syncular | 2 | 113.1 ms | 1133 ms | 10090 ms | 2126 ms |
 | Electric | 3 | 71.49 ms | 4057 ms | 2032 ms | 3037 ms |
 | Replicache | 3 | 88.58 ms | 2019 ms | 4083 ms | 5100 ms |
 
@@ -90,7 +90,7 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | 500 sync avg mem | 500 postgres avg mem | 500 sync avg CPU | 500 postgres avg CPU | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 109.91 MB | 83.08 MB | 0.70% | 0.36% | native |
+| Syncular | 114.25 MB | 54.48 MB | 4.51% | 6.57% | native |
 | Electric | 286.58 MB | 85.01 MB | 4.01% | 1.05% | native |
 | Replicache | 36.14 MB | 61.07 MB | 1.20% | 0.22% | native |
 
@@ -120,9 +120,20 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 | Syncular | 0.25 ms | 0.10 ms | 5.83 ms | 374.53 MB | native |
 | Electric | 8.56 ms | 2.84 ms | 6.98 ms | 793.22 MB | native |
 | Zero | 8.10 ms | 5.10 ms | 8.74 ms | 392.06 MB | native |
-| PowerSync | n/a | n/a | n/a | n/a | unsupported |
+| PowerSync | 51.20 ms | 15.45 ms | 115.1 ms | 286.56 MB | native |
 | Replicache | 12.88 ms | 2.53 ms | 6.48 ms | 300.97 MB | native |
 | LiveStore | n/a | n/a | n/a | n/a | unsupported |
+
+## Deep Relationship Query
+
+| Stack | Dashboard p50 | Detail join p50 | Avg mem | Support |
+| --- | --- | --- | --- | --- |
+| Syncular | 187.9 ms | 0.69 ms | 390.04 MB | native |
+| Electric | n/a | n/a | n/a | unsupported |
+| Zero | n/a | n/a | n/a | unsupported |
+| PowerSync | 564.4 ms | 9.05 ms | 302.01 MB | native |
+| Replicache | n/a | n/a | n/a | unsupported |
+| LiveStore | n/a | n/a | n/a | unsupported |
 
 ## Permission Change
 

@@ -80,6 +80,15 @@ export class LiveStoreBenchmarkAdapter implements BenchmarkAdapter {
     });
   }
 
+  async runDeepRelationshipQuery() {
+    return createUnsupportedScenarioResult({
+      implementation: 'unsupported',
+      notes: [
+        'Deep relationship querying is not implemented for LiveStore in this harness yet.',
+      ],
+    });
+  }
+
   async runPermissionChange() {
     return createUnsupportedScenarioResult({
       implementation: 'unsupported',

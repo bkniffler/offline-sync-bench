@@ -29,6 +29,7 @@ interface RunnerResult {
 }
 
 interface StackFixtures {
+  sampleOrgId: string | null;
   sampleProjectId: string | null;
   sampleTaskId: string | null;
 }
@@ -63,10 +64,31 @@ interface PowerSyncOfflineReplayCaseResult {
   queuedTaskIds: string[];
 }
 
+interface LocalQuerySample {
+  elapsedMs: number;
+  resultCount: number;
+}
+
 const stack = getStack('powersync');
 const scenario = process.argv[2];
 
 const AppSchema = new Schema({
+  organizations: new Table({
+    id: column.text,
+    name: column.text,
+  }),
+  projects: new Table(
+    {
+      id: column.text,
+      org_id: column.text,
+      name: column.text,
+    },
+    {
+      indexes: {
+        org: ['org_id'],
+      },
+    }
+  ),
   tasks: new Table(
     {
       org_id: column.text,
@@ -89,10 +111,12 @@ if (
   scenario !== 'bootstrap' &&
   scenario !== 'online-propagation' &&
   scenario !== 'offline-replay' &&
-  scenario !== 'large-offline-queue'
+  scenario !== 'large-offline-queue' &&
+  scenario !== 'local-query' &&
+  scenario !== 'deep-relationship-query'
 ) {
   throw new Error(
-    'Expected scenario argument: bootstrap | online-propagation | offline-replay | large-offline-queue'
+    'Expected scenario argument: bootstrap | online-propagation | offline-replay | large-offline-queue | local-query | deep-relationship-query'
   );
 }
 
@@ -103,7 +127,11 @@ const result =
       ? await runOnlinePropagation()
       : scenario === 'offline-replay'
         ? await runOfflineReplay()
-        : await runLargeOfflineQueue();
+        : scenario === 'large-offline-queue'
+          ? await runLargeOfflineQueue()
+          : scenario === 'local-query'
+            ? await runLocalQuery()
+            : await runDeepRelationshipQuery();
 
 await writeResultAndExit(result);
 
@@ -448,6 +476,259 @@ async function runLargeOfflineQueue(): Promise<RunnerResult> {
   };
 }
 
+async function runLocalQuery(): Promise<RunnerResult> {
+  await ensureStackUp();
+  await seedStack({
+    resetFirst: true,
+    orgCount: 1,
+    projectsPerOrg: 1,
+    usersPerOrg: 2,
+    tasksPerProject: 100_000,
+    membershipsPerProject: 2,
+  });
+
+  const fixtures = await getFixtures();
+  const projectId = fixtures.sampleProjectId;
+  const ownerId = projectId
+    ? (await listTasks({ projectId, limit: 1 }))[0]?.ownerId
+    : null;
+  if (!projectId || !ownerId) {
+    throw new Error('PowerSync fixtures are missing project or owner data');
+  }
+
+  const session = await createSession('powersync-local-query');
+  const memorySampler = new MemorySampler();
+  const cpuSampler = new CpuSampler();
+  memorySampler.start();
+  cpuSampler.start();
+
+  try {
+    const rowCount = await waitForRowCount(session.db, 100_000, 120_000);
+    const iterations = 25;
+    const listSamples: number[] = [];
+    const searchSamples: number[] = [];
+    const aggregateSamples: number[] = [];
+    let listResultCount = 0;
+    let searchResultCount = 0;
+    let aggregateResultCount = 0;
+
+    for (let iteration = 0; iteration < iterations; iteration += 1) {
+      const listResult = await runPowerSyncLocalListQuery({
+        db: session.db,
+        projectId,
+        ownerId,
+      });
+      const searchResult = await runPowerSyncLocalSearchQuery({
+        db: session.db,
+        projectId,
+      });
+      const aggregateResult = await runPowerSyncLocalAggregateQuery({
+        db: session.db,
+        projectId,
+      });
+
+      listSamples.push(listResult.elapsedMs);
+      searchSamples.push(searchResult.elapsedMs);
+      aggregateSamples.push(aggregateResult.elapsedMs);
+      listResultCount = listResult.resultCount;
+      searchResultCount = searchResult.resultCount;
+      aggregateResultCount = aggregateResult.resultCount;
+    }
+
+    const memoryMetrics = memorySampler.stop();
+    const cpuMetrics = cpuSampler.stop();
+
+    return {
+      status: 'completed',
+      metrics: {
+        row_count: rowCount,
+        iterations,
+        list_query_p50_ms: percentile(listSamples, 50),
+        list_query_p95_ms: percentile(listSamples, 95),
+        search_query_p50_ms: percentile(searchSamples, 50),
+        search_query_p95_ms: percentile(searchSamples, 95),
+        aggregate_query_p50_ms: percentile(aggregateSamples, 50),
+        aggregate_query_p95_ms: percentile(aggregateSamples, 95),
+        list_result_count: listResultCount,
+        search_result_count: searchResultCount,
+        aggregate_result_count: aggregateResultCount,
+        avg_memory_mb: memoryMetrics.avgMemoryMb,
+        peak_memory_mb: memoryMetrics.peakMemoryMb,
+        avg_cpu_pct: cpuMetrics.avgCpuPct,
+        peak_cpu_pct: cpuMetrics.peakCpuPct,
+      },
+      notes: [
+        'Local query benchmarks run against the native PowerSync local SQLite cache after first sync completes.',
+        'The workload covers a filtered list query, an ID-prefix search query, and a grouped aggregation over the same task corpus.',
+      ],
+      metadata: {
+        implementation: 'powersync-node-local-query',
+        productVersion: '0.18.0',
+      },
+    };
+  } finally {
+    memorySampler.stop();
+    cpuSampler.stop();
+    await session.destroy();
+  }
+}
+
+async function runDeepRelationshipQuery(): Promise<RunnerResult> {
+  await ensureStackUp();
+  await seedStack({
+    resetFirst: true,
+    orgCount: 1,
+    projectsPerOrg: 4,
+    usersPerOrg: 10,
+    tasksPerProject: 25_000,
+    membershipsPerProject: 4,
+  });
+
+  const fixtures = await getFixtures();
+  const orgId = fixtures.sampleOrgId;
+  const projectId = fixtures.sampleProjectId;
+  if (!orgId || !projectId) {
+    throw new Error('PowerSync fixtures are missing org or project data');
+  }
+
+  const session = await createSession('powersync-deep-relationship-query');
+  const memorySampler = new MemorySampler();
+  const cpuSampler = new CpuSampler();
+  memorySampler.start();
+  cpuSampler.start();
+
+  try {
+    await waitForRowCount(session.db, 100_000, 120_000);
+    await waitForTableRowCount(session.db, 'organizations', 1, 120_000);
+    await waitForTableRowCount(session.db, 'projects', 4, 120_000);
+
+    const iterations = 25;
+    const dashboardSamples: number[] = [];
+    const detailJoinSamples: number[] = [];
+    let dashboardResultCount = 0;
+    let detailJoinResultCount = 0;
+
+    for (let iteration = 0; iteration < iterations; iteration += 1) {
+      const dashboardResult = await runPowerSyncDashboardQuery({
+        db: session.db,
+        orgId,
+      });
+      const detailJoinResult = await runPowerSyncDetailJoinQuery({
+        db: session.db,
+        projectId,
+      });
+
+      dashboardSamples.push(dashboardResult.elapsedMs);
+      detailJoinSamples.push(detailJoinResult.elapsedMs);
+      dashboardResultCount = dashboardResult.resultCount;
+      detailJoinResultCount = detailJoinResult.resultCount;
+    }
+
+    const memoryMetrics = memorySampler.stop();
+    const cpuMetrics = cpuSampler.stop();
+
+    return {
+      status: 'completed',
+      metrics: {
+        org_count: 1,
+        project_count: 4,
+        row_count: 100_000,
+        iterations,
+        dashboard_query_p50_ms: percentile(dashboardSamples, 50),
+        dashboard_query_p95_ms: percentile(dashboardSamples, 95),
+        detail_join_query_p50_ms: percentile(detailJoinSamples, 50),
+        detail_join_query_p95_ms: percentile(detailJoinSamples, 95),
+        dashboard_result_count: dashboardResultCount,
+        detail_join_result_count: detailJoinResultCount,
+        avg_memory_mb: memoryMetrics.avgMemoryMb,
+        peak_memory_mb: memoryMetrics.peakMemoryMb,
+        avg_cpu_pct: cpuMetrics.avgCpuPct,
+        peak_cpu_pct: cpuMetrics.peakCpuPct,
+      },
+      notes: [
+        'Deep relationship benchmarks run against the native PowerSync local SQLite cache after organizations, projects, and tasks all finish syncing.',
+        'The workload covers an organization dashboard rollup and a project-scoped detail join over the same local relational dataset.',
+      ],
+      metadata: {
+        implementation: 'powersync-node-deep-relationship-query',
+        productVersion: '0.18.0',
+      },
+    };
+  } finally {
+    memorySampler.stop();
+    cpuSampler.stop();
+    await session.destroy();
+  }
+}
+
+async function runPowerSyncLocalListQuery(args: {
+  db: PowerSyncDatabase;
+  projectId: string;
+  ownerId: string;
+}): Promise<LocalQuerySample> {
+  const startedAt = performance.now();
+  const rows = await args.db.getAll<{
+    id: string;
+    title: string;
+    updated_at: string;
+  }>(
+    `select id, title, updated_at
+     from tasks
+     where project_id = ? and owner_id = ? and completed = 0
+     order by updated_at desc
+     limit 50`,
+    [args.projectId, args.ownerId]
+  );
+
+  return {
+    elapsedMs: round(performance.now() - startedAt),
+    resultCount: rows.length,
+  };
+}
+
+async function runPowerSyncLocalSearchQuery(args: {
+  db: PowerSyncDatabase;
+  projectId: string;
+}): Promise<LocalQuerySample> {
+  const startedAt = performance.now();
+  const rows = await args.db.getAll<{ id: string; title: string }>(
+    `select id, title
+     from tasks
+     where project_id = ? and id like ?
+     order by id asc
+     limit 100`,
+    [args.projectId, 'org-1-project-1-task-00%']
+  );
+
+  return {
+    elapsedMs: round(performance.now() - startedAt),
+    resultCount: rows.length,
+  };
+}
+
+async function runPowerSyncLocalAggregateQuery(args: {
+  db: PowerSyncDatabase;
+  projectId: string;
+}): Promise<LocalQuerySample> {
+  const startedAt = performance.now();
+  const rows = await args.db.getAll<{
+    owner_id: string;
+    completed: number;
+    task_count: number;
+  }>(
+    `select owner_id, completed, count(*) as task_count
+     from tasks
+     where project_id = ?
+     group by owner_id, completed`,
+    [args.projectId]
+  );
+
+  return {
+    elapsedMs: round(performance.now() - startedAt),
+    resultCount: rows.length,
+  };
+}
+
 async function runOfflineReplayCase(args: {
   queueSize: number;
   titlePrefix: string;
@@ -623,6 +904,103 @@ async function waitForRowCount(
   throw new Error(
     `PowerSync expected ${expectedRows} rows in local SQLite, got ${actualRows}`
   );
+}
+
+async function countRowsForTable(
+  db: PowerSyncDatabase,
+  tableName: 'organizations' | 'projects'
+): Promise<number> {
+  const row = await db.get<{ count: number | string }>(
+    `select count(*) as count from ${tableName}`
+  );
+  return Number(row.count);
+}
+
+async function waitForTableRowCount(
+  db: PowerSyncDatabase,
+  tableName: 'organizations' | 'projects',
+  expectedRows: number,
+  timeoutMs = 60_000
+): Promise<number> {
+  const startedAt = Date.now();
+
+  while (Date.now() - startedAt < timeoutMs) {
+    const rowsLoaded = await countRowsForTable(db, tableName);
+    if (rowsLoaded === expectedRows) {
+      return rowsLoaded;
+    }
+    await sleep(50);
+  }
+
+  const actualRows = await countRowsForTable(db, tableName);
+  throw new Error(
+    `PowerSync expected ${expectedRows} rows in ${tableName}, got ${actualRows}`
+  );
+}
+
+async function runPowerSyncDashboardQuery(args: {
+  db: PowerSyncDatabase;
+  orgId: string;
+}): Promise<LocalQuerySample> {
+  const startedAt = performance.now();
+  const rows = await args.db.getAll<{
+    org_name: string;
+    project_id: string;
+    project_name: string;
+    task_count: number;
+    open_task_count: number;
+  }>(
+    `select
+       organizations.name as org_name,
+       projects.id as project_id,
+       projects.name as project_name,
+       count(tasks.id) as task_count,
+       sum(case when tasks.completed = 0 then 1 else 0 end) as open_task_count
+     from organizations
+     join projects on projects.org_id = organizations.id
+     left join tasks on tasks.project_id = projects.id
+     where organizations.id = ?
+     group by organizations.name, projects.id, projects.name
+     order by open_task_count desc, projects.id asc
+     limit 20`,
+    [args.orgId]
+  );
+
+  return {
+    elapsedMs: round(performance.now() - startedAt),
+    resultCount: rows.length,
+  };
+}
+
+async function runPowerSyncDetailJoinQuery(args: {
+  db: PowerSyncDatabase;
+  projectId: string;
+}): Promise<LocalQuerySample> {
+  const startedAt = performance.now();
+  const rows = await args.db.getAll<{
+    id: string;
+    title: string;
+    project_name: string;
+    org_name: string;
+  }>(
+    `select
+       tasks.id,
+       tasks.title,
+       projects.name as project_name,
+       organizations.name as org_name
+     from tasks
+     join projects on projects.id = tasks.project_id
+     join organizations on organizations.id = projects.org_id
+     where projects.id = ? and tasks.id like ?
+     order by tasks.id asc
+     limit 100`,
+    [args.projectId, 'org-1-project-1-task-00%']
+  );
+
+  return {
+    elapsedMs: round(performance.now() - startedAt),
+    resultCount: rows.length,
+  };
 }
 
 async function getTaskTitle(
