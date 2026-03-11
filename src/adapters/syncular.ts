@@ -10,7 +10,11 @@ import {
   type ClientTableHandler,
 } from '../../../syncular/packages/client/src/index.ts';
 import {
+  bytesToReadableStream,
   decodeSnapshotRows,
+  readAllBytesFromStream,
+  SYNC_SNAPSHOT_CHUNK_COMPRESSION,
+  SYNC_SNAPSHOT_CHUNK_ENCODING,
   type SyncCombinedRequest,
   type ScopeValues,
   type SyncCombinedResponse,
@@ -982,6 +986,37 @@ function isJsonRecord(value: unknown): value is Record<string, JsonValue> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+async function decodeSyncularSnapshotChunkRows(args: {
+  chunk: NonNullable<
+    NonNullable<SyncPullSubscriptionResponse['snapshots']>[number]['chunks']
+  >[number];
+  bytes: Uint8Array;
+}): Promise<unknown[]> {
+  if (args.chunk.encoding !== SYNC_SNAPSHOT_CHUNK_ENCODING) {
+    throw new Error(
+      `Unexpected snapshot chunk encoding: ${args.chunk.encoding}`
+    );
+  }
+
+  if (args.chunk.compression !== SYNC_SNAPSHOT_CHUNK_COMPRESSION) {
+    throw new Error(
+      `Unexpected snapshot chunk compression: ${args.chunk.compression}`
+    );
+  }
+
+  if (typeof DecompressionStream === 'undefined') {
+    throw new Error(
+      'Snapshot chunk gzip decompression is not available in this runtime'
+    );
+  }
+
+  const decompressedStream = bytesToReadableStream(args.bytes).pipeThrough(
+    new DecompressionStream('gzip') as TransformStream<Uint8Array, Uint8Array>
+  );
+  const decompressedBytes = await readAllBytesFromStream(decompressedStream);
+  return decodeSnapshotRows(decompressedBytes);
+}
+
 async function materializeSyncularSnapshotRows(args: {
   snapshot: NonNullable<SyncPullSubscriptionResponse['snapshots']>[number];
   transport: ReturnType<typeof createHttpTransport>;
@@ -1012,7 +1047,11 @@ async function materializeSyncularSnapshotRows(args: {
     }
 
     const decodeStartedAt = performance.now();
-    for (const decodedRow of decodeSnapshotRows(bytes)) {
+    const decodedRows = await decodeSyncularSnapshotChunkRows({
+      chunk,
+      bytes,
+    });
+    for (const decodedRow of decodedRows) {
       if (!isJsonRecord(decodedRow)) {
         throw new Error('Syncular snapshot chunk contained a non-object row');
       }
@@ -1046,7 +1085,11 @@ async function materializeSyncularSnapshotJsonRows(args: {
       scopeValues: args.scopeValues,
     });
 
-    for (const decodedRow of decodeSnapshotRows(bytes)) {
+    const decodedRows = await decodeSyncularSnapshotChunkRows({
+      chunk,
+      bytes,
+    });
+    for (const decodedRow of decodedRows) {
       if (!isJsonRecord(decodedRow)) {
         throw new Error('Syncular snapshot chunk contained a non-object row');
       }

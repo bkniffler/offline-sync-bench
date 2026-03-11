@@ -8,7 +8,7 @@ export const stacks: StackSpec[] = [
     title: 'Syncular',
     composeFile: `${benchmarkRoot}/stacks/syncular/docker-compose.yml`,
     composeProjectName: 'offline-sync-bench-syncular',
-    buildFingerprintPaths: [syncularRoot],
+    buildFingerprintPaths: [syncularRoot, `${benchmarkRoot}/stacks/syncular`],
     databaseUrl: 'postgresql://bench:bench@localhost:55432/bench?sslmode=disable',
     adminBaseUrl: 'http://localhost:3211',
     syncBaseUrl: 'http://localhost:3210/api',

@@ -105,7 +105,20 @@ function parseFlag(flag: string): string | null {
 }
 
 function parseStackFlag(): StackId {
+  const stackId = parseOptionalStackFlag();
+  if (!stackId) {
+    throw new Error(
+      '--stack must be one of: syncular, electric, zero, powersync, replicache, livestore'
+    );
+  }
+  return stackId;
+}
+
+function parseOptionalStackFlag(): StackId | null {
   const stackId = parseFlag('--stack');
+  if (stackId == null) {
+    return null;
+  }
   if (
     stackId !== 'syncular' &&
     stackId !== 'electric' &&
@@ -286,6 +299,7 @@ async function runSingleCommand(): Promise<void> {
 
 async function runAllCommand(): Promise<void> {
   const context = await createRunContext();
+  const requestedStackId = parseOptionalStackFlag();
   const scenarioIds: ScenarioId[] = [
     'bootstrap',
     'online-propagation',
@@ -297,9 +311,12 @@ async function runAllCommand(): Promise<void> {
     'permission-change',
     'blob-flow',
   ];
+  const targetStacks = requestedStackId
+    ? stacks.filter((stack) => stack.id === requestedStackId)
+    : stacks;
   const results: BenchmarkResult[] = [];
 
-  for (const stack of stacks) {
+  for (const stack of targetStacks) {
     const adapter = createAdapter(stack.id);
     for (const scenarioId of scenarioIds) {
       console.log(`[run-all] ${stack.id} ${scenarioId}`);

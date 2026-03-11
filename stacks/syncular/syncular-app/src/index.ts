@@ -20,6 +20,7 @@ import { createPostgresServerDialect } from '@syncular/server-dialect-postgres';
 import {
   createBlobRoutes,
   createSyncServer,
+  getSyncWebSocketConnectionManager,
 } from '@syncular/server-hono';
 import { Hono } from 'hono';
 import { upgradeWebSocket, websocket } from 'hono/bun';
@@ -379,6 +380,7 @@ const { syncRoutes } = createSyncServer<BenchDb, BenchAuth>({
   },
   upgradeWebSocket,
 });
+const wsConnectionManager = getSyncWebSocketConnectionManager(syncRoutes);
 
 const app = new Hono();
 const blobRoutes = createBlobRoutes({
@@ -482,6 +484,7 @@ app.post('/benchmark/external-write', async (c) => {
       },
     ],
   });
+  wsConnectionManager?.notifyAllClients(notifyResult.commitSeq);
 
   return c.json({
     ok: true,
