@@ -12,11 +12,12 @@
         "@powersync/node": "^0.18.0",
         "@powersync/web": "^1.35.0",
         "@rocicorp/zero": "^0.25.13",
-        "@syncular/client": "^0.0.6-185",
-        "@syncular/core": "^0.0.6-185",
-        "@syncular/dialect-bun-sqlite": "^0.0.6-185",
-        "@syncular/transport-http": "^0.0.6-185",
-        "@syncular/transport-ws": "^0.0.6-185",
+        "@syncular/client": "^0.0.6-237",
+        "@syncular/client-plugin-blob": "^0.0.6-237",
+        "@syncular/core": "^0.0.6-237",
+        "@syncular/dialect-bun-sqlite": "^0.0.6-237",
+        "@syncular/transport-http": "^0.0.6-237",
+        "@syncular/transport-ws": "^0.0.6-237",
         "better-sqlite3": "^12.6.2",
         "esbuild": "^0.27.3",
         "fake-indexeddb": "^6.2.5",
@@ -25,7 +26,7 @@
         "kysely": "^0.28.11",
         "postgres": "^3.4.8",
         "replicache": "^15.3.0",
-        "syncular": "^0.0.6-185",
+        "syncular": "^0.0.6-237",
       },
       "devDependencies": {
         "@types/bun": "^1.3.10",
@@ -816,6 +817,14 @@
 
     "@rollup/rollup-win32-x64-msvc": ["@rollup/rollup-win32-x64-msvc@4.59.0", "", { "os": "win32", "cpu": "x64" }, "sha512-2HRCml6OztYXyJXAvdDXPKcawukWY2GpR5/nxKp4iBgiO3wcoEGkAaqctIbZcNB6KlUQBIqt8VYkNSj2397EfA=="],
 
+    "@scalar/core": ["@scalar/core@0.4.3", "", { "dependencies": { "@scalar/types": "0.7.3" } }, "sha512-Fp/J5RyajknwZrDG5/nsJRxL07cS2gJ9wvnvIWcFgsR8HWy/7qMQ+PtpYhdBmMYiBAql1JJobKTu/7ZWqnHaFA=="],
+
+    "@scalar/helpers": ["@scalar/helpers@0.4.1", "", {}, "sha512-XfyYqSUA597wfzS8lmMY1xvYv4si2WytuoBWj7JDpx3E/lVq7YEsticXF/Q30ttFVRBfgQErg8MQI6b6IkZr2Q=="],
+
+    "@scalar/hono-api-reference": ["@scalar/hono-api-reference@0.10.3", "", { "dependencies": { "@scalar/core": "0.4.3" }, "peerDependencies": { "hono": "^4.12.5" } }, "sha512-bdueh25lDTx8US5qJux4L3LlkXwqe64kUnPEGqFmjAYfNfDJI3KknCgq43P9aikO07wnqpPNRYGj8sxOEubidw=="],
+
+    "@scalar/types": ["@scalar/types@0.7.3", "", { "dependencies": { "@scalar/helpers": "0.4.1", "nanoid": "^5.1.6", "type-fest": "^5.3.1", "zod": "^4.3.5" } }, "sha512-9ThydMH28aA5DMm8Q/nTKXKnAKejG7Awlj7IC99oXkq5aOJ60Sn0kS1RWaqQosaWI3ezyPJ7/sUglssAEMA6EA=="],
+
     "@scure/base": ["@scure/base@2.0.0", "", {}, "sha512-3E1kpuZginKkek01ovG8krQ0Z44E3DHPjc5S2rjJw9lZn3KSQOs8S7wqikF/AH7iRanHypj85uGyxk0XAyC37w=="],
 
     "@scure/bip39": ["@scure/bip39@2.0.1", "", { "dependencies": { "@noble/hashes": "2.0.1", "@scure/base": "2.0.0" } }, "sha512-PsxdFj/d2AcJcZDX1FXN3dDgitDDTmwf78rKZq1a6c1P1Nan1X/Sxc7667zU3U+AN60g7SxxP0YCVw2H/hBycg=="],
@@ -854,77 +863,79 @@
 
     "@subframe7536/sqlite-wasm": ["@subframe7536/sqlite-wasm@0.5.8", "", {}, "sha512-5JsbXYmTq3lKuH3edyXBme0SOGYSDLkunapgNGnTOQtYL/DcHqh2aVoSh8ad9+3RYd1m5X0xKFiS+sO6BXDTDA=="],
 
-    "@syncular/client": ["@syncular/client@0.0.6-185", "", { "dependencies": { "@syncular/core": "0.0.6-185", "@syncular/transport-http": "0.0.6-185" }, "peerDependencies": { "kysely": "*" } }, "sha512-5S4xJMctgmj9K1VY/GjSSiB8BUrQKDiwcomL2o/fU/TzFtBnCDoqVXskwmLIPPgMyPspqCRCWAxuCJ4iBH92mg=="],
+    "@syncular/client": ["@syncular/client@0.0.6-237", "", { "dependencies": { "@syncular/core": "0.0.6-237", "@syncular/transport-http": "0.0.6-237" }, "peerDependencies": { "kysely": "*" } }, "sha512-36MzJXGufV4jb0v0WcfhAFkMNpsZRDZI69DFk7Z847pAE2Jo7cIygP+GIyyKNqT7qPdRWVzkIXp2uu8sYgTO6A=="],
 
-    "@syncular/client-plugin-encryption": ["@syncular/client-plugin-encryption@0.0.6-185", "", { "dependencies": { "@noble/ciphers": "^2.1.1", "@noble/curves": "^2.0.1", "@noble/hashes": "^2.0.1", "@scure/bip39": "^2.0.1", "@syncular/client": "0.0.6-185", "@syncular/core": "0.0.6-185" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-av+lHXVWkXQpBolK3cjOVcV88htY+0+hwfq4ON0dL3Lwi2srzLOscbutug7WoiSe/hK4NDlmCCzzh2PyceLZJw=="],
+    "@syncular/client-plugin-blob": ["@syncular/client-plugin-blob@0.0.6-237", "", { "dependencies": { "@syncular/client": "0.0.6-237", "@syncular/core": "0.0.6-237", "@syncular/transport-http": "0.0.6-237" }, "peerDependencies": { "kysely": "*" } }, "sha512-KL081a+QdIk+43ugeH8j+KjDqlrTRvq67qxFymRzeCY6a0LyksboLe9OE2gtezGnWqX4hmnLSugqSUwZ3KvrAw=="],
 
-    "@syncular/client-plugin-offline-auth": ["@syncular/client-plugin-offline-auth@0.0.6-185", "", { "dependencies": { "@syncular/core": "0.0.6-185" } }, "sha512-m0qjYW9Y47KeiXM5O9ELTikchhgjIZz+U4S6/cLXXwPKq4KmMm03OO2cvbSyDxE/JwZwRq02lR3E9ozZoppp1g=="],
+    "@syncular/client-plugin-encryption": ["@syncular/client-plugin-encryption@0.0.6-237", "", { "dependencies": { "@noble/ciphers": "^2.1.1", "@noble/curves": "^2.0.1", "@noble/hashes": "^2.0.1", "@scure/bip39": "^2.0.1", "@syncular/client": "0.0.6-237", "@syncular/core": "0.0.6-237" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-VeyfsbKCdcPl6CWbbXOGzFxbnX0p9v4LsPJLuI0Tzzj54apEa9csIIGaaEuB+E9c2Z5YGGfxQhP9V5SBXZHuzQ=="],
 
-    "@syncular/client-plugin-offline-auth-react": ["@syncular/client-plugin-offline-auth-react@0.0.6-185", "", { "dependencies": { "@syncular/client-plugin-offline-auth": "0.0.6-185" }, "peerDependencies": { "react": "^18.0.0 || ^19.0.0" } }, "sha512-kqnLHxGiOC1eKJdm/Ay1FtTW1UH27roc5QHpld/6DBnTfkxalZiBV0pmcm+vFoBK4xhYkLJnH8yqp/nxtRsd4w=="],
+    "@syncular/client-plugin-offline-auth": ["@syncular/client-plugin-offline-auth@0.0.6-237", "", { "dependencies": { "@syncular/core": "0.0.6-237" } }, "sha512-vnwnb5UyJD1qiedyd9BfTD/I/JYOaTFYX1X+2T29cWwlDFFQRVW1OlfAZINXFlHtWzKIZk/BhmBzZ2q9bahPaw=="],
 
-    "@syncular/client-plugin-yjs": ["@syncular/client-plugin-yjs@0.0.6-185", "", { "dependencies": { "@syncular/client": "0.0.6-185", "yjs": "^13.6.29" } }, "sha512-yGLgp21hl1+C+dTSlPRigNs5KtzFh5nbvSb9oOVVvraq0ItCwpTCWLfoz6GOjKJCHPr6gmznrjMh937+eTteCA=="],
+    "@syncular/client-plugin-offline-auth-react": ["@syncular/client-plugin-offline-auth-react@0.0.6-237", "", { "dependencies": { "@syncular/client-plugin-offline-auth": "0.0.6-237" }, "peerDependencies": { "react": "^18.0.0 || ^19.0.0" } }, "sha512-L2wXFSbV4wcRO2LJMwPZh1QVJeiQrIhn9AOusb8BVKNItEVyu1M3Z8kvXwHQWqdkHrd0BRTVhwWgG9pNxp9oiA=="],
 
-    "@syncular/client-react": ["@syncular/client-react@0.0.6-185", "", { "dependencies": { "@syncular/client": "0.0.6-185" }, "peerDependencies": { "kysely": "^0.28.0", "react": "^18.0.0 || ^19.0.0" } }, "sha512-gXCfM+KNyLOi7oC95Dc9OdAYBPuojTSrF9bbKYHJ979BKHxLvDVUyuZKdzaoIO/APn1UZtLsPWafGdH/STK7xA=="],
+    "@syncular/client-plugin-yjs": ["@syncular/client-plugin-yjs@0.0.6-237", "", { "dependencies": { "@syncular/client": "0.0.6-237", "yjs": "^13.6.29" } }, "sha512-L8yQVGUG70BrOztnq0GeaPDoDONDr4WsNOVJFYH7lJ+xgaU8KI+b5iYZKv4Ta8KEwX9ftNkhtfgQkD35bpdZBw=="],
 
-    "@syncular/console": ["@syncular/console@0.0.6-185", "", { "dependencies": { "@syncular/observability-sentry": "0.0.6-185", "@syncular/transport-http": "0.0.6-185", "@syncular/ui": "0.0.6-185", "@tanstack/react-query": "^5.90.21", "@tanstack/react-router": "^1.163.2", "lucide-react": "^0.575.0" }, "peerDependencies": { "react": "^19.0.0", "react-dom": "^19.0.0" } }, "sha512-MUUdFxh6Zcv9lGmHTbvLjZgokOw4qd/u85ln/YdoQpe5BYWZV0TD60JCZBa9uwBfHFFg7cFwV1l4pt6qZItL/Q=="],
+    "@syncular/client-react": ["@syncular/client-react@0.0.6-237", "", { "dependencies": { "@syncular/client": "0.0.6-237" }, "peerDependencies": { "kysely": "^0.28.0", "react": "^18.0.0 || ^19.0.0" } }, "sha512-1uDotGO4yeb76B6z0udjHfKKHu25EV973/HgsLpRj7H64u4w3uO8KFYZQiVXEFwDV/agIvD6o4dnLurU2ARjuw=="],
 
-    "@syncular/core": ["@syncular/core@0.0.6-185", "", { "peerDependencies": { "kysely": "^0.28.0", "zod": "^4.0.0" } }, "sha512-l0iD94Ob9fb+CL387FCmqi8ZyTH5IqSzVBVT+UbeSOOfXLyLmiGiSRP2aLtN5L3Bj+8lu/hH5kCSGiTROkUu2w=="],
+    "@syncular/console": ["@syncular/console@0.0.6-237", "", { "dependencies": { "@syncular/observability-sentry": "0.0.6-237", "@syncular/transport-http": "0.0.6-237", "@syncular/ui": "0.0.6-237", "@tanstack/react-query": "^5.90.21", "@tanstack/react-router": "^1.163.2", "lucide-react": "^0.575.0" }, "peerDependencies": { "react": "^19.0.0", "react-dom": "^19.0.0" } }, "sha512-+pfqDsR+WZU1VAFoKYp0MqVSUg/x0+D5ZGuSg6ZCR7UUM8mPr8EFYEwRTnCuUXvbXRqcBeT+z8yuQ7gfL7Rk5Q=="],
 
-    "@syncular/dialect-better-sqlite3": ["@syncular/dialect-better-sqlite3@0.0.6-185", "", { "dependencies": { "@types/better-sqlite3": "^7.6.13", "better-sqlite3": "^12.6.2" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-kBaUbIcGS2BJ3gKdWcFBHX2eBH3rNm5Sup7l9t6motRsfXhhyG8pc8OQnMsrzGTpqgH5UMrPVrmgd3OpEegx1w=="],
+    "@syncular/core": ["@syncular/core@0.0.6-237", "", { "dependencies": { "fflate": "^0.8.2" }, "peerDependencies": { "kysely": "^0.28.0", "zod": "^4.0.0" } }, "sha512-bhxhu+tHT7CcFZfg0a1BSzbGDBfxwAi2CC2rZzEAJSj/N2zPkk5zZHsgRHMRwubavQon42mJdedGYtEkxuxwRQ=="],
 
-    "@syncular/dialect-bun-sqlite": ["@syncular/dialect-bun-sqlite@0.0.6-185", "", { "dependencies": { "kysely-bun-sqlite": "^0.4.0" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-5uuqQhlOpMX+QG56x4vEKHgnfzlvNE6MTQIGdN06aults/XNM4Wd9qmjB4JPupwF5eu/eqdOiH13iSK12tvMlg=="],
+    "@syncular/dialect-better-sqlite3": ["@syncular/dialect-better-sqlite3@0.0.6-237", "", { "dependencies": { "@types/better-sqlite3": "^7.6.13", "better-sqlite3": "^12.6.2" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-8HdRVhS7INmXXhKTcqcTaUEoUab+CkNJws5CTeqhvkdwjdmV9eUWPDuuOvxnmi9sss52SuWmo7Ga+Al4Xeb0kQ=="],
 
-    "@syncular/dialect-d1": ["@syncular/dialect-d1@0.0.6-185", "", { "dependencies": { "@cloudflare/workers-types": "*", "kysely-d1": "^0.4.0" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-Bx0HoFtGYHJA4bYq3/Np7ryc72hnTnWZrf2htSpwbPSwDVO3PdvftBCmdMkv3uMpLrP3lAm6Ivg+J9jgjcGWRg=="],
+    "@syncular/dialect-bun-sqlite": ["@syncular/dialect-bun-sqlite@0.0.6-237", "", { "dependencies": { "kysely-bun-sqlite": "^0.4.0" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-+b6wQ/TvNUvNmGr+8MGudH+2qGtl0IuzhhthzKdb/Z7ydZaZ4yDpMgFLtuyX4IuAkd6HqY0fDpBegUkG6t7GQQ=="],
 
-    "@syncular/dialect-electron-sqlite": ["@syncular/dialect-electron-sqlite@0.0.6-185", "", { "dependencies": { "kysely-generic-sqlite": "^1.2.1" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-/gUtYb9DGlb4tQhJa5a8b8glYghXOsw4bmDSc/qx8aIH06bxuk8WnhiY/CzFaAyLLGsDOhfdTjNOkrqnF9XIZA=="],
+    "@syncular/dialect-d1": ["@syncular/dialect-d1@0.0.6-237", "", { "dependencies": { "@cloudflare/workers-types": "*", "kysely-d1": "^0.4.0" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-SeQVkeCEN3XWqXhcLA1DHR4QaH5B57pqkEwzm+XnFzh215ldvOVZRcq/+uhqLs5m2tyFJ2QWR0z1zAsElSP5pg=="],
 
-    "@syncular/dialect-expo-sqlite": ["@syncular/dialect-expo-sqlite@0.0.6-185", "", { "dependencies": { "kysely-generic-sqlite": "^1.2.1" }, "peerDependencies": { "expo-sqlite": "*", "kysely": "^0.28.0" } }, "sha512-hZ+75ZCM4PBQuRszv2yhZ1pphVkVgFzxgpx28ei0+IIK0wViy9oOgCKZYHpk8Njq1EtLMhkhCvYxXLChuZSIEQ=="],
+    "@syncular/dialect-electron-sqlite": ["@syncular/dialect-electron-sqlite@0.0.6-237", "", { "dependencies": { "kysely-generic-sqlite": "^1.2.1" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-7QUn8I7ENzXubZ8b7x424qnvegK/Ib1kUaE35fyo3Gy2XTYF1VToeTp9+DV+nicuGYMXTV9uj/DKZ68BmBhhfA=="],
 
-    "@syncular/dialect-libsql": ["@syncular/dialect-libsql@0.0.6-185", "", { "dependencies": { "libsql": "^0.5.22" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-Vt+qgADRHjiB7nBRn7qjlKxO9MalhIAoieuGa804pfvRtVKd8fDSCx2C0DNOsT4wsqAkyJ6GB0vVEU2Jd99mjw=="],
+    "@syncular/dialect-expo-sqlite": ["@syncular/dialect-expo-sqlite@0.0.6-237", "", { "dependencies": { "kysely-generic-sqlite": "^1.2.1" }, "peerDependencies": { "expo-sqlite": "*", "kysely": "^0.28.0" } }, "sha512-vCQengxD9+3hF5ca72+YLMySS75hcjpS//ScOBlucd6KSXlqzHOPOqK/VQTGMO+66ceuvFqjc4eRDwig4J97ww=="],
 
-    "@syncular/dialect-neon": ["@syncular/dialect-neon@0.0.6-185", "", { "dependencies": { "@neondatabase/serverless": "^1.0.2", "kysely-neon": "^2.0.2" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-QLxG5WPlEWCRdERAgizIdCcNH6FeUGQfN4Tiep/Mb8aFoSzC6ByIe/GldOyJpi0o99QO+otvL7glGHRo5HFYgQ=="],
+    "@syncular/dialect-libsql": ["@syncular/dialect-libsql@0.0.6-237", "", { "dependencies": { "libsql": "^0.5.22" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-ivuijS5F3UViNGfpKeLuZiu6eNcnNLuoeaxt47ocLyTUDFu9a9rjI0YejXgff03yQZch3EnSpn3lq9Fr7JUCVw=="],
 
-    "@syncular/dialect-pglite": ["@syncular/dialect-pglite@0.0.6-185", "", { "dependencies": { "@electric-sql/pglite": "^0.3.15", "kysely-pglite-dialect": "^1.2.0" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-FttPAsWSDP1n1uHHnFkEm8lzZfJOJNrLMLsclnNcSew6c1r6SmQQstntI8klE/VCPspu0PGY911g3SIzsptlAw=="],
+    "@syncular/dialect-neon": ["@syncular/dialect-neon@0.0.6-237", "", { "dependencies": { "@neondatabase/serverless": "^1.0.2", "kysely-neon": "^2.0.2" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-Uhy7pQXTKcF1RWiFHDYLD0UmfKfwo9aS+dN/rpYJqHfnkHGYy0d+YxQ7KCQeZc9VNXdYOOovwbHDh7x63z6i6w=="],
 
-    "@syncular/dialect-react-native-nitro-sqlite": ["@syncular/dialect-react-native-nitro-sqlite@0.0.6-185", "", { "dependencies": { "kysely-generic-sqlite": "^1.2.1" }, "peerDependencies": { "kysely": "^0.28.0", "react-native-nitro-sqlite": ">=0.1.0" } }, "sha512-73LjDEgAhWXvPHGTbZQU5tsLJAw+Y0qaMSr/kAK3FWbnT9n/TWyXFz6VdVOoEU2ttvo8eq71nsJphpPdHJuUOg=="],
+    "@syncular/dialect-pglite": ["@syncular/dialect-pglite@0.0.6-237", "", { "dependencies": { "@electric-sql/pglite": "^0.3.15", "kysely-pglite-dialect": "^1.2.0" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-5DCXe0v4R5TupnUh3jrUTgqBb2BhuqrEYjQZUPMj11XhctYLHBWHRcqhbSy23ClkaOdkG+fTkybcnR579GSSYQ=="],
 
-    "@syncular/dialect-sqlite3": ["@syncular/dialect-sqlite3@0.0.6-185", "", { "dependencies": { "kysely-generic-sqlite": "^1.2.1", "sqlite3": "^5.1.7" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-wVLPv3OHaqa6kY6R3g4gn+cvpe4jijNHWa8OyIkcIRh20uzy2P4iPUQ45rqZlIaIUfkrkX4qE2m5I5vApH+FtQ=="],
+    "@syncular/dialect-react-native-nitro-sqlite": ["@syncular/dialect-react-native-nitro-sqlite@0.0.6-237", "", { "dependencies": { "kysely-generic-sqlite": "^1.2.1" }, "peerDependencies": { "kysely": "^0.28.0", "react-native-nitro-sqlite": ">=0.1.0" } }, "sha512-hU42/1lFl5N2lvxb5askv2mRu9tzy7hsbnnvOGXcJJHJbryr/GMJ0f+WIVm1wczurXbrSIgDWVAsRBE4/Vye+w=="],
 
-    "@syncular/dialect-wa-sqlite": ["@syncular/dialect-wa-sqlite@0.0.6-185", "", { "dependencies": { "@subframe7536/sqlite-wasm": "^0.5.8", "kysely-generic-sqlite": "^1.2.1", "kysely-wasqlite-worker": "^1.2.1" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-NGh4JjcL9FnvKOSrDkJVZzFDPKXYvJLx+mSYEnHTImqhUdp3QSeXTF7jMtwW+SOpmJu/2E/LhwzKlXi5xoE4iw=="],
+    "@syncular/dialect-sqlite3": ["@syncular/dialect-sqlite3@0.0.6-237", "", { "dependencies": { "kysely-generic-sqlite": "^1.2.1", "sqlite3": "^5.1.7" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-UFBomsRfYbgi8M/8rypGezOcQL3RKffp1DrOchB6IG2eM7SaZQSkaupDaHnrREVBVEgQaEyndEsTU5oFUCyMRw=="],
 
-    "@syncular/migrations": ["@syncular/migrations@0.0.6-185", "", { "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-txih4PuGl4MxdjVC5tOknQK8NA9kWaNariU0TDasCLxbeozVA+f4jxTyFvOsp/P3OXM1SPDs0H/UKY2XvOoCvA=="],
+    "@syncular/dialect-wa-sqlite": ["@syncular/dialect-wa-sqlite@0.0.6-237", "", { "dependencies": { "@subframe7536/sqlite-wasm": "^0.5.8", "kysely-generic-sqlite": "^1.2.1", "kysely-wasqlite-worker": "^1.2.1" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-7kKpPIaj8ZEi7+ITT/t7oHFoPWX4PghJ16NJDCFfToo66ZUHUnIGIYJCJz1OQ259THmbcHXLXv1zAgT7/iavIQ=="],
 
-    "@syncular/observability-sentry": ["@syncular/observability-sentry@0.0.6-185", "", { "dependencies": { "@sentry/cloudflare": "^10.40.0", "@sentry/react": "^10.40.0", "@syncular/core": "0.0.6-185" } }, "sha512-SLJ/YDvnmaX6wCKU1mD2UzWb9dL0a3wRZmIyX9yQpsu5OaOZeW2wgan9LL45uEny+7kVV1AeOo5KOT/9cS8igw=="],
+    "@syncular/migrations": ["@syncular/migrations@0.0.6-237", "", { "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-jk+AWiJf/+/V3nteFLqz/AqdrATe2PQEca5HnzuM8raS9FlQrga+r1cIiZF4aGo0GpyVVHKlWWh5QyvTuxn20g=="],
 
-    "@syncular/relay": ["@syncular/relay@0.0.6-185", "", { "dependencies": { "@syncular/core": "0.0.6-185", "@syncular/server": "0.0.6-185" }, "peerDependencies": { "hono": "^4.0.0", "kysely": "^0.28.0" } }, "sha512-Itv80Z4lISxjPQ+GESFjY+ghaukpSaJrMby834lbzLGqgDrwwukuISPJAWDDBLC1WN8HSduRPGa5EIlrHDMmYw=="],
+    "@syncular/observability-sentry": ["@syncular/observability-sentry@0.0.6-237", "", { "dependencies": { "@sentry/cloudflare": "^10.40.0", "@sentry/react": "^10.40.0", "@syncular/core": "0.0.6-237" } }, "sha512-eujSLoKBlLtBKFkQBDOLGi+CO9ppcX10AkkPE9Y5vOBq60f9nVV7BieafzNEgQPpPUdGB2hc0dlYXBOZX0zEGg=="],
 
-    "@syncular/server": ["@syncular/server@0.0.6-185", "", { "dependencies": { "@syncular/core": "0.0.6-185" }, "peerDependencies": { "kysely": "^0.28.0", "zod": "^4.0.0" } }, "sha512-bwiaqKW+n7oQbb8WKzC2wom3ZhYB43RL42AEyNg7RmdoK891BvodkEJ6+YYykEljTni05byB1OlQBMb3iY/U5w=="],
+    "@syncular/relay": ["@syncular/relay@0.0.6-237", "", { "dependencies": { "@syncular/core": "0.0.6-237", "@syncular/server": "0.0.6-237" }, "peerDependencies": { "hono": "^4.0.0", "kysely": "^0.28.0" } }, "sha512-+uLxtgVk0Iiactp+HBZoghGNWH98qgeIGUNqhXVXVcdU6k/PFytnn2cTB7BVssGeRvIJpDl6ymBZAQKGLxoQoQ=="],
 
-    "@syncular/server-cloudflare": ["@syncular/server-cloudflare@0.0.6-185", "", { "peerDependencies": { "hono": "^4.0.0" } }, "sha512-rWak1c6upb9/2ILkgrX41pKcQt469RMsneQDBISkyg/2XcfNtWql8ks+3/cIXXPgs+vOGLczeu7MrOCJRokH3w=="],
+    "@syncular/server": ["@syncular/server@0.0.6-237", "", { "dependencies": { "@syncular/core": "0.0.6-237" }, "peerDependencies": { "kysely": "^0.28.0", "zod": "^4.0.0" } }, "sha512-coLn6G5Oclw9602//VeFyvPNDPsq7pbQztncstO8wBSBxQeww05AtmBvk81Cq/QlVapkW6N6MtHfxkFi57bmyQ=="],
 
-    "@syncular/server-dialect-postgres": ["@syncular/server-dialect-postgres@0.0.6-185", "", { "dependencies": { "@syncular/core": "0.0.6-185", "@syncular/server": "0.0.6-185" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-nuk/yKQKsHHxYMEXOs8erT3AUqOeQYEUsZvUq/aH0wC5erZg4Uc3OWqLpg+MdXRtcczjrTVmIFZbaSUFBrge8A=="],
+    "@syncular/server-cloudflare": ["@syncular/server-cloudflare@0.0.6-237", "", { "peerDependencies": { "hono": "^4.0.0" } }, "sha512-lGUdR5K4WlSnedpghTttuHRbF4Y/siwxaWmOupdUUaLe7r8ojo73d/jeNLDohKb52WZdTHG5V+JAzSxoJTgU8g=="],
 
-    "@syncular/server-dialect-sqlite": ["@syncular/server-dialect-sqlite@0.0.6-185", "", { "dependencies": { "@syncular/core": "0.0.6-185", "@syncular/server": "0.0.6-185" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-BpEHYGldPut4g3fNFeuyPWFHi6BejgTF4xP7ujEXrXM3YxeljJf4NwD3AhcZmLilY0bGIJysXhn3C6KO8ktg8A=="],
+    "@syncular/server-dialect-postgres": ["@syncular/server-dialect-postgres@0.0.6-237", "", { "dependencies": { "@syncular/core": "0.0.6-237", "@syncular/server": "0.0.6-237" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-AQs40tOyj0Ku67Kg076QAYVPUDWpeu0SBdmHxkJ1vgOIXzKQ/PZurNRuiP+f9+LSGmyG72dHUKqsKmnmGnmutA=="],
 
-    "@syncular/server-hono": ["@syncular/server-hono@0.0.6-185", "", { "dependencies": { "@hono/standard-validator": "^0.2.2", "@noble/hashes": "^2.0.1", "@standard-community/standard-json": "^0.3.5", "@standard-community/standard-openapi": "^0.2.9", "@syncular/console": "0.0.6-185", "@syncular/core": "0.0.6-185", "@syncular/server": "0.0.6-185", "@types/json-schema": "^7.0.15", "hono-openapi": "^1.2.0", "openapi-types": "^12.1.3" }, "peerDependencies": { "hono": "^4.0.0", "kysely": "^0.28.0", "zod": "^4.0.0" } }, "sha512-svWZCyM0CTmQ3zJpu2OEEOVUtH5JzZkVsD/sTA749RAWiYR9tw3NbVnWEuVHNT7YJivdY1EXG6ZMhG2TM8mg7Q=="],
+    "@syncular/server-dialect-sqlite": ["@syncular/server-dialect-sqlite@0.0.6-237", "", { "dependencies": { "@syncular/core": "0.0.6-237", "@syncular/server": "0.0.6-237" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-FPUGL0v2prltogvTQ64o6Ww3MDQTfPMuJ8Wkd30x87HrxybHYvkKpbCmOBd5BXbA3c69EtAFkVVKgW8/etTNtA=="],
 
-    "@syncular/server-plugin-yjs": ["@syncular/server-plugin-yjs@0.0.6-185", "", { "dependencies": { "@syncular/server": "0.0.6-185", "kysely": "^0.28.11", "yjs": "^13.6.29" } }, "sha512-aLWIaP3mbhofv8DhRq3hoOwdrsYK/aMri0kLd07tPwJNlxwErzdPm07zr17hbR6kLVZYOt3jd1Rm1VtSKDf/vA=="],
+    "@syncular/server-hono": ["@syncular/server-hono@0.0.6-237", "", { "dependencies": { "@hono/standard-validator": "^0.2.2", "@scalar/hono-api-reference": "^0.10.2", "@standard-community/standard-json": "^0.3.5", "@standard-community/standard-openapi": "^0.2.9", "@syncular/console": "0.0.6-237", "@syncular/core": "0.0.6-237", "@syncular/server": "0.0.6-237", "@types/json-schema": "^7.0.15", "hono-openapi": "^1.2.0", "openapi-types": "^12.1.3" }, "peerDependencies": { "hono": "^4.0.0", "kysely": "^0.28.0", "zod": "^4.0.0" } }, "sha512-kjPuOqRDIkB8wVYD8SnH2P5wIABlPbvjYh0GhlyWEMwnhEn1/hs5RKfubYSZByy1UchE5DONcX0iMU/hO3nlng=="],
 
-    "@syncular/server-service-worker": ["@syncular/server-service-worker@0.0.6-185", "", { "dependencies": { "@syncular/core": "0.0.6-185", "@syncular/transport-http": "0.0.6-185" } }, "sha512-uJ6vPJR6BREtQVSzLcw8PACjEPkmHFZJyqKdnOGaZSq8tBxcLGGLy/eMhRih5kevTHb1qr6zfdeGMjldTqY0JQ=="],
+    "@syncular/server-plugin-yjs": ["@syncular/server-plugin-yjs@0.0.6-237", "", { "dependencies": { "@syncular/server": "0.0.6-237", "kysely": "^0.28.11", "yjs": "^13.6.29" } }, "sha512-61NRgUDXJQO5yr4TIi9J7bvSyF736iGrsjiI+hMwAK4U9nmyBlJ12f/l+r8cZy8/LtaoB+ZOJvipOZEn2WQjVw=="],
 
-    "@syncular/server-storage-filesystem": ["@syncular/server-storage-filesystem@0.0.6-185", "", { "dependencies": { "@syncular/core": "0.0.6-185" } }, "sha512-3+B2RpaxJyPVU4sRRMc/zPebMbyC0Tf1/9oseL78JddEAKguBUWIebcibzawMQ6X8jnpE2YCUWjeVXwDQWhiWQ=="],
+    "@syncular/server-service-worker": ["@syncular/server-service-worker@0.0.6-237", "", { "dependencies": { "@syncular/core": "0.0.6-237", "@syncular/transport-http": "0.0.6-237" } }, "sha512-uuhmbYoHIGN2iVjNjRrXs+bbPM/yXTxbv04/LNT5EVMU3qVS2gcdFYr7SuQG3dMGQc3BFIH6IomIP45VW+8zhw=="],
 
-    "@syncular/server-storage-s3": ["@syncular/server-storage-s3@0.0.6-185", "", { "dependencies": { "@syncular/core": "0.0.6-185" } }, "sha512-P50+3MnxYYnBNM0lDtyp7129hbd5E2YiYxMAUXQHASg0bhwP7knynHbFKlV5mCp9cfxCGXWmMdnr5lI0KIzm7A=="],
+    "@syncular/server-storage-filesystem": ["@syncular/server-storage-filesystem@0.0.6-237", "", { "dependencies": { "@syncular/core": "0.0.6-237" } }, "sha512-b2ZfZ0S44N+B7pnGtDUwndgfKlmfkmRMIYhoo1ajD0/g6/8TLv4DG9dA0QWSQe7vI94uPRa0Nt56jzu6amOORA=="],
 
-    "@syncular/testkit": ["@syncular/testkit@0.0.6-185", "", { "dependencies": { "@syncular/client": "0.0.6-185", "@syncular/core": "0.0.6-185", "@syncular/dialect-bun-sqlite": "0.0.6-185", "@syncular/dialect-libsql": "0.0.6-185", "@syncular/dialect-pglite": "0.0.6-185", "@syncular/dialect-sqlite3": "0.0.6-185", "@syncular/server": "0.0.6-185", "@syncular/server-dialect-postgres": "0.0.6-185", "@syncular/server-dialect-sqlite": "0.0.6-185", "@syncular/server-hono": "0.0.6-185", "@syncular/transport-http": "0.0.6-185", "hono": "^4.12.3" } }, "sha512-ry/PnaDHz+Cx39nPJtF/Kao8e/Y6McZxxOpPvORA5T7zm52+XA6kiEW6CuScpoDpMeHBT+Y69k267cx/c/WPoQ=="],
+    "@syncular/server-storage-s3": ["@syncular/server-storage-s3@0.0.6-237", "", { "dependencies": { "@syncular/core": "0.0.6-237" } }, "sha512-zkTiTBHW7m2igyei46D8OuOBqgO+EeubSSlw52KCB0lsd9N+Qu2TzOasc+HG/rVsc0S+jjHGyZYqoZ07n91JYw=="],
 
-    "@syncular/transport-http": ["@syncular/transport-http@0.0.6-185", "", { "dependencies": { "@syncular/core": "0.0.6-185", "openapi-fetch": "^0.17.0" } }, "sha512-tFMcT2CEiHp0IyAeJ2K9P9JqA3QpGXG/Y+KNuHDPZ1BAX9Cyb9ookvQ7WEQlW67zjz//LF30iRyg9GGHCzWDBw=="],
+    "@syncular/testkit": ["@syncular/testkit@0.0.6-237", "", { "dependencies": { "@syncular/client": "0.0.6-237", "@syncular/core": "0.0.6-237", "@syncular/dialect-bun-sqlite": "0.0.6-237", "@syncular/dialect-libsql": "0.0.6-237", "@syncular/dialect-pglite": "0.0.6-237", "@syncular/dialect-sqlite3": "0.0.6-237", "@syncular/server": "0.0.6-237", "@syncular/server-dialect-postgres": "0.0.6-237", "@syncular/server-dialect-sqlite": "0.0.6-237", "@syncular/server-hono": "0.0.6-237", "@syncular/transport-http": "0.0.6-237", "hono": "^4.12.3" } }, "sha512-lciSQ2uu5PozbqkXHML78/SwBu82MVwciPN7XD5aI9BJiA6CthXmI1IWO0byEvj35gquaWxfEUVURgMztxmPqQ=="],
 
-    "@syncular/transport-ws": ["@syncular/transport-ws@0.0.6-185", "", { "dependencies": { "@syncular/core": "0.0.6-185", "@syncular/transport-http": "0.0.6-185" } }, "sha512-ooEFSRDpPJcdGKJOLA094H4ey7i5DeN3kPcpO63knObB0Lz2PwbU7q8ds4q9sLggHTs6fwE6acuX2gp0IiNLiQ=="],
+    "@syncular/transport-http": ["@syncular/transport-http@0.0.6-237", "", { "dependencies": { "@syncular/core": "0.0.6-237", "openapi-fetch": "^0.17.0" } }, "sha512-TJ5glW0jeoGnIkRl2N7SKV0eEEl8Y8B+noDI4VnSzfs+vLtr5aoVH1fsOj2GJMuYD7z5AJ0sB8HgxOdKbDgiCw=="],
 
-    "@syncular/typegen": ["@syncular/typegen@0.0.6-185", "", { "dependencies": { "@electric-sql/pglite": "^0.3.15", "@syncular/migrations": "0.0.6-185", "better-sqlite3": "^12.6.2", "kysely-bun-sqlite": "^0.4.0", "kysely-pglite-dialect": "^1.2.0" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-r/iaJ39lkQdkTnzzNReb4Z+WS4Gkj9JtUj9GXRyBK+RLhA9xD6F2X+H6NlEQIsdn1hZi8f5WvrWuyIeXsX9dAw=="],
+    "@syncular/transport-ws": ["@syncular/transport-ws@0.0.6-237", "", { "dependencies": { "@syncular/core": "0.0.6-237", "@syncular/transport-http": "0.0.6-237" } }, "sha512-YruAxvSOoWmsg27lJdr1DfxZtf8vbldY5DS4ngUtsTgg1o51PkhyV2BihJa35qVkxKylaZ7V5rFlSKSRKdaA1A=="],
 
-    "@syncular/ui": ["@syncular/ui@0.0.6-185", "", { "dependencies": { "@base-ui/react": "^1.2.0", "class-variance-authority": "^0.7.1", "clsx": "^2.1.1", "lucide-react": "^0.575.0", "recharts": "^3.7.0", "tailwind-merge": "^3.5.0", "tailwindcss": "^4.2.1" }, "peerDependencies": { "react": "^19.0.0", "react-dom": "^19.0.0" } }, "sha512-hBsJ4P6jo07rvc0EHua9b/5T0JUypYfK9jXBuXRrJ3lHAKnW/SH9bBEDx0Kr6nJqljt9HU8LextT4pntiVTE9g=="],
+    "@syncular/typegen": ["@syncular/typegen@0.0.6-237", "", { "dependencies": { "@electric-sql/pglite": "^0.3.15", "@syncular/migrations": "0.0.6-237", "better-sqlite3": "^12.6.2", "kysely-bun-sqlite": "^0.4.0", "kysely-pglite-dialect": "^1.2.0" }, "peerDependencies": { "kysely": "^0.28.0" } }, "sha512-Uw/VMMpKf8mbQO+9YH9mrDbq5XNsFcKq527un2v0htvm/jDQlR+FpuB9W9pCTlzLRQq554/f7OiWRtVqcYQ/cQ=="],
+
+    "@syncular/ui": ["@syncular/ui@0.0.6-237", "", { "dependencies": { "@base-ui/react": "^1.2.0", "class-variance-authority": "^0.7.1", "clsx": "^2.1.1", "lucide-react": "^0.575.0", "recharts": "^3.7.0", "tailwind-merge": "^3.5.0", "tailwindcss": "^4.2.1" }, "peerDependencies": { "react": "^19.0.0", "react-dom": "^19.0.0" } }, "sha512-zjUTJAbQXNhcDd/SlsnZt6KeNErDcUEe57BMATWpUzNt+YC6G79dxDZ7keb5NGFVoD5b4I1lBWX+w8rJBuR3sQ=="],
 
     "@tanstack/history": ["@tanstack/history@1.161.4", "", {}, "sha512-Kp/WSt411ZWYvgXy6uiv5RmhHrz9cAml05AQPrtdAp7eUqvIDbMGPnML25OKbzR3RJ1q4wgENxDTvlGPa9+Mww=="],
 
@@ -1395,6 +1406,8 @@
     "fdir": ["fdir@6.5.0", "", { "peerDependencies": { "picomatch": "^3 || ^4" }, "optionalPeers": ["picomatch"] }, "sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg=="],
 
     "fetch-nodeshim": ["fetch-nodeshim@0.4.9", "", {}, "sha512-XIQWlB2A4RZ7NebXWGxS0uDMdvRHkiUDTghBVJKFg9yEOd45w/PP8cZANuPf2H08W6Cor3+2n7Q6TTZgAS3Fkw=="],
+
+    "fflate": ["fflate@0.8.2", "", {}, "sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A=="],
 
     "file-uri-to-path": ["file-uri-to-path@1.0.0", "", {}, "sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw=="],
 
@@ -2146,11 +2159,13 @@
 
     "supports-preserve-symlinks-flag": ["supports-preserve-symlinks-flag@1.0.0", "", {}, "sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w=="],
 
-    "syncular": ["syncular@0.0.6-185", "", { "dependencies": { "@syncular/client": "0.0.6-185", "@syncular/client-plugin-encryption": "0.0.6-185", "@syncular/client-plugin-offline-auth": "0.0.6-185", "@syncular/client-plugin-offline-auth-react": "0.0.6-185", "@syncular/client-plugin-yjs": "0.0.6-185", "@syncular/client-react": "0.0.6-185", "@syncular/console": "0.0.6-185", "@syncular/core": "0.0.6-185", "@syncular/dialect-better-sqlite3": "0.0.6-185", "@syncular/dialect-bun-sqlite": "0.0.6-185", "@syncular/dialect-d1": "0.0.6-185", "@syncular/dialect-electron-sqlite": "0.0.6-185", "@syncular/dialect-expo-sqlite": "0.0.6-185", "@syncular/dialect-libsql": "0.0.6-185", "@syncular/dialect-neon": "0.0.6-185", "@syncular/dialect-pglite": "0.0.6-185", "@syncular/dialect-react-native-nitro-sqlite": "0.0.6-185", "@syncular/dialect-sqlite3": "0.0.6-185", "@syncular/dialect-wa-sqlite": "0.0.6-185", "@syncular/migrations": "0.0.6-185", "@syncular/observability-sentry": "0.0.6-185", "@syncular/relay": "0.0.6-185", "@syncular/server": "0.0.6-185", "@syncular/server-cloudflare": "0.0.6-185", "@syncular/server-dialect-postgres": "0.0.6-185", "@syncular/server-dialect-sqlite": "0.0.6-185", "@syncular/server-hono": "0.0.6-185", "@syncular/server-plugin-yjs": "0.0.6-185", "@syncular/server-service-worker": "0.0.6-185", "@syncular/server-storage-filesystem": "0.0.6-185", "@syncular/server-storage-s3": "0.0.6-185", "@syncular/testkit": "0.0.6-185", "@syncular/transport-http": "0.0.6-185", "@syncular/transport-ws": "0.0.6-185", "@syncular/typegen": "0.0.6-185", "@syncular/ui": "0.0.6-185" } }, "sha512-wCMPm6tICH2mJ5j3NaIUVMBD/x8yEfPFkmrA4A7B/rJmm5hV/N7cYjooSHC6+0JppM847C9XFgHqhK7loIrGPQ=="],
+    "syncular": ["syncular@0.0.6-237", "", { "dependencies": { "@syncular/client": "0.0.6-237", "@syncular/client-plugin-blob": "0.0.6-237", "@syncular/client-plugin-encryption": "0.0.6-237", "@syncular/client-plugin-offline-auth": "0.0.6-237", "@syncular/client-plugin-offline-auth-react": "0.0.6-237", "@syncular/client-plugin-yjs": "0.0.6-237", "@syncular/client-react": "0.0.6-237", "@syncular/console": "0.0.6-237", "@syncular/core": "0.0.6-237", "@syncular/dialect-better-sqlite3": "0.0.6-237", "@syncular/dialect-bun-sqlite": "0.0.6-237", "@syncular/dialect-d1": "0.0.6-237", "@syncular/dialect-electron-sqlite": "0.0.6-237", "@syncular/dialect-expo-sqlite": "0.0.6-237", "@syncular/dialect-libsql": "0.0.6-237", "@syncular/dialect-neon": "0.0.6-237", "@syncular/dialect-pglite": "0.0.6-237", "@syncular/dialect-react-native-nitro-sqlite": "0.0.6-237", "@syncular/dialect-sqlite3": "0.0.6-237", "@syncular/dialect-wa-sqlite": "0.0.6-237", "@syncular/migrations": "0.0.6-237", "@syncular/observability-sentry": "0.0.6-237", "@syncular/relay": "0.0.6-237", "@syncular/server": "0.0.6-237", "@syncular/server-cloudflare": "0.0.6-237", "@syncular/server-dialect-postgres": "0.0.6-237", "@syncular/server-dialect-sqlite": "0.0.6-237", "@syncular/server-hono": "0.0.6-237", "@syncular/server-plugin-yjs": "0.0.6-237", "@syncular/server-service-worker": "0.0.6-237", "@syncular/server-storage-filesystem": "0.0.6-237", "@syncular/server-storage-s3": "0.0.6-237", "@syncular/testkit": "0.0.6-237", "@syncular/transport-http": "0.0.6-237", "@syncular/transport-ws": "0.0.6-237", "@syncular/typegen": "0.0.6-237", "@syncular/ui": "0.0.6-237" } }, "sha512-eGNi9wTCVl0E0/uuhyxhsTpblC9IlrZnMTuhsj70e0bGBqWzN35h+wDe1dPI4NTU+t/sfBuv8uynUjJwg3qbgA=="],
 
     "tabbable": ["tabbable@6.4.0", "", {}, "sha512-05PUHKSNE8ou2dwIxTngl4EzcnsCDZGJ/iCLtDflR/SHB/ny14rXc+qU5P4mG9JkusiV7EivzY9Mhm55AzAvCg=="],
 
     "table-layout": ["table-layout@4.1.1", "", { "dependencies": { "array-back": "^6.2.2", "wordwrapjs": "^5.1.0" } }, "sha512-iK5/YhZxq5GO5z8wb0bY1317uDF3Zjpha0QFFLA8/trAoiLbQD0HUbMesEaxyzUgDxi2QlcbM8IvqOlEjgoXBA=="],
+
+    "tagged-tag": ["tagged-tag@1.0.0", "", {}, "sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng=="],
 
     "tailwind-merge": ["tailwind-merge@3.5.0", "", {}, "sha512-I8K9wewnVDkL1NTGoqWmVEIlUcB9gFriAEkXkfCjX5ib8ezGxtR3xD7iZIxrfArjEsH7F1CHD4RFUtxefdqV/A=="],
 
@@ -2483,6 +2498,8 @@
     "@rocicorp/zero/jose": ["jose@5.10.0", "", {}, "sha512-s+3Al/p9g32Iq+oqXxkW//7jk2Vig6FF1CFqzVXoTUXt2qz89YWbL+OwS17NFYEvxC35n0FKeGO2LGYSxeM2Gg=="],
 
     "@rocicorp/zero/postgres": ["postgres@3.4.7", "", {}, "sha512-Jtc2612XINuBjIl/QTWsV5UvE8UHuNblcO3vVADSrKsrc6RqGX6lOW1cEo3CM2v0XG4Nat8nI+YM7/f26VxXLw=="],
+
+    "@scalar/types/type-fest": ["type-fest@5.4.4", "", { "dependencies": { "tagged-tag": "^1.0.0" } }, "sha512-JnTrzGu+zPV3aXIUhnyWJj4z/wigMsdYajGLIYakqyOW1nPllzXEJee0QQbHj+CTIQtXGlAjuK0UY+2xTyjVAw=="],
 
     "ansi-escapes/type-fest": ["type-fest@0.21.3", "", {}, "sha512-t0rzBq87m3fVcduHDUFhKmyyX+9eo6WQjZvf51Ea/M0Q7+T374Jp1aUiyUl0GKxp8M/OETVHSDvmkyPgvX+X2w=="],
 

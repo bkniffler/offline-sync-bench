@@ -8,7 +8,7 @@ import {
   type MutationReceipt,
   type SyncClientDb,
   type ClientTableHandler,
-} from '../../../syncular/packages/client/src/index.ts';
+} from '@syncular/client';
 import {
   bytesToReadableStream,
   decodeSnapshotRows,
@@ -20,15 +20,15 @@ import {
   type SyncCombinedResponse,
   type SyncBootstrapState,
   type SyncPullSubscriptionResponse,
-} from '../../../syncular/packages/core/src/index.ts';
-import { createBunSqliteDialect } from '../../../syncular/packages/dialect-bun-sqlite/src/index.ts';
-import { createHttpTransport } from '../../../syncular/packages/transport-http/src/index.ts';
-import { createWebSocketTransport } from '../../../syncular/packages/transport-ws/src/index.ts';
+} from '@syncular/core';
+import { createBunSqliteDialect } from '@syncular/dialect-bun-sqlite';
+import { createHttpTransport } from '@syncular/transport-http';
+import { createWebSocketTransport } from '@syncular/transport-ws';
 import {
   createBlobPlugin,
   type BlobClient,
   type ClientBlobStorage,
-} from '../../../syncular/plugins/blob/client/src/index.ts';
+} from '@syncular/client-plugin-blob';
 import { Kysely, sql } from 'kysely';
 import { createHttpMeter } from '../http-meter';
 import {

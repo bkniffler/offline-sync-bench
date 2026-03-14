@@ -19,8 +19,8 @@ services:
 
   syncular:
     build:
-      context: ../../..
-      dockerfile: offline-sync-bench/stacks/syncular/Dockerfile.local
+      context: ../../
+      dockerfile: stacks/syncular/Dockerfile
     environment:
       DATABASE_URL: postgresql://bench:bench@postgres:5432/bench
       PORT: "3000"

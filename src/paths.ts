@@ -7,7 +7,6 @@ export const benchmarkRoot = resolve(srcDir, '..');
 export const resultsRoot = join(benchmarkRoot, '.results');
 export const tempRoot = join(benchmarkRoot, '.tmp');
 export const catalogPath = join(resultsRoot, 'catalog.sqlite');
-export const syncularRoot = resolve(benchmarkRoot, '..', 'syncular');
 
 function normalizeRelativePath(path: string): string {
   return path.split('\\').join('/');
@@ -22,5 +21,3 @@ export function toMarkdownPath(path: string): string {
   const relativePath = toBenchmarkRelativePath(path);
   return relativePath === '.' ? './' : `./${relativePath}`;
 }
-
-export const syncularCheckoutLabel = toBenchmarkRelativePath(syncularRoot);

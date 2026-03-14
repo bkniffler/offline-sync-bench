@@ -1,14 +1,24 @@
 import { readFileSync } from 'node:fs';
 import { cpus, hostname, totalmem } from 'node:os';
 import { join } from 'node:path';
-import {
-  benchmarkRoot,
-  syncularCheckoutLabel,
-  syncularRoot,
-} from './paths';
+import { benchmarkRoot } from './paths';
 import type { JsonObject, StackId, StackSpec } from './types';
 
 const packageJsonPath = join(benchmarkRoot, 'package.json');
+const syncularStackPackageJsonPath = join(
+  benchmarkRoot,
+  'stacks',
+  'syncular',
+  'syncular-app',
+  'package.json'
+);
+const syncularStackLockPath = join(
+  benchmarkRoot,
+  'stacks',
+  'syncular',
+  'syncular-app',
+  'bun.lock'
+);
 
 interface PackageJsonFile {
   version?: string;
@@ -17,7 +27,13 @@ interface PackageJsonFile {
   devDependencies?: Record<string, string>;
 }
 
+interface BunLockFile {
+  packages?: Record<string, unknown>;
+}
+
 const rootPackageJson = readJsonFile<PackageJsonFile>(packageJsonPath) ?? {};
+const syncularStackPackageJson =
+  readJsonFile<PackageJsonFile>(syncularStackPackageJsonPath) ?? {};
 const stackVersionCache = new Map<StackId, JsonObject>();
 let environmentCache: JsonObject | null = null;
 
@@ -84,7 +100,7 @@ function buildVersionMetadata(
 } {
   switch (stackId) {
     case 'syncular':
-      return buildLocalSyncularVersionMetadata();
+      return buildPublishedSyncularVersionMetadata();
     case 'electric':
       return {
         frameworkVersion: imageRef ?? 'electricsql/electric:canary',
@@ -150,41 +166,46 @@ function buildVersionMetadata(
   }
 }
 
-function buildLocalSyncularVersionMetadata(): {
+function buildPublishedSyncularVersionMetadata(): {
   frameworkVersion: string;
   versionSource: string;
   versionComponents: JsonObject;
 } {
-  const syncularPackageJson = readJsonFile<PackageJsonFile>(
-    join(syncularRoot, 'package.json')
-  );
-  const rootVersion = syncularPackageJson?.version ?? 'unknown';
-  const gitHead = readGitOutput(['rev-parse', 'HEAD']);
-  const gitShortHead = readGitOutput(['rev-parse', '--short', 'HEAD']);
-  const gitDirty = hasGitChanges(syncularRoot);
-
   const frameworkVersion =
-    gitShortHead && gitDirty
-      ? `${rootVersion}+local.${gitShortHead}.dirty`
-      : gitShortHead
-        ? `${rootVersion}+local.${gitShortHead}`
-        : gitDirty
-          ? `${rootVersion}+local.dirty`
-          : `${rootVersion}+local`;
+    readInstalledPackageVersion('syncular') ??
+    readDependencyRange('syncular') ??
+    'unknown';
+  const installedVersionSource = readInstalledPackageVersion('syncular')
+    ? 'node_modules/syncular/package.json'
+    : 'package.json dependency range';
 
   return {
     frameworkVersion,
-    versionSource: `local syncular checkout at ${syncularCheckoutLabel}`,
+    versionSource: installedVersionSource,
     versionComponents: {
-      rootVersion,
-      gitHead,
-      gitShortHead,
-      gitDirty,
+      syncular: readInstalledPackageVersion('syncular'),
       client: readInstalledPackageVersion('@syncular/client'),
+      clientBlobPlugin: readInstalledPackageVersion('@syncular/client-plugin-blob'),
       core: readInstalledPackageVersion('@syncular/core'),
       bunSqliteDialect: readInstalledPackageVersion('@syncular/dialect-bun-sqlite'),
       transportHttp: readInstalledPackageVersion('@syncular/transport-http'),
       transportWs: readInstalledPackageVersion('@syncular/transport-ws'),
+      server: readLockedPackageVersion(syncularStackLockPath, '@syncular/server'),
+      serverDialectPostgres: readLockedPackageVersion(
+        syncularStackLockPath,
+        '@syncular/server-dialect-postgres'
+      ),
+      serverHono: readLockedPackageVersion(
+        syncularStackLockPath,
+        '@syncular/server-hono'
+      ),
+      serverDependencyRange:
+        syncularStackPackageJson.dependencies?.['@syncular/server'] ?? null,
+      serverDialectPostgresDependencyRange:
+        syncularStackPackageJson.dependencies?.['@syncular/server-dialect-postgres'] ??
+        null,
+      serverHonoDependencyRange:
+        syncularStackPackageJson.dependencies?.['@syncular/server-hono'] ?? null,
     },
   };
 }
@@ -210,6 +231,25 @@ function readJsonFile<T>(path: string): T | null {
   } catch {
     return null;
   }
+}
+
+function readLockedPackageVersion(
+  lockPath: string,
+  packageName: string
+): string | null {
+  const lockfile = readJsonFile<BunLockFile>(lockPath);
+  const entry = lockfile?.packages?.[packageName];
+  if (!Array.isArray(entry)) {
+    return null;
+  }
+
+  const descriptor = entry[0];
+  if (typeof descriptor !== 'string') {
+    return null;
+  }
+
+  const prefix = `${packageName}@`;
+  return descriptor.startsWith(prefix) ? descriptor.slice(prefix.length) : null;
 }
 
 function inspectServiceImageReference(
@@ -302,36 +342,6 @@ function inspectServiceImageReference(
 
   return imageId;
 }
-
-function readGitOutput(args: string[]): string | null {
-  const result = Bun.spawnSync(['git', '-C', syncularRoot, ...args], {
-    cwd: benchmarkRoot,
-    stdout: 'pipe',
-    stderr: 'pipe',
-  });
-
-  if (result.exitCode !== 0) {
-    return null;
-  }
-
-  const value = new TextDecoder().decode(result.stdout).trim();
-  return value || null;
-}
-
-function hasGitChanges(repoRoot: string): boolean | null {
-  const result = Bun.spawnSync(['git', '-C', repoRoot, 'status', '--porcelain'], {
-    cwd: benchmarkRoot,
-    stdout: 'pipe',
-    stderr: 'pipe',
-  });
-
-  if (result.exitCode !== 0) {
-    return null;
-  }
-
-  return new TextDecoder().decode(result.stdout).trim().length > 0;
-}
-
 function parseStringArray(value: string): string[] {
   if (!value || value === 'null') {
     return [];

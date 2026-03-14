@@ -4,28 +4,6 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "baseUrl": ".",
-    "paths": {
-      "@syncular/client": ["../syncular/packages/client/src/index.ts"],
-      "@syncular/core": ["../syncular/packages/core/src/index.ts"],
-      "@syncular/dialect-bun-sqlite": [
-        "../syncular/packages/dialect-bun-sqlite/src/index.ts"
-      ],
-      "@syncular/server": [
-        "../syncular/packages/server/src/index.ts"
-      ],
-      "@syncular/server-dialect-postgres": [
-        "../syncular/packages/server-dialect-postgres/src/index.ts"
-      ],
-      "@syncular/server-hono": [
-        "../syncular/packages/server-hono/src/index.ts"
-      ],
-      "@syncular/transport-http": [
-        "../syncular/packages/transport-http/src/index.ts"
-      ],
-      "@syncular/transport-ws": [
-        "../syncular/packages/transport-ws/src/index.ts"
-      ]
-    },
     "strict": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,

@@ -41,11 +41,12 @@
     "@powersync/node": "^0.18.0",
     "@powersync/web": "^1.35.0",
     "@rocicorp/zero": "^0.25.13",
-    "@syncular/client": "^0.0.6-185",
-    "@syncular/core": "^0.0.6-185",
-    "@syncular/dialect-bun-sqlite": "^0.0.6-185",
-    "@syncular/transport-http": "^0.0.6-185",
-    "@syncular/transport-ws": "^0.0.6-185",
+    "@syncular/client": "^0.0.6-237",
+    "@syncular/client-plugin-blob": "^0.0.6-237",
+    "@syncular/core": "^0.0.6-237",
+    "@syncular/dialect-bun-sqlite": "^0.0.6-237",
+    "@syncular/transport-http": "^0.0.6-237",
+    "@syncular/transport-ws": "^0.0.6-237",
     "better-sqlite3": "^12.6.2",
     "esbuild": "^0.27.3",
     "fake-indexeddb": "^6.2.5",
@@ -54,7 +55,7 @@
     "kysely": "^0.28.11",
     "postgres": "^3.4.8",
     "replicache": "^15.3.0",
-    "syncular": "^0.0.6-185"
+    "syncular": "^0.0.6-237"
   },
   "devDependencies": {
     "@types/bun": "^1.3.10",
