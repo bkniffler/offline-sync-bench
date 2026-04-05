@@ -6,179 +6,179 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 ## Highlights
 
-- Bootstrap at 100k rows (median of the latest 1 runs where available): Electric is at 416.3 ms; Syncular is at 889.6 ms; Replicache is at 991.8 ms.
-- Online propagation: Electric still leads on tail latency (12.72 ms p95), while Syncular is now at 18.56 ms p95 with 11.16 ms write ack.
-- Native offline replay: Syncular currently converges in 80.23 ms, ahead of Replicache (1253 ms) and PowerSync (5191 ms).
-- Permission change (median of the latest 1 runs where available): Syncular converges in 47.11 ms and Electric in 15.96 ms.
-- Client bundle size: Syncular is currently 217.50 KB raw / 52.89 KB gzip for the named-import browser profile.
-- Blob flow: Syncular currently uploads a 524288 byte blob in 24.85 ms, syncs metadata to a second client in 42.16 ms, re-downloads it after cache clear in 12.11 ms, and recovers an interrupted queued upload in 17.19 ms.
+- Bootstrap at 100k rows (median of the latest 1 runs where available): Electric is at 522.7 ms; Syncular is at 1373 ms; Replicache is at 1001 ms.
+- Online propagation: Electric still leads on tail latency (12.74 ms p95), while Syncular is now at 17.40 ms p95 with 8.82 ms write ack.
+- Native offline replay: Syncular currently converges in 75.38 ms, ahead of Replicache (1251 ms) and PowerSync (5191 ms).
+- Permission change (median of the latest 1 runs where available): Syncular converges in 42.79 ms and Electric in 27.29 ms.
+- Client bundle size: Syncular is currently 217.72 KB raw / 52.95 KB gzip for the named-import browser profile.
+- Blob flow: Syncular currently uploads a 524288 byte blob in 26.38 ms, syncs metadata to a second client in 35.77 ms, re-downloads it after cache clear in 7.23 ms, and recovers an interrupted queued upload in 14.28 ms.
 
 ## Bootstrap
 
 | Stack | 1k | 10k | 100k | 100k reqs | 100k avg mem | Support |
 | --- | --- | --- | --- | --- | --- | --- |
-| Syncular | 53.09 ms | 125.2 ms | 889.6 ms | 6 | 290.02 MB | native |
-| Electric | 43.04 ms | 71.15 ms | 425.5 ms | 4 | 500.60 MB | native |
-| Zero | 112.7 ms | 469.4 ms | 4070 ms | 0 | 507.96 MB | native |
-| PowerSync | 5212 ms | 5512 ms | 8158 ms | 1 | 265.52 MB | native |
-| Replicache | 40.37 ms | 108.4 ms | 1001 ms | 2 | 377.82 MB | native |
-| LiveStore | 488.4 ms | 2539 ms | n/a | n/a | n/a | native |
+| Syncular | 58.02 ms | 135.4 ms | 1373 ms | 6 | 280.12 MB | native |
+| Electric | 41.08 ms | 89.61 ms | 522.7 ms | 4 | 1085.85 MB | native |
+| Zero | 217.2 ms | 1165 ms | 9015 ms | 0 | 349.07 MB | native |
+| PowerSync | 1492 ms | 13290 ms | 43308 ms | 1 | 215.36 MB | native |
+| Replicache | 40.04 ms | 123.0 ms | 1237 ms | 2 | 349.76 MB | native |
+| LiveStore | 628.7 ms | 3049 ms | n/a | n/a | n/a | native |
 
 ## Bootstrap Repeat Summary
 
 | Stack | Runs | 100k median | 100k min | 100k max | Latest 100k |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 1 | 889.6 ms | 889.6 ms | 889.6 ms | 889.6 ms |
-| Electric | 5 | 416.3 ms | 402.1 ms | 425.5 ms | 425.5 ms |
-| Zero | 5 | 4070 ms | 3781 ms | 6007 ms | 4070 ms |
-| PowerSync | 5 | 7193 ms | 6645 ms | 20290 ms | 8158 ms |
-| Replicache | 5 | 991.8 ms | 930.7 ms | 1073 ms | 1001 ms |
+| Syncular | 1 | 1373 ms | 1373 ms | 1373 ms | 1373 ms |
+| Electric | 1 | 522.7 ms | 522.7 ms | 522.7 ms | 522.7 ms |
+| Zero | 1 | 9015 ms | 9015 ms | 9015 ms | 9015 ms |
+| PowerSync | 1 | 43308 ms | 43308 ms | 43308 ms | 43308 ms |
+| Replicache | 5 | 1001 ms | 930.7 ms | 1237 ms | 1237 ms |
 
 ## Bootstrap Scale Study
 
 | Stack | 250k rows | 500k rows | 500k avg mem | Support |
 | --- | --- | --- | --- | --- |
-| Syncular | 2207 ms | 4403 ms | 378.74 MB | native |
-| Electric | 949.4 ms | 1878 ms | 1324.90 MB | native |
+| Syncular | 4772 ms | 5338 ms | 381.06 MB | native |
+| Electric | 1285 ms | 2530 ms | 1656.14 MB | native |
 | Zero | n/a | n/a | n/a | native |
 | PowerSync | n/a | n/a | n/a | native |
-| Replicache | 2551 ms | 5345 ms | 1819.74 MB | native |
+| Replicache | 3330 ms | 7005 ms | 2439.14 MB | native |
 | LiveStore | n/a | n/a | n/a | native |
 
 ## Bootstrap Resource Summary
 
 | Stack | Largest avg mem | Largest avg CPU | Largest peak mem | Largest peak CPU | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 378.74 MB | 66.88% | 455.00 MB | 114.54% | native |
-| Electric | 1324.90 MB | 67.01% | 1642.41 MB | 182.11% | native |
-| Zero | 507.96 MB | 59.75% | 569.28 MB | 149.24% | native |
-| PowerSync | 265.52 MB | 21.73% | 271.50 MB | 410.85% | native |
-| Replicache | 1819.74 MB | 100.16% | 3018.59 MB | 112.90% | native |
+| Syncular | 381.06 MB | 68.19% | 469.59 MB | 113.75% | native |
+| Electric | 1656.14 MB | 61.16% | 1806.30 MB | 167.64% | native |
+| Zero | 349.07 MB | 47.57% | 394.77 MB | 190.44% | native |
+| PowerSync | 215.36 MB | 12.21% | 284.14 MB | 630.42% | native |
+| Replicache | 2439.14 MB | 97.16% | 4292.13 MB | 114.09% | native |
 | LiveStore | n/a | n/a | n/a | n/a | native |
 
 ## Online Propagation
 
 | Stack | Write ack | Visible p50 | Visible p95 | Avg mem | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 11.16 ms | 12.30 ms | 18.56 ms | 387.72 MB | native |
-| Electric | 4.06 ms | 5.26 ms | 12.72 ms | 684.14 MB | native |
-| Zero | 50.64 ms | 41.56 ms | 152.2 ms | 216.58 MB | native |
-| PowerSync | 0.52 ms | 995.2 ms | 1015 ms | 326.90 MB | native |
-| Replicache | 0.25 ms | 31.78 ms | 49.55 ms | 218.01 MB | native |
+| Syncular | 8.82 ms | 11.46 ms | 17.40 ms | 389.38 MB | native |
+| Electric | 3.43 ms | 4.21 ms | 12.74 ms | 1806.43 MB | native |
+| Zero | 15.43 ms | 16.63 ms | 42.46 ms | 218.15 MB | native |
+| PowerSync | 0.47 ms | 1001 ms | 1026 ms | 320.49 MB | native |
+| Replicache | 0.27 ms | 30.72 ms | 44.78 ms | 224.80 MB | native |
 | LiveStore | 0.59 ms | 218.2 ms | 1162 ms | 559.55 MB | native |
 
 ## Offline Replay
 
 | Stack | Queued writes | Convergence | Requests | Avg mem | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 10 | 80.23 ms | 1 | 380.20 MB | native |
-| Electric | 10 | 37.35 ms | 2 | 684.30 MB | emulated |
+| Syncular | 10 | 75.38 ms | 1 | 389.58 MB | native |
+| Electric | 10 | 680.8 ms | 11 | 1806.48 MB | emulated |
 | Zero | n/a | n/a | n/a | n/a | unsupported |
 | PowerSync | 10 | 5191 ms | 17 | 318.15 MB | native |
-| Replicache | 10 | 1253 ms | 18 | 210.83 MB | native |
+| Replicache | 10 | 1251 ms | 21 | 213.04 MB | native |
 | LiveStore | n/a | n/a | n/a | n/a | unsupported |
 
 ## Reconnect Storm
 
 | Stack | 25 clients | 100 clients | 250 clients | 500 clients | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 122.0 ms | 327.4 ms | 6057 ms | 5103 ms | native |
-| Electric | 71.49 ms | 4057 ms | 2032 ms | 3037 ms | native |
+| Syncular | 119.6 ms | 2046 ms | 4097 ms | 2409 ms | native |
+| Electric | 42.80 ms | 62.09 ms | 1983 ms | 2011 ms | native |
 | Zero | n/a | n/a | n/a | n/a | unsupported |
 | PowerSync | n/a | n/a | n/a | n/a | unsupported |
-| Replicache | 88.58 ms | 2019 ms | 4083 ms | 5100 ms | native |
+| Replicache | 96.20 ms | 248.7 ms | 2062 ms | 3411 ms | native |
 | LiveStore | n/a | n/a | n/a | n/a | unsupported |
 
 ## Reconnect Storm Repeat Summary
 
 | Stack | Runs | 25 median | 100 median | 250 median | 500 median |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 1 | 122.0 ms | 327.4 ms | 6057 ms | 5103 ms |
-| Electric | 3 | 71.49 ms | 4057 ms | 2032 ms | 3037 ms |
-| Replicache | 3 | 88.58 ms | 2019 ms | 4083 ms | 5100 ms |
+| Syncular | 1 | 119.6 ms | 2046 ms | 4097 ms | 2409 ms |
+| Electric | 1 | 42.80 ms | 62.09 ms | 1983 ms | 2011 ms |
+| Replicache | 1 | 96.20 ms | 248.7 ms | 2062 ms | 3411 ms |
 
 ## Reconnect Storm Resource Summary
 
 | Stack | 500 sync avg mem | 500 postgres avg mem | 500 sync avg CPU | 500 postgres avg CPU | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 110.76 MB | 193.78 MB | 4.79% | 4.52% | native |
-| Electric | 286.58 MB | 85.01 MB | 4.01% | 1.05% | native |
-| Replicache | 36.14 MB | 61.07 MB | 1.20% | 0.22% | native |
+| Syncular | 118.20 MB | 195.13 MB | 10.87% | 12.33% | native |
+| Electric | 292.33 MB | 182.97 MB | 3.48% | 0.86% | native |
+| Replicache | 34.45 MB | 154.53 MB | 0.54% | 1.25% | native |
 
 ## Large Offline Queue
 
 | Stack | 100 writes | 500 writes | 1000 writes | 1000 reqs | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 488.0 ms | 3600 ms | 13586 ms | 50 | native |
+| Syncular | 506.9 ms | 4346 ms | 24719 ms | 50 | native |
 | Electric | n/a | n/a | n/a | n/a | emulated |
 | Zero | n/a | n/a | n/a | n/a | unsupported |
 | PowerSync | 5466 ms | 6630 ms | 8019 ms | 1007 | native |
-| Replicache | 1272 ms | 1280 ms | 1362 ms | 18 | native |
+| Replicache | 1349 ms | 1300 ms | 1342 ms | 18 | native |
 | LiveStore | n/a | n/a | n/a | n/a | unsupported |
 
 ## Large Offline Queue Repeat Summary
 
 | Stack | Runs | 100 median | 500 median | 1000 median | Latest 1000 |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 1 | 488.0 ms | 3600 ms | 13586 ms | 13586 ms |
+| Syncular | 1 | 506.9 ms | 4346 ms | 24719 ms | 24719 ms |
 | PowerSync | 1 | 5466 ms | 6630 ms | 8019 ms | 8019 ms |
-| Replicache | 1 | 1272 ms | 1280 ms | 1362 ms | 1362 ms |
+| Replicache | 2 | 1349 ms | 1300 ms | 1342 ms | 1323 ms |
 
 ## Local Query
 
 | Stack | List p50 | Search p50 | Aggregate p50 | Avg mem | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 0.23 ms | 0.08 ms | 6.09 ms | 968.18 MB | native |
-| Electric | 8.56 ms | 2.84 ms | 6.98 ms | 793.22 MB | native |
-| Zero | 8.10 ms | 5.10 ms | 8.74 ms | 392.06 MB | native |
-| PowerSync | 51.20 ms | 15.45 ms | 115.1 ms | 286.56 MB | native |
-| Replicache | 12.88 ms | 2.53 ms | 6.48 ms | 300.97 MB | native |
+| Syncular | 0.10 ms | 0.07 ms | 7.51 ms | 936.78 MB | native |
+| Electric | 11.08 ms | 4.07 ms | 9.85 ms | 1861.42 MB | native |
+| Zero | 9.52 ms | 6.31 ms | 12.85 ms | 340.19 MB | native |
+| PowerSync | 70.75 ms | 20.73 ms | 163.8 ms | 311.12 MB | native |
+| Replicache | 12.73 ms | 2.85 ms | 8.56 ms | 269.85 MB | native |
 | LiveStore | n/a | n/a | n/a | n/a | unsupported |
 
 ## Deep Relationship Query
 
 | Stack | Dashboard p50 | Detail join p50 | Avg mem | Support |
 | --- | --- | --- | --- | --- |
-| Syncular | 62.65 ms | 0.29 ms | 997.50 MB | native |
+| Syncular | 77.38 ms | 0.25 ms | 950.61 MB | native |
 | Electric | n/a | n/a | n/a | unsupported |
-| Zero | 3.35 ms | 2.27 ms | 351.05 MB | native |
-| PowerSync | 564.4 ms | 9.05 ms | 302.01 MB | native |
-| Replicache | 3.32 ms | 1.92 ms | 261.82 MB | native |
+| Zero | 9.70 ms | 6.37 ms | 332.56 MB | native |
+| PowerSync | 360.3 ms | 5.70 ms | 316.93 MB | native |
+| Replicache | 3.57 ms | 2.31 ms | 254.19 MB | native |
 | LiveStore | n/a | n/a | n/a | unsupported |
 
 ## Deep Relationship Repeat Summary
 
 | Stack | Runs | Dashboard median | Detail median | Latest dashboard | Latest detail |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 1 | 62.65 ms | 0.29 ms | 62.65 ms | 0.29 ms |
-| Zero | 1 | 3.35 ms | 2.27 ms | 3.35 ms | 2.27 ms |
-| PowerSync | 1 | 564.4 ms | 9.05 ms | 564.4 ms | 9.05 ms |
-| Replicache | 1 | 3.32 ms | 1.92 ms | 3.32 ms | 1.92 ms |
+| Syncular | 1 | 77.38 ms | 0.25 ms | 77.38 ms | 0.25 ms |
+| Zero | 1 | 9.70 ms | 6.37 ms | 9.70 ms | 6.37 ms |
+| PowerSync | 1 | 360.3 ms | 5.70 ms | 360.3 ms | 5.70 ms |
+| Replicache | 2 | 3.44 ms | 2.12 ms | 3.57 ms | 2.31 ms |
 
 ## Permission Change
 
 | Stack | Initial rows | After revoke | Revoked rows left | Retained rows left | Convergence | Support |
 | --- | --- | --- | --- | --- | --- | --- |
-| Syncular | 1000 | 500 | 0 | 500 | 47.11 ms | native |
-| Electric | 1000 | 500 | 0 | 500 | 39.36 ms | native |
+| Syncular | 1000 | 500 | 0 | 500 | 42.79 ms | native |
+| Electric | 1000 | 500 | 0 | 500 | 27.29 ms | native |
 | Zero | n/a | n/a | n/a | n/a | n/a | unsupported |
 | PowerSync | n/a | n/a | n/a | n/a | n/a | unsupported |
-| Replicache | 1000 | 500 | 0 | 500 | 28.16 ms | native |
+| Replicache | 1000 | 500 | 0 | 500 | 10.74 ms | native |
 | LiveStore | n/a | n/a | n/a | n/a | n/a | unsupported |
 
 ## Permission Change Repeat Summary
 
 | Stack | Runs | Median | Min | Max | Latest |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 1 | 47.11 ms | 47.11 ms | 47.11 ms | 47.11 ms |
-| Electric | 3 | 15.96 ms | 15.25 ms | 39.36 ms | 39.36 ms |
-| Replicache | 1 | 28.16 ms | 28.16 ms | 28.16 ms | 28.16 ms |
+| Syncular | 1 | 42.79 ms | 42.79 ms | 42.79 ms | 42.79 ms |
+| Electric | 1 | 27.29 ms | 27.29 ms | 27.29 ms | 27.29 ms |
+| Replicache | 2 | 19.45 ms | 10.74 ms | 28.16 ms | 10.74 ms |
 
 ## Blob Flow
 
 | Stack | Blob bytes | Upload | Metadata visible | Re-download | Retry recovery | Transfer overhead | SQLite upload overhead | Support |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Syncular | 524288 | 24.85 ms | 42.16 ms | 12.11 ms | 17.19 ms | 7183 B | 0 B | native |
+| Syncular | 524288 | 26.38 ms | 35.77 ms | 7.23 ms | 14.28 ms | 7183 B | 0 B | native |
 | Electric | n/a | n/a | n/a | n/a | n/a | n/a | n/a | unsupported |
 | Zero | n/a | n/a | n/a | n/a | n/a | n/a | n/a | unsupported |
 | PowerSync | n/a | n/a | n/a | n/a | n/a | n/a | n/a | unsupported |
@@ -189,16 +189,16 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | Runs | Upload median | Metadata median | Latest retry recovery |
 | --- | --- | --- | --- | --- |
-| Syncular | 1 | 24.85 ms | 42.16 ms | 17.19 ms |
+| Syncular | 1 | 26.38 ms | 35.77 ms | 14.28 ms |
 
 ## Client Bundle Size
 
 | Library | Profile | Raw | Gzip |
 | --- | --- | --- | --- |
-| Syncular | named import | 217.50 KB | 52.89 KB |
-| Electric | named import | 48.55 KB | 15.38 KB |
-| Zero | named import | 285.61 KB | 92.91 KB |
-| PowerSync | named import | 587.63 KB | 179.43 KB |
+| Syncular | named import | 217.72 KB | 52.95 KB |
+| Electric | named import | 48.85 KB | 15.57 KB |
+| Zero | named import | 287.93 KB | 91.51 KB |
+| PowerSync | named import | 593.76 KB | 181.46 KB |
 | Replicache | named import | 112.95 KB | 35.68 KB |
 | LiveStore | named import | 717.55 KB | 223.24 KB |
 

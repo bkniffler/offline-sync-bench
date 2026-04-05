@@ -2,9 +2,9 @@
   "name": "@offline-sync-bench/syncular-app",
   "private": true,
   "dependencies": {
-    "@syncular/server": "^0.0.6-237",
-    "@syncular/server-dialect-postgres": "^0.0.6-237",
-    "@syncular/server-hono": "^0.0.6-237",
+    "@syncular/server": "^0.0.6-245",
+    "@syncular/server-dialect-postgres": "^0.0.6-245",
+    "@syncular/server-hono": "^0.0.6-245",
     "hono": "^4.12.8",
     "kysely": "^0.28.12",
     "pg": "8.20.0",
