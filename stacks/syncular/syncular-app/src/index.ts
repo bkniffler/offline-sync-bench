@@ -17,6 +17,8 @@ import {
   type ScopeCacheBackend,
   type SnapshotArtifactStorage,
   type SyncBlobDb,
+  type SyncChange,
+  type SyncCommit,
   type SyncTelemetry,
   type SyncCoreDb,
 } from '@syncular/server';
@@ -26,6 +28,8 @@ import {
   createBlobRoutes,
   createSyncServer,
   getSyncWebSocketConnectionManager,
+  notifyWebSocketConnectionsWithSyncPacks,
+  realtimeScopeKeysForChanges,
 } from '@syncular/server-hono';
 import { Hono } from 'hono';
 import { upgradeWebSocket, websocket } from 'hono/bun';
@@ -543,37 +547,74 @@ app.post('/benchmark/external-write', async (c) => {
     return c.json({ ok: false, error: 'INVALID_SERVER_VERSION' }, 500);
   }
 
+  const externalChange = {
+    table: 'tasks',
+    rowId: row.id,
+    op: 'upsert',
+    rowJson: {
+      id: row.id,
+      org_id: row.org_id,
+      project_id: row.project_id,
+      owner_id: row.owner_id,
+      title: row.title,
+      completed: row.completed,
+      server_version: rowServerVersion,
+      updated_at: row.updated_at,
+    },
+    rowVersion: rowServerVersion,
+    scopes: {
+      project_id: row.project_id,
+    },
+  } as const;
+
   const notifyResult = await notifyExternalRowChanges({
     db,
     dialect,
-    changes: [
-      {
-        table: 'tasks',
-        rowId: row.id,
-        op: 'upsert',
-        rowJson: {
-          id: row.id,
-          org_id: row.org_id,
-          project_id: row.project_id,
-          owner_id: row.owner_id,
-          title: row.title,
-          completed: row.completed,
-          server_version: rowServerVersion,
-          updated_at: row.updated_at,
-        },
-        rowVersion: rowServerVersion,
-        scopes: {
-          project_id: row.project_id,
-        },
-      },
-    ],
+    changes: [externalChange],
   });
-  wsConnectionManager?.notifyAllClients(notifyResult.commitSeq);
+  const commitRow = await db
+    .selectFrom('sync_commits')
+    .select(['actor_id', 'created_at'])
+    .where('partition_id', '=', 'default')
+    .where('commit_seq', '=', notifyResult.commitSeq)
+    .executeTakeFirstOrThrow();
+  const syncChange: SyncChange = {
+    table: externalChange.table,
+    row_id: externalChange.rowId,
+    op: externalChange.op,
+    row_json: externalChange.rowJson,
+    row_version: externalChange.rowVersion,
+    scopes: externalChange.scopes,
+  };
+  const syncCommit: SyncCommit = {
+    commitSeq: notifyResult.commitSeq,
+    createdAt: new Date(
+      commitRow.created_at as string | number | Date
+    ).toISOString(),
+    actorId:
+      typeof commitRow.actor_id === 'string'
+        ? commitRow.actor_id
+        : '__external__',
+    changes: [syncChange],
+  };
+  const realtimeNotify = wsConnectionManager
+    ? await notifyWebSocketConnectionsWithSyncPacks({
+        manager: wsConnectionManager,
+        partitionId: 'default',
+        scopeKeys: realtimeScopeKeysForChanges({
+          partitionId: 'default',
+          changes: [syncChange],
+        }),
+        cursor: notifyResult.commitSeq,
+        commits: [syncCommit],
+      })
+    : null;
 
   return c.json({
     ok: true,
     row,
     notify: notifyResult,
+    realtimeNotify,
   });
 });
 
