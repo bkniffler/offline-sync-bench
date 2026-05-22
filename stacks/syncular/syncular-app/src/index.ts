@@ -510,12 +510,14 @@ app.get('/benchmark/config', async (c) => {
 });
 
 app.post('/benchmark/external-write', async (c) => {
+  const totalStartedAt = performance.now();
   const request = await c.req.json<{
     taskId: string;
     title?: string;
     completed?: boolean;
   }>();
 
+  const dbUpdateStartedAt = performance.now();
   const row = await db
     .updateTable('tasks')
     .set({
@@ -538,6 +540,7 @@ app.post('/benchmark/external-write', async (c) => {
       'updated_at',
     ])
     .executeTakeFirst();
+  const dbUpdateMs = performance.now() - dbUpdateStartedAt;
 
   if (!row) {
     return c.json({ ok: false, error: 'TASK_NOT_FOUND' }, 404);
@@ -567,17 +570,21 @@ app.post('/benchmark/external-write', async (c) => {
     },
   } as const;
 
+  const notifyStartedAt = performance.now();
   const notifyResult = await notifyExternalRowChanges({
     db,
     dialect,
     changes: [externalChange],
   });
+  const notifyExternalRowChangesMs = performance.now() - notifyStartedAt;
+  const commitLookupStartedAt = performance.now();
   const commitRow = await db
     .selectFrom('sync_commits')
     .select(['actor_id', 'created_at'])
     .where('partition_id', '=', 'default')
     .where('commit_seq', '=', notifyResult.commitSeq)
     .executeTakeFirstOrThrow();
+  const commitLookupMs = performance.now() - commitLookupStartedAt;
   const syncChange: SyncChange = {
     table: externalChange.table,
     row_id: externalChange.rowId,
@@ -597,6 +604,7 @@ app.post('/benchmark/external-write', async (c) => {
         : '__external__',
     changes: [syncChange],
   };
+  const realtimeNotifyStartedAt = performance.now();
   const realtimeNotify = wsConnectionManager
     ? await notifyWebSocketConnectionsWithSyncPacks({
         manager: wsConnectionManager,
@@ -609,12 +617,20 @@ app.post('/benchmark/external-write', async (c) => {
         commits: [syncCommit],
       })
     : null;
+  const realtimeNotifyMs = performance.now() - realtimeNotifyStartedAt;
 
   return c.json({
     ok: true,
     row,
     notify: notifyResult,
     realtimeNotify,
+    timings: {
+      totalMs: performance.now() - totalStartedAt,
+      dbUpdateMs,
+      notifyExternalRowChangesMs,
+      commitLookupMs,
+      realtimeNotifyMs,
+    },
   });
 });
 

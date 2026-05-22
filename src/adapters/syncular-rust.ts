@@ -247,6 +247,7 @@ type RustReconnectStormCaseResult = {
   realtimePullRequiredCount?: number;
   realtimeReconnectScheduledCount?: number;
   realtimeReconnectPullCount?: number;
+  externalWrite?: SyncularRustExternalWriteResult;
   requestCount: number;
   requestBytes: number;
   responseBytes: number;
@@ -277,10 +278,27 @@ type RustReconnectClientSample = {
 type RustWorkerReconnectClientSample = {
   clientIndex: number;
   visibleMs: number;
+  rowsChangedMs?: number;
+  diagnosticOffsetsMs?: JsonObject;
   diagnostics: JsonObject;
 };
 
 type RustReconnectMode = 'http' | 'worker-realtime';
+
+type SyncularRustExternalWriteResult = {
+  timings?: JsonObject;
+  realtimeNotify?: JsonObject | null;
+};
+
+function asJsonObject(value: unknown): JsonObject | undefined {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as JsonObject)
+    : undefined;
+}
+
+function asJsonObjectOrNull(value: unknown): JsonObject | null {
+  return asJsonObject(value) ?? null;
+}
 
 type RustOfflineReplayCaseResult = {
   queuedWriteCount: number;
@@ -1010,6 +1028,72 @@ function diagnosticDetailBoolean(event: JsonObject, key: string): boolean | null
   return typeof value === 'boolean' ? value : null;
 }
 
+function diagnosticAtMs(event: JsonObject): number | null {
+  const value = event.at;
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
+function firstDiagnosticOffsetMs(
+  events: JsonObject[],
+  code: string,
+  baseEpochMs: number
+): number | null {
+  const firstAt = events
+    .filter((event) => diagnosticCode(event) === code)
+    .map(diagnosticAtMs)
+    .filter((value): value is number => value !== null)
+    .sort((a, b) => a - b)[0];
+  return firstAt === undefined ? null : round(firstAt - baseEpochMs);
+}
+
+function lastDiagnosticOffsetMs(
+  events: JsonObject[],
+  code: string,
+  baseEpochMs: number
+): number | null {
+  const lastAt = events
+    .filter((event) => diagnosticCode(event) === code)
+    .map(diagnosticAtMs)
+    .filter((value): value is number => value !== null)
+    .sort((a, b) => b - a)[0];
+  return lastAt === undefined ? null : round(lastAt - baseEpochMs);
+}
+
+function summarizeRustWorkerDiagnosticOffsets(
+  client: RustWorkerClient,
+  baseEpochMs: number
+): JsonObject {
+  const events = rustWorkerDiagnostics(client);
+  return {
+    firstReconnectScheduledMs: firstDiagnosticOffsetMs(
+      events,
+      'realtime.reconnect_scheduled',
+      baseEpochMs
+    ),
+    lastReconnectScheduledMs: lastDiagnosticOffsetMs(
+      events,
+      'realtime.reconnect_scheduled',
+      baseEpochMs
+    ),
+    firstHelloMs: firstDiagnosticOffsetMs(events, 'realtime.hello', baseEpochMs),
+    firstSyncWakeupMs: firstDiagnosticOffsetMs(
+      events,
+      'realtime.sync_wakeup',
+      baseEpochMs
+    ),
+    firstBinaryAppliedMs: firstDiagnosticOffsetMs(
+      events,
+      'realtime.binary_applied',
+      baseEpochMs
+    ),
+    firstAckSentMs: firstDiagnosticOffsetMs(
+      events,
+      'realtime.ack_sent',
+      baseEpochMs
+    ),
+  };
+}
+
 function countDiagnosticReasons(events: JsonObject[], code: string): JsonObject {
   const counts: Record<string, number> = {};
   for (const event of events) {
@@ -1047,6 +1131,9 @@ function summarizeRustWorkerDiagnostics(client: RustWorkerClient): JsonObject {
     .filter((value): value is number => value !== null);
   const binaryApplyDecodeMs = events
     .map((event) => diagnosticDetailNumber(event, 'syncPackDecodeMs'))
+    .filter((value): value is number => value !== null);
+  const binaryApplyNotifyMs = events
+    .map((event) => diagnosticDetailNumber(event, 'notifyMs'))
     .filter((value): value is number => value !== null);
   const syncWakeupPayloadBytes = events
     .filter((event) => diagnosticCode(event) === 'realtime.sync_wakeup')
@@ -1113,6 +1200,8 @@ function summarizeRustWorkerDiagnostics(client: RustWorkerClient): JsonObject {
     realtimeBinaryApplyTotalP95Ms: percentileOrNull(binaryApplyTotalMs, 95),
     realtimeBinaryApplyDecodeP50Ms: percentileOrNull(binaryApplyDecodeMs, 50),
     realtimeBinaryApplyDecodeP95Ms: percentileOrNull(binaryApplyDecodeMs, 95),
+    realtimeBinaryApplyNotifyP50Ms: percentileOrNull(binaryApplyNotifyMs, 50),
+    realtimeBinaryApplyNotifyP95Ms: percentileOrNull(binaryApplyNotifyMs, 95),
   };
 }
 
@@ -1240,18 +1329,38 @@ async function waitForRustWorkerTaskTitleFromRealtime(args: {
   taskId: string;
   expectedTitle: string;
   timeoutMs?: number;
-}): Promise<void> {
+}): Promise<{
+  rowsChangedAtMs: number;
+  visibleAtMs: number;
+}> {
   const timeoutMs = args.timeoutMs ?? 30_000;
   const startedAt = performance.now();
 
   while (performance.now() - startedAt < timeoutMs) {
     const remainingMs = Math.max(1, timeoutMs - (performance.now() - startedAt));
-    await waitForRustWorkerRowsChanged(args.client, remainingMs);
+    const rowsChangedEvent = await waitForRustWorkerRowsChanged(
+      args.client,
+      remainingMs
+    );
+    const rowsChangedAtMs = performance.now();
+    if (rustWorkerRowsChangedMatchesTask(rowsChangedEvent, args.taskId)) {
+      const visibleAtMs = performance.now();
+      await waitForRustWorkerRealtimeDiagnostic(args.client);
+      return {
+        rowsChangedAtMs,
+        visibleAtMs,
+      };
+    }
     if (
       (await getRustWorkerTaskTitle(args.client, args.taskId)) ===
       args.expectedTitle
     ) {
-      return;
+      const visibleAtMs = performance.now();
+      await waitForRustWorkerRealtimeDiagnostic(args.client);
+      return {
+        rowsChangedAtMs,
+        visibleAtMs,
+      };
     }
   }
 
@@ -1263,7 +1372,7 @@ async function waitForRustWorkerTaskTitleFromRealtime(args: {
 function waitForRustWorkerRowsChanged(
   client: RustWorkerClient,
   timeoutMs: number
-): Promise<void> {
+): Promise<JsonObject> {
   return new Promise((resolve, reject) => {
     let remove: (() => void) | null = null;
     const timer = setTimeout(() => {
@@ -1271,12 +1380,57 @@ function waitForRustWorkerRowsChanged(
       reject(new Error('Timed out waiting for Rust worker rowsChanged event'));
     }, timeoutMs);
 
-    remove = client.addRowsChangedListener(() => {
+    remove = client.addRowsChangedListener((event) => {
       if (DEBUG_RUST_WS) console.error('rust worker rowsChanged');
       clearTimeout(timer);
       if (remove) remove();
-      resolve();
+      resolve(event);
     });
+  });
+}
+
+async function waitForRustWorkerRealtimeDiagnostic(
+  client: RustWorkerClient,
+  timeoutMs = 1_000
+): Promise<void> {
+  const startedAt = performance.now();
+  while (performance.now() - startedAt < timeoutMs) {
+    const hasRealtimeApplyDiagnostic = rustWorkerDiagnostics(client).some(
+      (event) => {
+        const code = diagnosticCode(event);
+        return (
+          code === 'realtime.binary_applied' ||
+          code === 'realtime.pull_required' ||
+          code === 'realtime.binary_apply_failed'
+        );
+      }
+    );
+    if (hasRealtimeApplyDiagnostic) return;
+    await Bun.sleep(1);
+  }
+}
+
+function rustWorkerRowsChangedMatchesTask(
+  event: JsonObject,
+  taskId: string
+): boolean {
+  const changedTables = event.changedTables;
+  if (
+    Array.isArray(changedTables) &&
+    changedTables.some((table) => table === 'tasks')
+  ) {
+    return true;
+  }
+  const changedRows = event.changedRows;
+  if (!Array.isArray(changedRows)) return false;
+  return changedRows.some((row) => {
+    if (!row || typeof row !== 'object' || Array.isArray(row)) return false;
+    const record = row as Record<string, unknown>;
+    if (record.table !== 'tasks' || record.rowId !== taskId) return false;
+    const changedFields = record.changedFields;
+    return Array.isArray(changedFields)
+      ? changedFields.includes('title')
+      : true;
   });
 }
 
@@ -1738,7 +1892,6 @@ async function runSyncularRustReconnectStormCase(args: {
       )
     );
 
-    const convergenceMs = performance.now() - startedAt;
     const containerMetrics = sampler.stop();
     const totalTransport = sessions.reduce(
       (totals, client) => {
@@ -1759,6 +1912,8 @@ async function runSyncularRustReconnectStormCase(args: {
     const postgresMetrics = containerMetrics.postgres;
     const clientSyncOnceMs = clientSamples.map((sample) => sample.syncOnceMs);
     const clientVisibleMs = clientSamples.map((sample) => sample.visibleMs);
+    const convergenceMs =
+      clientVisibleMs.length > 0 ? Math.max(...clientVisibleMs) : 0;
     const extraSyncCalls = clientSamples.reduce(
       (total, sample) => total + sample.extraSyncCalls,
       0
@@ -1815,9 +1970,10 @@ async function waitForRustWorkerReconnectTaskTitle(args: {
   taskId: string;
   expectedTitle: string;
   convergenceStartedAt: number;
+  convergenceStartedAtEpochMs: number;
   timeoutMs?: number;
 }): Promise<RustWorkerReconnectClientSample> {
-  await waitForRustWorkerTaskTitleFromRealtime({
+  const waitResult = await waitForRustWorkerTaskTitleFromRealtime({
     client: args.client,
     taskId: args.taskId,
     expectedTitle: args.expectedTitle,
@@ -1826,7 +1982,14 @@ async function waitForRustWorkerReconnectTaskTitle(args: {
 
   return {
     clientIndex: args.clientIndex,
-    visibleMs: round(performance.now() - args.convergenceStartedAt),
+    visibleMs: round(waitResult.visibleAtMs - args.convergenceStartedAt),
+    rowsChangedMs: round(
+      waitResult.rowsChangedAtMs - args.convergenceStartedAt
+    ),
+    diagnosticOffsetsMs: summarizeRustWorkerDiagnosticOffsets(
+      args.client,
+      args.convergenceStartedAtEpochMs
+    ),
     diagnostics: summarizeRustWorkerDiagnostics(args.client),
   };
 }
@@ -1900,6 +2063,7 @@ async function runSyncularRustWorkerRealtimeReconnectStormCase(args: {
     ]);
     sampler.start();
     const startedAt = performance.now();
+    const startedAtEpochMs = Date.now();
     const expectedTitle = `syncular-rust-worker-storm-${Date.now()}`;
     const waiters = sessions.map((client, clientIndex) =>
       waitForRustWorkerReconnectTaskTitle({
@@ -1908,16 +2072,16 @@ async function runSyncularRustWorkerRealtimeReconnectStormCase(args: {
         taskId,
         expectedTitle,
         convergenceStartedAt: startedAt,
+        convergenceStartedAtEpochMs: startedAtEpochMs,
         timeoutMs: 60_000,
       })
     );
-    await writeSyncularRustExternalTask({
+    const externalWrite = await writeSyncularRustExternalTask({
       taskId,
       title: expectedTitle,
     });
     const clientSamples = await Promise.all(waiters);
 
-    const convergenceMs = performance.now() - startedAt;
     const containerMetrics = sampler.stop();
     const transportStats = await Promise.all(
       sessions.map((client) => client.transportStats())
@@ -1937,6 +2101,8 @@ async function runSyncularRustWorkerRealtimeReconnectStormCase(args: {
     const syncMetrics = containerMetrics.sync;
     const postgresMetrics = containerMetrics.postgres;
     const clientVisibleMs = clientSamples.map((sample) => sample.visibleMs);
+    const convergenceMs =
+      clientVisibleMs.length > 0 ? Math.max(...clientVisibleMs) : 0;
     const diagnosticSummaries = clientSamples.map((sample) => sample.diagnostics);
     const realtimeReconnectScheduledCount = sessions.reduce(
       (total, client) =>
@@ -1974,6 +2140,7 @@ async function runSyncularRustWorkerRealtimeReconnectStormCase(args: {
         const value = reasons.reconnect;
         return total + (typeof value === 'number' ? value : 0);
       }, 0),
+      externalWrite,
       requestCount: totalTransport.requestCount,
       requestBytes: totalTransport.requestBytes,
       responseBytes: totalTransport.responseBytes,
@@ -2178,7 +2345,7 @@ async function writeSyncularRustExternalTask(args: {
   taskId: string;
   title?: string;
   completed?: boolean;
-}): Promise<void> {
+}): Promise<SyncularRustExternalWriteResult> {
   const response = await fetch(
     `${getStack(SYNCULAR_SERVER_STACK).syncBaseUrl.replace(/\/api$/, '')}/benchmark/external-write`,
     {
@@ -2196,6 +2363,17 @@ async function writeSyncularRustExternalTask(args: {
       `Syncular Rust benchmark external write failed: ${response.status} ${response.statusText} ${body}`
     );
   }
+  const body = await response.json();
+  return {
+    timings:
+      body && typeof body === 'object' && !Array.isArray(body)
+        ? asJsonObject((body as Record<string, unknown>).timings)
+        : undefined,
+    realtimeNotify:
+      body && typeof body === 'object' && !Array.isArray(body)
+        ? asJsonObjectOrNull((body as Record<string, unknown>).realtimeNotify)
+        : null,
+  };
 }
 
 async function revokeSyncularRustProjectMembership(args: {
@@ -2941,6 +3119,25 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
             `clients_${result.clientCount}_realtime_reconnect_pull_count`,
             result.realtimeReconnectPullCount ?? null,
           ],
+          [
+            `clients_${result.clientCount}_external_write_total_ms`,
+            metricNumber(result.externalWrite?.timings ?? {}, 'totalMs'),
+          ],
+          [
+            `clients_${result.clientCount}_external_write_realtime_notify_ms`,
+            metricNumber(result.externalWrite?.timings ?? {}, 'realtimeNotifyMs'),
+          ],
+          [
+            `clients_${result.clientCount}_external_write_realtime_owner_count`,
+            metricNumber(result.externalWrite?.realtimeNotify ?? {}, 'ownerCount'),
+          ],
+          [
+            `clients_${result.clientCount}_external_write_binary_pack_owner_count`,
+            metricNumber(
+              result.externalWrite?.realtimeNotify ?? {},
+              'binaryPackOwnerCount'
+            ),
+          ],
           [`clients_${result.clientCount}_sync_avg_cpu_pct`, result.syncAvgCpuPct],
           [`clients_${result.clientCount}_sync_peak_cpu_pct`, result.syncPeakCpuPct],
           [`clients_${result.clientCount}_sync_avg_memory_mb`, result.syncAvgMemoryMb],
@@ -2992,6 +3189,7 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
           realtimeReconnectScheduledCount:
             result.realtimeReconnectScheduledCount ?? null,
           realtimeReconnectPullCount: result.realtimeReconnectPullCount ?? null,
+          externalWrite: result.externalWrite ?? null,
           clientSamples: result.clientSamples,
           syncAvgCpuPct: result.syncAvgCpuPct,
           syncPeakCpuPct: result.syncPeakCpuPct,
