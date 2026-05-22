@@ -231,6 +231,7 @@ type RustBootstrapScaleResult = {
 };
 
 type RustReconnectStormCaseResult = {
+  mode: RustReconnectMode;
   clientCount: number;
   reconnectConvergenceMs: number;
   clientSyncOnceP50Ms: number | null;
@@ -241,7 +242,11 @@ type RustReconnectStormCaseResult = {
   clientVisibleP99Ms: number | null;
   extraSyncCalls: number;
   maxExtraSyncCalls: number;
-  clientSamples: RustReconnectClientSample[];
+  clientSamples: Array<RustReconnectClientSample | RustWorkerReconnectClientSample>;
+  realtimeBinaryAppliedCount?: number;
+  realtimePullRequiredCount?: number;
+  realtimeReconnectScheduledCount?: number;
+  realtimeReconnectPullCount?: number;
   requestCount: number;
   requestBytes: number;
   responseBytes: number;
@@ -268,6 +273,14 @@ type RustReconnectClientSample = {
   extraSyncCalls: number;
   firstSyncTimings: JsonObject;
 };
+
+type RustWorkerReconnectClientSample = {
+  clientIndex: number;
+  visibleMs: number;
+  diagnostics: JsonObject;
+};
+
+type RustReconnectMode = 'http' | 'worker-realtime';
 
 type RustOfflineReplayCaseResult = {
   queuedWriteCount: number;
@@ -352,6 +365,7 @@ const RUST_PULL_LIMIT_COMMITS = 100;
 const RUST_PULL_LIMIT_SNAPSHOT_ROWS = 20_000;
 const RUST_PULL_MAX_SNAPSHOT_PAGES = 100;
 const DEFAULT_RUST_RECONNECT_CLIENT_COUNTS = [25, 100, 250];
+const RUST_RECONNECT_MODE = parseRustReconnectMode();
 const DEFAULT_RUST_LARGE_OFFLINE_QUEUE_SIZES = [100, 500, 1000];
 const RUST_OUTBOX_PUSH_BATCH_LIMIT = parseOptionalPositiveInteger(
   process.env.SYNCULAR_RUST_OUTBOX_PUSH_BATCH_LIMIT,
@@ -1020,6 +1034,12 @@ function countDiagnosticDetailStrings(
   return counts;
 }
 
+function countDiagnosticCode(client: RustWorkerClient, code: string): number {
+  return rustWorkerDiagnostics(client).filter(
+    (event) => diagnosticCode(event) === code
+  ).length;
+}
+
 function summarizeRustWorkerDiagnostics(client: RustWorkerClient): JsonObject {
   const events = rustWorkerDiagnostics(client);
   const binaryApplyTotalMs = events
@@ -1101,6 +1121,13 @@ function metricNumber(summary: JsonObject, key: string): number | null {
   return typeof value === 'number' ? value : null;
 }
 
+function sumMetricNumber(summaries: JsonObject[], key: string): number {
+  return summaries.reduce((total, summary) => {
+    const value = metricNumber(summary, key);
+    return total + (value ?? 0);
+  }, 0);
+}
+
 function getRustTaskRow(
   client: RustClient,
   taskId: string
@@ -1168,12 +1195,18 @@ async function waitForRustWorkerRealtimeConnected(args: {
 async function startRustWorkerRealtime(args: {
   client: RustWorkerClient;
   actorId: string;
+  initialReconnectDelayMs?: number;
+  maxReconnectDelayMs?: number;
+  reconnectJitterRatio?: number;
+  pullRecoveryJitterMs?: number;
 }): Promise<void> {
   await args.client.startRealtime({
     wsUrl: getStack(SYNCULAR_SERVER_STACK).syncRealtimeBaseUrl,
     params: { userId: args.actorId },
-    initialReconnectDelayMs: 50,
-    maxReconnectDelayMs: 100,
+    initialReconnectDelayMs: args.initialReconnectDelayMs ?? 50,
+    maxReconnectDelayMs: args.maxReconnectDelayMs ?? 100,
+    reconnectJitterRatio: args.reconnectJitterRatio,
+    pullRecoveryJitterMs: args.pullRecoveryJitterMs,
     heartbeatTimeoutMs: 0,
   });
   await waitForRustWorkerRealtimeConnected({ client: args.client });
@@ -1376,6 +1409,15 @@ function parseRustReconnectClientCounts(): number[] {
     );
   }
   return values;
+}
+
+function parseRustReconnectMode(): RustReconnectMode {
+  const raw = process.env.SYNCULAR_RUST_RECONNECT_MODE;
+  if (!raw) return 'http';
+  if (raw === 'http' || raw === 'worker-realtime') return raw;
+  throw new Error(
+    'SYNCULAR_RUST_RECONNECT_MODE must be either "http" or "worker-realtime"'
+  );
 }
 
 function parseRustLargeOfflineQueueSizes(): number[] {
@@ -1727,6 +1769,7 @@ async function runSyncularRustReconnectStormCase(args: {
     );
 
     return {
+      mode: 'http' as const,
       clientCount: args.clientCount,
       reconnectConvergenceMs: round(convergenceMs),
       clientSyncOnceP50Ms: percentileOrNull(clientSyncOnceMs, 50),
@@ -1763,6 +1806,197 @@ async function runSyncularRustReconnectStormCase(args: {
     for (const client of sessions) {
       client.close();
     }
+  }
+}
+
+async function waitForRustWorkerReconnectTaskTitle(args: {
+  client: RustWorkerClient;
+  clientIndex: number;
+  taskId: string;
+  expectedTitle: string;
+  convergenceStartedAt: number;
+  timeoutMs?: number;
+}): Promise<RustWorkerReconnectClientSample> {
+  await waitForRustWorkerTaskTitleFromRealtime({
+    client: args.client,
+    taskId: args.taskId,
+    expectedTitle: args.expectedTitle,
+    timeoutMs: args.timeoutMs ?? 60_000,
+  });
+
+  return {
+    clientIndex: args.clientIndex,
+    visibleMs: round(performance.now() - args.convergenceStartedAt),
+    diagnostics: summarizeRustWorkerDiagnostics(args.client),
+  };
+}
+
+async function runSyncularRustWorkerRealtimeReconnectStormCase(args: {
+  clientCount: number;
+}): Promise<RustReconnectStormCaseResult> {
+  await ensureStackUp(SYNCULAR_SERVER_STACK);
+  await seedSyncularRustStack({
+    resetFirst: true,
+    orgCount: 1,
+    projectsPerOrg: 1,
+    usersPerOrg: 2,
+    tasksPerProject: 200,
+    membershipsPerProject: 2,
+  });
+
+  const fixtures = await getFixtures(SYNCULAR_SERVER_STACK);
+  const actorId = fixtures.sampleUserIds[0];
+  const projectId = fixtures.sampleProjectId;
+  const taskId = fixtures.sampleTaskId;
+  if (!actorId || !projectId || !taskId) {
+    throw new Error('Syncular Rust fixtures are missing actor/project/task data');
+  }
+
+  const sessions: RustWorkerClient[] = [];
+  for (let index = 0; index < args.clientCount; index += 1) {
+    const bootstrap = await bootstrapRustWorkerClient({
+      actorId,
+      clientId: `syncular-rust-worker-storm-${args.clientCount}-${index}-${randomUUID()}`,
+      projectIds: projectId,
+      expectedRows: 200,
+    });
+    sessions.push(bootstrap.client);
+  }
+
+  for (const client of sessions) {
+    await startRustWorkerRealtime({
+      client,
+      actorId,
+      initialReconnectDelayMs: 50,
+      maxReconnectDelayMs: 100,
+      reconnectJitterRatio: 20,
+      pullRecoveryJitterMs: 1000,
+    });
+    await client.resetTransportStats();
+    clearRustWorkerDiagnostics(client);
+  }
+
+  let syncServiceStarted = true;
+  try {
+    const syncContainerId = resolveServiceContainerId(SYNCULAR_SERVER_STACK, 'sync');
+    const postgresContainerId = resolveServiceContainerId(
+      SYNCULAR_SERVER_STACK,
+      'postgres'
+    );
+
+    stopService(SYNCULAR_SERVER_STACK, 'sync');
+    syncServiceStarted = false;
+    await waitForUrlDown(
+      `${getStack(SYNCULAR_SERVER_STACK).syncBaseUrl.replace(/\/api$/, '')}/health`
+    );
+    startService(SYNCULAR_SERVER_STACK, 'sync');
+    syncServiceStarted = true;
+    await ensureStackUp(SYNCULAR_SERVER_STACK);
+    await waitForSyncularRustApiReady({ actorId, projectId });
+
+    const sampler = new DockerServiceSampler([
+      { label: 'sync', id: syncContainerId },
+      { label: 'postgres', id: postgresContainerId },
+    ]);
+    sampler.start();
+    const startedAt = performance.now();
+    const expectedTitle = `syncular-rust-worker-storm-${Date.now()}`;
+    const waiters = sessions.map((client, clientIndex) =>
+      waitForRustWorkerReconnectTaskTitle({
+        client,
+        clientIndex,
+        taskId,
+        expectedTitle,
+        convergenceStartedAt: startedAt,
+        timeoutMs: 60_000,
+      })
+    );
+    await writeSyncularRustExternalTask({
+      taskId,
+      title: expectedTitle,
+    });
+    const clientSamples = await Promise.all(waiters);
+
+    const convergenceMs = performance.now() - startedAt;
+    const containerMetrics = sampler.stop();
+    const transportStats = await Promise.all(
+      sessions.map((client) => client.transportStats())
+    );
+    const totalTransport = transportStats.reduce(
+      (totals, stats) => ({
+        requestCount: totals.requestCount + stats.requestCount,
+        requestBytes: totals.requestBytes + stats.requestBytes,
+        responseBytes: totals.responseBytes + stats.responseBytes,
+      }),
+      {
+        requestCount: 0,
+        requestBytes: 0,
+        responseBytes: 0,
+      }
+    );
+    const syncMetrics = containerMetrics.sync;
+    const postgresMetrics = containerMetrics.postgres;
+    const clientVisibleMs = clientSamples.map((sample) => sample.visibleMs);
+    const diagnosticSummaries = clientSamples.map((sample) => sample.diagnostics);
+    const realtimeReconnectScheduledCount = sessions.reduce(
+      (total, client) =>
+        total + countDiagnosticCode(client, 'realtime.reconnect_scheduled'),
+      0
+    );
+
+    return {
+      mode: 'worker-realtime' as const,
+      clientCount: args.clientCount,
+      reconnectConvergenceMs: round(convergenceMs),
+      clientSyncOnceP50Ms: null,
+      clientSyncOnceP95Ms: null,
+      clientSyncOnceP99Ms: null,
+      clientVisibleP50Ms: percentileOrNull(clientVisibleMs, 50),
+      clientVisibleP95Ms: percentileOrNull(clientVisibleMs, 95),
+      clientVisibleP99Ms: percentileOrNull(clientVisibleMs, 99),
+      extraSyncCalls: 0,
+      maxExtraSyncCalls: 0,
+      clientSamples,
+      realtimeBinaryAppliedCount: sumMetricNumber(
+        diagnosticSummaries,
+        'realtimeBinaryAppliedCount'
+      ),
+      realtimePullRequiredCount: sumMetricNumber(
+        diagnosticSummaries,
+        'realtimePullRequiredCount'
+      ),
+      realtimeReconnectScheduledCount,
+      realtimeReconnectPullCount: diagnosticSummaries.reduce((total, summary) => {
+        const reasons = summary.realtimePullRequiredReasons;
+        if (!reasons || typeof reasons !== 'object' || Array.isArray(reasons)) {
+          return total;
+        }
+        const value = reasons.reconnect;
+        return total + (typeof value === 'number' ? value : 0);
+      }, 0),
+      requestCount: totalTransport.requestCount,
+      requestBytes: totalTransport.requestBytes,
+      responseBytes: totalTransport.responseBytes,
+      bytesTransferred: totalTransport.requestBytes + totalTransport.responseBytes,
+      syncAvgCpuPct: syncMetrics?.avgCpuPct ?? 0,
+      syncPeakCpuPct: syncMetrics?.peakCpuPct ?? 0,
+      syncAvgMemoryMb: syncMetrics?.avgMemoryMb ?? 0,
+      syncPeakMemoryMb: syncMetrics?.peakMemoryMb ?? 0,
+      syncRxNetworkMb: syncMetrics?.rxNetworkMb ?? 0,
+      syncTxNetworkMb: syncMetrics?.txNetworkMb ?? 0,
+      postgresAvgCpuPct: postgresMetrics?.avgCpuPct ?? 0,
+      postgresPeakCpuPct: postgresMetrics?.peakCpuPct ?? 0,
+      postgresAvgMemoryMb: postgresMetrics?.avgMemoryMb ?? 0,
+      postgresPeakMemoryMb: postgresMetrics?.peakMemoryMb ?? 0,
+      postgresRxNetworkMb: postgresMetrics?.rxNetworkMb ?? 0,
+      postgresTxNetworkMb: postgresMetrics?.txNetworkMb ?? 0,
+    };
+  } finally {
+    if (!syncServiceStarted) {
+      startService(SYNCULAR_SERVER_STACK, 'sync');
+      await ensureStackUp(SYNCULAR_SERVER_STACK);
+    }
+    await Promise.all(sessions.map((client) => client.close()));
   }
 }
 
@@ -2661,10 +2895,14 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
   async runReconnectStorm() {
     const clientCounts = parseRustReconnectClientCounts();
     const results = [];
+    const runCase =
+      RUST_RECONNECT_MODE === 'worker-realtime'
+        ? runSyncularRustWorkerRealtimeReconnectStormCase
+        : runSyncularRustReconnectStormCase;
 
     for (const clientCount of clientCounts) {
       results.push(
-        await runSyncularRustReconnectStormCase({
+        await runCase({
           clientCount,
         })
       );
@@ -2687,6 +2925,22 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
           [`clients_${result.clientCount}_client_visible_p99_ms`, result.clientVisibleP99Ms],
           [`clients_${result.clientCount}_extra_sync_calls`, result.extraSyncCalls],
           [`clients_${result.clientCount}_max_extra_sync_calls`, result.maxExtraSyncCalls],
+          [
+            `clients_${result.clientCount}_realtime_binary_applied_count`,
+            result.realtimeBinaryAppliedCount ?? null,
+          ],
+          [
+            `clients_${result.clientCount}_realtime_pull_required_count`,
+            result.realtimePullRequiredCount ?? null,
+          ],
+          [
+            `clients_${result.clientCount}_realtime_reconnect_scheduled_count`,
+            result.realtimeReconnectScheduledCount ?? null,
+          ],
+          [
+            `clients_${result.clientCount}_realtime_reconnect_pull_count`,
+            result.realtimeReconnectPullCount ?? null,
+          ],
           [`clients_${result.clientCount}_sync_avg_cpu_pct`, result.syncAvgCpuPct],
           [`clients_${result.clientCount}_sync_peak_cpu_pct`, result.syncPeakCpuPct],
           [`clients_${result.clientCount}_sync_avg_memory_mb`, result.syncAvgMemoryMb],
@@ -2702,14 +2956,23 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
         ])
       ),
       notes: [
-        'Reconnect storm uses already-bootstrapped Rust WASM HTTP clients catching up after the sync service restarts.',
+        RUST_RECONNECT_MODE === 'worker-realtime'
+          ? 'Reconnect storm uses already-bootstrapped Rust worker realtime clients catching up after the sync service restarts.'
+          : 'Reconnect storm uses already-bootstrapped Rust WASM HTTP clients catching up after the sync service restarts.',
         'Server resource metrics sample the sync service and Postgres containers during each reconnect window.',
-        'This is Rust client stress coverage, not the Rust worker realtime/WS path yet.',
+        RUST_RECONNECT_MODE === 'worker-realtime'
+          ? 'Worker realtime clients run reconnect catch-up pulls and apply direct binary websocket sync-packs when connected in time for the update.'
+          : 'This is Rust client stress coverage, not the Rust worker realtime/WS path yet.',
       ],
       metadata: {
-        implementation: 'syncular-rust-wasm-client-http-reconnect-storm',
+        implementation:
+          RUST_RECONNECT_MODE === 'worker-realtime'
+            ? 'syncular-rust-worker-realtime-reconnect-storm'
+            : 'syncular-rust-wasm-client-http-reconnect-storm',
+        mode: RUST_RECONNECT_MODE,
         clientCounts,
         scales: results.map((result) => ({
+          mode: result.mode,
           clientCount: result.clientCount,
           reconnectConvergenceMs: result.reconnectConvergenceMs,
           requestCount: result.requestCount,
@@ -2724,6 +2987,11 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
           clientVisibleP99Ms: result.clientVisibleP99Ms,
           extraSyncCalls: result.extraSyncCalls,
           maxExtraSyncCalls: result.maxExtraSyncCalls,
+          realtimeBinaryAppliedCount: result.realtimeBinaryAppliedCount ?? null,
+          realtimePullRequiredCount: result.realtimePullRequiredCount ?? null,
+          realtimeReconnectScheduledCount:
+            result.realtimeReconnectScheduledCount ?? null,
+          realtimeReconnectPullCount: result.realtimeReconnectPullCount ?? null,
           clientSamples: result.clientSamples,
           syncAvgCpuPct: result.syncAvgCpuPct,
           syncPeakCpuPct: result.syncPeakCpuPct,
