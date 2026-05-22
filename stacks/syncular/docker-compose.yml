@@ -21,12 +21,18 @@ services:
     build:
       context: ../../
       dockerfile: stacks/syncular/Dockerfile
+      additional_contexts:
+        syncular_branch: "${SYNCULAR_BRANCH_ROOT:-/Users/bkniffler/conductor/workspaces/syncular/indianapolis}"
     environment:
       DATABASE_URL: postgresql://bench:bench@postgres:5432/bench
       PORT: "3000"
       PUBLIC_SYNC_BASE_URL: http://localhost:3210/api/sync
       BLOB_TOKEN_SECRET: syncular-bench-blob-secret
       SYNCULAR_BENCH_SNAPSHOT_BUNDLE_MAX_BYTES: "${SYNCULAR_BENCH_SNAPSHOT_BUNDLE_MAX_BYTES-}"
+      SYNCULAR_BENCH_SCOPED_SQLITE_ARTIFACTS: "${SYNCULAR_BENCH_SCOPED_SQLITE_ARTIFACTS-1}"
+      SYNCULAR_BENCH_SCOPED_SQLITE_ARTIFACT_ROW_LIMIT: "${SYNCULAR_BENCH_SCOPED_SQLITE_ARTIFACT_ROW_LIMIT-}"
+      SYNCULAR_BENCH_WS_SYNC_PACK_MAX_BYTES: "${SYNCULAR_BENCH_WS_SYNC_PACK_MAX_BYTES-}"
+      SYNCULAR_BENCH_DEBUG_REALTIME: "${SYNCULAR_BENCH_DEBUG_REALTIME-}"
     depends_on:
       postgres:
         condition: service_healthy

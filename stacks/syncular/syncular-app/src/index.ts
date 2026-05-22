@@ -1,4 +1,5 @@
 import {
+  type BinarySnapshotColumn,
   type ScopeValue,
   configureSyncTelemetry,
   createBlobManager,
@@ -7,16 +8,20 @@ import {
   createHmacTokenSigner,
   createMemoryScopeCache,
   createServerHandler,
+  createServerHandlerCollection,
   ensureBlobStorageSchemaPostgres,
   ensureSyncSchema,
   notifyExternalDataChange,
   notifyExternalRowChanges,
+  precomputeScopedSnapshotArtifacts,
   type ScopeCacheBackend,
+  type SnapshotArtifactStorage,
   type SyncBlobDb,
   type SyncTelemetry,
   type SyncCoreDb,
 } from '@syncular/server';
 import { createPostgresServerDialect } from '@syncular/server-dialect-postgres';
+import { createBunSqliteSnapshotArtifactEncoder } from '@syncular/server/snapshot-artifacts/sqlite-bun';
 import {
   createBlobRoutes,
   createSyncServer,
@@ -25,6 +30,7 @@ import {
 import { Hono } from 'hono';
 import { upgradeWebSocket, websocket } from 'hono/bun';
 import { Kysely, PostgresDialect, sql } from 'kysely';
+import { createHash } from 'node:crypto';
 import { Pool } from 'pg';
 
 interface BenchDb extends SyncCoreDb, SyncBlobDb {
@@ -187,6 +193,28 @@ const snapshotBundleMaxBytes =
     : undefined;
 const benchmarkMaxPullLimitSnapshotRows = 20_000;
 const benchmarkMaxPullMaxSnapshotPages = 100;
+const scopedSqliteSnapshotArtifacts =
+  process.env.SYNCULAR_BENCH_SCOPED_SQLITE_ARTIFACTS === '1';
+const scopedSqliteSnapshotArtifactRowLimitEnv =
+  process.env.SYNCULAR_BENCH_SCOPED_SQLITE_ARTIFACT_ROW_LIMIT;
+const scopedSqliteSnapshotArtifactRowLimit =
+  scopedSqliteSnapshotArtifactRowLimitEnv &&
+  Number.isFinite(Number(scopedSqliteSnapshotArtifactRowLimitEnv)) &&
+  Number(scopedSqliteSnapshotArtifactRowLimitEnv) > 0
+    ? Math.max(1, Number(scopedSqliteSnapshotArtifactRowLimitEnv))
+    : benchmarkMaxPullLimitSnapshotRows;
+const wsSyncPackMaxBytesEnv =
+  process.env.SYNCULAR_BENCH_WS_SYNC_PACK_MAX_BYTES;
+const wsSyncPackMaxBytes =
+  wsSyncPackMaxBytesEnv &&
+  Number.isFinite(Number(wsSyncPackMaxBytesEnv)) &&
+  Number(wsSyncPackMaxBytesEnv) > 0
+    ? Math.max(1024, Number(wsSyncPackMaxBytesEnv))
+    : undefined;
+const benchmarkWebsocketRoutesConfig = wsSyncPackMaxBytes
+  ? ({ maxSyncPackBytes: wsSyncPackMaxBytes } as never)
+  : undefined;
+const debugRealtime = process.env.SYNCULAR_BENCH_DEBUG_REALTIME === '1';
 let activeScopeCache = createMemoryScopeCache();
 const scopeCache: ScopeCacheBackend = {
   name: 'bench-memory-delegate',
@@ -218,7 +246,24 @@ const blobManager = createBlobManager({
 });
 
 const benchmarkTelemetry: SyncTelemetry = {
-  log() {},
+  log(event) {
+    if (!debugRealtime) return;
+    if (
+      event &&
+      typeof event === 'object' &&
+      'event' in event &&
+      typeof event.event === 'string' &&
+      event.event.startsWith('sync.realtime.')
+    ) {
+      console.error(
+        JSON.stringify({
+          timestamp: new Date().toISOString(),
+          level: 'debug',
+          ...event,
+        })
+      );
+    }
+  },
   tracer: {
     startSpan(_options, callback) {
       return callback({
@@ -248,6 +293,17 @@ const benchmarkTelemetry: SyncTelemetry = {
 };
 
 configureSyncTelemetry(benchmarkTelemetry);
+
+const taskSnapshotBinaryColumns = [
+  { name: 'id', type: 'string' },
+  { name: 'org_id', type: 'string' },
+  { name: 'project_id', type: 'string' },
+  { name: 'owner_id', type: 'string' },
+  { name: 'title', type: 'string' },
+  { name: 'completed', type: 'boolean' },
+  { name: 'server_version', type: 'integer' },
+  { name: 'updated_at', type: 'string' },
+] satisfies readonly BinarySnapshotColumn[];
 
 await ensureBenchmarkSchema();
 await ensureSyncSchema(db, dialect);
@@ -279,6 +335,7 @@ const tasksHandler = createServerHandler<
       cursor: ctx.cursor,
       limit: ctx.limit,
     }),
+  snapshotBinaryColumns: taskSnapshotBinaryColumns,
   ...(snapshotBundleMaxBytes ? { snapshotBundleMaxBytes } : {}),
 });
 
@@ -357,6 +414,25 @@ const taskBlobsHandler = createServerHandler<
   ...(snapshotBundleMaxBytes ? { snapshotBundleMaxBytes } : {}),
 });
 
+const handlerCollection = createServerHandlerCollection<
+  BenchDb,
+  BenchAuth
+>([organizationsHandler, projectsHandler, tasksHandler, taskBlobsHandler]);
+const snapshotArtifactBodies = new Map<string, Uint8Array>();
+const snapshotArtifactStorage: SnapshotArtifactStorage | undefined =
+  scopedSqliteSnapshotArtifacts
+    ? {
+        name: 'syncular-bench-memory-artifacts',
+        async storeArtifact(artifact) {
+          snapshotArtifactBodies.set(artifact.artifactId, artifact.body);
+          return { blobHash: `memory:${artifact.artifactId}` };
+        },
+        async readArtifact(artifact) {
+          return snapshotArtifactBodies.get(artifact.id) ?? null;
+        },
+      }
+    : undefined;
+
 const { syncRoutes } = createSyncServer<BenchDb, BenchAuth>({
   db,
   dialect,
@@ -370,13 +446,17 @@ const { syncRoutes } = createSyncServer<BenchDb, BenchAuth>({
       }
       return { actorId };
     },
-    handlers: [organizationsHandler, projectsHandler, tasksHandler, taskBlobsHandler],
+    handlers: handlerCollection.handlers,
   },
+  snapshotArtifactStorage,
   scopeCache,
   routes: {
     rateLimit: false,
     maxPullLimitSnapshotRows: benchmarkMaxPullLimitSnapshotRows,
     maxPullMaxSnapshotPages: benchmarkMaxPullMaxSnapshotPages,
+    ...(benchmarkWebsocketRoutesConfig
+      ? { websocket: benchmarkWebsocketRoutesConfig }
+      : {}),
   },
   upgradeWebSocket,
 });
@@ -458,6 +538,10 @@ app.post('/benchmark/external-write', async (c) => {
   if (!row) {
     return c.json({ ok: false, error: 'TASK_NOT_FOUND' }, 404);
   }
+  const rowServerVersion = Number(row.server_version);
+  if (!Number.isSafeInteger(rowServerVersion)) {
+    return c.json({ ok: false, error: 'INVALID_SERVER_VERSION' }, 500);
+  }
 
   const notifyResult = await notifyExternalRowChanges({
     db,
@@ -474,10 +558,10 @@ app.post('/benchmark/external-write', async (c) => {
           owner_id: row.owner_id,
           title: row.title,
           completed: row.completed,
-          server_version: row.server_version,
+          server_version: rowServerVersion,
           updated_at: row.updated_at,
         },
-        rowVersion: row.server_version,
+        rowVersion: rowServerVersion,
         scopes: {
           project_id: row.project_id,
         },
@@ -539,8 +623,101 @@ app.post('/benchmark/revoke-membership', async (c) => {
 
 app.post('/benchmark/reset-scope-cache', async (c) => {
   activeScopeCache = createMemoryScopeCache();
-  return c.json({ ok: true });
+  const artifacts = await precomputeBenchmarkSnapshotArtifacts();
+  return c.json({ ok: true, artifacts });
 });
+
+async function precomputeBenchmarkSnapshotArtifacts(): Promise<{
+  enabled: boolean;
+  jobCount: number;
+  artifactCount: number;
+}> {
+  if (!snapshotArtifactStorage) {
+    return { enabled: false, jobCount: 0, artifactCount: 0 };
+  }
+
+  snapshotArtifactBodies.clear();
+  const memberships = await db
+    .selectFrom('project_memberships')
+    .innerJoin('projects', 'projects.id', 'project_memberships.project_id')
+    .select([
+      'project_memberships.user_id as user_id',
+      'project_memberships.project_id as project_id',
+      'projects.org_id as org_id',
+    ])
+    .orderBy('project_memberships.user_id', 'asc')
+    .orderBy('project_memberships.project_id', 'asc')
+    .execute();
+
+  const projectsByUser = new Map<string, Set<string>>();
+  for (const membership of memberships) {
+    const projects = projectsByUser.get(membership.user_id) ?? new Set<string>();
+    projects.add(membership.project_id);
+    projectsByUser.set(membership.user_id, projects);
+  }
+
+  const jobs = new Map<
+    string,
+    {
+      actorId: string;
+      scopes: { project_id: string | string[] };
+    }
+  >();
+  for (const [actorId, projectSet] of projectsByUser.entries()) {
+    const projectIds = Array.from(projectSet).sort();
+    for (const projectId of projectIds) {
+      const scopes = { project_id: projectId };
+      jobs.set(stableArtifactJobKey(scopes), { actorId, scopes });
+    }
+    if (projectIds.length > 1) {
+      const scopes = { project_id: projectIds };
+      jobs.set(stableArtifactJobKey(scopes), { actorId, scopes });
+    }
+  }
+
+  let artifactCount = 0;
+  for (const [jobKey, job] of Array.from(jobs.entries()).sort()) {
+    const refs = await precomputeScopedSnapshotArtifacts({
+      db,
+      storage: snapshotArtifactStorage,
+      handlers: handlerCollection,
+      auth: { actorId: job.actorId },
+      partitionId: 'default',
+      subscriptionId: 'tasks',
+      table: 'tasks',
+      scopes: job.scopes,
+      schemaVersion: 1,
+      asOfCommitSeq: 0,
+      rowCursor: null,
+      rowLimit: scopedSqliteSnapshotArtifactRowLimit,
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      artifactIdPrefix: `bench-tasks-${stableArtifactJobDigest(jobKey)}`,
+      encoder: createBunSqliteSnapshotArtifactEncoder(),
+    });
+    artifactCount += refs.length;
+  }
+
+  return {
+    enabled: true,
+    jobCount: jobs.size,
+    artifactCount,
+  };
+}
+
+function stableArtifactJobKey(scopes: { project_id: string | string[] }): string {
+  const projectScope = Array.isArray(scopes.project_id)
+    ? [...scopes.project_id].sort()
+    : scopes.project_id;
+  return JSON.stringify({
+    table: 'tasks',
+    subscriptionId: 'tasks',
+    scopes: { project_id: projectScope },
+  });
+}
+
+function stableArtifactJobDigest(jobKey: string): string {
+  return createHash('sha256').update(jobKey).digest('hex').slice(0, 16);
+}
 
 app.post('/benchmark/init-task-blobs', async (c) => {
   const request = await c.req

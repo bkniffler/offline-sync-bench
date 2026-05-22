@@ -243,6 +243,7 @@ async function isStackHealthy(stack: StackSpec): Promise<boolean> {
 
   switch (stack.id) {
     case 'syncular':
+    case 'syncular-rust':
       return isUrlHealthy(`${stack.syncBaseUrl.replace(/\/api$/, '')}/health`);
     case 'electric':
       if (
@@ -405,6 +406,7 @@ export async function ensureStackUp(stackId: StackId): Promise<StackSpec> {
 
   switch (stack.id) {
     case 'syncular':
+    case 'syncular-rust':
       await waitForUrl(`${stack.syncBaseUrl.replace(/\/api$/, '')}/health`);
       break;
     case 'electric':

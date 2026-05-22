@@ -51,6 +51,16 @@ Detailed specs live in:
   - `local-query`: `native`
   - `deep-relationship-query`: `native`
   - `permission-change`: `native`
+- `syncular-rust`
+  - `bootstrap`: `native`
+  - `online-propagation`: `native`
+  - `offline-replay`: `unsupported`
+  - `reconnect-storm`: `native`
+  - `large-offline-queue`: `unsupported`
+  - `local-query`: `native`
+  - `deep-relationship-query`: `native`
+  - `permission-change`: `native`
+  - `blob-flow`: `unsupported`
 - `electric`
   - `bootstrap`: `native`
   - `online-propagation`: `native`

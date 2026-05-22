@@ -1,0 +1,491 @@
+{
+  "$schema": "https://syncular.dev/schemas/syncular.schema.v1.json",
+  "contractVersion": 1,
+  "appSchemaVersion": 1,
+  "migrations": [
+    {
+      "version": "0001",
+      "schemaVersion": 1,
+      "name": "initial"
+    }
+  ],
+  "tables": [
+    {
+      "name": "organizations",
+      "primaryKeyColumn": "id",
+      "serverVersionColumn": "server_version",
+      "softDeleteColumn": null,
+      "columns": [
+        {
+          "name": "id",
+          "sqlType": "TEXT",
+          "typeFamily": "text",
+          "appType": "string",
+          "nullable": false,
+          "notnullRequired": false,
+          "primaryKey": true,
+          "hasDefault": false,
+          "defaultSql": null,
+          "serverVersion": false,
+          "softDelete": false,
+          "blobRef": false,
+          "scope": "id"
+        },
+        {
+          "name": "name",
+          "sqlType": "TEXT",
+          "typeFamily": "text",
+          "appType": "string",
+          "nullable": false,
+          "notnullRequired": true,
+          "primaryKey": false,
+          "hasDefault": false,
+          "defaultSql": null,
+          "serverVersion": false,
+          "softDelete": false,
+          "blobRef": false,
+          "scope": null
+        },
+        {
+          "name": "server_version",
+          "sqlType": "INTEGER",
+          "typeFamily": "integer",
+          "appType": "integer",
+          "nullable": false,
+          "notnullRequired": true,
+          "primaryKey": false,
+          "hasDefault": true,
+          "defaultSql": "0",
+          "serverVersion": true,
+          "softDelete": false,
+          "blobRef": false,
+          "scope": null
+        }
+      ],
+      "blobColumns": [],
+      "crdtYjsFields": [],
+      "encryptedFields": [],
+      "scopes": [
+        {
+          "name": "id",
+          "column": "id",
+          "source": "projectId",
+          "required": false
+        }
+      ],
+      "subscription": {
+        "id": "organizations",
+        "params": {}
+      }
+    },
+    {
+      "name": "projects",
+      "primaryKeyColumn": "id",
+      "serverVersionColumn": "server_version",
+      "softDeleteColumn": null,
+      "columns": [
+        {
+          "name": "id",
+          "sqlType": "TEXT",
+          "typeFamily": "text",
+          "appType": "string",
+          "nullable": false,
+          "notnullRequired": false,
+          "primaryKey": true,
+          "hasDefault": false,
+          "defaultSql": null,
+          "serverVersion": false,
+          "softDelete": false,
+          "blobRef": false,
+          "scope": "id"
+        },
+        {
+          "name": "org_id",
+          "sqlType": "TEXT",
+          "typeFamily": "text",
+          "appType": "string",
+          "nullable": false,
+          "notnullRequired": true,
+          "primaryKey": false,
+          "hasDefault": false,
+          "defaultSql": null,
+          "serverVersion": false,
+          "softDelete": false,
+          "blobRef": false,
+          "scope": null
+        },
+        {
+          "name": "name",
+          "sqlType": "TEXT",
+          "typeFamily": "text",
+          "appType": "string",
+          "nullable": false,
+          "notnullRequired": true,
+          "primaryKey": false,
+          "hasDefault": false,
+          "defaultSql": null,
+          "serverVersion": false,
+          "softDelete": false,
+          "blobRef": false,
+          "scope": null
+        },
+        {
+          "name": "server_version",
+          "sqlType": "INTEGER",
+          "typeFamily": "integer",
+          "appType": "integer",
+          "nullable": false,
+          "notnullRequired": true,
+          "primaryKey": false,
+          "hasDefault": true,
+          "defaultSql": "0",
+          "serverVersion": true,
+          "softDelete": false,
+          "blobRef": false,
+          "scope": null
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_projects_org_id",
+          "sql": "CREATE INDEX IF NOT EXISTS idx_projects_org_id\n  on projects (org_id)",
+          "unique": false,
+          "partial": false,
+          "columns": [
+            {
+              "name": "org_id",
+              "descending": false
+            }
+          ]
+        }
+      ],
+      "blobColumns": [],
+      "crdtYjsFields": [],
+      "encryptedFields": [],
+      "scopes": [
+        {
+          "name": "id",
+          "column": "id",
+          "source": "projectId",
+          "required": false
+        }
+      ],
+      "subscription": {
+        "id": "projects",
+        "params": {}
+      }
+    },
+    {
+      "name": "tasks",
+      "primaryKeyColumn": "id",
+      "serverVersionColumn": "server_version",
+      "softDeleteColumn": null,
+      "columns": [
+        {
+          "name": "id",
+          "sqlType": "TEXT",
+          "typeFamily": "text",
+          "appType": "string",
+          "nullable": false,
+          "notnullRequired": false,
+          "primaryKey": true,
+          "hasDefault": false,
+          "defaultSql": null,
+          "serverVersion": false,
+          "softDelete": false,
+          "blobRef": false,
+          "scope": null
+        },
+        {
+          "name": "org_id",
+          "sqlType": "TEXT",
+          "typeFamily": "text",
+          "appType": "string",
+          "nullable": false,
+          "notnullRequired": true,
+          "primaryKey": false,
+          "hasDefault": false,
+          "defaultSql": null,
+          "serverVersion": false,
+          "softDelete": false,
+          "blobRef": false,
+          "scope": null
+        },
+        {
+          "name": "project_id",
+          "sqlType": "TEXT",
+          "typeFamily": "text",
+          "appType": "string",
+          "nullable": false,
+          "notnullRequired": true,
+          "primaryKey": false,
+          "hasDefault": false,
+          "defaultSql": null,
+          "serverVersion": false,
+          "softDelete": false,
+          "blobRef": false,
+          "scope": "project_id"
+        },
+        {
+          "name": "owner_id",
+          "sqlType": "TEXT",
+          "typeFamily": "text",
+          "appType": "string",
+          "nullable": false,
+          "notnullRequired": true,
+          "primaryKey": false,
+          "hasDefault": false,
+          "defaultSql": null,
+          "serverVersion": false,
+          "softDelete": false,
+          "blobRef": false,
+          "scope": null
+        },
+        {
+          "name": "title",
+          "sqlType": "TEXT",
+          "typeFamily": "text",
+          "appType": "string",
+          "nullable": false,
+          "notnullRequired": true,
+          "primaryKey": false,
+          "hasDefault": false,
+          "defaultSql": null,
+          "serverVersion": false,
+          "softDelete": false,
+          "blobRef": false,
+          "scope": null
+        },
+        {
+          "name": "completed",
+          "sqlType": "INTEGER",
+          "typeFamily": "integer",
+          "appType": "integer",
+          "nullable": false,
+          "notnullRequired": true,
+          "primaryKey": false,
+          "hasDefault": true,
+          "defaultSql": "0",
+          "serverVersion": false,
+          "softDelete": false,
+          "blobRef": false,
+          "scope": null
+        },
+        {
+          "name": "server_version",
+          "sqlType": "INTEGER",
+          "typeFamily": "integer",
+          "appType": "integer",
+          "nullable": false,
+          "notnullRequired": true,
+          "primaryKey": false,
+          "hasDefault": true,
+          "defaultSql": "0",
+          "serverVersion": true,
+          "softDelete": false,
+          "blobRef": false,
+          "scope": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "TEXT",
+          "typeFamily": "text",
+          "appType": "string",
+          "nullable": false,
+          "notnullRequired": true,
+          "primaryKey": false,
+          "hasDefault": false,
+          "defaultSql": null,
+          "serverVersion": false,
+          "softDelete": false,
+          "blobRef": false,
+          "scope": null
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_tasks_project_id_id",
+          "sql": "CREATE INDEX IF NOT EXISTS idx_tasks_project_id_id\n  on tasks (project_id, id)",
+          "unique": false,
+          "partial": false,
+          "columns": [
+            {
+              "name": "project_id",
+              "descending": false
+            },
+            {
+              "name": "id",
+              "descending": false
+            }
+          ]
+        },
+        {
+          "name": "idx_tasks_project_owner_completed_updated_at",
+          "sql": "CREATE INDEX IF NOT EXISTS idx_tasks_project_owner_completed_updated_at\n  on tasks (project_id, owner_id, completed, updated_at desc)",
+          "unique": false,
+          "partial": false,
+          "columns": [
+            {
+              "name": "project_id",
+              "descending": false
+            },
+            {
+              "name": "owner_id",
+              "descending": false
+            },
+            {
+              "name": "completed",
+              "descending": false
+            },
+            {
+              "name": "updated_at",
+              "descending": true
+            }
+          ]
+        }
+      ],
+      "blobColumns": [],
+      "crdtYjsFields": [],
+      "encryptedFields": [],
+      "scopes": [
+        {
+          "name": "project_id",
+          "column": "project_id",
+          "source": "projectId",
+          "required": true
+        }
+      ],
+      "subscription": {
+        "id": "tasks",
+        "params": {}
+      }
+    }
+  ],
+  "localBaseSchema": {
+    "tableSetupSql": [
+      "CREATE TABLE IF NOT EXISTS \"organizations\" (\n  \"id\" TEXT PRIMARY KEY,\n  \"name\" TEXT NOT NULL,\n  \"server_version\" INTEGER NOT NULL DEFAULT 0\n)",
+      "CREATE TABLE IF NOT EXISTS \"projects\" (\n  \"id\" TEXT PRIMARY KEY,\n  \"org_id\" TEXT NOT NULL,\n  \"name\" TEXT NOT NULL,\n  \"server_version\" INTEGER NOT NULL DEFAULT 0\n)",
+      "CREATE TABLE IF NOT EXISTS \"tasks\" (\n  \"id\" TEXT PRIMARY KEY,\n  \"org_id\" TEXT NOT NULL,\n  \"project_id\" TEXT NOT NULL,\n  \"owner_id\" TEXT NOT NULL,\n  \"title\" TEXT NOT NULL,\n  \"completed\" INTEGER NOT NULL DEFAULT 0,\n  \"server_version\" INTEGER NOT NULL DEFAULT 0,\n  \"updated_at\" TEXT NOT NULL\n)"
+    ]
+  },
+  "localReadModels": [
+    {
+      "name": "taskCountsByProjectOwnerCompletion",
+      "kind": "countBy",
+      "sourceTable": "tasks",
+      "outputTable": "syncular_rust_task_counts",
+      "dimensions": [
+        "project_id",
+        "owner_id",
+        "completed"
+      ],
+      "countColumn": "task_count",
+      "setupSql": [
+        "CREATE TABLE IF NOT EXISTS \"syncular_rust_task_counts\" (\n  \"project_id\" TEXT NOT NULL,\n  \"owner_id\" TEXT NOT NULL,\n  \"completed\" INTEGER NOT NULL,\n  \"task_count\" INTEGER NOT NULL DEFAULT 0,\n  PRIMARY KEY (\"project_id\", \"owner_id\", \"completed\")\n) WITHOUT ROWID",
+        "CREATE TRIGGER IF NOT EXISTS \"syncular_rm_taskCountsByProjectOwnerCompletion_insert\"\nAFTER INSERT ON \"tasks\"\nBEGIN\n  INSERT INTO \"syncular_rust_task_counts\" (\"project_id\", \"owner_id\", \"completed\", \"task_count\")\n  VALUES (new.\"project_id\", new.\"owner_id\", new.\"completed\", 1)\n  ON CONFLICT(\"project_id\", \"owner_id\", \"completed\") DO UPDATE SET\n    \"task_count\" = \"task_count\" + 1;\nEND",
+        "CREATE TRIGGER IF NOT EXISTS \"syncular_rm_taskCountsByProjectOwnerCompletion_delete\"\nAFTER DELETE ON \"tasks\"\nBEGIN\n  UPDATE \"syncular_rust_task_counts\"\n  SET \"task_count\" = \"task_count\" - 1\n  WHERE \"project_id\" = old.\"project_id\"\n          AND \"owner_id\" = old.\"owner_id\"\n          AND \"completed\" = old.\"completed\";\n  DELETE FROM \"syncular_rust_task_counts\" WHERE \"task_count\" <= 0;\nEND",
+        "CREATE TRIGGER IF NOT EXISTS \"syncular_rm_taskCountsByProjectOwnerCompletion_update_group\"\nAFTER UPDATE OF \"project_id\", \"owner_id\", \"completed\" ON \"tasks\"\nWHEN old.\"project_id\" IS NOT new.\"project_id\"\n        OR old.\"owner_id\" IS NOT new.\"owner_id\"\n        OR old.\"completed\" IS NOT new.\"completed\"\nBEGIN\n  UPDATE \"syncular_rust_task_counts\"\n  SET \"task_count\" = \"task_count\" - 1\n  WHERE \"project_id\" = old.\"project_id\"\n          AND \"owner_id\" = old.\"owner_id\"\n          AND \"completed\" = old.\"completed\";\n  DELETE FROM \"syncular_rust_task_counts\" WHERE \"task_count\" <= 0;\n  INSERT INTO \"syncular_rust_task_counts\" (\"project_id\", \"owner_id\", \"completed\", \"task_count\")\n  VALUES (new.\"project_id\", new.\"owner_id\", new.\"completed\", 1)\n  ON CONFLICT(\"project_id\", \"owner_id\", \"completed\") DO UPDATE SET\n    \"task_count\" = \"task_count\" + 1;\nEND"
+      ],
+      "rebuildSql": [
+        "DELETE FROM \"syncular_rust_task_counts\"",
+        "INSERT INTO \"syncular_rust_task_counts\" (\"project_id\", \"owner_id\", \"completed\", \"task_count\")\nSELECT \"project_id\", \"owner_id\", \"completed\", count(*)\nFROM \"tasks\"\nGROUP BY \"project_id\", \"owner_id\", \"completed\""
+      ]
+    },
+    {
+      "name": "taskCountsByProjectCompletion",
+      "kind": "countBy",
+      "sourceTable": "tasks",
+      "outputTable": "syncular_rust_task_counts_by_project_completion",
+      "dimensions": [
+        "project_id",
+        "completed"
+      ],
+      "countColumn": "task_count",
+      "setupSql": [
+        "CREATE TABLE IF NOT EXISTS \"syncular_rust_task_counts_by_project_completion\" (\n  \"project_id\" TEXT NOT NULL,\n  \"completed\" INTEGER NOT NULL,\n  \"task_count\" INTEGER NOT NULL DEFAULT 0,\n  PRIMARY KEY (\"project_id\", \"completed\")\n) WITHOUT ROWID",
+        "CREATE TRIGGER IF NOT EXISTS \"syncular_rm_taskCountsByProjectCompletion_insert\"\nAFTER INSERT ON \"tasks\"\nBEGIN\n  INSERT INTO \"syncular_rust_task_counts_by_project_completion\" (\"project_id\", \"completed\", \"task_count\")\n  VALUES (new.\"project_id\", new.\"completed\", 1)\n  ON CONFLICT(\"project_id\", \"completed\") DO UPDATE SET\n    \"task_count\" = \"task_count\" + 1;\nEND",
+        "CREATE TRIGGER IF NOT EXISTS \"syncular_rm_taskCountsByProjectCompletion_delete\"\nAFTER DELETE ON \"tasks\"\nBEGIN\n  UPDATE \"syncular_rust_task_counts_by_project_completion\"\n  SET \"task_count\" = \"task_count\" - 1\n  WHERE \"project_id\" = old.\"project_id\"\n          AND \"completed\" = old.\"completed\";\n  DELETE FROM \"syncular_rust_task_counts_by_project_completion\" WHERE \"task_count\" <= 0;\nEND",
+        "CREATE TRIGGER IF NOT EXISTS \"syncular_rm_taskCountsByProjectCompletion_update_group\"\nAFTER UPDATE OF \"project_id\", \"completed\" ON \"tasks\"\nWHEN old.\"project_id\" IS NOT new.\"project_id\"\n        OR old.\"completed\" IS NOT new.\"completed\"\nBEGIN\n  UPDATE \"syncular_rust_task_counts_by_project_completion\"\n  SET \"task_count\" = \"task_count\" - 1\n  WHERE \"project_id\" = old.\"project_id\"\n          AND \"completed\" = old.\"completed\";\n  DELETE FROM \"syncular_rust_task_counts_by_project_completion\" WHERE \"task_count\" <= 0;\n  INSERT INTO \"syncular_rust_task_counts_by_project_completion\" (\"project_id\", \"completed\", \"task_count\")\n  VALUES (new.\"project_id\", new.\"completed\", 1)\n  ON CONFLICT(\"project_id\", \"completed\") DO UPDATE SET\n    \"task_count\" = \"task_count\" + 1;\nEND"
+      ],
+      "rebuildSql": [
+        "DELETE FROM \"syncular_rust_task_counts_by_project_completion\"",
+        "INSERT INTO \"syncular_rust_task_counts_by_project_completion\" (\"project_id\", \"completed\", \"task_count\")\nSELECT \"project_id\", \"completed\", count(*)\nFROM \"tasks\"\nGROUP BY \"project_id\", \"completed\""
+      ]
+    }
+  ],
+  "localDerivedSchema": {
+    "indexes": [
+      {
+        "table": "projects",
+        "name": "idx_projects_org_id",
+        "sql": "CREATE INDEX IF NOT EXISTS idx_projects_org_id\n  on projects (org_id)",
+        "unique": false,
+        "partial": false,
+        "columns": [
+          {
+            "name": "org_id",
+            "descending": false
+          }
+        ]
+      },
+      {
+        "table": "tasks",
+        "name": "idx_tasks_project_id_id",
+        "sql": "CREATE INDEX IF NOT EXISTS idx_tasks_project_id_id\n  on tasks (project_id, id)",
+        "unique": false,
+        "partial": false,
+        "columns": [
+          {
+            "name": "project_id",
+            "descending": false
+          },
+          {
+            "name": "id",
+            "descending": false
+          }
+        ]
+      },
+      {
+        "table": "tasks",
+        "name": "idx_tasks_project_owner_completed_updated_at",
+        "sql": "CREATE INDEX IF NOT EXISTS idx_tasks_project_owner_completed_updated_at\n  on tasks (project_id, owner_id, completed, updated_at desc)",
+        "unique": false,
+        "partial": false,
+        "columns": [
+          {
+            "name": "project_id",
+            "descending": false
+          },
+          {
+            "name": "owner_id",
+            "descending": false
+          },
+          {
+            "name": "completed",
+            "descending": false
+          },
+          {
+            "name": "updated_at",
+            "descending": true
+          }
+        ]
+      }
+    ],
+    "readModelSetupSql": [
+      "CREATE TABLE IF NOT EXISTS \"syncular_rust_task_counts\" (\n  \"project_id\" TEXT NOT NULL,\n  \"owner_id\" TEXT NOT NULL,\n  \"completed\" INTEGER NOT NULL,\n  \"task_count\" INTEGER NOT NULL DEFAULT 0,\n  PRIMARY KEY (\"project_id\", \"owner_id\", \"completed\")\n) WITHOUT ROWID",
+      "CREATE TRIGGER IF NOT EXISTS \"syncular_rm_taskCountsByProjectOwnerCompletion_insert\"\nAFTER INSERT ON \"tasks\"\nBEGIN\n  INSERT INTO \"syncular_rust_task_counts\" (\"project_id\", \"owner_id\", \"completed\", \"task_count\")\n  VALUES (new.\"project_id\", new.\"owner_id\", new.\"completed\", 1)\n  ON CONFLICT(\"project_id\", \"owner_id\", \"completed\") DO UPDATE SET\n    \"task_count\" = \"task_count\" + 1;\nEND",
+      "CREATE TRIGGER IF NOT EXISTS \"syncular_rm_taskCountsByProjectOwnerCompletion_delete\"\nAFTER DELETE ON \"tasks\"\nBEGIN\n  UPDATE \"syncular_rust_task_counts\"\n  SET \"task_count\" = \"task_count\" - 1\n  WHERE \"project_id\" = old.\"project_id\"\n          AND \"owner_id\" = old.\"owner_id\"\n          AND \"completed\" = old.\"completed\";\n  DELETE FROM \"syncular_rust_task_counts\" WHERE \"task_count\" <= 0;\nEND",
+      "CREATE TRIGGER IF NOT EXISTS \"syncular_rm_taskCountsByProjectOwnerCompletion_update_group\"\nAFTER UPDATE OF \"project_id\", \"owner_id\", \"completed\" ON \"tasks\"\nWHEN old.\"project_id\" IS NOT new.\"project_id\"\n        OR old.\"owner_id\" IS NOT new.\"owner_id\"\n        OR old.\"completed\" IS NOT new.\"completed\"\nBEGIN\n  UPDATE \"syncular_rust_task_counts\"\n  SET \"task_count\" = \"task_count\" - 1\n  WHERE \"project_id\" = old.\"project_id\"\n          AND \"owner_id\" = old.\"owner_id\"\n          AND \"completed\" = old.\"completed\";\n  DELETE FROM \"syncular_rust_task_counts\" WHERE \"task_count\" <= 0;\n  INSERT INTO \"syncular_rust_task_counts\" (\"project_id\", \"owner_id\", \"completed\", \"task_count\")\n  VALUES (new.\"project_id\", new.\"owner_id\", new.\"completed\", 1)\n  ON CONFLICT(\"project_id\", \"owner_id\", \"completed\") DO UPDATE SET\n    \"task_count\" = \"task_count\" + 1;\nEND",
+      "CREATE TABLE IF NOT EXISTS \"syncular_rust_task_counts_by_project_completion\" (\n  \"project_id\" TEXT NOT NULL,\n  \"completed\" INTEGER NOT NULL,\n  \"task_count\" INTEGER NOT NULL DEFAULT 0,\n  PRIMARY KEY (\"project_id\", \"completed\")\n) WITHOUT ROWID",
+      "CREATE TRIGGER IF NOT EXISTS \"syncular_rm_taskCountsByProjectCompletion_insert\"\nAFTER INSERT ON \"tasks\"\nBEGIN\n  INSERT INTO \"syncular_rust_task_counts_by_project_completion\" (\"project_id\", \"completed\", \"task_count\")\n  VALUES (new.\"project_id\", new.\"completed\", 1)\n  ON CONFLICT(\"project_id\", \"completed\") DO UPDATE SET\n    \"task_count\" = \"task_count\" + 1;\nEND",
+      "CREATE TRIGGER IF NOT EXISTS \"syncular_rm_taskCountsByProjectCompletion_delete\"\nAFTER DELETE ON \"tasks\"\nBEGIN\n  UPDATE \"syncular_rust_task_counts_by_project_completion\"\n  SET \"task_count\" = \"task_count\" - 1\n  WHERE \"project_id\" = old.\"project_id\"\n          AND \"completed\" = old.\"completed\";\n  DELETE FROM \"syncular_rust_task_counts_by_project_completion\" WHERE \"task_count\" <= 0;\nEND",
+      "CREATE TRIGGER IF NOT EXISTS \"syncular_rm_taskCountsByProjectCompletion_update_group\"\nAFTER UPDATE OF \"project_id\", \"completed\" ON \"tasks\"\nWHEN old.\"project_id\" IS NOT new.\"project_id\"\n        OR old.\"completed\" IS NOT new.\"completed\"\nBEGIN\n  UPDATE \"syncular_rust_task_counts_by_project_completion\"\n  SET \"task_count\" = \"task_count\" - 1\n  WHERE \"project_id\" = old.\"project_id\"\n          AND \"completed\" = old.\"completed\";\n  DELETE FROM \"syncular_rust_task_counts_by_project_completion\" WHERE \"task_count\" <= 0;\n  INSERT INTO \"syncular_rust_task_counts_by_project_completion\" (\"project_id\", \"completed\", \"task_count\")\n  VALUES (new.\"project_id\", new.\"completed\", 1)\n  ON CONFLICT(\"project_id\", \"completed\") DO UPDATE SET\n    \"task_count\" = \"task_count\" + 1;\nEND"
+    ],
+    "readModelRebuildSql": [
+      "DELETE FROM \"syncular_rust_task_counts\"",
+      "INSERT INTO \"syncular_rust_task_counts\" (\"project_id\", \"owner_id\", \"completed\", \"task_count\")\nSELECT \"project_id\", \"owner_id\", \"completed\", count(*)\nFROM \"tasks\"\nGROUP BY \"project_id\", \"owner_id\", \"completed\"",
+      "DELETE FROM \"syncular_rust_task_counts_by_project_completion\"",
+      "INSERT INTO \"syncular_rust_task_counts_by_project_completion\" (\"project_id\", \"completed\", \"task_count\")\nSELECT \"project_id\", \"completed\", count(*)\nFROM \"tasks\"\nGROUP BY \"project_id\", \"completed\""
+    ]
+  }
+}

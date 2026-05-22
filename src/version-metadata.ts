@@ -21,6 +21,7 @@ const syncularStackLockPath = join(
 );
 
 interface PackageJsonFile {
+  name?: string;
   version?: string;
   packageManager?: string;
   dependencies?: Record<string, string>;
@@ -101,6 +102,8 @@ function buildVersionMetadata(
   switch (stackId) {
     case 'syncular':
       return buildPublishedSyncularVersionMetadata();
+    case 'syncular-rust':
+      return buildRustSyncularVersionMetadata();
     case 'electric':
       return {
         frameworkVersion: imageRef ?? 'electricsql/electric:canary',
@@ -164,6 +167,36 @@ function buildVersionMetadata(
         },
       };
   }
+}
+
+function buildRustSyncularVersionMetadata(): {
+  frameworkVersion: string;
+  versionSource: string;
+  versionComponents: JsonObject;
+} {
+  const rustClientPackagePath =
+    process.env.SYNCULAR_RUST_CLIENT_PACKAGE_JSON ??
+    '/Users/bkniffler/conductor/workspaces/syncular/indianapolis/rust/bindings/browser/package.json';
+  const rustClientPackage =
+    readJsonFile<PackageJsonFile>(rustClientPackagePath) ?? {};
+  const server = buildPublishedSyncularVersionMetadata().versionComponents;
+  const rustClientVersion = rustClientPackage.version ?? 'local';
+
+  return {
+    frameworkVersion: rustClientVersion,
+    versionSource: rustClientPackagePath,
+    versionComponents: {
+      clientRust: rustClientVersion,
+      clientRustPackage: rustClientPackage.name ?? '@syncular/client-rust',
+      server: server.server,
+      serverDialectPostgres: server.serverDialectPostgres,
+      serverHono: server.serverHono,
+      serverDependencyRange: server.serverDependencyRange,
+      serverDialectPostgresDependencyRange:
+        server.serverDialectPostgresDependencyRange,
+      serverHonoDependencyRange: server.serverHonoDependencyRange,
+    },
+  };
 }
 
 function buildPublishedSyncularVersionMetadata(): {

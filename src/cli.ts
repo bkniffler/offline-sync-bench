@@ -108,7 +108,7 @@ function parseStackFlag(): StackId {
   const stackId = parseOptionalStackFlag();
   if (!stackId) {
     throw new Error(
-      '--stack must be one of: syncular, electric, zero, powersync, replicache, livestore'
+      '--stack must be one of: syncular, syncular-rust, electric, zero, powersync, replicache, livestore'
     );
   }
   return stackId;
@@ -121,6 +121,7 @@ function parseOptionalStackFlag(): StackId | null {
   }
   if (
     stackId !== 'syncular' &&
+    stackId !== 'syncular-rust' &&
     stackId !== 'electric' &&
     stackId !== 'zero' &&
     stackId !== 'powersync' &&
@@ -128,7 +129,7 @@ function parseOptionalStackFlag(): StackId | null {
     stackId !== 'livestore'
   ) {
     throw new Error(
-      '--stack must be one of: syncular, electric, zero, powersync, replicache, livestore'
+      '--stack must be one of: syncular, syncular-rust, electric, zero, powersync, replicache, livestore'
     );
   }
   return stackId;

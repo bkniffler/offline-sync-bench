@@ -1,0 +1,63 @@
+{
+  "schemaOutputPath": "syncular.schema.json",
+  "typescriptOutputPath": "../../../.tmp/syncular-bench-codegen/syncular.generated.ts",
+  "typescriptServerOutputPath": "../../../.tmp/syncular-bench-codegen/syncular.server.generated.ts",
+  "nativeSwiftOutputPath": "../../../.tmp/syncular-bench-codegen/SyncularApp.swift",
+  "nativeKotlinOutputPath": "../../../.tmp/syncular-bench-codegen/SyncularApp.kt",
+  "localReadModels": [
+    {
+      "name": "taskCountsByProjectOwnerCompletion",
+      "kind": "countBy",
+      "sourceTable": "tasks",
+      "outputTable": "syncular_rust_task_counts",
+      "dimensions": ["project_id", "owner_id", "completed"],
+      "countColumn": "task_count"
+    },
+    {
+      "name": "taskCountsByProjectCompletion",
+      "kind": "countBy",
+      "sourceTable": "tasks",
+      "outputTable": "syncular_rust_task_counts_by_project_completion",
+      "dimensions": ["project_id", "completed"],
+      "countColumn": "task_count"
+    }
+  ],
+  "tables": {
+    "organizations": {
+      "subscriptionId": "organizations",
+      "scopes": [
+        {
+          "name": "id",
+          "column": "id",
+          "source": "projectId",
+          "required": false
+        }
+      ],
+      "serverVersionColumn": "server_version"
+    },
+    "projects": {
+      "subscriptionId": "projects",
+      "scopes": [
+        {
+          "name": "id",
+          "column": "id",
+          "source": "projectId",
+          "required": false
+        }
+      ],
+      "serverVersionColumn": "server_version"
+    },
+    "tasks": {
+      "subscriptionId": "tasks",
+      "scopes": [
+        {
+          "name": "project_id",
+          "column": "project_id",
+          "source": "projectId",
+          "required": true
+        }
+      ],
+      "serverVersionColumn": "server_version"
+    }
+  }
+}

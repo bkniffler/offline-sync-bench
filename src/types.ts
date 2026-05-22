@@ -1,5 +1,6 @@
 export type StackId =
   | 'syncular'
+  | 'syncular-rust'
   | 'electric'
   | 'zero'
   | 'powersync'
