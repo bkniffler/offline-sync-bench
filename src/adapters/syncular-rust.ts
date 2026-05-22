@@ -385,10 +385,16 @@ const RUST_PULL_MAX_SNAPSHOT_PAGES = 100;
 const DEFAULT_RUST_RECONNECT_CLIENT_COUNTS = [25, 100, 250];
 const RUST_RECONNECT_MODE = parseRustReconnectMode();
 const DEFAULT_RUST_LARGE_OFFLINE_QUEUE_SIZES = [100, 500, 1000];
+const RUST_DEFAULT_OUTBOX_PUSH_BATCH_LIMIT = 20;
+const RUST_DEFAULT_ADAPTIVE_OUTBOX_PUSH_BATCH_LIMIT = 100;
+const RUST_DEFAULT_ADAPTIVE_OUTBOX_PUSH_THRESHOLD = 100;
 const RUST_OUTBOX_PUSH_BATCH_LIMIT = parseOptionalPositiveInteger(
   process.env.SYNCULAR_RUST_OUTBOX_PUSH_BATCH_LIMIT,
   'SYNCULAR_RUST_OUTBOX_PUSH_BATCH_LIMIT'
 );
+const RUST_OUTBOX_PUSH_BATCH_MODE = RUST_OUTBOX_PUSH_BATCH_LIMIT
+  ? 'fixed'
+  : 'adaptive-default';
 const DEBUG_RUST_WS = process.env.SYNCULAR_RUST_DEBUG_WS === '1';
 const RUST_SYNCULAR_SCHEMA_CONTRACT = JSON.parse(
   readFileSync(
@@ -3061,7 +3067,15 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
       metadata: {
         implementation: 'syncular-rust-wasm-native-outbox-active-session',
         runtimeInfo: result.runtimeInfo,
-        outboxPushBatchLimit: RUST_OUTBOX_PUSH_BATCH_LIMIT ?? null,
+        outboxPushBatchMode: RUST_OUTBOX_PUSH_BATCH_MODE,
+        outboxPushBatchLimit:
+          RUST_OUTBOX_PUSH_BATCH_LIMIT ?? RUST_DEFAULT_OUTBOX_PUSH_BATCH_LIMIT,
+        adaptiveOutboxBatchLimit: RUST_OUTBOX_PUSH_BATCH_LIMIT
+          ? null
+          : RUST_DEFAULT_ADAPTIVE_OUTBOX_PUSH_BATCH_LIMIT,
+        adaptiveOutboxBatchThreshold: RUST_OUTBOX_PUSH_BATCH_LIMIT
+          ? null
+          : RUST_DEFAULT_ADAPTIVE_OUTBOX_PUSH_THRESHOLD,
         queuedTaskIds: result.queuedTaskIds,
         queuedOutbox: result.queuedOutbox,
         finalOutbox: result.finalOutbox,
@@ -3244,7 +3258,15 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
       metadata: {
         implementation: 'syncular-rust-wasm-native-outbox-large-queue-active-session',
         queueSizes,
-        outboxPushBatchLimit: RUST_OUTBOX_PUSH_BATCH_LIMIT ?? null,
+        outboxPushBatchMode: RUST_OUTBOX_PUSH_BATCH_MODE,
+        outboxPushBatchLimit:
+          RUST_OUTBOX_PUSH_BATCH_LIMIT ?? RUST_DEFAULT_OUTBOX_PUSH_BATCH_LIMIT,
+        adaptiveOutboxBatchLimit: RUST_OUTBOX_PUSH_BATCH_LIMIT
+          ? null
+          : RUST_DEFAULT_ADAPTIVE_OUTBOX_PUSH_BATCH_LIMIT,
+        adaptiveOutboxBatchThreshold: RUST_OUTBOX_PUSH_BATCH_LIMIT
+          ? null
+          : RUST_DEFAULT_ADAPTIVE_OUTBOX_PUSH_THRESHOLD,
         scales: queueResults.map((result, index) => ({
           queueSize: queueSizes[index],
           queuedWriteCount: result.queuedWriteCount,
