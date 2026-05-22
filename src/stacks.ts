@@ -61,6 +61,7 @@ export const stacks: StackSpec[] = [
       'Uses the new Syncular Rust-owned SQLite WASM client against the same Syncular benchmark server.',
       'Set SYNCULAR_RUST_CLIENT_DIST to override the local Rust browser binding dist path.',
       'Rust outbox scenarios use the native WASM applyMutation path. The default Bun harness uses memory storage; set SYNCULAR_RUST_DURABLE_REOPEN=1 for an IndexedDB-compatible close/reopen durability probe.',
+      'Set SYNCULAR_RUST_BROWSER_DURABLE_REOPEN=1 on offline-replay for a real Chrome worker OPFS process-restart durability probe.',
       'Rust blob flow uses native WASM blob upload/download/cache APIs plus task_blob_entries metadata sync.',
       'Rust WS/realtime coverage remains separate from the HTTP reconnect-storm stress scenario.',
     ],

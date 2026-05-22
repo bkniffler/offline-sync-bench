@@ -455,6 +455,10 @@ const { syncRoutes } = createSyncServer<BenchDb, BenchAuth>({
   snapshotArtifactStorage,
   scopeCache,
   routes: {
+    cors: {
+      origin: ['http://127.0.0.1:*', 'http://localhost:*'],
+      allowHeaders: ['x-syncular-bench-timings', 'x-user-id'],
+    },
     rateLimit: false,
     maxPullLimitSnapshotRows: benchmarkMaxPullLimitSnapshotRows,
     maxPullMaxSnapshotPages: benchmarkMaxPullMaxSnapshotPages,

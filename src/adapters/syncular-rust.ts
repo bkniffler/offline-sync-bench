@@ -1,8 +1,11 @@
+import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { access } from 'node:fs/promises';
+import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { createServer } from 'node:net';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
+import { build as esbuild } from 'esbuild';
 import * as fakeIndexedDb from 'fake-indexeddb';
 import {
   average,
@@ -23,6 +26,7 @@ import {
 } from '../stack-manager';
 import { getStack } from '../stacks';
 import { createUnsupportedScenarioResult } from '../unsupported';
+import { tempRoot } from '../paths';
 import type {
   BenchmarkAdapter,
   BenchmarkStatus,
@@ -328,6 +332,10 @@ type RustOfflineReplayCaseResult = {
   syncSamples: RustOfflineReplaySyncSample[];
   storage: RustClientStorage;
   durableReopen: boolean;
+  browserProcessRestart?: boolean;
+  browserStorageFallback?: JsonObject | null;
+  browserBootstrapMs?: number;
+  browserQueueMs?: number;
   runtimeInfo: Record<string, JsonValue>;
 };
 
@@ -395,6 +403,8 @@ const DEFAULT_RUST_RECONNECT_CLIENT_COUNTS = [25, 100, 250];
 const RUST_RECONNECT_MODE = parseRustReconnectMode();
 const DEFAULT_RUST_LARGE_OFFLINE_QUEUE_SIZES = [100, 500, 1000];
 const RUST_DURABLE_REOPEN = process.env.SYNCULAR_RUST_DURABLE_REOPEN === '1';
+const RUST_BROWSER_DURABLE_REOPEN =
+  process.env.SYNCULAR_RUST_BROWSER_DURABLE_REOPEN === '1';
 const RUST_DURABLE_REOPEN_STORAGE = parseRustClientStorage(
   process.env.SYNCULAR_RUST_DURABLE_REOPEN_STORAGE ?? 'indexedDb',
   'SYNCULAR_RUST_DURABLE_REOPEN_STORAGE'
@@ -1028,6 +1038,680 @@ function installIndexedDbGlobalsIfNeeded(storage: RustClientStorage | undefined)
     IDBTransaction: fakeIndexedDb.IDBTransaction,
     IDBVersionChangeEvent: fakeIndexedDb.IDBVersionChangeEvent,
   });
+}
+
+type SyncularRustBrowserDurabilityHarness = {
+  server: ReturnType<typeof Bun.serve>;
+  baseUrl: string;
+  root: string;
+  userDataDir: string;
+};
+
+type SyncularRustBrowserPhaseResult = JsonObject & {
+  runtimeInfo?: Record<string, JsonValue>;
+  storageFallback?: JsonObject | null;
+  rowsLoaded?: number;
+  expectedTitleEntries?: Array<[string, string]>;
+  queuedOutbox?: RustOutboxStatusCounts;
+  queuedWriteCount?: number;
+  matchedTitleCount?: number;
+  reopenedOutbox?: RustOutboxStatusCounts;
+  reopenedMatchedTitleCount?: number;
+  finalOutbox?: RustOutboxStatusCounts;
+  conflictCount?: number;
+  syncAttempts?: number;
+  syncSamples?: RustOfflineReplaySyncSample[];
+  transportStats?: {
+    requestCount: number;
+    requestBytes: number;
+    responseBytes: number;
+  };
+};
+
+type CdpPendingCommand = {
+  resolve(value: unknown): void;
+  reject(reason: unknown): void;
+};
+
+type CdpEventWaiter = {
+  method: string;
+  predicate?: (params: unknown) => boolean;
+  resolve(value: unknown): void;
+  reject(reason: unknown): void;
+  timer: ReturnType<typeof setTimeout>;
+};
+
+class ChromeCdpPage {
+  #nextId = 1;
+  #pending = new Map<number, CdpPendingCommand>();
+  #eventWaiters: CdpEventWaiter[] = [];
+  #debugEvents: string[] = [];
+
+  constructor(private readonly ws: WebSocket) {
+    this.ws.onmessage = (event) => {
+      const message = JSON.parse(String(event.data)) as {
+        id?: number;
+        method?: string;
+        params?: unknown;
+        result?: unknown;
+        error?: { message?: string };
+      };
+      if (
+        message.method?.startsWith('Network.') ||
+        message.method === 'Log.entryAdded' ||
+        message.method === 'Runtime.consoleAPICalled' ||
+        message.method === 'Runtime.exceptionThrown'
+      ) {
+        this.#debugEvents.push(
+          `${message.method} ${JSON.stringify(message.params ?? {}).slice(0, 1200)}`
+        );
+        if (this.#debugEvents.length > 80) {
+          this.#debugEvents.shift();
+        }
+      }
+      if (typeof message.id === 'number') {
+        const pending = this.#pending.get(message.id);
+        if (!pending) return;
+        this.#pending.delete(message.id);
+        if (message.error) {
+          pending.reject(
+            new Error(message.error.message ?? `CDP command ${message.id} failed`)
+          );
+        } else {
+          pending.resolve(message.result);
+        }
+        return;
+      }
+      if (!message.method) return;
+      for (const waiter of [...this.#eventWaiters]) {
+        if (waiter.method !== message.method) continue;
+        if (waiter.predicate && !waiter.predicate(message.params)) continue;
+        clearTimeout(waiter.timer);
+        this.#eventWaiters = this.#eventWaiters.filter(
+          (candidate) => candidate !== waiter
+        );
+        waiter.resolve(message.params);
+      }
+    };
+    this.ws.onclose = () => {
+      const error = new Error('Chrome DevTools connection closed');
+      for (const pending of this.#pending.values()) pending.reject(error);
+      this.#pending.clear();
+      for (const waiter of this.#eventWaiters) {
+        clearTimeout(waiter.timer);
+        waiter.reject(error);
+      }
+      this.#eventWaiters = [];
+    };
+  }
+
+  send(method: string, params: JsonObject = {}): Promise<unknown> {
+    const id = this.#nextId++;
+    this.ws.send(JSON.stringify({ id, method, params }));
+    return new Promise((resolve, reject) => {
+      this.#pending.set(id, { resolve, reject });
+    });
+  }
+
+  waitForEvent(
+    method: string,
+    predicate?: (params: unknown) => boolean,
+    timeoutMs = 30_000
+  ): Promise<unknown> {
+    return new Promise((resolve, reject) => {
+      const waiter: CdpEventWaiter = {
+        method,
+        predicate,
+        resolve,
+        reject,
+        timer: setTimeout(() => {
+          this.#eventWaiters = this.#eventWaiters.filter(
+            (candidate) => candidate !== waiter
+          );
+          reject(new Error(`Timed out waiting for Chrome event ${method}`));
+        }, timeoutMs),
+      };
+      this.#eventWaiters.push(waiter);
+    });
+  }
+
+  close(): void {
+    this.ws.close();
+  }
+
+  recentDebugEvents(): string[] {
+    return [...this.#debugEvents];
+  }
+}
+
+function syncularBranchRoot(): string {
+  return (
+    process.env.SYNCULAR_BRANCH_ROOT ??
+    '/Users/bkniffler/conductor/workspaces/syncular/indianapolis'
+  );
+}
+
+function chromeExecutablePath(): string {
+  const configured = process.env.SYNCULAR_RUST_BROWSER_CHROME_PATH;
+  if (configured) return configured;
+  return '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+}
+
+async function allocatePort(): Promise<number> {
+  const server = createServer();
+  await new Promise<void>((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', resolve);
+  });
+  const address = server.address();
+  await new Promise<void>((resolve, reject) => {
+    server.close((error) => (error ? reject(error) : resolve()));
+  });
+  if (!address || typeof address === 'string') {
+    throw new Error('Failed to allocate local port');
+  }
+  return address.port;
+}
+
+async function waitForChromeVersion(port: number): Promise<void> {
+  const startedAt = performance.now();
+  let lastError = 'unreachable';
+  while (performance.now() - startedAt < 20_000) {
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}/json/version`);
+      if (response.ok) return;
+      lastError = `${response.status} ${response.statusText}`;
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : String(error);
+    }
+    await Bun.sleep(100);
+  }
+  throw new Error(`Timed out waiting for Chrome DevTools: ${lastError}`);
+}
+
+async function startChrome(userDataDir: string): Promise<{
+  process: ChildProcessWithoutNullStreams;
+  port: number;
+}> {
+  const executable = chromeExecutablePath();
+  await access(executable);
+  const port = await allocatePort();
+  const child = spawn(executable, [
+    `--user-data-dir=${userDataDir}`,
+    `--remote-debugging-port=${port}`,
+    '--headless=new',
+    '--disable-gpu',
+    '--no-first-run',
+    '--no-default-browser-check',
+    '--disable-background-networking',
+    '--disable-sync',
+    '--disable-extensions',
+  ]);
+  child.stdout.resume();
+  child.stderr.resume();
+  await waitForChromeVersion(port);
+  return { process: child, port };
+}
+
+async function stopChrome(
+  child: ChildProcessWithoutNullStreams | undefined
+): Promise<void> {
+  if (!child || child.killed) return;
+  child.kill('SIGTERM');
+  const exited = await Promise.race([
+    new Promise<boolean>((resolve) => child.once('exit', () => resolve(true))),
+    Bun.sleep(5_000).then(() => false),
+  ]);
+  if (!exited && !child.killed) {
+    child.kill('SIGKILL');
+    await new Promise<void>((resolve) => child.once('exit', () => resolve()));
+  }
+}
+
+async function openChromePage(port: number, url: string): Promise<ChromeCdpPage> {
+  const response = await fetch(
+    `http://127.0.0.1:${port}/json/new?${encodeURIComponent('about:blank')}`,
+    { method: 'PUT' }
+  );
+  if (!response.ok) {
+    throw new Error(
+      `Failed to create Chrome target: ${response.status} ${response.statusText}`
+    );
+  }
+  const target = (await response.json()) as { webSocketDebuggerUrl?: string };
+  if (!target.webSocketDebuggerUrl) {
+    throw new Error('Chrome target did not expose a DevTools websocket URL');
+  }
+  const ws = new WebSocket(target.webSocketDebuggerUrl);
+  await new Promise<void>((resolve, reject) => {
+    ws.onopen = () => resolve();
+    ws.onerror = () => reject(new Error('Failed to connect to Chrome target'));
+  });
+  const page = new ChromeCdpPage(ws);
+  await page.send('Page.enable');
+  await page.send('Log.enable');
+  await page.send('Network.enable');
+  await page.send('Runtime.enable');
+  const loaded = page.waitForEvent('Page.loadEventFired', undefined, 30_000);
+  await page.send('Page.navigate', { url });
+  await loaded;
+  return page;
+}
+
+async function evaluateChromeHarnessPhase(
+  harness: SyncularRustBrowserDurabilityHarness,
+  args: Record<string, unknown>
+): Promise<SyncularRustBrowserPhaseResult> {
+  let chrome: Awaited<ReturnType<typeof startChrome>> | undefined;
+  let page: ChromeCdpPage | undefined;
+  try {
+    chrome = await startChrome(harness.userDataDir);
+    page = await openChromePage(chrome.port, harness.baseUrl);
+    const result = (await page.send('Runtime.evaluate', {
+      expression: `globalThis.syncularBrowserDurable(${JSON.stringify(args)})`,
+      awaitPromise: true,
+      returnByValue: true,
+      timeout: 180_000,
+    })) as {
+      result?: { value?: unknown };
+      exceptionDetails?: { text?: string; exception?: { description?: string } };
+    };
+    if (result.exceptionDetails) {
+      throw new Error(
+        `${
+          result.exceptionDetails.exception?.description ??
+          result.exceptionDetails.text ??
+          'Browser harness evaluation failed'
+        }\nBrowser events: ${JSON.stringify(page.recentDebugEvents(), null, 2)}`
+      );
+    }
+    return asJsonObject(result.result?.value) ?? {};
+  } finally {
+    page?.close();
+    await stopChrome(chrome?.process);
+  }
+}
+
+async function createSyncularRustBrowserDurabilityHarness(): Promise<SyncularRustBrowserDurabilityHarness> {
+  const root = join(tempRoot, 'syncular-rust-browser-durable', randomUUID());
+  const assetRoot = join(root, 'public');
+  const userDataDir = join(root, 'chrome-profile');
+  await mkdir(assetRoot, { recursive: true });
+  await mkdir(userDataDir, { recursive: true });
+
+  const branchRoot = syncularBranchRoot();
+  const harnessEntry = join(root, 'browser-durable-entry.ts');
+  const harnessJs = join(assetRoot, 'harness.js');
+  const workerJs = join(assetRoot, 'worker.js');
+  const wasmRoot = join(branchRoot, 'rust/bindings/javascript/dist/wasm');
+  const wasmGlue = join(wasmRoot, 'syncular.js');
+  const wasmBinary = join(wasmRoot, 'syncular_bg.wasm');
+  await access(wasmGlue);
+  await access(wasmBinary);
+  await writeFile(
+    harnessEntry,
+    syncularRustBrowserDurabilityHarnessSource(
+      join(branchRoot, 'packages/client/src/worker-client.ts')
+    )
+  );
+  await esbuild({
+    absWorkingDir: branchRoot,
+    bundle: true,
+    entryPoints: [harnessEntry],
+    format: 'esm',
+    legalComments: 'none',
+    outfile: harnessJs,
+    platform: 'browser',
+    sourcemap: false,
+    target: 'es2022',
+  });
+  await esbuild({
+    absWorkingDir: branchRoot,
+    bundle: true,
+    entryPoints: [join(branchRoot, 'packages/client/src/worker-entry.ts')],
+    format: 'esm',
+    legalComments: 'none',
+    outfile: workerJs,
+    platform: 'browser',
+    sourcemap: false,
+    target: 'es2022',
+  });
+
+  const server = Bun.serve({
+    hostname: '127.0.0.1',
+    port: 0,
+    async fetch(request) {
+      const url = new URL(request.url);
+      if (url.pathname === '/') {
+        return new Response(
+          '<!doctype html><meta charset="utf-8"><title>Syncular Rust browser durability</title><script type="module" src="/harness.js"></script>',
+          { headers: browserAssetHeaders('text/html; charset=utf-8') }
+        );
+      }
+      if (url.pathname === '/harness.js') {
+        return new Response(await readFile(harnessJs), {
+          headers: browserAssetHeaders('text/javascript; charset=utf-8'),
+        });
+      }
+      if (url.pathname === '/worker.js') {
+        return new Response(await readFile(workerJs), {
+          headers: browserAssetHeaders('text/javascript; charset=utf-8'),
+        });
+      }
+      if (url.pathname === '/wasm/syncular.js') {
+        return new Response(await readFile(wasmGlue), {
+          headers: browserAssetHeaders('text/javascript; charset=utf-8'),
+        });
+      }
+      if (url.pathname === '/wasm/syncular_bg.wasm') {
+        return new Response(await readFile(wasmBinary), {
+          headers: browserAssetHeaders('application/wasm'),
+        });
+      }
+      return new Response('not found', { status: 404 });
+    },
+  });
+
+  return {
+    server,
+    baseUrl: `http://127.0.0.1:${server.port}/`,
+    root,
+    userDataDir,
+  };
+}
+
+function browserAssetHeaders(contentType: string): Headers {
+  return new Headers({
+    'content-type': contentType,
+    'cross-origin-resource-policy': 'same-origin',
+  });
+}
+
+async function closeSyncularRustBrowserDurabilityHarness(
+  harness: SyncularRustBrowserDurabilityHarness
+): Promise<void> {
+  harness.server.stop(true);
+  await rm(harness.root, { recursive: true, force: true });
+}
+
+function syncularRustBrowserDurabilityHarnessSource(clientEntry: string): string {
+  return `
+import { createSyncularWorkerClient } from ${JSON.stringify(clientEntry)};
+
+const runtime = {
+  wasmGlueUrl: new URL('/wasm/syncular.js', location.href).href,
+  wasmUrl: new URL('/wasm/syncular_bg.wasm', location.href).href,
+};
+
+async function openClient(args) {
+  const diagnostics = [];
+  const client = await createSyncularWorkerClient({
+    config: {
+      baseUrl: args.baseUrl,
+      clientId: args.clientId,
+      actorId: args.actorId,
+      projectId: args.projectId,
+      storage: 'opfsSahPool',
+      fileName: args.fileName,
+      clearOnInit: args.clearOnInit,
+      appSchema: args.appSchema,
+      pull: args.pull,
+      ...(args.push ? { push: args.push } : {}),
+    },
+    worker: () => new Worker(new URL('/worker.js', location.href), { type: 'module' }),
+    runtime,
+    requestTimeoutMs: 120000,
+    diagnostics: (event) => {
+      diagnostics.push(event);
+      if (diagnostics.length > 200) diagnostics.shift();
+    },
+    sync: { network: false },
+  });
+  await client.setAuthHeaders({ 'x-user-id': args.actorId });
+  for (const statement of args.baseSql) {
+    await client.executeUnsafeSql(statement);
+  }
+  await client.setSubscriptions(args.subscriptions);
+  return { client, diagnostics };
+}
+
+async function closeClient(client) {
+  await client.close();
+}
+
+async function countTasks(client) {
+  const result = await client.executeSql('select count(*) as count from tasks');
+  return Number(result.rows[0]?.count ?? 0);
+}
+
+async function outboxCounts(client) {
+  const result = await client.executeSql(
+    'select status, count(*) as count from sync_outbox_commits group by status'
+  );
+  const statuses = {};
+  let total = 0;
+  for (const row of result.rows) {
+    const status = typeof row.status === 'string' ? row.status : 'unknown';
+    const count = Number(row.count ?? 0);
+    statuses[status] = count;
+    total += count;
+  }
+  const pending = Number(statuses.pending ?? 0);
+  const sending = Number(statuses.sending ?? 0);
+  const acked = Number(statuses.acked ?? 0);
+  const failed = Number(statuses.failed ?? 0);
+  return {
+    pending,
+    sending,
+    acked,
+    failed,
+    total,
+    unresolved: total - acked,
+    statuses,
+  };
+}
+
+async function countMatchingTitles(client, entries) {
+  let matched = 0;
+  for (let offset = 0; offset < entries.length; offset += 200) {
+    const chunk = entries.slice(offset, offset + 200);
+    const ids = chunk.map(([taskId]) => taskId);
+    const expected = new Map(chunk);
+    const placeholders = ids.map(() => '?').join(', ');
+    const result = await client.executeSql(
+      'select id, title from tasks where id in (' + placeholders + ')',
+      ids
+    );
+    for (const row of result.rows) {
+      if (expected.get(row.id) === row.title) matched += 1;
+    }
+  }
+  return matched;
+}
+
+async function selectQueueRows(client, projectId, queueSize) {
+  const result = await client.executeSql(
+    'select * from tasks where project_id = ? order by id asc limit ?',
+    [projectId, queueSize]
+  );
+  if (result.rows.length < queueSize) {
+    throw new Error('Need ' + queueSize + ' browser OPFS rows, got ' + result.rows.length);
+  }
+  return result.rows;
+}
+
+function compactTimings(timings) {
+  return {
+    totalMs: Number(timings?.totalMs ?? 0),
+    pushMs: Number(timings?.pushMs ?? 0),
+    pullMs: Number(timings?.pullMs ?? 0),
+    pullRequestMs: Number(timings?.pullRequestMs ?? 0),
+    pullTransformMs: Number(timings?.pullTransformMs ?? 0),
+    snapshotFetchMs: Number(timings?.snapshotFetchMs ?? 0),
+    pullApplyMs: Number(timings?.pullApplyMs ?? 0),
+    notifyMs: Number(timings?.notifyMs ?? 0),
+  };
+}
+
+async function bootstrap(args) {
+  const { client } = await openClient({ ...args, clearOnInit: true });
+  try {
+    const startedAt = performance.now();
+    let rowsLoaded = 0;
+    let syncAttempts = 0;
+    while (performance.now() - startedAt < args.timeoutMs) {
+      rowsLoaded = await countTasks(client);
+      if (rowsLoaded === args.expectedRows) break;
+      if (rowsLoaded > args.expectedRows) {
+        throw new Error('Expected ' + args.expectedRows + ' rows, got ' + rowsLoaded);
+      }
+      syncAttempts += 1;
+      await client.syncOnce();
+    }
+    if (rowsLoaded !== args.expectedRows) {
+      throw new Error('Timed out waiting for browser OPFS rows; got ' + rowsLoaded);
+    }
+    for (const statement of args.derivedSql) {
+      await client.executeUnsafeSql(statement);
+    }
+    const runtimeInfo = await client.runtimeInfo();
+    return {
+      phase: 'bootstrap',
+      rowsLoaded,
+      syncAttempts,
+      elapsedMs: performance.now() - startedAt,
+      runtimeInfo,
+      storageFallback: runtimeInfo.storageFallback ?? null,
+    };
+  } finally {
+    await closeClient(client);
+  }
+}
+
+async function queue(args) {
+  const { client } = await openClient({ ...args, clearOnInit: false });
+  try {
+    const startedAt = performance.now();
+    const rows = await selectQueueRows(client, args.projectId, args.queueSize);
+    const expectedTitleEntries = [];
+    for (let index = 0; index < rows.length; index += 1) {
+      const row = rows[index];
+      const taskId = String(row.id);
+      const title = args.titlePrefix + '-' + index + '-' + Date.now();
+      expectedTitleEntries.push([taskId, title]);
+      await client.applyMutation(
+        {
+          table: 'tasks',
+          row_id: taskId,
+          op: 'upsert',
+          payload: { title },
+          base_version: Number(row.server_version ?? 0),
+        },
+        { ...row, title }
+      );
+    }
+    const queuedOutbox = await outboxCounts(client);
+    const matchedTitleCount = await countMatchingTitles(
+      client,
+      expectedTitleEntries
+    );
+    return {
+      phase: 'queue',
+      elapsedMs: performance.now() - startedAt,
+      queuedWriteCount: queuedOutbox.unresolved,
+      queuedOutbox,
+      expectedTitleEntries,
+      matchedTitleCount,
+      runtimeInfo: await client.runtimeInfo(),
+    };
+  } finally {
+    await closeClient(client);
+  }
+}
+
+async function replay(args) {
+  const { client } = await openClient({ ...args, clearOnInit: false });
+  try {
+    const expectedTitleEntries = args.expectedTitleEntries;
+    const reopenedOutbox = await outboxCounts(client);
+    const reopenedMatchedTitleCount = await countMatchingTitles(
+      client,
+      expectedTitleEntries
+    );
+    await client.resetTransportStats();
+    const startedAt = performance.now();
+    const samples = [];
+    let attempt = 0;
+    let finalOutbox = reopenedOutbox;
+    let finalMatchedTitleCount = reopenedMatchedTitleCount;
+    let finalConflictCount = 0;
+    while (performance.now() - startedAt < args.timeoutMs) {
+      attempt += 1;
+      const syncStartedAt = performance.now();
+      let syncResult = null;
+      let errorMessage;
+      try {
+        syncResult = await client.syncOnce();
+      } catch (error) {
+        errorMessage = error instanceof Error ? error.message : String(error);
+      }
+      finalOutbox = await outboxCounts(client);
+      const conflicts = await client.conflictSummaries();
+      finalConflictCount = conflicts.length;
+      finalMatchedTitleCount = await countMatchingTitles(
+        client,
+        expectedTitleEntries
+      );
+      samples.push({
+        attempt,
+        syncMs: performance.now() - syncStartedAt,
+        matchedTitleCount: finalMatchedTitleCount,
+        conflictCount: finalConflictCount,
+        outboxUnresolved: finalOutbox.unresolved,
+        outboxPending: finalOutbox.pending,
+        outboxSending: finalOutbox.sending,
+        outboxAcked: finalOutbox.acked,
+        outboxFailed: finalOutbox.failed,
+        pushedCommits: Number(syncResult?.pushedCommits ?? 0),
+        timings: compactTimings(syncResult?.timings),
+        ...(errorMessage ? { error: errorMessage } : {}),
+      });
+      if (
+        finalOutbox.unresolved === 0 &&
+        finalConflictCount === 0 &&
+        finalMatchedTitleCount === expectedTitleEntries.length
+      ) {
+        break;
+      }
+      if (finalOutbox.failed > 0 || finalConflictCount > 0) break;
+      if (errorMessage) await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    const transportStats = await client.transportStats();
+    return {
+      phase: 'replay',
+      elapsedMs: performance.now() - startedAt,
+      reopenedOutbox,
+      reopenedMatchedTitleCount,
+      finalOutbox,
+      matchedTitleCount: finalMatchedTitleCount,
+      conflictCount: finalConflictCount,
+      syncAttempts: attempt,
+      syncSamples: samples,
+      transportStats,
+      runtimeInfo: await client.runtimeInfo(),
+    };
+  } finally {
+    await closeClient(client);
+  }
+}
+
+globalThis.syncularBrowserDurable = async (args) => {
+  if (args.phase === 'bootstrap') return bootstrap(args);
+  if (args.phase === 'queue') return queue(args);
+  if (args.phase === 'replay') return replay(args);
+  throw new Error('Unknown browser durability phase: ' + args.phase);
+};
+`;
 }
 
 function compactRustSyncTimings(timings: RustSyncTimings | undefined): JsonObject {
@@ -1741,6 +2425,182 @@ async function waitForRustOfflineReplayConvergence(args: {
       finalOutbox.statuses
     )}, matchedTitles=${finalMatchedTitleCount}/${args.expectedTitles.size}, conflicts=${finalConflictCount}`
   );
+}
+
+async function runSyncularRustBrowserDurableReplayCase(args: {
+  queueSize: number;
+  titlePrefix: string;
+}): Promise<RustOfflineReplayCaseResult> {
+  await ensureStackUp(SYNCULAR_SERVER_STACK);
+  await seedSyncularRustStack({
+    resetFirst: true,
+    orgCount: 1,
+    projectsPerOrg: 1,
+    usersPerOrg: 2,
+    tasksPerProject: Math.max(200, args.queueSize + 25),
+    membershipsPerProject: 2,
+  });
+
+  const fixtures = await getFixtures(SYNCULAR_SERVER_STACK);
+  const actorId = fixtures.sampleUserIds[0];
+  const projectId = fixtures.sampleProjectId;
+  if (!actorId || !projectId) {
+    throw new Error('Syncular Rust fixtures are missing actor/project data');
+  }
+
+  const clientId = `${args.titlePrefix}-browser-${randomUUID()}`;
+  const fileName = `${clientId}.sqlite`;
+  const subscriptions = [taskSubscription(projectId)];
+  const basePhaseArgs: Record<string, unknown> = {
+    actorId,
+    appSchema: syncularRustAppSchema(),
+    baseSql: RUST_LOCAL_BASE_TABLE_STATEMENTS,
+    baseUrl: `${getStack(SYNCULAR_SERVER_STACK).syncBaseUrl.replace(
+      'http://localhost:',
+      'http://127.0.0.1:'
+    )}/sync`,
+    clientId,
+    derivedSql: RUST_LOCAL_DERIVED_SCHEMA_STATEMENTS,
+    fileName,
+    projectId,
+    pull: {
+      limitCommits: RUST_PULL_LIMIT_COMMITS,
+      limitSnapshotRows: RUST_PULL_LIMIT_SNAPSHOT_ROWS,
+      maxSnapshotPages: RUST_PULL_MAX_SNAPSHOT_PAGES,
+      includeSnapshotRows: false,
+      collectChangedRows: false,
+      collectServerTimings: true,
+    },
+    ...(RUST_OUTBOX_PUSH_BATCH_LIMIT
+      ? { push: { outboxBatchLimit: RUST_OUTBOX_PUSH_BATCH_LIMIT } }
+      : {}),
+    subscriptions,
+    timeoutMs: 120_000,
+  };
+  const harness = await createSyncularRustBrowserDurabilityHarness();
+  const memorySampler = new MemorySampler();
+  const cpuSampler = new CpuSampler();
+  let syncServiceStarted = true;
+  let memoryMetrics: ReturnType<MemorySampler['stop']> | null = null;
+  let cpuMetrics: ReturnType<CpuSampler['stop']> | null = null;
+
+  try {
+    memorySampler.start();
+    cpuSampler.start();
+    const bootstrap = await evaluateChromeHarnessPhase(harness, {
+      ...basePhaseArgs,
+      phase: 'bootstrap',
+      expectedRows: Math.max(200, args.queueSize + 25),
+    });
+
+    stopService(SYNCULAR_SERVER_STACK, 'sync');
+    syncServiceStarted = false;
+    await waitForUrlDown(
+      `${getStack(SYNCULAR_SERVER_STACK).syncBaseUrl.replace(/\/api$/, '')}/health`
+    );
+
+    const queue = await evaluateChromeHarnessPhase(harness, {
+      ...basePhaseArgs,
+      phase: 'queue',
+      queueSize: args.queueSize,
+      titlePrefix: args.titlePrefix,
+    });
+    const expectedTitleEntries = queue.expectedTitleEntries ?? [];
+    const queuedOutbox = queue.queuedOutbox;
+    if (!queuedOutbox) {
+      throw new Error('Browser OPFS queue phase did not return outbox counts');
+    }
+    const queuedWriteCount = queue.queuedWriteCount ?? queuedOutbox.unresolved;
+    if (queuedWriteCount < args.queueSize) {
+      throw new Error(
+        `Expected at least ${args.queueSize} browser OPFS queued writes, got ${queuedWriteCount}`
+      );
+    }
+    if ((queue.matchedTitleCount ?? 0) !== expectedTitleEntries.length) {
+      throw new Error(
+        `Expected browser OPFS queue phase to retain ${expectedTitleEntries.length} local titles, got ${queue.matchedTitleCount ?? 0}`
+      );
+    }
+
+    startService(SYNCULAR_SERVER_STACK, 'sync');
+    syncServiceStarted = true;
+    await ensureStackUp(SYNCULAR_SERVER_STACK);
+    await waitForSyncularRustApiReady({ actorId, projectId });
+
+    const replay = await evaluateChromeHarnessPhase(harness, {
+      ...basePhaseArgs,
+      phase: 'replay',
+      expectedTitleEntries,
+      timeoutMs: Math.max(120_000, args.queueSize * 500),
+    });
+    const reopenedOutbox = replay.reopenedOutbox;
+    const finalOutbox = replay.finalOutbox;
+    if (!reopenedOutbox || !finalOutbox) {
+      throw new Error('Browser OPFS replay phase did not return outbox counts');
+    }
+    if (reopenedOutbox.unresolved < queuedWriteCount) {
+      throw new Error(
+        `Expected browser OPFS reopened outbox to retain ${queuedWriteCount} unresolved writes, got ${reopenedOutbox.unresolved}`
+      );
+    }
+    if ((replay.reopenedMatchedTitleCount ?? 0) !== expectedTitleEntries.length) {
+      throw new Error(
+        `Expected browser OPFS reopened store to retain ${expectedTitleEntries.length} local titles, got ${replay.reopenedMatchedTitleCount ?? 0}`
+      );
+    }
+    const transportStats = replay.transportStats ?? {
+      requestCount: 0,
+      requestBytes: 0,
+      responseBytes: 0,
+    };
+    memoryMetrics = memorySampler.stop();
+    cpuMetrics = cpuSampler.stop();
+
+    return {
+      queuedWriteCount,
+      reconnectConvergenceMs: round(Number(replay.elapsedMs ?? 0)),
+      conflictCount: Number(replay.conflictCount ?? 0),
+      replayedWriteSuccessRate: round(
+        queuedWriteCount === 0 ? 0 : finalOutbox.acked / queuedWriteCount,
+        4
+      ),
+      requestCount: transportStats.requestCount,
+      requestBytes: transportStats.requestBytes,
+      responseBytes: transportStats.responseBytes,
+      bytesTransferred: transportStats.requestBytes + transportStats.responseBytes,
+      avgMemoryMb: memoryMetrics.avgMemoryMb,
+      peakMemoryMb: memoryMetrics.peakMemoryMb,
+      avgCpuPct: cpuMetrics.avgCpuPct,
+      peakCpuPct: cpuMetrics.peakCpuPct,
+      queuedTaskIds: expectedTitleEntries.map(([taskId]) => taskId),
+      syncAttempts: Number(replay.syncAttempts ?? 0),
+      matchedTitleCount: Number(replay.matchedTitleCount ?? 0),
+      queuedOutbox,
+      reopenedOutbox,
+      finalOutbox,
+      reopenedMatchedTitleCount: Number(replay.reopenedMatchedTitleCount ?? 0),
+      syncSamples: (replay.syncSamples ?? []) as RustOfflineReplaySyncSample[],
+      storage: 'opfsSahPool',
+      durableReopen: true,
+      browserProcessRestart: true,
+      browserStorageFallback:
+        asJsonObject(
+          replay.storageFallback ?? bootstrap.storageFallback ?? queue.storageFallback
+        ) ?? null,
+      browserBootstrapMs: round(Number(bootstrap.elapsedMs ?? 0)),
+      browserQueueMs: round(Number(queue.elapsedMs ?? 0)),
+      runtimeInfo:
+        replay.runtimeInfo ?? bootstrap.runtimeInfo ?? queue.runtimeInfo ?? {},
+    };
+  } finally {
+    if (!memoryMetrics) memorySampler.stop();
+    if (!cpuMetrics) cpuSampler.stop();
+    if (!syncServiceStarted) {
+      startService(SYNCULAR_SERVER_STACK, 'sync');
+      await ensureStackUp(SYNCULAR_SERVER_STACK);
+    }
+    await closeSyncularRustBrowserDurabilityHarness(harness);
+  }
 }
 
 async function runSyncularRustOfflineReplayCase(args: {
@@ -3132,10 +3992,15 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
   }
 
   async runOfflineReplay() {
-    const result = await runSyncularRustOfflineReplayCase({
-      queueSize: 10,
-      titlePrefix: 'syncular-rust-offline',
-    });
+    const result = RUST_BROWSER_DURABLE_REOPEN
+      ? await runSyncularRustBrowserDurableReplayCase({
+          queueSize: 10,
+          titlePrefix: 'syncular-rust-browser-offline',
+        })
+      : await runSyncularRustOfflineReplayCase({
+          queueSize: 10,
+          titlePrefix: 'syncular-rust-offline',
+        });
 
     return {
       status: 'completed' as const,
@@ -3158,20 +4023,29 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
           result.reopenedOutbox?.unresolved ?? null,
         durable_reopen_matched_title_count:
           result.reopenedMatchedTitleCount ?? null,
+        browser_process_restart: result.browserProcessRestart ? 1 : 0,
+        browser_bootstrap_ms: result.browserBootstrapMs ?? null,
+        browser_queue_ms: result.browserQueueMs ?? null,
       },
       notes: [
         'Offline replay uses the real Rust WASM applyMutation outbox and replays queued commits after the Syncular service restarts.',
-        result.durableReopen
+        result.browserProcessRestart
+          ? 'Browser durable mode uses a real Chrome worker with opfsSahPool storage and restarts the browser process between bootstrap, offline queueing, and replay.'
+          : result.durableReopen
           ? 'Durable reopen mode closes the Rust client after queuing offline writes, reopens the same IndexedDB-compatible store with clearOnInit=false, and verifies the queued outbox before replay.'
           : 'The default Bun harness uses Rust memory storage; set SYNCULAR_RUST_DURABLE_REOPEN=1 for an IndexedDB-compatible close/reopen durability probe.',
       ],
       metadata: {
-        implementation: result.durableReopen
-          ? 'syncular-rust-wasm-indexeddb-outbox-reopen'
-          : 'syncular-rust-wasm-native-outbox-active-session',
+        implementation: result.browserProcessRestart
+          ? 'syncular-rust-browser-worker-opfs-process-restart'
+          : result.durableReopen
+            ? 'syncular-rust-wasm-indexeddb-outbox-reopen'
+            : 'syncular-rust-wasm-native-outbox-active-session',
         runtimeInfo: result.runtimeInfo,
         storage: result.storage,
         durableReopen: result.durableReopen,
+        browserProcessRestart: result.browserProcessRestart ?? false,
+        browserStorageFallback: result.browserStorageFallback ?? null,
         outboxPushBatchMode: RUST_OUTBOX_PUSH_BATCH_MODE,
         outboxPushBatchLimit:
           RUST_OUTBOX_PUSH_BATCH_LIMIT ?? RUST_DEFAULT_OUTBOX_PUSH_BATCH_LIMIT,
