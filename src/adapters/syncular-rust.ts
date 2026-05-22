@@ -3,6 +3,7 @@ import { access } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
+import * as fakeIndexedDb from 'fake-indexeddb';
 import {
   average,
   CpuSampler,
@@ -35,6 +36,8 @@ type RustSqlResult<Row extends Record<string, unknown> = Record<string, unknown>
   numAffectedRows?: number;
   insertId?: number;
 };
+
+type RustClientStorage = 'memory' | 'indexedDb' | 'opfsSahPool';
 
 type RustSubscriptionSpec = {
   id: string;
@@ -317,8 +320,12 @@ type RustOfflineReplayCaseResult = {
   syncAttempts: number;
   matchedTitleCount: number;
   queuedOutbox: RustOutboxStatusCounts;
+  reopenedOutbox: RustOutboxStatusCounts | null;
   finalOutbox: RustOutboxStatusCounts;
+  reopenedMatchedTitleCount: number | null;
   syncSamples: RustOfflineReplaySyncSample[];
+  storage: RustClientStorage;
+  durableReopen: boolean;
   runtimeInfo: Record<string, JsonValue>;
 };
 
@@ -385,6 +392,11 @@ const RUST_PULL_MAX_SNAPSHOT_PAGES = 100;
 const DEFAULT_RUST_RECONNECT_CLIENT_COUNTS = [25, 100, 250];
 const RUST_RECONNECT_MODE = parseRustReconnectMode();
 const DEFAULT_RUST_LARGE_OFFLINE_QUEUE_SIZES = [100, 500, 1000];
+const RUST_DURABLE_REOPEN = process.env.SYNCULAR_RUST_DURABLE_REOPEN === '1';
+const RUST_DURABLE_REOPEN_STORAGE = parseRustClientStorage(
+  process.env.SYNCULAR_RUST_DURABLE_REOPEN_STORAGE ?? 'indexedDb',
+  'SYNCULAR_RUST_DURABLE_REOPEN_STORAGE'
+);
 const RUST_DEFAULT_OUTBOX_PUSH_BATCH_LIMIT = 20;
 const RUST_DEFAULT_ADAPTIVE_OUTBOX_PUSH_BATCH_LIMIT = 100;
 const RUST_DEFAULT_ADAPTIVE_OUTBOX_PUSH_THRESHOLD = 100;
@@ -523,16 +535,20 @@ async function openBenchRustClient(args: {
   actorId: string;
   clientId: string;
   projectId?: string | null;
+  storage?: RustClientStorage;
+  fileName?: string;
+  clearOnInit?: boolean;
 }): Promise<RustClient> {
+  installIndexedDbGlobalsIfNeeded(args.storage);
   const mod = await loadRustClientModule();
   const client = await mod.openSyncularRustClient({
     config: {
       baseUrl: `${getStack(SYNCULAR_SERVER_STACK).syncBaseUrl}/sync`,
       clientId: args.clientId,
       actorId: args.actorId,
-      storage: 'memory',
-      fileName: `${args.clientId}.sqlite`,
-      clearOnInit: true,
+      storage: args.storage ?? 'memory',
+      fileName: args.fileName ?? `${args.clientId}.sqlite`,
+      clearOnInit: args.clearOnInit ?? true,
       appSchema: syncularRustAppSchema(),
       pull: {
         limitCommits: RUST_PULL_LIMIT_COMMITS,
@@ -979,6 +995,34 @@ function parseOptionalPositiveInteger(
     throw new Error(`${envName} must be a positive integer`);
   }
   return value;
+}
+
+function parseRustClientStorage(
+  raw: string,
+  envName: string
+): RustClientStorage {
+  if (raw === 'memory' || raw === 'indexedDb' || raw === 'opfsSahPool') {
+    return raw;
+  }
+  throw new Error(`${envName} must be one of memory, indexedDb, opfsSahPool`);
+}
+
+function installIndexedDbGlobalsIfNeeded(storage: RustClientStorage | undefined) {
+  if (storage !== 'indexedDb') return;
+  Object.assign(globalThis as Record<string, unknown>, {
+    indexedDB: fakeIndexedDb.indexedDB,
+    IDBKeyRange: fakeIndexedDb.IDBKeyRange,
+    IDBCursor: fakeIndexedDb.IDBCursor,
+    IDBCursorWithValue: fakeIndexedDb.IDBCursorWithValue,
+    IDBDatabase: fakeIndexedDb.IDBDatabase,
+    IDBFactory: fakeIndexedDb.IDBFactory,
+    IDBIndex: fakeIndexedDb.IDBIndex,
+    IDBObjectStore: fakeIndexedDb.IDBObjectStore,
+    IDBOpenDBRequest: fakeIndexedDb.IDBOpenDBRequest,
+    IDBRequest: fakeIndexedDb.IDBRequest,
+    IDBTransaction: fakeIndexedDb.IDBTransaction,
+    IDBVersionChangeEvent: fakeIndexedDb.IDBVersionChangeEvent,
+  });
 }
 
 function compactRustSyncTimings(timings: RustSyncTimings | undefined): JsonObject {
@@ -1715,13 +1759,21 @@ async function runSyncularRustOfflineReplayCase(args: {
     throw new Error('Syncular Rust fixtures are missing actor/project data');
   }
 
+  const clientId = `${args.titlePrefix}-${randomUUID()}`;
+  const storage = RUST_DURABLE_REOPEN ? RUST_DURABLE_REOPEN_STORAGE : 'memory';
+  const fileName = `${clientId}.sqlite`;
+  const subscriptions = [taskSubscription(projectId)];
   const bootstrap = await bootstrapRustClient({
     actorId,
-    clientId: `${args.titlePrefix}-${randomUUID()}`,
+    clientId,
     projectIds: projectId,
     expectedRows: Math.max(200, args.queueSize + 25),
+    subscriptions,
+    storage,
+    fileName,
+    clearOnInit: true,
   });
-  const client = bootstrap.client;
+  let client = bootstrap.client;
   const memorySampler = new MemorySampler();
   const cpuSampler = new CpuSampler();
   const replayTimeoutMs = Math.max(120_000, args.queueSize * 500);
@@ -1768,6 +1820,34 @@ async function runSyncularRustOfflineReplayCase(args: {
         `Expected at least ${offlineTargets.length} queued Rust writes, got ${queuedWriteCount}`
       );
     }
+    let reopenedOutbox: RustOutboxStatusCounts | null = null;
+    let reopenedMatchedTitleCount: number | null = null;
+
+    if (RUST_DURABLE_REOPEN) {
+      client.close();
+      client = await openBenchRustClient({
+        actorId,
+        clientId,
+        projectId,
+        storage,
+        fileName,
+        clearOnInit: false,
+      });
+      client.setSubscriptions(subscriptions);
+      ensureRustLocalDerivedSchema(client);
+      reopenedOutbox = rustOutboxStatusCounts(client);
+      reopenedMatchedTitleCount = countRustMatchingTaskTitles(client, expectedTitles);
+      if (reopenedOutbox.unresolved < queuedWriteCount) {
+        throw new Error(
+          `Expected reopened Rust outbox to retain ${queuedWriteCount} unresolved writes, got ${reopenedOutbox.unresolved}`
+        );
+      }
+      if (reopenedMatchedTitleCount !== expectedTitles.size) {
+        throw new Error(
+          `Expected reopened Rust store to retain ${expectedTitles.size} local titles, got ${reopenedMatchedTitleCount}`
+        );
+      }
+    }
 
     client.resetTransportStats();
     startService(SYNCULAR_SERVER_STACK, 'sync');
@@ -1808,8 +1888,12 @@ async function runSyncularRustOfflineReplayCase(args: {
       syncAttempts: convergence.syncAttempts,
       matchedTitleCount: convergence.matchedTitleCount,
       queuedOutbox,
+      reopenedOutbox,
       finalOutbox: convergence.finalOutbox,
+      reopenedMatchedTitleCount,
       syncSamples: convergence.samples,
+      storage,
+      durableReopen: RUST_DURABLE_REOPEN,
       runtimeInfo: bootstrap.runtimeInfo,
     };
   } finally {
@@ -2179,6 +2263,9 @@ async function bootstrapRustClient(args: {
   projectIds: string | string[];
   expectedRows: number;
   subscriptions?: RustSubscriptionSpec[];
+  storage?: RustClientStorage;
+  fileName?: string;
+  clearOnInit?: boolean;
 }): Promise<{
   client: RustClient;
   durationMs: number;
@@ -2191,6 +2278,9 @@ async function bootstrapRustClient(args: {
     actorId: args.actorId,
     clientId: args.clientId,
     projectId: Array.isArray(args.projectIds) ? args.projectIds[0] : args.projectIds,
+    storage: args.storage,
+    fileName: args.fileName,
+    clearOnInit: args.clearOnInit,
   });
   client.setSubscriptions(args.subscriptions ?? [taskSubscription(args.projectIds)]);
 
@@ -3059,14 +3149,24 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
         peak_cpu_pct: result.peakCpuPct,
         sync_attempts: result.syncAttempts,
         matched_title_count: result.matchedTitleCount,
+        durable_reopen_outbox_unresolved:
+          result.reopenedOutbox?.unresolved ?? null,
+        durable_reopen_matched_title_count:
+          result.reopenedMatchedTitleCount ?? null,
       },
       notes: [
         'Offline replay uses the real Rust WASM applyMutation outbox and replays queued commits after the Syncular service restarts.',
-        'The Bun harness currently uses Rust memory storage because IndexedDB is unavailable and OPFS requires a dedicated browser worker; this verifies native outbox replay, not process-restart durability.',
+        result.durableReopen
+          ? 'Durable reopen mode closes the Rust client after queuing offline writes, reopens the same IndexedDB-compatible store with clearOnInit=false, and verifies the queued outbox before replay.'
+          : 'The default Bun harness uses Rust memory storage; set SYNCULAR_RUST_DURABLE_REOPEN=1 for an IndexedDB-compatible close/reopen durability probe.',
       ],
       metadata: {
-        implementation: 'syncular-rust-wasm-native-outbox-active-session',
+        implementation: result.durableReopen
+          ? 'syncular-rust-wasm-indexeddb-outbox-reopen'
+          : 'syncular-rust-wasm-native-outbox-active-session',
         runtimeInfo: result.runtimeInfo,
+        storage: result.storage,
+        durableReopen: result.durableReopen,
         outboxPushBatchMode: RUST_OUTBOX_PUSH_BATCH_MODE,
         outboxPushBatchLimit:
           RUST_OUTBOX_PUSH_BATCH_LIMIT ?? RUST_DEFAULT_OUTBOX_PUSH_BATCH_LIMIT,
@@ -3078,6 +3178,8 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
           : RUST_DEFAULT_ADAPTIVE_OUTBOX_PUSH_THRESHOLD,
         queuedTaskIds: result.queuedTaskIds,
         queuedOutbox: result.queuedOutbox,
+        reopenedOutbox: result.reopenedOutbox,
+        reopenedMatchedTitleCount: result.reopenedMatchedTitleCount,
         finalOutbox: result.finalOutbox,
         syncSamples: result.syncSamples,
       },
@@ -3247,17 +3349,31 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
             [`queue_${queueSize}_peak_cpu_pct`, result.peakCpuPct],
             [`queue_${queueSize}_sync_attempts`, result.syncAttempts],
             [`queue_${queueSize}_replayed_write_success_rate`, result.replayedWriteSuccessRate],
+            [
+              `queue_${queueSize}_durable_reopen_outbox_unresolved`,
+              result.reopenedOutbox?.unresolved ?? null,
+            ],
+            [
+              `queue_${queueSize}_durable_reopen_matched_title_count`,
+              result.reopenedMatchedTitleCount ?? null,
+            ],
           ];
         })
       ),
       notes: [
         'Large offline queue replay uses the same Rust WASM native outbox path at multiple queue sizes.',
         'The default queue sizes are 100 / 500 / 1000; set SYNCULAR_RUST_LARGE_OFFLINE_QUEUE_SIZES for targeted self-verification runs.',
-        'The Bun harness currently verifies active-session replay with Rust memory storage; browser-worker durable OPFS replay remains a separate harness gap.',
+        RUST_DURABLE_REOPEN
+          ? 'Durable reopen mode closes and reopens the same IndexedDB-compatible Rust store before replay at each scale.'
+          : 'The default Bun harness verifies active-session replay with Rust memory storage; set SYNCULAR_RUST_DURABLE_REOPEN=1 for an IndexedDB-compatible close/reopen probe.',
       ],
       metadata: {
-        implementation: 'syncular-rust-wasm-native-outbox-large-queue-active-session',
+        implementation: RUST_DURABLE_REOPEN
+          ? 'syncular-rust-wasm-indexeddb-outbox-large-queue-reopen'
+          : 'syncular-rust-wasm-native-outbox-large-queue-active-session',
         queueSizes,
+        storage: RUST_DURABLE_REOPEN ? RUST_DURABLE_REOPEN_STORAGE : 'memory',
+        durableReopen: RUST_DURABLE_REOPEN,
         outboxPushBatchMode: RUST_OUTBOX_PUSH_BATCH_MODE,
         outboxPushBatchLimit:
           RUST_OUTBOX_PUSH_BATCH_LIMIT ?? RUST_DEFAULT_OUTBOX_PUSH_BATCH_LIMIT,
@@ -3281,6 +3397,8 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
           replayedWriteSuccessRate: result.replayedWriteSuccessRate,
           matchedTitleCount: result.matchedTitleCount,
           queuedOutbox: result.queuedOutbox,
+          reopenedOutbox: result.reopenedOutbox,
+          reopenedMatchedTitleCount: result.reopenedMatchedTitleCount,
           finalOutbox: result.finalOutbox,
           syncSamples: result.syncSamples,
         })),
