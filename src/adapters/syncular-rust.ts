@@ -73,7 +73,9 @@ type RustClient = {
   ): Promise<RustBlobRef>;
   retrieveBlob(ref: RustBlobRef): Promise<Uint8Array>;
   isBlobLocal(hash: string): boolean;
-  processBlobUploadQueue(): Promise<{ uploaded: number; failed: number }>;
+  processBlobUploadQueue(options?: {
+    retryNow?: boolean;
+  }): Promise<{ uploaded: number; failed: number }>;
   blobUploadQueueStats(): RustBlobUploadQueueStats;
   blobCacheStats(): RustBlobCacheStats;
   clearBlobCache(): void;
@@ -951,6 +953,7 @@ function createOneShotFailingUploadFetch(baseFetch: typeof fetch): typeof fetch 
 
 async function processRustBlobUploadQueueUntilDrained(args: {
   client: RustClient;
+  retryNow?: boolean;
   timeoutMs?: number;
 }): Promise<{
   uploaded: number;
@@ -965,7 +968,9 @@ async function processRustBlobUploadQueueUntilDrained(args: {
 
   while (performance.now() - startedAt < timeoutMs) {
     attempts += 1;
-    const result = await args.client.processBlobUploadQueue();
+    const result = await args.client.processBlobUploadQueue({
+      retryNow: args.retryNow === true,
+    });
     uploaded += result.uploaded;
     failed += result.failed;
     const stats = args.client.blobUploadQueueStats();
@@ -3930,6 +3935,7 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
         const retryRecoveryStartedAt = performance.now();
         const retryRecoveryResult = await processRustBlobUploadQueueUntilDrained({
           client: writer,
+          retryNow: true,
         });
         const retryRecoveryMs = performance.now() - retryRecoveryStartedAt;
         const retryQueueAfterRecovery = writer.blobUploadQueueStats();
@@ -3992,6 +3998,7 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
             retry_first_attempt_ms: round(retryFirstAttemptMs),
             retry_recovery_ms: round(retryRecoveryMs),
             retry_recovery_attempts: retryRecoveryResult.attempts,
+            retry_recovery_retry_now: 1,
             retry_first_attempt_uploaded: retryFirstAttemptResult.uploaded,
             retry_first_attempt_failed: retryFirstAttemptResult.failed,
             retry_recovery_uploaded: retryRecoveryResult.uploaded,
@@ -4006,7 +4013,7 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
           },
           notes: [
             'Blob flow uses two real Rust WASM clients against the standard Syncular blob routes: the writer uploads immediately, syncs blob metadata through task_blob_entries, the reader pulls metadata, and the writer re-downloads after clearing its local blob cache.',
-            'The retry path stores a second Rust blob without immediate upload, forces the first PUT to fail once, then processes the native Rust blob upload queue until it drains.',
+            'The retry path stores a second Rust blob without immediate upload, forces the first PUT to fail once, then processes the native Rust blob upload queue with retryNow=true until it drains.',
             'The Bun harness uses Rust memory storage, so SQLite storage-byte overhead is reported as n/a for this Rust lane.',
           ],
           metadata: {
