@@ -34,12 +34,12 @@
     "stacks:livestore:down": "docker compose -f stacks/livestore/docker-compose.yml down -v --remove-orphans"
   },
   "dependencies": {
-    "@electric-sql/client": "^1.5.14",
+    "@electric-sql/client": "^1.5.18",
     "@livestore/adapter-node": "^0.3.1",
     "@livestore/livestore": "^0.3.1",
     "@livestore/sync-electric": "^0.3.1",
-    "@powersync/node": "^0.18.3",
-    "@powersync/web": "^1.37.1",
+    "@powersync/node": "^0.18.6",
+    "@powersync/web": "^1.38.1",
     "@rocicorp/zero": "^1.1.1",
     "@syncular/client": "^0.0.6-245",
     "@syncular/client-plugin-blob": "^0.0.6-245",

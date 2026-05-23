@@ -256,6 +256,18 @@ type RustReconnectStormCaseResult = {
   realtimePullRequiredCount?: number;
   realtimeReconnectScheduledCount?: number;
   realtimeReconnectPullCount?: number;
+  realtimeSyncWakeupP50Ms?: number | null;
+  realtimeSyncWakeupP95Ms?: number | null;
+  realtimeSyncWakeupP99Ms?: number | null;
+  realtimeFirstBinaryAppliedP50Ms?: number | null;
+  realtimeFirstBinaryAppliedP95Ms?: number | null;
+  realtimeFirstBinaryAppliedP99Ms?: number | null;
+  realtimeBinaryApplyTotalP50Ms?: number | null;
+  realtimeBinaryApplyTotalP95Ms?: number | null;
+  realtimeBinaryApplyTotalP99Ms?: number | null;
+  clientVisibleAfterBinaryAppliedP50Ms?: number | null;
+  clientVisibleAfterBinaryAppliedP95Ms?: number | null;
+  clientVisibleAfterBinaryAppliedP99Ms?: number | null;
   externalWrite?: SyncularRustExternalWriteResult;
   requestCount: number;
   requestBytes: number;
@@ -410,15 +422,28 @@ const RUST_DURABLE_REOPEN_STORAGE = parseRustClientStorage(
   'SYNCULAR_RUST_DURABLE_REOPEN_STORAGE'
 );
 const RUST_DEFAULT_OUTBOX_PUSH_BATCH_LIMIT = 20;
-const RUST_DEFAULT_ADAPTIVE_OUTBOX_PUSH_BATCH_LIMIT = 100;
+const RUST_DEFAULT_ADAPTIVE_OUTBOX_PUSH_BATCH_LIMIT = 1000;
 const RUST_DEFAULT_ADAPTIVE_OUTBOX_PUSH_THRESHOLD = 100;
 const RUST_OUTBOX_PUSH_BATCH_LIMIT = parseOptionalPositiveInteger(
   process.env.SYNCULAR_RUST_OUTBOX_PUSH_BATCH_LIMIT,
   'SYNCULAR_RUST_OUTBOX_PUSH_BATCH_LIMIT'
 );
+const RUST_ADAPTIVE_OUTBOX_PUSH_BATCH_LIMIT =
+  parseOptionalPositiveInteger(
+    process.env.SYNCULAR_RUST_ADAPTIVE_OUTBOX_PUSH_BATCH_LIMIT,
+    'SYNCULAR_RUST_ADAPTIVE_OUTBOX_PUSH_BATCH_LIMIT'
+  ) ?? RUST_DEFAULT_ADAPTIVE_OUTBOX_PUSH_BATCH_LIMIT;
+const RUST_ADAPTIVE_OUTBOX_PUSH_THRESHOLD =
+  parseOptionalPositiveInteger(
+    process.env.SYNCULAR_RUST_ADAPTIVE_OUTBOX_PUSH_THRESHOLD,
+    'SYNCULAR_RUST_ADAPTIVE_OUTBOX_PUSH_THRESHOLD'
+  ) ?? RUST_DEFAULT_ADAPTIVE_OUTBOX_PUSH_THRESHOLD;
 const RUST_OUTBOX_PUSH_BATCH_MODE = RUST_OUTBOX_PUSH_BATCH_LIMIT
   ? 'fixed'
-  : 'adaptive-default';
+  : process.env.SYNCULAR_RUST_ADAPTIVE_OUTBOX_PUSH_BATCH_LIMIT ||
+      process.env.SYNCULAR_RUST_ADAPTIVE_OUTBOX_PUSH_THRESHOLD
+    ? 'adaptive-configured'
+    : 'adaptive-default';
 const DEBUG_RUST_WS = process.env.SYNCULAR_RUST_DEBUG_WS === '1';
 const RUST_SYNCULAR_SCHEMA_CONTRACT = JSON.parse(
   readFileSync(
@@ -570,9 +595,7 @@ async function openBenchRustClient(args: {
         collectChangedRows: false,
         collectServerTimings: true,
       },
-      ...(RUST_OUTBOX_PUSH_BATCH_LIMIT
-        ? { push: { outboxBatchLimit: RUST_OUTBOX_PUSH_BATCH_LIMIT } }
-        : {}),
+      push: rustOutboxPushOptions(),
       ...(args.projectId ? { projectId: args.projectId } : {}),
     },
   });
@@ -605,9 +628,7 @@ async function openBenchRustWorkerClient(args: {
         collectChangedRows: false,
         collectServerTimings: true,
       },
-      ...(RUST_OUTBOX_PUSH_BATCH_LIMIT
-        ? { push: { outboxBatchLimit: RUST_OUTBOX_PUSH_BATCH_LIMIT } }
-        : {}),
+      push: rustOutboxPushOptions(),
       ...(args.projectId ? { projectId: args.projectId } : {}),
     },
     diagnostics: (event) => {
@@ -1020,6 +1041,17 @@ function parseRustClientStorage(
     return raw;
   }
   throw new Error(`${envName} must be one of memory, indexedDb, opfsSahPool`);
+}
+
+function rustOutboxPushOptions(): Record<string, number> {
+  if (RUST_OUTBOX_PUSH_BATCH_LIMIT) {
+    return { outboxBatchLimit: RUST_OUTBOX_PUSH_BATCH_LIMIT };
+  }
+
+  return {
+    adaptiveOutboxBatchLimit: RUST_ADAPTIVE_OUTBOX_PUSH_BATCH_LIMIT,
+    adaptiveOutboxBatchThreshold: RUST_ADAPTIVE_OUTBOX_PUSH_THRESHOLD,
+  };
 }
 
 function installIndexedDbGlobalsIfNeeded(storage: RustClientStorage | undefined) {
@@ -1956,6 +1988,28 @@ function sumMetricNumber(summaries: JsonObject[], key: string): number {
   }, 0);
 }
 
+function metricNumbers(values: Array<number | null>): number[] {
+  return values.filter((value): value is number => value !== null);
+}
+
+function workerDiagnosticOffsetValues(
+  samples: RustWorkerReconnectClientSample[],
+  key: string
+): number[] {
+  return metricNumbers(
+    samples.map((sample) => metricNumber(sample.diagnosticOffsetsMs ?? {}, key))
+  );
+}
+
+function workerDiagnosticMetricValues(
+  samples: RustWorkerReconnectClientSample[],
+  key: string
+): number[] {
+  return metricNumbers(
+    samples.map((sample) => metricNumber(sample.diagnostics, key))
+  );
+}
+
 function getRustTaskRow(
   client: RustClient,
   taskId: string
@@ -2306,7 +2360,7 @@ function parseRustReconnectClientCounts(): number[] {
 
 function parseRustReconnectMode(): RustReconnectMode {
   const raw = process.env.SYNCULAR_RUST_RECONNECT_MODE;
-  if (!raw) return 'http';
+  if (!raw) return 'worker-realtime';
   if (raw === 'http' || raw === 'worker-realtime') return raw;
   throw new Error(
     'SYNCULAR_RUST_RECONNECT_MODE must be either "http" or "worker-realtime"'
@@ -2471,9 +2525,7 @@ async function runSyncularRustBrowserDurableReplayCase(args: {
       collectChangedRows: false,
       collectServerTimings: true,
     },
-    ...(RUST_OUTBOX_PUSH_BATCH_LIMIT
-      ? { push: { outboxBatchLimit: RUST_OUTBOX_PUSH_BATCH_LIMIT } }
-      : {}),
+    push: rustOutboxPushOptions(),
     subscriptions,
     timeoutMs: 120_000,
   };
@@ -3059,6 +3111,29 @@ async function runSyncularRustWorkerRealtimeReconnectStormCase(args: {
     const convergenceMs =
       clientVisibleMs.length > 0 ? Math.max(...clientVisibleMs) : 0;
     const diagnosticSummaries = clientSamples.map((sample) => sample.diagnostics);
+    const syncWakeupOffsets = workerDiagnosticOffsetValues(
+      clientSamples,
+      'firstSyncWakeupMs'
+    );
+    const firstBinaryAppliedOffsets = workerDiagnosticOffsetValues(
+      clientSamples,
+      'firstBinaryAppliedMs'
+    );
+    const binaryApplyTotalMs = workerDiagnosticMetricValues(
+      clientSamples,
+      'realtimeBinaryApplyTotalP95Ms'
+    );
+    const visibleAfterBinaryAppliedMs = metricNumbers(
+      clientSamples.map((sample) => {
+        const firstBinaryAppliedMs = metricNumber(
+          sample.diagnosticOffsetsMs ?? {},
+          'firstBinaryAppliedMs'
+        );
+        return firstBinaryAppliedMs === null
+          ? null
+          : Math.max(0, sample.visibleMs - firstBinaryAppliedMs);
+      })
+    );
     const realtimeReconnectScheduledCount = sessions.reduce(
       (total, client) =>
         total + countDiagnosticCode(client, 'realtime.reconnect_scheduled'),
@@ -3095,6 +3170,36 @@ async function runSyncularRustWorkerRealtimeReconnectStormCase(args: {
         const value = reasons.reconnect;
         return total + (typeof value === 'number' ? value : 0);
       }, 0),
+      realtimeSyncWakeupP50Ms: percentileOrNull(syncWakeupOffsets, 50),
+      realtimeSyncWakeupP95Ms: percentileOrNull(syncWakeupOffsets, 95),
+      realtimeSyncWakeupP99Ms: percentileOrNull(syncWakeupOffsets, 99),
+      realtimeFirstBinaryAppliedP50Ms: percentileOrNull(
+        firstBinaryAppliedOffsets,
+        50
+      ),
+      realtimeFirstBinaryAppliedP95Ms: percentileOrNull(
+        firstBinaryAppliedOffsets,
+        95
+      ),
+      realtimeFirstBinaryAppliedP99Ms: percentileOrNull(
+        firstBinaryAppliedOffsets,
+        99
+      ),
+      realtimeBinaryApplyTotalP50Ms: percentileOrNull(binaryApplyTotalMs, 50),
+      realtimeBinaryApplyTotalP95Ms: percentileOrNull(binaryApplyTotalMs, 95),
+      realtimeBinaryApplyTotalP99Ms: percentileOrNull(binaryApplyTotalMs, 99),
+      clientVisibleAfterBinaryAppliedP50Ms: percentileOrNull(
+        visibleAfterBinaryAppliedMs,
+        50
+      ),
+      clientVisibleAfterBinaryAppliedP95Ms: percentileOrNull(
+        visibleAfterBinaryAppliedMs,
+        95
+      ),
+      clientVisibleAfterBinaryAppliedP99Ms: percentileOrNull(
+        visibleAfterBinaryAppliedMs,
+        99
+      ),
       externalWrite,
       requestCount: totalTransport.requestCount,
       requestBytes: totalTransport.requestBytes,
@@ -3444,13 +3549,19 @@ const RUST_RAW_DASHBOARD_QUERY = `select
    organizations.name as org_name,
    projects.id as project_id,
    projects.name as project_name,
-   count(tasks.id) as task_count,
-   sum(case when tasks.completed = 0 then 1 else 0 end) as open_task_count
+   (
+     select count(*)
+     from tasks
+     where tasks.project_id = projects.id
+   ) as task_count,
+   (
+     select count(*)
+     from tasks
+     where tasks.project_id = projects.id and tasks.completed = 0
+   ) as open_task_count
  from organizations
  join projects on projects.org_id = organizations.id
- left join tasks on tasks.project_id = projects.id
  where organizations.id = ?
- group by organizations.name, projects.id, projects.name
  order by open_task_count desc, projects.id asc
  limit 20`;
 
@@ -4051,10 +4162,10 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
           RUST_OUTBOX_PUSH_BATCH_LIMIT ?? RUST_DEFAULT_OUTBOX_PUSH_BATCH_LIMIT,
         adaptiveOutboxBatchLimit: RUST_OUTBOX_PUSH_BATCH_LIMIT
           ? null
-          : RUST_DEFAULT_ADAPTIVE_OUTBOX_PUSH_BATCH_LIMIT,
+          : RUST_ADAPTIVE_OUTBOX_PUSH_BATCH_LIMIT,
         adaptiveOutboxBatchThreshold: RUST_OUTBOX_PUSH_BATCH_LIMIT
           ? null
-          : RUST_DEFAULT_ADAPTIVE_OUTBOX_PUSH_THRESHOLD,
+          : RUST_ADAPTIVE_OUTBOX_PUSH_THRESHOLD,
         queuedTaskIds: result.queuedTaskIds,
         queuedOutbox: result.queuedOutbox,
         reopenedOutbox: result.reopenedOutbox,
@@ -4113,6 +4224,54 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
           [
             `clients_${result.clientCount}_realtime_reconnect_pull_count`,
             result.realtimeReconnectPullCount ?? null,
+          ],
+          [
+            `clients_${result.clientCount}_realtime_sync_wakeup_p50_ms`,
+            result.realtimeSyncWakeupP50Ms ?? null,
+          ],
+          [
+            `clients_${result.clientCount}_realtime_sync_wakeup_p95_ms`,
+            result.realtimeSyncWakeupP95Ms ?? null,
+          ],
+          [
+            `clients_${result.clientCount}_realtime_sync_wakeup_p99_ms`,
+            result.realtimeSyncWakeupP99Ms ?? null,
+          ],
+          [
+            `clients_${result.clientCount}_realtime_first_binary_applied_p50_ms`,
+            result.realtimeFirstBinaryAppliedP50Ms ?? null,
+          ],
+          [
+            `clients_${result.clientCount}_realtime_first_binary_applied_p95_ms`,
+            result.realtimeFirstBinaryAppliedP95Ms ?? null,
+          ],
+          [
+            `clients_${result.clientCount}_realtime_first_binary_applied_p99_ms`,
+            result.realtimeFirstBinaryAppliedP99Ms ?? null,
+          ],
+          [
+            `clients_${result.clientCount}_realtime_binary_apply_total_p50_ms`,
+            result.realtimeBinaryApplyTotalP50Ms ?? null,
+          ],
+          [
+            `clients_${result.clientCount}_realtime_binary_apply_total_p95_ms`,
+            result.realtimeBinaryApplyTotalP95Ms ?? null,
+          ],
+          [
+            `clients_${result.clientCount}_realtime_binary_apply_total_p99_ms`,
+            result.realtimeBinaryApplyTotalP99Ms ?? null,
+          ],
+          [
+            `clients_${result.clientCount}_client_visible_after_binary_applied_p50_ms`,
+            result.clientVisibleAfterBinaryAppliedP50Ms ?? null,
+          ],
+          [
+            `clients_${result.clientCount}_client_visible_after_binary_applied_p95_ms`,
+            result.clientVisibleAfterBinaryAppliedP95Ms ?? null,
+          ],
+          [
+            `clients_${result.clientCount}_client_visible_after_binary_applied_p99_ms`,
+            result.clientVisibleAfterBinaryAppliedP99Ms ?? null,
           ],
           [
             `clients_${result.clientCount}_external_write_total_ms`,
@@ -4184,6 +4343,27 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
           realtimeReconnectScheduledCount:
             result.realtimeReconnectScheduledCount ?? null,
           realtimeReconnectPullCount: result.realtimeReconnectPullCount ?? null,
+          realtimeSyncWakeupP50Ms: result.realtimeSyncWakeupP50Ms ?? null,
+          realtimeSyncWakeupP95Ms: result.realtimeSyncWakeupP95Ms ?? null,
+          realtimeSyncWakeupP99Ms: result.realtimeSyncWakeupP99Ms ?? null,
+          realtimeFirstBinaryAppliedP50Ms:
+            result.realtimeFirstBinaryAppliedP50Ms ?? null,
+          realtimeFirstBinaryAppliedP95Ms:
+            result.realtimeFirstBinaryAppliedP95Ms ?? null,
+          realtimeFirstBinaryAppliedP99Ms:
+            result.realtimeFirstBinaryAppliedP99Ms ?? null,
+          realtimeBinaryApplyTotalP50Ms:
+            result.realtimeBinaryApplyTotalP50Ms ?? null,
+          realtimeBinaryApplyTotalP95Ms:
+            result.realtimeBinaryApplyTotalP95Ms ?? null,
+          realtimeBinaryApplyTotalP99Ms:
+            result.realtimeBinaryApplyTotalP99Ms ?? null,
+          clientVisibleAfterBinaryAppliedP50Ms:
+            result.clientVisibleAfterBinaryAppliedP50Ms ?? null,
+          clientVisibleAfterBinaryAppliedP95Ms:
+            result.clientVisibleAfterBinaryAppliedP95Ms ?? null,
+          clientVisibleAfterBinaryAppliedP99Ms:
+            result.clientVisibleAfterBinaryAppliedP99Ms ?? null,
           externalWrite: result.externalWrite ?? null,
           clientSamples: result.clientSamples,
           syncAvgCpuPct: result.syncAvgCpuPct,
@@ -4258,10 +4438,10 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
           RUST_OUTBOX_PUSH_BATCH_LIMIT ?? RUST_DEFAULT_OUTBOX_PUSH_BATCH_LIMIT,
         adaptiveOutboxBatchLimit: RUST_OUTBOX_PUSH_BATCH_LIMIT
           ? null
-          : RUST_DEFAULT_ADAPTIVE_OUTBOX_PUSH_BATCH_LIMIT,
+          : RUST_ADAPTIVE_OUTBOX_PUSH_BATCH_LIMIT,
         adaptiveOutboxBatchThreshold: RUST_OUTBOX_PUSH_BATCH_LIMIT
           ? null
-          : RUST_DEFAULT_ADAPTIVE_OUTBOX_PUSH_THRESHOLD,
+          : RUST_ADAPTIVE_OUTBOX_PUSH_THRESHOLD,
         scales: queueResults.map((result, index) => ({
           queueSize: queueSizes[index],
           queuedWriteCount: result.queuedWriteCount,
@@ -4515,7 +4695,7 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
         },
         notes: [
           'Deep relationship query benchmarks run against the local Rust-owned SQLite cache after all related tables are materialized.',
-          'dashboard_query_* uses a generated countBy read model keyed by project_id/completed; dashboard_raw_sql_query_* records the former raw group-by query for comparison.',
+          'dashboard_query_* uses a generated countBy read model keyed by project_id/completed; dashboard_raw_sql_query_* records the equivalent tuned raw SQL count query for comparison.',
         ],
         metadata: {
           implementation: 'syncular-rust-wasm-client-deep-relationship-query',
@@ -4616,11 +4796,32 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
         );
       }
 
+      const sameClientConvergenceMs = performance.now() - startedAt;
       const memoryMetrics = memorySampler.stop();
       const cpuMetrics = cpuSampler.stop();
       const transportStats = client.transportStats();
       const requestBytes = transportStats.requestBytes;
       const responseBytes = transportStats.responseBytes;
+      const rebootstrapStartedAt = performance.now();
+      const rebootstrap = await bootstrapRustClient({
+        actorId,
+        clientId: `syncular-rust-permission-change-rebootstrap-${randomUUID()}`,
+        projectIds: [revokedProjectId, retainedProjectId],
+        expectedRows: 500,
+      });
+      const rebootstrapVisibleMs = performance.now() - rebootstrapStartedAt;
+      const rebootstrapClient = rebootstrap.client;
+      const rebootstrapVisibleRows = countRows(rebootstrapClient, 'tasks');
+      const rebootstrapRevokedProjectRows = countTasksForProject(
+        rebootstrapClient,
+        revokedProjectId
+      );
+      const rebootstrapRetainedProjectRows = countTasksForProject(
+        rebootstrapClient,
+        retainedProjectId
+      );
+      const rebootstrapTransportStats = rebootstrapClient.transportStats();
+      rebootstrapClient.close();
 
       return {
         status: 'completed',
@@ -4629,7 +4830,8 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
           post_revoke_visible_rows: postRevokeVisibleRows,
           revoked_project_visible_rows_after_revoke: revokedProjectRows,
           retained_project_visible_rows_after_revoke: retainedProjectRows,
-          permission_revoke_convergence_ms: round(performance.now() - startedAt),
+          permission_revoke_convergence_ms: round(sameClientConvergenceMs),
+          same_client_permission_revoke_convergence_ms: round(sameClientConvergenceMs),
           revoke_request_ms: round(revokeRequestMs),
           sync_attempts: syncSamples.length,
           sync_elapsed_ms: round(syncSamples.reduce((total, sample) => total + sample.syncMs, 0)),
@@ -4646,13 +4848,25 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
           request_bytes: requestBytes,
           response_bytes: responseBytes,
           bytes_transferred: requestBytes + responseBytes,
+          rebootstrap_permission_visible_ms: round(rebootstrapVisibleMs),
+          rebootstrap_bootstrap_ms: round(rebootstrap.durationMs),
+          rebootstrap_visible_rows: rebootstrapVisibleRows,
+          rebootstrap_revoked_project_visible_rows: rebootstrapRevokedProjectRows,
+          rebootstrap_retained_project_visible_rows: rebootstrapRetainedProjectRows,
+          rebootstrap_request_count: rebootstrapTransportStats.requestCount,
+          rebootstrap_request_bytes: rebootstrapTransportStats.requestBytes,
+          rebootstrap_response_bytes: rebootstrapTransportStats.responseBytes,
+          rebootstrap_bytes_transferred:
+            rebootstrapTransportStats.requestBytes +
+            rebootstrapTransportStats.responseBytes,
           avg_memory_mb: memoryMetrics.avgMemoryMb,
           peak_memory_mb: memoryMetrics.peakMemoryMb,
           avg_cpu_pct: cpuMetrics.avgCpuPct,
           peak_cpu_pct: cpuMetrics.peakCpuPct,
         },
         notes: [
-          'Permission-change convergence uses the Rust client pull path with a multi-project subscription.',
+          'Permission-change convergence uses the Rust client pull path with a multi-project subscription and reports same-client revoke as the primary metric.',
+          'Rebootstrap-after-revoke is reported separately so it can be compared with stacks whose benchmark path recreates the local view.',
         ],
         metadata: {
           implementation: 'syncular-rust-wasm-client-permission-revoke',
@@ -4661,6 +4875,13 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
           revokedProjectId,
           retainedProjectId,
           syncSamples,
+          rebootstrap: {
+            durationMs: round(rebootstrap.durationMs),
+            visibleRows: rebootstrapVisibleRows,
+            revokedProjectRows: rebootstrapRevokedProjectRows,
+            retainedProjectRows: rebootstrapRetainedProjectRows,
+            timings: compactRustSyncTimings(rebootstrap.timings),
+          },
         },
       };
     } finally {

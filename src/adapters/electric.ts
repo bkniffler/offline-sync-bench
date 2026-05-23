@@ -1400,10 +1400,12 @@ export class ElectricBenchmarkAdapter implements BenchmarkAdapter {
     cpuSampler.start();
     const startedAt = performance.now();
 
+    const revokeStartedAt = performance.now();
     await revokeElectricProjectMembership({
       actorId,
       projectId: revokedProjectId,
     });
+    const revokeRequestMs = performance.now() - revokeStartedAt;
 
     let finalState = initialState;
     let revokedProjectRows = countElectricRowsForProject(
@@ -1416,6 +1418,7 @@ export class ElectricBenchmarkAdapter implements BenchmarkAdapter {
     );
     const timeoutMs = 60_000;
     const loopStartedAt = Date.now();
+    const rebootstrapStartedAt = performance.now();
 
     while (Date.now() - loopStartedAt < timeoutMs) {
       finalState = await bootstrapShape({
@@ -1446,6 +1449,7 @@ export class ElectricBenchmarkAdapter implements BenchmarkAdapter {
     }
 
     const convergenceMs = performance.now() - startedAt;
+    const rebootstrapVisibleMs = performance.now() - rebootstrapStartedAt;
     const meterSnapshot = diffMeterTotals(meter.snapshot(), meterBaseline);
     const memoryMetrics = memorySampler.stop();
     const cpuMetrics = cpuSampler.stop();
@@ -1458,6 +1462,12 @@ export class ElectricBenchmarkAdapter implements BenchmarkAdapter {
         revoked_project_visible_rows_after_revoke: revokedProjectRows,
         retained_project_visible_rows_after_revoke: retainedProjectRows,
         permission_revoke_convergence_ms: round(convergenceMs),
+        same_client_permission_revoke_convergence_ms: null,
+        revoke_request_ms: round(revokeRequestMs),
+        rebootstrap_permission_visible_ms: round(rebootstrapVisibleMs),
+        rebootstrap_visible_rows: finalState.rows.size,
+        rebootstrap_revoked_project_visible_rows: revokedProjectRows,
+        rebootstrap_retained_project_visible_rows: retainedProjectRows,
         request_count: meterSnapshot.requestCount,
         request_bytes: meterSnapshot.requestBytes,
         response_bytes: meterSnapshot.responseBytes,
@@ -1469,7 +1479,7 @@ export class ElectricBenchmarkAdapter implements BenchmarkAdapter {
       },
       notes: [
         'Permission-change convergence uses a benchmark-owned auth-scoped Electric shape proxy that derives the shape WHERE clause from project_memberships for the current actor.',
-        'After revocation, the benchmark re-bootstraps the actor-scoped shape and measures how quickly rows for the revoked project disappear while rows for still-authorized projects remain.',
+        'After revocation, the benchmark re-bootstraps the actor-scoped shape; same-client permission revoke is not represented by this Electric harness path.',
       ],
       metadata: {
         implementation: 'electric-auth-scoped-shape-rebootstrap',

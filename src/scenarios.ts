@@ -125,11 +125,14 @@ export const scenarios: BenchmarkScenario[] = [
       'revoked_project_visible_rows_after_revoke',
       'retained_project_visible_rows_after_revoke',
       'permission_revoke_convergence_ms',
+      'same_client_permission_revoke_convergence_ms',
+      'rebootstrap_permission_visible_ms',
       'bytes_transferred',
     ],
     notes: [
       'This benchmark only counts native auth-scoped replication paths; unsupported is preferred over fake local filtering.',
       'Use the same seeded multi-project dataset and revoke the same project membership shape across comparable stacks.',
+      'Same-client revoke and rebootstrap-after-revoke are reported separately where a stack can represent both paths.',
     ],
   },
   {

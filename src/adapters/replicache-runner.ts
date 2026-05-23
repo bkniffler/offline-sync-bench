@@ -81,6 +81,7 @@ interface ReplicacheMutators extends MutatorDefs {
 
 const stack = getStack('replicache');
 const scenario = process.argv[2];
+const DEFAULT_REPLICACHE_RECONNECT_CLIENT_COUNTS = [25, 100, 250, 500];
 
 Object.assign(globalThis, {
   indexedDB,
@@ -120,6 +121,25 @@ const result =
                 : await runPermissionChange();
 
 await writeResultAndExit(result);
+
+function parsePositiveIntegerListEnv(
+  envName: string,
+  fallback: number[]
+): number[] {
+  const raw = process.env[envName];
+  if (!raw) return fallback;
+
+  const values = raw
+    .split(',')
+    .map((part) => Number.parseInt(part.trim(), 10))
+    .filter((value) => Number.isFinite(value));
+
+  if (values.length === 0 || values.some((value) => value <= 0)) {
+    throw new Error(`${envName} must contain positive integer counts`);
+  }
+
+  return values;
+}
 
 function createReplicacheClient(
   name: string,
@@ -868,7 +888,10 @@ async function runOfflineReplay(): Promise<RunnerResult> {
 }
 
 async function runReconnectStorm(): Promise<RunnerResult> {
-  const clientCounts = [25, 100, 250, 500];
+  const clientCounts = parsePositiveIntegerListEnv(
+    'REPLICACHE_RECONNECT_CLIENT_COUNTS',
+    DEFAULT_REPLICACHE_RECONNECT_CLIENT_COUNTS
+  );
   const results: ReplicacheReconnectStormCaseResult[] = [];
 
   for (const clientCount of clientCounts) {
@@ -1220,12 +1243,55 @@ async function runPermissionChange(): Promise<RunnerResult> {
     const initialVisibleRows = initialRows.length;
     const meterBaseline = meter.snapshot();
 
+    const startedAt = performance.now();
+    const revokeStartedAt = performance.now();
     await revokeReplicacheProjectMembership({
       actorId,
       projectId: revokedProjectId,
     });
+    const revokeRequestMs = performance.now() - revokeStartedAt;
 
-    const startedAt = performance.now();
+    let sameClientRows: TaskValue[] = [];
+    let sameClientConvergenceMs: number | null = null;
+    let sameClientNote: string | null = null;
+    try {
+      sameClientRows = await waitForTaskCount({
+        rep: initialRep,
+        expectedRows: 500,
+        timeoutMs: 5_000,
+      });
+      sameClientConvergenceMs = performance.now() - startedAt;
+    } catch (error) {
+      sameClientRows = await readAllTasks(initialRep);
+      sameClientNote =
+        error instanceof Error
+          ? error.message
+          : 'Replicache same-client permission revoke did not converge';
+    }
+    const sameClientRevokedProjectRows = countRowsForProject(
+      sameClientRows,
+      revokedProjectId
+    );
+    const sameClientRetainedProjectRows = countRowsForProject(
+      sameClientRows,
+      retainedProjectId
+    );
+    if (
+      sameClientConvergenceMs !== null &&
+      (sameClientRevokedProjectRows !== 0 ||
+        sameClientRetainedProjectRows !== 500)
+    ) {
+      throw new Error(
+        `Replicache same-client permission change did not converge: revoked=${sameClientRevokedProjectRows}, retained=${sameClientRetainedProjectRows}`
+      );
+    }
+    const sameClientMeterSnapshot = diffMeterTotals(
+      meter.snapshot(),
+      meterBaseline
+    );
+
+    const rebootstrapMeterBaseline = meter.snapshot();
+    const rebootstrapStartedAt = performance.now();
     const rebootstrapRep = createReplicacheClient(
       `replicache-permission-change-rebootstrap-${randomUUID()}`,
       actorId
@@ -1246,8 +1312,12 @@ async function runPermissionChange(): Promise<RunnerResult> {
       );
     }
 
-    const convergenceMs = performance.now() - startedAt;
-    const meterSnapshot = diffMeterTotals(meter.snapshot(), meterBaseline);
+    const rebootstrapVisibleMs = performance.now() - rebootstrapStartedAt;
+    const rebootstrapMeterSnapshot = diffMeterTotals(
+      meter.snapshot(),
+      rebootstrapMeterBaseline
+    );
+    const totalMeterSnapshot = diffMeterTotals(meter.snapshot(), meterBaseline);
     const memoryMetrics = memorySampler.stop();
     const cpuMetrics = cpuSampler.stop();
 
@@ -1255,14 +1325,40 @@ async function runPermissionChange(): Promise<RunnerResult> {
       status: 'completed',
       metrics: {
         initial_visible_rows: initialVisibleRows,
-        post_revoke_visible_rows: finalRows.length,
-        revoked_project_visible_rows_after_revoke: revokedProjectRows,
-        retained_project_visible_rows_after_revoke: retainedProjectRows,
-        permission_revoke_convergence_ms: round(convergenceMs),
-        request_count: meterSnapshot.requestCount,
-        request_bytes: meterSnapshot.requestBytes,
-        response_bytes: meterSnapshot.responseBytes,
-        bytes_transferred: meterSnapshot.requestBytes + meterSnapshot.responseBytes,
+        post_revoke_visible_rows: sameClientRows.length,
+        revoked_project_visible_rows_after_revoke: sameClientRevokedProjectRows,
+        retained_project_visible_rows_after_revoke: sameClientRetainedProjectRows,
+        permission_revoke_convergence_ms:
+          sameClientConvergenceMs === null
+            ? null
+            : round(sameClientConvergenceMs),
+        same_client_permission_revoke_convergence_ms:
+          sameClientConvergenceMs === null
+            ? null
+            : round(sameClientConvergenceMs),
+        same_client_timed_out: sameClientConvergenceMs === null ? 1 : 0,
+        revoke_request_ms: round(revokeRequestMs),
+        request_count: sameClientMeterSnapshot.requestCount,
+        request_bytes: sameClientMeterSnapshot.requestBytes,
+        response_bytes: sameClientMeterSnapshot.responseBytes,
+        bytes_transferred:
+          sameClientMeterSnapshot.requestBytes +
+          sameClientMeterSnapshot.responseBytes,
+        rebootstrap_permission_visible_ms: round(rebootstrapVisibleMs),
+        rebootstrap_visible_rows: finalRows.length,
+        rebootstrap_revoked_project_visible_rows: revokedProjectRows,
+        rebootstrap_retained_project_visible_rows: retainedProjectRows,
+        rebootstrap_request_count: rebootstrapMeterSnapshot.requestCount,
+        rebootstrap_request_bytes: rebootstrapMeterSnapshot.requestBytes,
+        rebootstrap_response_bytes: rebootstrapMeterSnapshot.responseBytes,
+        rebootstrap_bytes_transferred:
+          rebootstrapMeterSnapshot.requestBytes +
+          rebootstrapMeterSnapshot.responseBytes,
+        total_request_count: totalMeterSnapshot.requestCount,
+        total_request_bytes: totalMeterSnapshot.requestBytes,
+        total_response_bytes: totalMeterSnapshot.responseBytes,
+        total_bytes_transferred:
+          totalMeterSnapshot.requestBytes + totalMeterSnapshot.responseBytes,
         avg_memory_mb: memoryMetrics.avgMemoryMb,
         peak_memory_mb: memoryMetrics.peakMemoryMb,
         avg_cpu_pct: cpuMetrics.avgCpuPct,
@@ -1270,14 +1366,23 @@ async function runPermissionChange(): Promise<RunnerResult> {
       },
       notes: [
         'Permission-change convergence uses an actor-scoped Replicache pull path derived from project_memberships in the benchmark-owned BYOB server.',
-        'After revocation, the benchmark re-bootstraps the actor-scoped client view and measures how quickly rows for the revoked project disappear while rows for the still-authorized project remain.',
+        'The primary metric now measures the already-bootstrapped client losing revoked rows; rebootstrap-after-revoke is reported separately.',
+        ...(sameClientNote
+          ? [`Same-client permission revoke did not converge: ${sameClientNote}.`]
+          : []),
       ],
       metadata: {
-        implementation: 'replicache-auth-scoped-rebootstrap',
+        implementation: 'replicache-auth-scoped-same-client-and-rebootstrap',
         productVersion: '15.3.0',
         actorId,
         revokedProjectId,
         retainedProjectId,
+        sameClientNote,
+        rebootstrap: {
+          visibleRows: finalRows.length,
+          revokedProjectRows,
+          retainedProjectRows,
+        },
       },
     };
   } finally {

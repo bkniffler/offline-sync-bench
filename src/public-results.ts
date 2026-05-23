@@ -631,29 +631,36 @@ async function main(): Promise<void> {
         latest,
         scenarioId: 'reconnect-storm',
         stackId,
-        limit: 3,
+        limit: 10,
         metricKeys: ['clients_25_convergence_ms', 'reconnect_convergence_ms'],
       });
       const median100 = medianMetricFromRecentResults({
         latest,
         scenarioId: 'reconnect-storm',
         stackId,
-        limit: 3,
+        limit: 10,
         metricKeys: ['clients_100_convergence_ms'],
       });
       const median250 = medianMetricFromRecentResults({
         latest,
         scenarioId: 'reconnect-storm',
         stackId,
-        limit: 3,
+        limit: 10,
         metricKeys: ['clients_250_convergence_ms'],
       });
       const median500 = medianMetricFromRecentResults({
         latest,
         scenarioId: 'reconnect-storm',
         stackId,
-        limit: 3,
+        limit: 10,
         metricKeys: ['clients_500_convergence_ms'],
+      });
+      const median1000 = medianMetricFromRecentResults({
+        latest,
+        scenarioId: 'reconnect-storm',
+        stackId,
+        limit: 10,
+        metricKeys: ['clients_1000_convergence_ms'],
       });
       return [
         stackTitle(stackId),
@@ -667,6 +674,7 @@ async function main(): Promise<void> {
         formatMs(median100 ?? result?.metrics.clients_100_convergence_ms),
         formatMs(median250 ?? result?.metrics.clients_250_convergence_ms),
         formatMs(median500 ?? result?.metrics.clients_500_convergence_ms),
+        formatMs(median1000 ?? result?.metrics.clients_1000_convergence_ms),
         formatSupport({ result, scenarioId: 'reconnect-storm', stackId }),
       ];
     });
@@ -679,6 +687,7 @@ async function main(): Promise<void> {
         '100 clients',
         '250 clients',
         '500 clients',
+        '1000 clients',
         'Support',
       ],
       rows: stormRows,
@@ -691,7 +700,7 @@ async function main(): Promise<void> {
         latest,
         scenarioId: 'reconnect-storm',
         stackId,
-        limit: 3,
+        limit: 10,
       });
       if (recentResults.length === 0) return null;
       const samples25 = recentResults
@@ -715,11 +724,16 @@ async function main(): Promise<void> {
         .map((result) => result.metrics.clients_500_convergence_ms)
         .filter((value): value is number => typeof value === 'number')
         .sort((left, right) => left - right);
+      const samples1000 = recentResults
+        .map((result) => result.metrics.clients_1000_convergence_ms)
+        .filter((value): value is number => typeof value === 'number')
+        .sort((left, right) => left - right);
       const runCount = Math.max(
         samples25.length,
         samples100.length,
         samples250.length,
-        samples500.length
+        samples500.length,
+        samples1000.length
       );
       if (runCount === 0) return null;
       return [
@@ -729,6 +743,7 @@ async function main(): Promise<void> {
         formatMs(samples100.length > 0 ? median(samples100) : null),
         formatMs(samples250.length > 0 ? median(samples250) : null),
         formatMs(samples500.length > 0 ? median(samples500) : null),
+        formatMs(samples1000.length > 0 ? median(samples1000) : null),
       ];
     })
     .filter((row): row is string[] => row !== null);
@@ -743,6 +758,7 @@ async function main(): Promise<void> {
           '100 median',
           '250 median',
           '500 median',
+          '1000 median',
         ],
         rows: reconnectRepeatRows,
       })
@@ -1001,7 +1017,8 @@ async function main(): Promise<void> {
         formatCount(result?.metrics.post_revoke_visible_rows),
         formatCount(result?.metrics.revoked_project_visible_rows_after_revoke),
         formatCount(result?.metrics.retained_project_visible_rows_after_revoke),
-        formatMs(result?.metrics.permission_revoke_convergence_ms),
+        formatMs(result?.metrics.same_client_permission_revoke_convergence_ms),
+        formatMs(result?.metrics.rebootstrap_permission_visible_ms),
         formatSupport({ result, scenarioId: 'permission-change', stackId }),
       ];
     });
@@ -1014,7 +1031,8 @@ async function main(): Promise<void> {
         'After revoke',
         'Revoked rows left',
         'Retained rows left',
-        'Convergence',
+        'Same-client',
+        'Rebootstrap',
         'Support',
       ],
       rows: permissionRows,
@@ -1031,7 +1049,11 @@ async function main(): Promise<void> {
       });
       if (recentResults.length === 0) return null;
       const samples = recentResults
-        .map((result) => result.metrics.permission_revoke_convergence_ms)
+        .map(
+          (result) =>
+            result.metrics.same_client_permission_revoke_convergence_ms ??
+            result.metrics.permission_revoke_convergence_ms
+        )
         .filter((value): value is number => typeof value === 'number')
         .sort((left, right) => left - right);
       if (samples.length === 0) return null;
