@@ -3374,6 +3374,7 @@ async function waitForSyncularRustApiReady(args: {
           body: JSON.stringify({
             clientId: 'syncular-rust-benchmark-readiness',
             pull: {
+              schemaVersion: 1,
               limitCommits: RUST_PULL_LIMIT_COMMITS,
               limitSnapshotRows: RUST_PULL_LIMIT_SNAPSHOT_ROWS,
               maxSnapshotPages: RUST_PULL_MAX_SNAPSHOT_PAGES,

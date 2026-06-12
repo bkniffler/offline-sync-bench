@@ -528,6 +528,7 @@ async function waitForSyncularApiReady(args: {
         body: JSON.stringify({
           clientId: 'benchmark-readiness',
           pull: {
+            schemaVersion: 1,
             limitCommits: 200,
             subscriptions: [
               {
@@ -1376,6 +1377,7 @@ async function runDirectBootstrap(args: {
           body: {
           clientId: args.clientId,
           pull: {
+            schemaVersion: 1,
             limitCommits: 100,
             limitSnapshotRows: SYNCULAR_BENCH_BOOTSTRAP_LIMIT_SNAPSHOT_ROWS,
             maxSnapshotPages: SYNCULAR_BENCH_BOOTSTRAP_MAX_SNAPSHOT_PAGES,
@@ -2436,6 +2438,7 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
       const body = await transport.sync({
         clientId: 'syncular-local-query',
         pull: {
+          schemaVersion: 1,
           limitCommits: 100,
           limitSnapshotRows: SYNCULAR_BENCH_BOOTSTRAP_LIMIT_SNAPSHOT_ROWS,
           maxSnapshotPages: SYNCULAR_BENCH_BOOTSTRAP_MAX_SNAPSHOT_PAGES,
@@ -2622,6 +2625,7 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
         const body = await transport.sync({
           clientId: 'syncular-deep-relationship-query',
           pull: {
+            schemaVersion: 1,
             limitCommits: 100,
             limitSnapshotRows: SYNCULAR_BENCH_BOOTSTRAP_LIMIT_SNAPSHOT_ROWS,
             maxSnapshotPages: SYNCULAR_BENCH_BOOTSTRAP_MAX_SNAPSHOT_PAGES,
