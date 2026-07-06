@@ -505,6 +505,33 @@ export function startService(stackId: StackId, service: keyof StackSpec['service
   runDockerCompose(stack, ['start', serviceName]);
 }
 
+/**
+ * Cold-restart a service and wait for its health endpoint: bootstrap-style
+ * scenarios use this to drop server-side in-memory caches (segment/image
+ * stores) so every scale measures a defined cold-server + cold-client path.
+ */
+export async function restartServiceCold(
+  stackId: StackId,
+  service: keyof StackSpec['services'],
+  healthUrl: string
+): Promise<void> {
+  stopService(stackId, service);
+  startService(stackId, service);
+  const deadline = Date.now() + 60_000;
+  while (Date.now() < deadline) {
+    try {
+      const response = await fetch(healthUrl);
+      if (response.ok) return;
+    } catch {
+      // still starting
+    }
+    await new Promise((resolve) => setTimeout(resolve, 300));
+  }
+  throw new Error(
+    `Service ${String(service)} of ${stackId} did not become healthy after restart`
+  );
+}
+
 export function resolveServiceContainerId(
   stackId: StackId,
   service: keyof StackSpec['services']
@@ -538,17 +565,39 @@ export async function seedStack(
   seedOptions: SeedOptions
 ): Promise<StackStats> {
   const stack = getStack(stackId);
-  const response = await fetchJson<{ stats: StackStats }>(
-    `${stack.adminBaseUrl}/admin/seed`,
-    {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(seedOptions),
+  const response = await fetchJson<{
+    stats?: StackStats;
+    async?: boolean;
+    expected?: Record<string, number>;
+  }>(`${stack.adminBaseUrl}/admin/seed`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify(seedOptions),
+  });
+  if (response.async !== true) {
+    return response.stats as StackStats;
+  }
+  // Async seeding (syncular: engine-mediated writes outlive fetch timeouts
+  // on large seeds) — poll /admin/stats until the expected counts land.
+  const expected = response.expected ?? {};
+  const deadline = Date.now() + 25 * 60_000;
+  for (;;) {
+    const stats = await fetchJson<StackStats & Record<string, number>>(
+      `${stack.adminBaseUrl}/admin/stats`
+    );
+    const done = Object.entries(expected).every(
+      ([key, value]) => Number(stats[key]) === value
+    );
+    if (done) return stats;
+    if (Date.now() > deadline) {
+      throw new Error(
+        `Seeding ${stackId} did not reach expected counts within 25 minutes: ${JSON.stringify(stats)} vs ${JSON.stringify(expected)}`
+      );
     }
-  );
-  return response.stats;
+    await new Promise((resolve) => setTimeout(resolve, 2_000));
+  }
 }
 
 export async function getFixtures(stackId: StackId): Promise<StackFixtures> {

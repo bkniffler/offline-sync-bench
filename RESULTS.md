@@ -6,195 +6,195 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 ## Highlights
 
-- Bootstrap at 100k rows (median of the latest 1 runs where available): Electric is at 413.7 ms; Syncular is at 801.2 ms; Replicache is at 901.6 ms.
-- Online propagation: Electric still leads on tail latency (11.05 ms p95), while Syncular is now at 22.80 ms p95 with 11.22 ms write ack.
-- Native offline replay: Syncular currently converges in 75.38 ms, ahead of Replicache (1247 ms) and PowerSync (5121 ms).
-- Permission change (median of the latest 2 runs where available): Syncular converges in 38.51 ms and Electric in 24.06 ms.
-- Client bundle size: Syncular is currently 217.72 KB raw / 52.95 KB gzip for the named-import browser profile.
-- Blob flow: Syncular currently uploads a 524288 byte blob in 26.38 ms, syncs metadata to a second client in 35.77 ms, re-downloads it after cache clear in 7.23 ms, and recovers an interrupted queued upload in 14.28 ms.
+- Bootstrap at 100k rows (median of the latest 1 runs where available): Electric is at 353.8 ms; Syncular is at 4874 ms; Replicache is at 877.6 ms.
+- Online propagation: Electric still leads on tail latency (10.61 ms p95), while Syncular is now at 18.74 ms p95 with 8.90 ms write ack.
+- Native offline replay: Syncular currently converges in 62.11 ms, ahead of Replicache (1378 ms) and PowerSync (5115 ms).
+- Permission change (median of the latest 1 runs where available): Syncular converges in 6.82 ms and Electric in 33.22 ms.
+- Client bundle size: Syncular is currently 75.14 KB raw / 22.79 KB gzip for the named-import browser profile.
+- Blob flow: Syncular currently uploads a 2097152 byte blob in 68.85 ms, syncs metadata to a second client in 68.85 ms, re-downloads it after cache clear in 9.41 ms, and recovers an interrupted queued upload in n/a.
 
 ## Bootstrap
 
 | Stack | 1k | 10k | 100k | 100k reqs | 100k avg mem | Support |
 | --- | --- | --- | --- | --- | --- | --- |
-| Syncular | 40.05 ms | 115.8 ms | 824.1 ms | 6 | 295.36 MB | native |
-| Syncular Rust Client | 29.64 ms | 33.22 ms | 264.5 ms | 8 | 410.00 MB | native |
-| Electric | 37.28 ms | 61.21 ms | 413.7 ms | 4 | 1634.14 MB | native |
-| Zero | 208.9 ms | 776.3 ms | 8028 ms | 0 | 358.98 MB | native |
-| PowerSync | 197.3 ms | 871.9 ms | 22196 ms | 1 | 245.71 MB | native |
-| Replicache | 33.44 ms | 93.84 ms | 901.6 ms | 2 | 369.20 MB | native |
-| LiveStore | 463.7 ms | 2348 ms | n/a | n/a | n/a | native |
+| Syncular | 144.9 ms | 322.2 ms | 4874 ms | 3 | 106.74 MB | native |
+| Syncular Rust Client | 114.1 ms | 499.7 ms | 5362 ms | 3 | 8.56 MB | native |
+| Electric | 44.58 ms | 59.69 ms | 353.8 ms | 4 | 343.42 MB | native |
+| Zero | 218.5 ms | 936.3 ms | 7178 ms | 0 | 252.50 MB | native |
+| PowerSync | 586.8 ms | 807.5 ms | 6486 ms | 1 | 214.86 MB | native |
+| Replicache | 57.68 ms | 126.8 ms | 877.6 ms | 2 | 284.42 MB | native |
+| LiveStore | 786.0 ms | 1883 ms | n/a | n/a | n/a | native |
 
 ## Bootstrap Repeat Summary
 
 | Stack | Runs | 100k median | 100k min | 100k max | Latest 100k |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 5 | 801.2 ms | 780.1 ms | 954.8 ms | 824.1 ms |
-| Syncular Rust Client | 5 | 226.9 ms | 212.7 ms | 264.5 ms | 264.5 ms |
-| Electric | 1 | 413.7 ms | 413.7 ms | 413.7 ms | 413.7 ms |
-| Zero | 4 | 8223 ms | 8028 ms | 9015 ms | 8028 ms |
-| PowerSync | 2 | 14600 ms | 7004 ms | 22196 ms | 22196 ms |
-| Replicache | 5 | 974.1 ms | 881.9 ms | 1237 ms | 901.6 ms |
+| Syncular | 1 | 4874 ms | 4874 ms | 4874 ms | 4874 ms |
+| Syncular Rust Client | 1 | 5362 ms | 5362 ms | 5362 ms | 5362 ms |
+| Electric | 1 | 353.8 ms | 353.8 ms | 353.8 ms | 353.8 ms |
+| Zero | 1 | 7178 ms | 7178 ms | 7178 ms | 7178 ms |
+| PowerSync | 1 | 6486 ms | 6486 ms | 6486 ms | 6486 ms |
+| Replicache | 1 | 877.6 ms | 877.6 ms | 877.6 ms | 877.6 ms |
 
 ## Bootstrap Scale Study
 
 | Stack | 250k rows | 500k rows | 500k avg mem | Support |
 | --- | --- | --- | --- | --- |
-| Syncular | 1994 ms | 4071 ms | 399.02 MB | native |
-| Syncular Rust Client | 597.1 ms | 1250 ms | 574.28 MB | native |
-| Electric | 947.9 ms | 1870 ms | 2504.63 MB | native |
+| Syncular | n/a | n/a | n/a | native |
+| Syncular Rust Client | n/a | n/a | n/a | native |
+| Electric | 826.0 ms | 1700 ms | 768.12 MB | native |
 | Zero | n/a | n/a | n/a | native |
 | PowerSync | n/a | n/a | n/a | native |
-| Replicache | 2422 ms | 5036 ms | 1857.49 MB | native |
+| Replicache | 2263 ms | 4843 ms | 1607.30 MB | native |
 | LiveStore | n/a | n/a | n/a | native |
 
 ## Bootstrap Resource Summary
 
 | Stack | Largest avg mem | Largest avg CPU | Largest peak mem | Largest peak CPU | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 399.02 MB | 72.15% | 475.55 MB | 118.50% | native |
-| Syncular Rust Client | 574.28 MB | 107.69% | 693.31 MB | 138.03% | native |
-| Electric | 2504.63 MB | 63.74% | 2992.72 MB | 179.58% | native |
-| Zero | 358.98 MB | 33.21% | 391.84 MB | 191.15% | native |
-| PowerSync | 245.71 MB | 14.36% | 287.19 MB | 422.97% | native |
-| Replicache | 1857.49 MB | 98.87% | 2981.67 MB | 115.08% | native |
+| Syncular | 106.74 MB | 3.42% | 252.06 MB | 90.35% | native |
+| Syncular Rust Client | 8.56 MB | 5.18% | 73.34 MB | 81.60% | native |
+| Electric | 768.12 MB | 63.65% | 1109.05 MB | 163.10% | native |
+| Zero | 252.50 MB | 38.92% | 289.67 MB | 187.64% | native |
+| PowerSync | 214.86 MB | 30.39% | 228.80 MB | 464.30% | native |
+| Replicache | 1607.30 MB | 90.69% | 2400.61 MB | 110.01% | native |
 | LiveStore | n/a | n/a | n/a | n/a | native |
 
 ## Online Propagation
 
 | Stack | Write ack | Visible p50 | Visible p95 | Avg mem | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 11.22 ms | 15.27 ms | 22.80 ms | 235.65 MB | native |
-| Syncular Rust Client | 9.37 ms | 8.71 ms | 16.04 ms | 800.99 MB | native |
-| Electric | 3.31 ms | 4.27 ms | 11.05 ms | 3003.61 MB | native |
-| Zero | 13.65 ms | 12.83 ms | 38.87 ms | 219.59 MB | native |
-| PowerSync | 0.41 ms | 993.7 ms | 1019 ms | 329.88 MB | native |
-| Replicache | 0.23 ms | 30.80 ms | 50.66 ms | 221.12 MB | native |
-| LiveStore | 0.59 ms | 218.2 ms | 1162 ms | 559.55 MB | native |
+| Syncular | 8.90 ms | 8.18 ms | 18.74 ms | 331.03 MB | native |
+| Syncular Rust Client | 12.16 ms | 12.60 ms | 26.28 ms | 10.86 MB | native |
+| Electric | 2.52 ms | 2.95 ms | 10.61 ms | 1120.70 MB | native |
+| Zero | 17.62 ms | 16.95 ms | 48.51 ms | 189.58 MB | native |
+| PowerSync | 1.05 ms | 1004 ms | 1064 ms | 214.20 MB | native |
+| Replicache | 0.27 ms | 30.94 ms | 41.40 ms | 172.51 MB | native |
+| LiveStore | 2.38 ms | 700.0 ms | 1671 ms | 540.40 MB | native |
 
 ## Offline Replay
 
 | Stack | Queued writes | Convergence | Requests | Avg mem | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 10 | 75.38 ms | 1 | 389.58 MB | native |
-| Syncular Rust Client | 10 | 52.12 ms | 2 | 801.01 MB | native |
-| Electric | 10 | 522.8 ms | 10 | 3003.74 MB | emulated |
+| Syncular | 10 | 62.11 ms | 1 | 334.18 MB | native |
+| Syncular Rust Client | 10 | 64.27 ms | 2 | 5.53 MB | native |
+| Electric | 10 | 289.6 ms | 5 | 1111.82 MB | emulated |
 | Zero | n/a | n/a | n/a | n/a | unsupported |
-| PowerSync | 10 | 5121 ms | 17 | 325.11 MB | native |
-| Replicache | 10 | 1247 ms | 18 | 224.61 MB | native |
+| PowerSync | 10 | 5115 ms | 17 | 247.44 MB | native |
+| Replicache | 10 | 1378 ms | 18 | 162.34 MB | native |
 | LiveStore | n/a | n/a | n/a | n/a | unsupported |
 
 ## Reconnect Storm
 
 | Stack | 25 clients | 100 clients | 250 clients | 500 clients | 1000 clients | Support |
 | --- | --- | --- | --- | --- | --- | --- |
-| Syncular | 133.8 ms | 2046 ms | 4068 ms | 2408 ms | n/a | native |
-| Syncular Rust Client | 34.88 ms | n/a | 280.9 ms | 2019 ms | 2049 ms | native |
-| Electric | 31.08 ms | 2010 ms | 2011 ms | 2022 ms | n/a | native |
+| Syncular | 77.94 ms | n/a | n/a | n/a | n/a | native |
+| Syncular Rust Client | 78.15 ms | n/a | n/a | n/a | n/a | native |
+| Electric | 239.4 ms | 2019 ms | 6055 ms | 8086 ms | n/a | native |
 | Zero | n/a | n/a | n/a | n/a | n/a | unsupported |
 | PowerSync | n/a | n/a | n/a | n/a | n/a | unsupported |
-| Replicache | 65.16 ms | 209.1 ms | 1178 ms | 1360 ms | 1158 ms | native |
+| Replicache | 63.97 ms | 2027 ms | 6082 ms | 2120 ms | n/a | native |
 | LiveStore | n/a | n/a | n/a | n/a | n/a | unsupported |
 
 ## Reconnect Storm Repeat Summary
 
 | Stack | Runs | 25 median | 100 median | 250 median | 500 median | 1000 median |
 | --- | --- | --- | --- | --- | --- | --- |
-| Syncular | 8 | 133.8 ms | 2046 ms | 4068 ms | 2408 ms | n/a |
-| Syncular Rust Client | 6 | 34.88 ms | n/a | 280.9 ms | 2019 ms | 2049 ms |
-| Electric | 1 | 31.08 ms | 2010 ms | 2011 ms | 2022 ms | n/a |
-| Replicache | 4 | 65.16 ms | 209.1 ms | 1178 ms | 1360 ms | 1158 ms |
+| Syncular | 1 | 77.94 ms | n/a | n/a | n/a | n/a |
+| Syncular Rust Client | 1 | 78.15 ms | n/a | n/a | n/a | n/a |
+| Electric | 1 | 239.4 ms | 2019 ms | 6055 ms | 8086 ms | n/a |
+| Replicache | 1 | 63.97 ms | 2027 ms | 6082 ms | 2120 ms | n/a |
 
 ## Reconnect Storm Resource Summary
 
 | Stack | 500 sync avg mem | 500 postgres avg mem | 500 sync avg CPU | 500 postgres avg CPU | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 119.42 MB | 196.23 MB | 1.72% | 0.77% | native |
-| Syncular Rust Client | n/a | n/a | n/a | n/a | native |
-| Electric | 280.60 MB | 182.67 MB | 3.77% | 0.77% | native |
-| Replicache | n/a | n/a | n/a | n/a | native |
+| Syncular | n/a | n/a | 2.30% | 0.53% | native |
+| Syncular Rust Client | 92.19 MB | 173.90 MB | 1.30% | 0.08% | native |
+| Electric | 299.17 MB | 180.58 MB | 2.51% | 0.54% | native |
+| Replicache | 40.36 MB | 154.30 MB | 3.18% | 2.30% | native |
 
 ## Large Offline Queue
 
 | Stack | 100 writes | 500 writes | 1000 writes | 1000 reqs | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 506.9 ms | 4346 ms | 24719 ms | 50 | native |
-| Syncular Rust Client | 277.7 ms | 832.2 ms | 1887 ms | 20 | native |
+| Syncular | 305.1 ms | 1593 ms | 3007 ms | 2 | native |
+| Syncular Rust Client | 443.2 ms | 1859 ms | 2522 ms | 3 | native |
 | Electric | n/a | n/a | n/a | n/a | emulated |
 | Zero | n/a | n/a | n/a | n/a | unsupported |
-| PowerSync | 5456 ms | 7676 ms | 7976 ms | 1007 | native |
-| Replicache | 1202 ms | 1293 ms | 1311 ms | 18 | native |
+| PowerSync | 5461 ms | 6669 ms | 7153 ms | 1007 | native |
+| Replicache | 1310 ms | 1451 ms | 1594 ms | 16 | native |
 | LiveStore | n/a | n/a | n/a | n/a | unsupported |
 
 ## Large Offline Queue Repeat Summary
 
 | Stack | Runs | 100 median | 500 median | 1000 median | Latest 1000 |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 1 | 506.9 ms | 4346 ms | 24719 ms | 24719 ms |
-| Syncular Rust Client | 3 | 277.7 ms | 832.2 ms | 1887 ms | 1651 ms |
-| PowerSync | 1 | 5456 ms | 7676 ms | 7976 ms | 7976 ms |
-| Replicache | 3 | 1202 ms | 1293 ms | 1311 ms | 1390 ms |
+| Syncular | 1 | 305.1 ms | 1593 ms | 3007 ms | 3007 ms |
+| Syncular Rust Client | 1 | 443.2 ms | 1859 ms | 2522 ms | 2522 ms |
+| PowerSync | 1 | 5461 ms | 6669 ms | 7153 ms | 7153 ms |
+| Replicache | 1 | 1310 ms | 1451 ms | 1594 ms | 1594 ms |
 
 ## Local Query
 
 | Stack | List p50 | Search p50 | Aggregate p50 | Avg mem | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 0.21 ms | 0.09 ms | 5.94 ms | 372.62 MB | native |
-| Syncular Rust Client | 0.12 ms | 0.17 ms | 0.01 ms | 1270.29 MB | native |
-| Electric | 6.54 ms | 2.15 ms | 6.23 ms | 3222.70 MB | native |
-| Zero | 4.32 ms | 2.63 ms | 6.67 ms | 330.15 MB | native |
-| PowerSync | 49.60 ms | 15.47 ms | 115.8 ms | 270.12 MB | native |
-| Replicache | 13.33 ms | 2.49 ms | 6.86 ms | 281.36 MB | native |
+| Syncular | 1.15 ms | 0.03 ms | 1.22 ms | 195.79 MB | native |
+| Syncular Rust Client | 1.06 ms | 0.02 ms | 2.03 ms | 12.66 MB | native |
+| Electric | 3.54 ms | 1.50 ms | 4.60 ms | 864.53 MB | native |
+| Zero | 2.57 ms | 2.03 ms | 5.04 ms | 264.25 MB | native |
+| PowerSync | 41.49 ms | 11.97 ms | 103.7 ms | 260.51 MB | native |
+| Replicache | 9.29 ms | 1.71 ms | 4.79 ms | 175.29 MB | native |
 | LiveStore | n/a | n/a | n/a | n/a | unsupported |
 
 ## Deep Relationship Query
 
 | Stack | Dashboard p50 | Detail join p50 | Avg mem | Support |
 | --- | --- | --- | --- | --- |
-| Syncular | 77.38 ms | 0.25 ms | 950.61 MB | native |
-| Syncular Rust Client | 0.02 ms | 0.28 ms | 428.13 MB | native |
+| Syncular | 2.30 ms | 1.07 ms | 188.52 MB | native |
+| Syncular Rust Client | 2.77 ms | 0.37 ms | n/a | native |
 | Electric | n/a | n/a | n/a | unsupported |
-| Zero | 6.51 ms | 4.24 ms | 332.86 MB | native |
-| PowerSync | 261.0 ms | 4.48 ms | 284.59 MB | native |
-| Replicache | 3.86 ms | 2.15 ms | 262.64 MB | native |
+| Zero | 5.12 ms | 3.18 ms | 332.37 MB | native |
+| PowerSync | 211.5 ms | 3.29 ms | 269.28 MB | native |
+| Replicache | 3.19 ms | 1.76 ms | 192.78 MB | native |
 | LiveStore | n/a | n/a | n/a | unsupported |
 
 ## Deep Relationship Repeat Summary
 
 | Stack | Runs | Dashboard median | Detail median | Latest dashboard | Latest detail |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 1 | 77.38 ms | 0.25 ms | 77.38 ms | 0.25 ms |
-| Syncular Rust Client | 3 | 0.03 ms | 0.34 ms | 0.02 ms | 0.28 ms |
-| Zero | 3 | 3.90 ms | 2.56 ms | 6.51 ms | 4.24 ms |
-| PowerSync | 3 | 261.0 ms | 4.48 ms | 261.0 ms | 4.48 ms |
-| Replicache | 3 | 3.48 ms | 2.02 ms | 3.86 ms | 2.15 ms |
+| Syncular | 1 | 2.30 ms | 1.07 ms | 2.30 ms | 1.07 ms |
+| Syncular Rust Client | 1 | 2.77 ms | 0.37 ms | 2.77 ms | 0.37 ms |
+| Zero | 1 | 5.12 ms | 3.18 ms | 5.12 ms | 3.18 ms |
+| PowerSync | 1 | 211.5 ms | 3.29 ms | 211.5 ms | 3.29 ms |
+| Replicache | 1 | 3.19 ms | 1.76 ms | 3.19 ms | 1.76 ms |
 
 ## Permission Change
 
 | Stack | Initial rows | After revoke | Revoked rows left | Retained rows left | Same-client | Rebootstrap | Support |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Syncular | 1000 | 500 | 0 | 500 | n/a | n/a | native |
-| Syncular Rust Client | 1000 | 500 | 0 | 500 | 43.92 ms | 16.77 ms | native |
-| Electric | 1000 | 500 | 0 | 500 | n/a | 32.13 ms | native |
+| Syncular | 1525 | 500 | 0 | 500 | 6.82 ms | 65.77 ms | native |
+| Syncular Rust Client | 1525 | 500 | 0 | 500 | 21.08 ms | 84.16 ms | native |
+| Electric | 1000 | 500 | 0 | 500 | n/a | 29.22 ms | native |
 | Zero | n/a | n/a | n/a | n/a | n/a | n/a | unsupported |
 | PowerSync | n/a | n/a | n/a | n/a | n/a | n/a | unsupported |
-| Replicache | 1000 | 1000 | 500 | 500 | n/a | 13.46 ms | native |
+| Replicache | 1000 | 1000 | 500 | 500 | n/a | 19.69 ms | native |
 | LiveStore | n/a | n/a | n/a | n/a | n/a | n/a | unsupported |
 
 ## Permission Change Repeat Summary
 
 | Stack | Runs | Median | Min | Max | Latest |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 3 | 38.51 ms | 36.44 ms | 42.79 ms | 38.51 ms |
-| Syncular Rust Client | 3 | 43.92 ms | 26.94 ms | 54.24 ms | 43.92 ms |
-| Electric | 2 | 24.06 ms | 12.58 ms | 35.55 ms | 35.55 ms |
+| Syncular | 1 | 6.82 ms | 6.82 ms | 6.82 ms | 6.82 ms |
+| Syncular Rust Client | 1 | 21.08 ms | 21.08 ms | 21.08 ms | 21.08 ms |
+| Electric | 1 | 33.22 ms | 33.22 ms | 33.22 ms | 33.22 ms |
 
 ## Blob Flow
 
 | Stack | Blob bytes | Upload | Metadata visible | Re-download | Retry recovery | Transfer overhead | SQLite upload overhead | Support |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Syncular | 524288 | 26.38 ms | 35.77 ms | 7.23 ms | 14.28 ms | 7183 B | 0 B | native |
-| Syncular Rust Client | 524288 | 22.75 ms | 22.72 ms | 13.62 ms | 11.98 ms | 5210 B | n/a | native |
+| Syncular | 2097152 | 68.85 ms | 68.85 ms | 9.41 ms | n/a | n/a | n/a | native |
+| Syncular Rust Client | 2097152 | 101.3 ms | 65.59 ms | 90.47 ms | n/a | n/a | n/a | native |
 | Electric | n/a | n/a | n/a | n/a | n/a | n/a | n/a | unsupported |
 | Zero | n/a | n/a | n/a | n/a | n/a | n/a | n/a | unsupported |
 | PowerSync | n/a | n/a | n/a | n/a | n/a | n/a | n/a | unsupported |
@@ -205,23 +205,26 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | Runs | Upload median | Metadata median | Latest retry recovery |
 | --- | --- | --- | --- | --- |
-| Syncular | 1 | 26.38 ms | 35.77 ms | 14.28 ms |
-| Syncular Rust Client | 3 | 24.40 ms | 26.44 ms | 11.98 ms |
+| Syncular | 1 | 68.85 ms | 68.85 ms | n/a |
+| Syncular Rust Client | 1 | 101.3 ms | 65.59 ms | n/a |
 
 ## Client Bundle Size
 
 | Library | Profile | Raw | Gzip |
 | --- | --- | --- | --- |
-| Syncular | named import | 217.72 KB | 52.95 KB |
-| Electric | named import | 48.85 KB | 15.57 KB |
-| Zero | named import | 287.93 KB | 91.51 KB |
-| PowerSync | named import | 593.76 KB | 181.46 KB |
-| Replicache | named import | 112.95 KB | 35.68 KB |
-| LiveStore | named import | 717.55 KB | 223.24 KB |
+| Syncular | named import | 75.14 KB | 22.79 KB |
+| Electric | named import | 52.77 KB | 16.79 KB |
+| Zero | named import | 287.98 KB | 91.37 KB |
+| PowerSync | named import | 532.98 KB | 165.65 KB |
+| Replicache | named import | 113.00 KB | 35.64 KB |
+| LiveStore | named import | 717.61 KB | 221.53 KB |
 
 ## Notes
 
 - `native` means the benchmark uses the product’s normal client model.
+- Model difference, stated honestly: the CDC stacks (Electric, Zero, PowerSync, LiveStore via sync-electric) observe an app-owned Postgres via WAL/CDC, so the bench admin writes plain SQL. Syncular v2 materializes real per-app Postgres tables but owns them — ingestion goes through the engine (push/storage API), never CDC — so its bench admin writes through the storage API and wakes clients via the engine’s Postgres LISTEN/NOTIFY fanout, while reads use plain SQL over the materialized columns.
+- The two Syncular rows share one server stack and differ only in client core: `syncular` is the JS client on bun:sqlite; `syncular-rust` is the native Rust client (rusqlite) driven over real HTTP+WebSocket by a standalone bench binary. Both are built from the same unpublished v2 checkout; scenario parameters (datasets, query shapes, blob sizes, iteration counts) are identical across the two rows.
+- Syncular bootstrap is measured cold-server + cold-client: the sync service is restarted before every scale so in-memory segment/sqlite-image caches never serve the measurement.
 - `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.
 - `unsupported` rows stay visible as `n/a` so the support matrix remains explicit without inventing benchmark-owned adapters.
 - LiveStore local-query remains unsupported at the shared 100000-row scale because the current wa-sqlite configuration aborts with a wasm heap OOM in this harness.

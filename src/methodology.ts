@@ -7,11 +7,12 @@ export const benchmarkPolicyVersion = '2026-03-14.v1';
 export function getMethodologyManifest(): JsonObject {
   return {
     policyVersion: benchmarkPolicyVersion,
-    benchmarkMode: 'published-packages-and-images',
+    benchmarkMode: 'local-checkout-and-published-images',
     benchmarkModeNotes: [
-      'Syncular is benchmarked from the published npm packages installed in offline-sync-bench for the host-side client path and in the Syncular stack app for the Dockerized server stack.',
+      'Syncular is benchmarked from a local v2 checkout (unpublished packages): the host-side JS client and the Dockerized server stack both vendor the same repo sources; the Rust client row drives the native rusqlite core over real HTTP+WS via a standalone bench binary built from the same checkout.',
       'The other stacks are benchmarked from the package versions and image references installed in offline-sync-bench itself.',
       'The benchmark compares workload outcomes per scenario, not a single cross-framework score.',
+      'Model difference, stated honestly: the CDC stacks (Electric, Zero, PowerSync, LiveStore via sync-electric) observe an app-owned Postgres via WAL/CDC, so bench-admin writes plain SQL. Syncular v2 materializes real per-app Postgres tables but owns them: ingestion goes through the engine (push API / storage API), never CDC. The Syncular bench-admin therefore writes through the storage API and wakes clients via the engine’s Postgres LISTEN/NOTIFY fanout — its supported multi-instance path — while reads use plain SQL over the materialized columns.',
     ],
     supportLevelSemantics: {
       native:

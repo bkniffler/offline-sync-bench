@@ -1,35 +1,26 @@
-import { mkdir, mkdtemp, rm, stat } from 'node:fs/promises';
-import { join } from 'node:path';
-import { randomUUID } from 'node:crypto';
+/**
+ * Syncular v2 benchmark adapter — drives the real `@syncular/client`
+ * (SyncClient, bun:sqlite local database) against the Dockerized Syncular
+ * v2 server stack (relational Postgres server storage, engine-mediated
+ * admin writes, presigned MinIO blobs, WebSocket realtime).
+ *
+ * Every scenario is native: local reads are raw SQL over the synced
+ * SQLite mirror, offline queuing is the client's own outbox (`mutate`
+ * without `sync`), permission-change uses the real membership-derived
+ * scope model, and blob flow uses the product blob transport end to end.
+ */
 import {
-  createClient,
-  createClientHandler,
-  type SyncClientPlugin,
-  type MutationReceipt,
-  type SyncClientDb,
-  type ClientTableHandler,
+  computeBlobId,
+  httpBlobTransport,
+  httpSegmentDownloader,
+  httpSyncTransport,
+  type RealtimeConnector,
+  SyncClient,
+  type SyncSummary,
+  webSocketRealtimeConnector,
 } from '@syncular/client';
-import {
-  bytesToReadableStream,
-  decodeSnapshotRows,
-  readAllBytesFromStream,
-  SYNC_SNAPSHOT_CHUNK_COMPRESSION,
-  SYNC_SNAPSHOT_CHUNK_ENCODING,
-  type SyncCombinedRequest,
-  type ScopeValues,
-  type SyncCombinedResponse,
-  type SyncBootstrapState,
-  type SyncPullSubscriptionResponse,
-} from '@syncular/core';
-import { createBunSqliteDialect } from '@syncular/dialect-bun-sqlite';
-import { createHttpTransport } from '@syncular/transport-http';
-import { createWebSocketTransport } from '@syncular/transport-ws';
-import {
-  createBlobPlugin,
-  type BlobClient,
-  type ClientBlobStorage,
-} from '@syncular/client-plugin-blob';
-import { Kysely, sql } from 'kysely';
+import { openBunDatabase } from '@syncular/client/bun';
+import { schema } from '../../stacks/syncular/syncular-app/src/syncular.generated';
 import { createHttpMeter } from '../http-meter';
 import {
   average,
@@ -39,16 +30,13 @@ import {
   percentile,
   round,
 } from '../metrics';
-import { tempRoot } from '../paths';
 import {
   ensureStackUp,
   getFixtures,
   listTasks,
   resolveServiceContainerId,
+  restartServiceCold,
   seedStack,
-  startService,
-  stopService,
-  waitForUrlDown,
   writeTask,
 } from '../stack-manager';
 import { getStack } from '../stacks';
@@ -58,7 +46,255 @@ import type {
   BootstrapScaleResult,
   JsonValue,
   OnlinePropagationSample,
+  StackFixtures,
 } from '../types';
+
+interface ScenarioOutcome {
+  status: BenchmarkStatus;
+  metrics: Record<string, number | null>;
+  notes: string[];
+  metadata: { [key: string]: JsonValue };
+}
+
+interface TransferTotals {
+  requestCount: number;
+  requestBytes: number;
+  responseBytes: number;
+  realtimeBytes: number;
+}
+
+interface BenchClient {
+  readonly client: SyncClient;
+  readonly actorId: string;
+  /**
+   * Connect the realtime socket and wait for the server `hello` control
+   * frame. The bench server assigns its per-socket session handler
+   * asynchronously after the WebSocket opens and silently drops binary
+   * frames until then — a sync round sent before `hello` can hang forever.
+   */
+  connectRealtimeReady(timeoutMs?: number): Promise<void>;
+  transfer(): TransferTotals;
+  close(): Promise<void>;
+}
+
+const STACK_ID = 'syncular' as const;
+const IMPLEMENTATION_PREFIX = 'syncular-v2';
+
+const textEncoder = new TextEncoder();
+
+/**
+ * Wrap the product WebSocket connector so realtime bytes are counted and
+ * the server `hello` control frame is observable (session readiness).
+ */
+function meteredRealtimeConnector(
+  realtimeUrl: string,
+  counter: { bytes: number },
+  onHello: () => void
+): RealtimeConnector {
+  const inner = webSocketRealtimeConnector(realtimeUrl);
+  return async (handlers) => {
+    const socket = await inner({
+      onText: (text) => {
+        counter.bytes += textEncoder.encode(text).byteLength;
+        try {
+          const control = JSON.parse(text) as { event?: string };
+          if (control.event === 'hello') onHello();
+        } catch {
+          // non-JSON control frame — ignore for readiness purposes
+        }
+        handlers.onText(text);
+      },
+      onBinary: (bytes) => {
+        counter.bytes += bytes.byteLength;
+        handlers.onBinary(bytes);
+      },
+      ...(handlers.onClose !== undefined ? { onClose: handlers.onClose } : {}),
+    });
+    return {
+      send: (text: string) => {
+        counter.bytes += textEncoder.encode(text).byteLength;
+        socket.send(text);
+      },
+      sendBytes: (bytes: Uint8Array) => {
+        counter.bytes += bytes.byteLength;
+        socket.sendBytes(bytes);
+      },
+      close: () => socket.close(),
+    };
+  };
+}
+
+async function createBenchClient(actorId: string): Promise<BenchClient> {
+  const stack = getStack(STACK_ID);
+  const syncBase = stack.syncBaseUrl;
+  const realtimeBase = stack.syncRealtimeBaseUrl;
+  if (!realtimeBase) {
+    throw new Error('Syncular stack is missing syncRealtimeBaseUrl');
+  }
+
+  const meter = createHttpMeter();
+  const realtimeCounter = { bytes: 0 };
+  const headers = { 'x-actor-id': actorId };
+  const clientId = crypto.randomUUID();
+  let helloSeen = false;
+  let helloResolve: (() => void) | undefined;
+  const onHello = () => {
+    helloSeen = true;
+    helloResolve?.();
+  };
+  const client = new SyncClient({
+    database: openBunDatabase(),
+    schema,
+    clientId,
+    transport: httpSyncTransport(`${syncBase}/sync`, {
+      headers,
+      fetch: meter.fetch,
+    }),
+    segments: httpSegmentDownloader(`${syncBase}/segments`, {
+      headers,
+      fetch: meter.fetch,
+    }),
+    blobs: httpBlobTransport(`${syncBase}/blobs`, {
+      headers,
+      fetch: meter.fetch,
+    }),
+    realtime: meteredRealtimeConnector(
+      `${realtimeBase}?actorId=${encodeURIComponent(actorId)}&clientId=${clientId}`,
+      realtimeCounter,
+      onHello
+    ),
+  });
+  await client.start();
+
+  return {
+    client,
+    actorId,
+    connectRealtimeReady: async (timeoutMs = 10_000) => {
+      helloSeen = false;
+      const helloPromise = new Promise<void>((resolve) => {
+        helloResolve = resolve;
+        if (helloSeen) resolve();
+      });
+      await client.connectRealtime();
+      const outcome = await Promise.race([
+        helloPromise.then(() => 'hello' as const),
+        Bun.sleep(timeoutMs).then(() => 'timeout' as const),
+      ]);
+      if (outcome === 'timeout') {
+        throw new Error(
+          'Syncular realtime session did not send hello within the readiness window'
+        );
+      }
+    },
+    transfer: () => {
+      const snapshot = meter.snapshot();
+      return {
+        requestCount: snapshot.requestCount,
+        requestBytes: snapshot.requestBytes,
+        responseBytes: snapshot.responseBytes,
+        realtimeBytes: realtimeCounter.bytes,
+      };
+    },
+    close: async () => {
+      client.disconnectRealtime();
+      await client.close();
+    },
+  };
+}
+
+function sumTransfers(clients: readonly BenchClient[]): TransferTotals {
+  return clients.reduce<TransferTotals>(
+    (totals, bench) => {
+      const transfer = bench.transfer();
+      return {
+        requestCount: totals.requestCount + transfer.requestCount,
+        requestBytes: totals.requestBytes + transfer.requestBytes,
+        responseBytes: totals.responseBytes + transfer.responseBytes,
+        realtimeBytes: totals.realtimeBytes + transfer.realtimeBytes,
+      };
+    },
+    { requestCount: 0, requestBytes: 0, responseBytes: 0, realtimeBytes: 0 }
+  );
+}
+
+function totalBytes(transfer: TransferTotals): number {
+  return transfer.requestBytes + transfer.responseBytes + transfer.realtimeBytes;
+}
+
+/**
+ * One subscription PER PROJECT for project-scoped tables — scope
+ * revocation only purges when a subscription's effective scope empties,
+ * so a narrowed multi-project subscription would purge nothing.
+ */
+function subscribeTasks(bench: BenchClient, projectIds: readonly string[]): void {
+  for (const projectId of projectIds) {
+    bench.client.subscribe({
+      id: `tasks:${projectId}`,
+      table: 'tasks',
+      scopes: { project_id: [projectId] },
+    });
+  }
+}
+
+function subscribeBlobEntries(
+  bench: BenchClient,
+  projectIds: readonly string[]
+): void {
+  for (const projectId of projectIds) {
+    bench.client.subscribe({
+      id: `task_blob_entries:${projectId}`,
+      table: 'task_blob_entries',
+      scopes: { project_id: [projectId] },
+    });
+  }
+}
+
+function subscribeOrgTables(bench: BenchClient, orgId: string): void {
+  bench.client.subscribe({
+    id: `organizations:${orgId}`,
+    table: 'organizations',
+    scopes: { id: [orgId] },
+  });
+  bench.client.subscribe({
+    id: `projects:${orgId}`,
+    table: 'projects',
+    scopes: { org_id: [orgId] },
+  });
+  bench.client.subscribe({
+    id: `app_users:${orgId}`,
+    table: 'app_users',
+    scopes: { org_id: [orgId] },
+  });
+}
+
+function subscribeMemberships(
+  bench: BenchClient,
+  projectIds: readonly string[]
+): void {
+  for (const projectId of projectIds) {
+    bench.client.subscribe({
+      id: `project_memberships:${projectId}`,
+      table: 'project_memberships',
+      scopes: { project_id: [projectId] },
+    });
+  }
+}
+
+function countRows(bench: BenchClient, sql: string, params: string[] = []): number {
+  const row = bench.client.query(sql, params)[0];
+  return Number(row?.n ?? 0);
+}
+
+function localTaskCount(bench: BenchClient, projectId?: string): number {
+  if (projectId !== undefined) {
+    return countRows(
+      bench,
+      'SELECT count(*) AS n FROM tasks WHERE project_id = ?',
+      [projectId]
+    );
+  }
+  return countRows(bench, 'SELECT count(*) AS n FROM tasks');
+}
 
 interface LocalTaskRow {
   id: string;
@@ -66,1414 +302,126 @@ interface LocalTaskRow {
   project_id: string;
   owner_id: string;
   title: string;
-  completed: boolean;
-  server_version: number;
-  updated_at: string;
+  completed: number | boolean;
+  server_version: number | bigint;
+  updated_at_ms: number | bigint;
 }
 
-interface LocalOrganizationRow {
-  id: string;
-  name: string;
+function readLocalTasks(bench: BenchClient, limit: number): LocalTaskRow[] {
+  return bench.client.query(
+    `SELECT id, org_id, project_id, owner_id, title, completed,
+            server_version, updated_at_ms
+     FROM tasks ORDER BY id LIMIT ?`,
+    [limit]
+  ) as unknown as LocalTaskRow[];
 }
 
-interface LocalProjectRow {
-  id: string;
-  org_id: string;
-  name: string;
+/** Queue one full-row task title update into the client outbox. */
+function mutateTaskTitle(bench: BenchClient, row: LocalTaskRow, title: string): string {
+  return bench.client.mutate([
+    {
+      table: 'tasks',
+      op: 'upsert',
+      values: {
+        id: row.id,
+        org_id: row.org_id,
+        project_id: row.project_id,
+        owner_id: row.owner_id,
+        title,
+        completed: Boolean(row.completed),
+        server_version: Number(row.server_version) + 1,
+        updated_at_ms: Date.now(),
+      },
+    },
+  ]);
 }
 
-interface LocalTaskBlobRow {
-  id: string;
-  project_id: string;
-  blob_hash: string | null;
-  blob_size: number | null;
-  blob_mime_type: string | null;
-  server_version: number;
-  updated_at: string;
+async function waitForLocalTitle(
+  bench: BenchClient,
+  taskId: string,
+  expectedTitle: string,
+  timeoutMs: number
+): Promise<void> {
+  const startedAt = performance.now();
+  while (performance.now() - startedAt < timeoutMs) {
+    const row = bench.client.query('SELECT title FROM tasks WHERE id = ?', [
+      taskId,
+    ])[0];
+    if (row?.title === expectedTitle) return;
+    await Bun.sleep(0);
+  }
+  throw new Error(
+    `Syncular mirror did not observe ${taskId}=${expectedTitle} within ${timeoutMs}ms`
+  );
 }
 
-interface SyncularClientDb extends SyncClientDb {
-  organizations: LocalOrganizationRow;
-  projects: LocalProjectRow;
-  tasks: LocalTaskRow;
-  task_blob_entries: LocalTaskBlobRow;
-}
-
-interface PushResultPayload {
-  clientCommitId: string;
-  status: 'applied' | 'cached' | 'rejected' | 'retriable';
-}
-
-interface SyncularClientSession {
-  client: Awaited<ReturnType<typeof createClient<SyncularClientDb>>>['client'];
-  db: Kysely<SyncularClientDb>;
-  destroy: () => Promise<void>;
-  meterSnapshot: () => {
-    requestCount: number;
-    requestBytes: number;
-    responseBytes: number;
-  };
-  dbPath: string;
-}
-
-interface HttpMeterTotals {
-  requestCount: number;
-  requestBytes: number;
-  responseBytes: number;
-}
-
-interface BootstrapPhaseTotals {
-  pullRequestMs: number;
-  snapshotFetchMs: number;
-  snapshotDecodeMs: number;
-  localApplyMs: number;
-}
-
-interface ServerBootstrapTimings {
-  snapshotQueryMs: number;
-  rowFrameEncodeMs: number;
-  chunkCacheLookupMs: number;
-  chunkGzipMs: number;
-  chunkHashMs: number;
-  chunkPersistMs: number;
-}
-
-const syncularCaptureBootstrapTimings =
-  process.env.SYNCULAR_BENCH_CAPTURE_BOOTSTRAP_TIMINGS === '1';
-
-interface SyncClientWithSync {
-  sync(): Promise<unknown>;
-  awaitBootstrapComplete(args?: { timeoutMs?: number }): Promise<unknown>;
-}
-
-const SYNCULAR_BENCH_BOOTSTRAP_LIMIT_SNAPSHOT_ROWS = 20_000;
-const SYNCULAR_BENCH_BOOTSTRAP_MAX_SNAPSHOT_PAGES = 100;
-const LOCAL_TASK_INSERT_BATCH_ROWS = 2_000;
-async function createTempDbPath(prefix: string): Promise<string> {
-  await mkdir(tempRoot, { recursive: true });
-  const dir = await mkdtemp(join(tempRoot, `${prefix}-`));
-  return join(dir, 'client.sqlite');
-}
-
-function createMemoryBlobStorage(): ClientBlobStorage {
-  const memory = new Map<string, Uint8Array>();
-
-  return {
-    async write(hash, data) {
-      if (data instanceof ReadableStream) {
-        const reader = data.getReader();
-        const chunks: Uint8Array[] = [];
-        let totalBytes = 0;
-
-        while (true) {
-          const chunk = await reader.read();
-          if (chunk.done) break;
-          chunks.push(chunk.value);
-          totalBytes += chunk.value.length;
-        }
-
-        const combined = new Uint8Array(totalBytes);
-        let offset = 0;
-        for (const chunk of chunks) {
-          combined.set(chunk, offset);
-          offset += chunk.length;
-        }
-        memory.set(hash, combined);
-        return;
+async function waitForServerTitles(
+  projectId: string,
+  expectedTitles: ReadonlyMap<string, string>,
+  timeoutMs: number
+): Promise<void> {
+  const startedAt = Date.now();
+  while (Date.now() - startedAt < timeoutMs) {
+    const tasks = await listTasks(STACK_ID, {
+      projectId,
+      limit: 5000,
+    });
+    const titleById = new Map(tasks.map((task) => [task.id, task.title]));
+    let allVisible = true;
+    for (const [taskId, title] of expectedTitles) {
+      if (titleById.get(taskId) !== title) {
+        allVisible = false;
+        break;
       }
-
-      memory.set(hash, new Uint8Array(data));
-    },
-
-    async read(hash) {
-      const data = memory.get(hash);
-      return data ? new Uint8Array(data) : null;
-    },
-
-    async delete(hash) {
-      memory.delete(hash);
-    },
-
-    async exists(hash) {
-      return memory.has(hash);
-    },
-
-    async getUsage() {
-      let totalBytes = 0;
-      for (const value of memory.values()) {
-        totalBytes += value.byteLength;
-      }
-      return totalBytes;
-    },
-
-    async clear() {
-      memory.clear();
-    },
-  };
+    }
+    if (allVisible) return;
+    await Bun.sleep(10);
+  }
+  throw new Error('Syncular server did not converge on all replayed titles');
 }
 
-function hasBlobClient(
-  client: SyncularClientSession['client']
-): client is SyncularClientSession['client'] & { blobs: BlobClient } {
-  return 'blobs' in client;
+async function requireFixtures(): Promise<StackFixtures> {
+  const fixtures = await getFixtures(STACK_ID);
+  if (
+    !fixtures.sampleProjectId ||
+    !fixtures.sampleOrgId ||
+    fixtures.sampleUserIds.length === 0 ||
+    !fixtures.sampleTaskId
+  ) {
+    throw new Error('Syncular fixtures are missing seeded data');
+  }
+  return fixtures;
 }
 
-async function withMeteredGlobalFetch<T>(
-  meteredFetch: typeof fetch,
-  run: () => Promise<T>
-): Promise<T> {
-  const originalFetch = globalThis.fetch;
-  globalThis.fetch = meteredFetch;
-  try {
-    return await run();
-  } finally {
-    globalThis.fetch = originalFetch;
+async function closeAll(clients: readonly BenchClient[]): Promise<void> {
+  for (const bench of clients) {
+    try {
+      await bench.close();
+    } catch {
+      // best-effort teardown
+    }
   }
 }
 
-function createBlobPayload(size: number): Uint8Array {
+function failedOutcome(error: unknown, implementation: string): ScenarioOutcome {
+  return {
+    status: 'failed',
+    metrics: {},
+    notes: [error instanceof Error ? error.message : String(error)],
+    metadata: { implementation },
+  };
+}
+
+function createRandomBytes(size: number): Uint8Array {
   const bytes = new Uint8Array(size);
-  for (let index = 0; index < size; index += 1) {
-    bytes[index] = index % 251;
+  const chunk = 65_536;
+  for (let offset = 0; offset < size; offset += chunk) {
+    crypto.getRandomValues(bytes.subarray(offset, Math.min(offset + chunk, size)));
   }
   return bytes;
 }
 
-function createOneShotFailingUploadFetch(baseFetch: typeof fetch): typeof fetch {
-  let failedOnce = false;
-
-  const flakyFetch = Object.assign(
-    async (input: RequestInfo | URL, init?: RequestInit) => {
-      const request = input instanceof Request ? input : new Request(input, init);
-      if (!failedOnce && request.method.toUpperCase() === 'PUT') {
-        failedOnce = true;
-        throw new Error('offline-sync-bench induced upload failure');
-      }
-      return baseFetch(request);
-    },
-    typeof baseFetch.preconnect === 'function'
-      ? {
-          preconnect: baseFetch.preconnect.bind(baseFetch),
-        }
-      : {}
-  ) as typeof fetch;
-
-  return flakyFetch;
-}
-
-async function readSqliteStorageBytes(dbPath: string): Promise<number> {
-  const candidates = [dbPath, `${dbPath}-wal`, `${dbPath}-shm`];
-  let totalBytes = 0;
-
-  for (const candidate of candidates) {
-    const fileStats = await stat(candidate).catch(() => null);
-    if (!fileStats) continue;
-    totalBytes += fileStats.size;
-  }
-
-  return totalBytes;
-}
-
-async function ensureLocalTables(db: Kysely<SyncularClientDb>): Promise<void> {
-  await db.schema
-    .createTable('organizations')
-    .ifNotExists()
-    .addColumn('id', 'text', (column) => column.primaryKey())
-    .addColumn('name', 'text', (column) => column.notNull())
-    .execute();
-
-  await db.schema
-    .createTable('projects')
-    .ifNotExists()
-    .addColumn('id', 'text', (column) => column.primaryKey())
-    .addColumn('org_id', 'text', (column) => column.notNull())
-    .addColumn('name', 'text', (column) => column.notNull())
-    .execute();
-
-  await db.schema
-    .createTable('tasks')
-    .ifNotExists()
-    .addColumn('id', 'text', (column) => column.primaryKey())
-    .addColumn('org_id', 'text', (column) => column.notNull())
-    .addColumn('project_id', 'text', (column) => column.notNull())
-    .addColumn('owner_id', 'text', (column) => column.notNull())
-    .addColumn('title', 'text', (column) => column.notNull())
-    .addColumn('completed', 'integer', (column) => column.notNull().defaultTo(0))
-    .addColumn('server_version', 'integer', (column) =>
-      column.notNull().defaultTo(0)
-    )
-    .addColumn('updated_at', 'text', (column) => column.notNull())
-    .execute();
-
-  await db.schema
-    .createTable('task_blob_entries')
-    .ifNotExists()
-    .addColumn('id', 'text', (column) => column.primaryKey())
-    .addColumn('project_id', 'text', (column) => column.notNull())
-    .addColumn('blob_hash', 'text')
-    .addColumn('blob_size', 'integer')
-    .addColumn('blob_mime_type', 'text')
-    .addColumn('server_version', 'integer', (column) =>
-      column.notNull().defaultTo(0)
-    )
-    .addColumn('updated_at', 'text', (column) => column.notNull())
-    .execute();
-
-  await sql`
-    create index if not exists idx_projects_org_id
-    on projects (org_id)
-  `.execute(db);
-
-  await sql`
-    create index if not exists idx_tasks_project_owner_completed_updated_at
-    on tasks (project_id, owner_id, completed, updated_at desc)
-  `.execute(db);
-
-  await sql`
-    create index if not exists idx_tasks_project_owner_completed
-    on tasks (project_id, owner_id, completed)
-  `.execute(db);
-
-  await sql`
-    create index if not exists idx_tasks_project_id_id
-    on tasks (project_id, id)
-  `.execute(db);
-
-  await sql`
-    create index if not exists idx_task_blob_entries_project_id_id
-    on task_blob_entries (project_id, id)
-  `.execute(db);
-}
-
-function createSyncularHttpTransport(args: {
-  actorId: string;
-  fetchImpl?: typeof fetch;
-}) {
-  return createHttpTransport({
-    baseUrl: getStack('syncular').syncBaseUrl,
-    getHeaders: () => ({
-      'x-user-id': args.actorId,
-    }),
-    ...(args.fetchImpl ? { fetch: args.fetchImpl } : {}),
-  });
-}
-
-async function requestSyncularPull(args: {
-  actorId: string;
-  meterFetch: typeof fetch;
-  body: SyncCombinedRequest;
-  captureServerTimings?: boolean;
-}): Promise<{
-  response: SyncCombinedResponse;
-  serverTimings: ServerBootstrapTimings | null;
-}> {
-  const syncRoute = `${getStack('syncular').syncBaseUrl}/sync`;
-  const headers: Record<string, string> = {
-    'content-type': 'application/json',
-    'x-user-id': args.actorId,
-  };
-  if (args.captureServerTimings) {
-    headers['x-syncular-bench-timings'] = '1';
-  }
-  const response = await args.meterFetch(syncRoute, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(args.body),
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(
-      `Syncular pull request failed: ${response.status} ${response.statusText} ${text}`
-    );
-  }
-
-  const timingHeader = response.headers.get('x-syncular-bench-pull-timings');
-  const parsedResponse = (await response.json()) as SyncCombinedResponse;
-  let serverTimings: ServerBootstrapTimings | null = null;
-
-  if (timingHeader) {
-    try {
-      const parsed = JSON.parse(timingHeader) as Partial<ServerBootstrapTimings>;
-      serverTimings = {
-        snapshotQueryMs: Number(parsed.snapshotQueryMs ?? 0),
-        rowFrameEncodeMs: Number(parsed.rowFrameEncodeMs ?? 0),
-        chunkCacheLookupMs: Number(parsed.chunkCacheLookupMs ?? 0),
-        chunkGzipMs: Number(parsed.chunkGzipMs ?? 0),
-        chunkHashMs: Number(parsed.chunkHashMs ?? 0),
-        chunkPersistMs: Number(parsed.chunkPersistMs ?? 0),
-      };
-    } catch {
-      serverTimings = null;
-    }
-  }
-
-  return {
-    response: parsedResponse,
-    serverTimings,
-  };
-}
-
-async function writeSyncularExternalTask(args: {
-  taskId: string;
-  title?: string;
-  completed?: boolean;
-}): Promise<void> {
-  const response = await fetch(
-    `${getStack('syncular').syncBaseUrl.replace(/\/api$/, '')}/benchmark/external-write`,
-    {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(args),
-    }
-  );
-
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(
-      `Syncular benchmark external write failed: ${response.status} ${response.statusText} ${body}`
-    );
-  }
-}
-
-async function revokeSyncularProjectMembership(args: {
-  projectId: string;
-  userId: string;
-}): Promise<void> {
-  const response = await fetch(
-    `${getStack('syncular').syncBaseUrl.replace(/\/api$/, '')}/benchmark/revoke-membership`,
-    {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(args),
-    }
-  );
-
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(
-      `Syncular benchmark membership revoke failed: ${response.status} ${response.statusText} ${body}`
-    );
-  }
-}
-
-async function resetSyncularScopeCache(): Promise<void> {
-  const response = await fetch(
-    `${getStack('syncular').syncBaseUrl.replace(/\/api$/, '')}/benchmark/reset-scope-cache`,
-    {
-      method: 'POST',
-    }
-  );
-
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(
-      `Syncular benchmark scope-cache reset failed: ${response.status} ${response.statusText} ${body}`
-    );
-  }
-}
-
-async function seedSyncularStack(
-  options: Parameters<typeof seedStack>[1]
-): Promise<void> {
-  await seedStack('syncular', options);
-  await resetSyncularScopeCache();
-}
-
-async function initializeSyncularTaskBlobs(projectId?: string): Promise<void> {
-  const response = await fetch(
-    `${getStack('syncular').syncBaseUrl.replace(/\/api$/, '')}/benchmark/init-task-blobs`,
-    {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(
-        projectId ? { projectId } : {}
-      ),
-    }
-  );
-
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(
-      `Syncular benchmark task-blob init failed: ${response.status} ${response.statusText} ${body}`
-    );
-  }
-}
-
-async function waitForSyncularApiReady(args: {
-  actorId: string;
-  projectId: string;
-  timeoutMs?: number;
-}): Promise<void> {
-  const timeoutMs = args.timeoutMs ?? 30_000;
-  const startedAt = Date.now();
-  let lastError = 'unreachable';
-
-  while (Date.now() - startedAt < timeoutMs) {
-    try {
-      const response = await fetch(
-        `${getStack('syncular').syncBaseUrl}/sync`,
-        {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'x-user-id': args.actorId,
-        },
-        body: JSON.stringify({
-          clientId: 'benchmark-readiness',
-          pull: {
-            schemaVersion: 1,
-            limitCommits: 200,
-            subscriptions: [
-              {
-                id: 'benchmark-readiness-sub',
-                table: 'tasks',
-                scopes: {
-                  project_id: args.projectId,
-                },
-                cursor: -1,
-              },
-            ],
-          },
-        }),
-      }
-      );
-
-      if (response.ok) {
-        return;
-      }
-
-      lastError = `${response.status} ${response.statusText}`;
-    } catch (error) {
-      lastError = error instanceof Error ? error.message : String(error);
-    }
-
-    await Bun.sleep(100);
-  }
-
-  throw new Error(`Timed out waiting for Syncular API readiness: ${lastError}`);
-}
-
-async function createSyncularClientSession(args: {
-  actorId: string;
-  clientId: string;
-  projectIds: string[];
-  realtime: boolean;
-  dbPath?: string;
-  pollIntervalMs?: number;
-  includeBlobTable?: boolean;
-  plugins?: SyncClientPlugin[];
-  meter?: ReturnType<typeof createHttpMeter>;
-}): Promise<SyncularClientSession> {
-  const dbPath = args.dbPath ?? (await createTempDbPath(`syncular-${args.clientId}`));
-  const db = new Kysely<SyncularClientDb>({
-    dialect: createBunSqliteDialect({ path: dbPath }),
-  });
-  await ensureLocalTables(db);
-
-  const meter = args.meter ?? createHttpMeter();
-  const transportFetch = meter.fetch;
-  const transport = args.realtime
-    ? createWebSocketTransport({
-        baseUrl: getStack('syncular').syncBaseUrl,
-        getHeaders: () => ({
-          'x-user-id': args.actorId,
-        }),
-        getRealtimeParams: () => ({
-          userId: args.actorId,
-        }),
-        fetch: transportFetch,
-        WebSocketImpl: WebSocket,
-      })
-    : createSyncularHttpTransport({
-        actorId: args.actorId,
-        fetchImpl: transportFetch,
-      });
-
-  const handler = createClientHandler<SyncularClientDb, 'tasks'>({
-    table: 'tasks',
-    scopes: ['project:{project_id}'],
-    subscribe: {
-      scopes: {
-        project_id:
-          args.projectIds.length === 1 ? args.projectIds[0]! : args.projectIds,
-      },
-    },
-    versionColumn: 'server_version',
-  });
-
-  const handlers: ClientTableHandler<
-    SyncularClientDb,
-    keyof SyncularClientDb & string,
-    string
-  >[] = [handler];
-  if (args.includeBlobTable) {
-    handlers.push(
-      createClientHandler<SyncularClientDb, 'task_blob_entries'>({
-        table: 'task_blob_entries',
-        scopes: ['project:{project_id}'],
-        subscribe: {
-          scopes: {
-            project_id:
-              args.projectIds.length === 1 ? args.projectIds[0]! : args.projectIds,
-          },
-        },
-        versionColumn: 'server_version',
-      })
-    );
-  }
-
-  const session = await createClient({
-    db,
-    actorId: args.actorId,
-    clientId: args.clientId,
-    transport,
-    handlers,
-    autoStart: false,
-    sync: {
-      realtime: args.realtime,
-      pollIntervalMs: args.pollIntervalMs ?? 10_000,
-    },
-    plugins: args.plugins,
-  });
-
-  return {
-    client: session.client,
-    db,
-    destroy: async () => {
-      await session.destroy();
-      await db.destroy();
-    },
-    meterSnapshot: () => meter.snapshot(),
-    dbPath,
-  };
-}
-
-function diffMeterTotals(
-  after: HttpMeterTotals,
-  before: HttpMeterTotals
-): HttpMeterTotals {
-  return {
-    requestCount: Math.max(0, after.requestCount - before.requestCount),
-    requestBytes: Math.max(0, after.requestBytes - before.requestBytes),
-    responseBytes: Math.max(0, after.responseBytes - before.responseBytes),
-  };
-}
-
-async function countLocalTasks(db: Kysely<SyncularClientDb>): Promise<number> {
-  const row = await db
-    .selectFrom('tasks')
-    .select((expressionBuilder) => expressionBuilder.fn.countAll<number>().as('count'))
-    .executeTakeFirstOrThrow();
-
-  return row.count;
-}
-
-async function countLocalOrganizations(
-  db: Kysely<SyncularClientDb>
-): Promise<number> {
-  const row = await db
-    .selectFrom('organizations')
-    .select((expressionBuilder) => expressionBuilder.fn.countAll<number>().as('count'))
-    .executeTakeFirstOrThrow();
-
-  return row.count;
-}
-
-async function countLocalProjects(
-  db: Kysely<SyncularClientDb>
-): Promise<number> {
-  const row = await db
-    .selectFrom('projects')
-    .select((expressionBuilder) => expressionBuilder.fn.countAll<number>().as('count'))
-    .executeTakeFirstOrThrow();
-
-  return row.count;
-}
-
-async function countLocalTasksForProject(
-  db: Kysely<SyncularClientDb>,
-  projectId: string
-): Promise<number> {
-  const row = await db
-    .selectFrom('tasks')
-    .select((expressionBuilder) => expressionBuilder.fn.countAll<number>().as('count'))
-    .where('project_id', '=', projectId)
-    .executeTakeFirstOrThrow();
-
-  return row.count;
-}
-
-async function getLocalTitle(
-  db: Kysely<SyncularClientDb>,
-  taskId: string
-): Promise<string | null> {
-  const row = await db
-    .selectFrom('tasks')
-    .select('title')
-    .where('id', '=', taskId)
-    .executeTakeFirst();
-
-  return row?.title ?? null;
-}
-
-async function getLocalTaskBlobMetadata(
-  db: Kysely<SyncularClientDb>,
-  taskId: string
-): Promise<{
-  blobHash: string | null;
-  blobSize: number | null;
-  blobMimeType: string | null;
-} | null> {
-  const row = await db
-    .selectFrom('task_blob_entries')
-    .select(['blob_hash', 'blob_size', 'blob_mime_type'])
-    .where('id', '=', taskId)
-    .executeTakeFirst();
-
-  if (!row) {
-    return null;
-  }
-
-  return {
-    blobHash: row.blob_hash,
-    blobSize: row.blob_size,
-    blobMimeType: row.blob_mime_type,
-  };
-}
-
-async function countLocalTaskBlobs(
-  db: Kysely<SyncularClientDb>
-): Promise<number> {
-  const row = await db
-    .selectFrom('task_blob_entries')
-    .select((expressionBuilder) => expressionBuilder.fn.countAll<number>().as('count'))
-    .executeTakeFirstOrThrow();
-
-  return row.count;
-}
-
-async function countOutbox(db: Kysely<SyncularClientDb>): Promise<number> {
-  const row = await db
-    .selectFrom('sync_outbox_commits')
-    .select((expressionBuilder) => expressionBuilder.fn.countAll<number>().as('count'))
-    .where('status', '!=', 'acked')
-    .executeTakeFirstOrThrow();
-
-  return row.count;
-}
-
-async function waitForLocalTitle(args: {
-  client?: SyncClientWithSync;
-  db: Kysely<SyncularClientDb>;
-  taskId: string;
-  expectedTitle: string;
-  timeoutMs?: number;
-}): Promise<void> {
-  const timeoutMs = args.timeoutMs ?? 30_000;
-  const pollIntervalMs = 5;
-  const startedAt = Date.now();
-  while (Date.now() - startedAt < timeoutMs) {
-    if ((await getLocalTitle(args.db, args.taskId)) === args.expectedTitle) {
-      return;
-    }
-    if (args.client) {
-      await args.client.sync();
-    }
-    await Bun.sleep(pollIntervalMs);
-  }
-
-  throw new Error(
-    `Timed out waiting for local task ${args.taskId} title ${args.expectedTitle}`
-  );
-}
-
-async function waitForLocalBlobMetadata(args: {
-  client?: SyncClientWithSync;
-  db: Kysely<SyncularClientDb>;
-  taskId: string;
-  expectedHash: string;
-  expectedSize: number;
-  expectedMimeType: string;
-  timeoutMs?: number;
-}): Promise<void> {
-  const timeoutMs = args.timeoutMs ?? 30_000;
-  const pollIntervalMs = 5;
-  const startedAt = Date.now();
-
-  while (Date.now() - startedAt < timeoutMs) {
-    const metadata = await getLocalTaskBlobMetadata(args.db, args.taskId);
-    if (
-      metadata?.blobHash === args.expectedHash &&
-      metadata.blobSize === args.expectedSize &&
-      metadata.blobMimeType === args.expectedMimeType
-    ) {
-      return;
-    }
-
-    if (args.client) {
-      await args.client.sync();
-    }
-    await Bun.sleep(pollIntervalMs);
-  }
-
-  throw new Error(
-    `Timed out waiting for local blob metadata on task ${args.taskId}`
-  );
-}
-
-async function waitForNextPushResult(
-  client: SyncularClientSession['client'],
-  timeoutMs = 30_000
-): Promise<PushResultPayload> {
-  return new Promise<PushResultPayload>((resolve, reject) => {
-    const timeout = setTimeout(() => {
-      unsubscribe();
-      reject(new Error('Timed out waiting for Syncular push:result'));
-    }, timeoutMs);
-
-    const unsubscribe = client.on('push:result', (payload) => {
-      clearTimeout(timeout);
-      unsubscribe();
-      resolve({
-        clientCommitId: payload.clientCommitId,
-        status: payload.status,
-      });
-    });
-  });
-}
-
-async function waitForOutboxClear(args: {
-  client: SyncClientWithSync;
-  db: Kysely<SyncularClientDb>;
-  timeoutMs?: number;
-}): Promise<void> {
-  const timeoutMs = args.timeoutMs ?? 30_000;
-  const startedAt = Date.now();
-  const pollIntervalMs = 25;
-  while (Date.now() - startedAt < timeoutMs) {
-    if ((await countOutbox(args.db)) === 0) {
-      return;
-    }
-    await args.client.sync();
-    await Bun.sleep(pollIntervalMs);
-  }
-
-  throw new Error('Timed out waiting for Syncular outbox to clear');
-}
-
-async function waitForExpectedTaskCount(args: {
-  client: SyncClientWithSync;
-  db: Kysely<SyncularClientDb>;
-  expectedRows: number;
-  timeoutMs?: number;
-}): Promise<number> {
-  const timeoutMs = args.timeoutMs ?? 120_000;
-  const startedAt = Date.now();
-
-  while (Date.now() - startedAt < timeoutMs) {
-    const count = await countLocalTasks(args.db);
-    if (count === args.expectedRows) {
-      return count;
-    }
-    if (count > args.expectedRows) {
-      throw new Error(
-        `Expected ${args.expectedRows} rows after bootstrap, got ${count}`
-      );
-    }
-
-    await args.client.sync();
-  }
-
-  const finalCount = await countLocalTasks(args.db);
-  throw new Error(
-    `Timed out waiting for ${args.expectedRows} bootstrapped rows; got ${finalCount}`
-  );
-}
-
-async function waitForLocalTaskCount(args: {
-  client: SyncClientWithSync;
-  db: Kysely<SyncularClientDb>;
-  expectedRows: number;
-  timeoutMs?: number;
-}): Promise<number> {
-  const timeoutMs = args.timeoutMs ?? 60_000;
-  const startedAt = Date.now();
-
-  while (Date.now() - startedAt < timeoutMs) {
-    const count = await countLocalTasks(args.db);
-    if (count === args.expectedRows) {
-      return count;
-    }
-
-    await args.client.sync();
-    await Bun.sleep(5);
-  }
-
-  const finalCount = await countLocalTasks(args.db);
-  throw new Error(
-    `Timed out waiting for ${args.expectedRows} local rows; got ${finalCount}`
-  );
-}
-
-async function waitForLocalTaskBlobCount(args: {
-  client: SyncClientWithSync;
-  db: Kysely<SyncularClientDb>;
-  expectedRows: number;
-  timeoutMs?: number;
-}): Promise<number> {
-  const timeoutMs = args.timeoutMs ?? 60_000;
-  const startedAt = Date.now();
-
-  while (Date.now() - startedAt < timeoutMs) {
-    const count = await countLocalTaskBlobs(args.db);
-    if (count === args.expectedRows) {
-      return count;
-    }
-
-    await args.client.sync();
-    await Bun.sleep(5);
-  }
-
-  const finalCount = await countLocalTaskBlobs(args.db);
-  throw new Error(
-    `Timed out waiting for ${args.expectedRows} local task_blob_entries rows; got ${finalCount}`
-  );
-}
-
-function normalizeTaskRow(row: Record<string, JsonValue>): LocalTaskRow {
-  return {
-    id: typeof row.id === 'string' ? row.id : '',
-    org_id: typeof row.org_id === 'string' ? row.org_id : '',
-    project_id: typeof row.project_id === 'string' ? row.project_id : '',
-    owner_id: typeof row.owner_id === 'string' ? row.owner_id : '',
-    title: typeof row.title === 'string' ? row.title : '',
-    completed:
-      typeof row.completed === 'boolean'
-        ? row.completed
-        : row.completed === 1 || row.completed === 'true',
-    server_version:
-      typeof row.server_version === 'number'
-        ? row.server_version
-        : Number(row.server_version ?? 0),
-    updated_at: typeof row.updated_at === 'string' ? row.updated_at : '',
-  };
-}
-
-function normalizeOrganizationRow(
-  row: Record<string, JsonValue>
-): LocalOrganizationRow {
-  return {
-    id: typeof row.id === 'string' ? row.id : '',
-    name: typeof row.name === 'string' ? row.name : '',
-  };
-}
-
-function normalizeProjectRow(row: Record<string, JsonValue>): LocalProjectRow {
-  return {
-    id: typeof row.id === 'string' ? row.id : '',
-    org_id: typeof row.org_id === 'string' ? row.org_id : '',
-    name: typeof row.name === 'string' ? row.name : '',
-  };
-}
-
-function isJsonRecord(value: unknown): value is Record<string, JsonValue> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-async function decodeSyncularSnapshotChunkRows(args: {
-  chunk: NonNullable<
-    NonNullable<SyncPullSubscriptionResponse['snapshots']>[number]['chunks']
-  >[number];
-  bytes: Uint8Array;
-}): Promise<unknown[]> {
-  if (args.chunk.encoding !== SYNC_SNAPSHOT_CHUNK_ENCODING) {
-    throw new Error(
-      `Unexpected snapshot chunk encoding: ${args.chunk.encoding}`
-    );
-  }
-
-  if (args.chunk.compression !== SYNC_SNAPSHOT_CHUNK_COMPRESSION) {
-    throw new Error(
-      `Unexpected snapshot chunk compression: ${args.chunk.compression}`
-    );
-  }
-
-  if (typeof DecompressionStream === 'undefined') {
-    throw new Error(
-      'Snapshot chunk gzip decompression is not available in this runtime'
-    );
-  }
-
-  const decompressedStream = bytesToReadableStream(args.bytes).pipeThrough(
-    new DecompressionStream('gzip') as TransformStream<Uint8Array, Uint8Array>
-  );
-  const decompressedBytes = await readAllBytesFromStream(decompressedStream);
-  return decodeSnapshotRows(decompressedBytes);
-}
-
-async function materializeSyncularSnapshotRows(args: {
-  snapshot: NonNullable<SyncPullSubscriptionResponse['snapshots']>[number];
-  transport: ReturnType<typeof createHttpTransport>;
-  scopeValues?: ScopeValues;
-  phaseTotals?: BootstrapPhaseTotals;
-}): Promise<LocalTaskRow[]> {
-  const rows: LocalTaskRow[] = [];
-
-  const inlineDecodeStartedAt = performance.now();
-  for (const row of args.snapshot.rows ?? []) {
-    if (!isJsonRecord(row)) {
-      throw new Error('Syncular snapshot contained a non-object row');
-    }
-    rows.push(normalizeTaskRow(row));
-  }
-  if (args.phaseTotals) {
-    args.phaseTotals.snapshotDecodeMs += performance.now() - inlineDecodeStartedAt;
-  }
-
-  for (const chunk of args.snapshot.chunks ?? []) {
-    const fetchStartedAt = performance.now();
-    const bytes = await args.transport.fetchSnapshotChunk({
-      chunkId: chunk.id,
-      scopeValues: args.scopeValues,
-    });
-    if (args.phaseTotals) {
-      args.phaseTotals.snapshotFetchMs += performance.now() - fetchStartedAt;
-    }
-
-    const decodeStartedAt = performance.now();
-    const decodedRows = await decodeSyncularSnapshotChunkRows({
-      chunk,
-      bytes,
-    });
-    for (const decodedRow of decodedRows) {
-      if (!isJsonRecord(decodedRow)) {
-        throw new Error('Syncular snapshot chunk contained a non-object row');
-      }
-      rows.push(normalizeTaskRow(decodedRow));
-    }
-    if (args.phaseTotals) {
-      args.phaseTotals.snapshotDecodeMs += performance.now() - decodeStartedAt;
-    }
-  }
-
-  return rows;
-}
-
-async function materializeSyncularSnapshotJsonRows(args: {
-  snapshot: NonNullable<SyncPullSubscriptionResponse['snapshots']>[number];
-  transport: ReturnType<typeof createHttpTransport>;
-  scopeValues?: ScopeValues;
-}): Promise<Array<Record<string, JsonValue>>> {
-  const rows: Array<Record<string, JsonValue>> = [];
-
-  for (const row of args.snapshot.rows ?? []) {
-    if (!isJsonRecord(row)) {
-      throw new Error('Syncular snapshot contained a non-object row');
-    }
-    rows.push(row);
-  }
-
-  for (const chunk of args.snapshot.chunks ?? []) {
-    const bytes = await args.transport.fetchSnapshotChunk({
-      chunkId: chunk.id,
-      scopeValues: args.scopeValues,
-    });
-
-    const decodedRows = await decodeSyncularSnapshotChunkRows({
-      chunk,
-      bytes,
-    });
-    for (const decodedRow of decodedRows) {
-      if (!isJsonRecord(decodedRow)) {
-        throw new Error('Syncular snapshot chunk contained a non-object row');
-      }
-      rows.push(decodedRow);
-    }
-  }
-
-  return rows;
-}
-
-async function insertLocalOrganizationRows(
-  db: Kysely<SyncularClientDb>,
-  rows: LocalOrganizationRow[]
-): Promise<void> {
-  for (const row of rows) {
-    await db
-      .insertInto('organizations')
-      .values(row)
-      .onConflict((oc) =>
-        oc.column('id').doUpdateSet({
-          name: row.name,
-        })
-      )
-      .execute();
-  }
-}
-
-async function insertLocalProjectRows(
-  db: Kysely<SyncularClientDb>,
-  rows: LocalProjectRow[]
-): Promise<void> {
-  for (const row of rows) {
-    await db
-      .insertInto('projects')
-      .values(row)
-      .onConflict((oc) =>
-        oc.column('id').doUpdateSet({
-          org_id: row.org_id,
-          name: row.name,
-        })
-      )
-      .execute();
-  }
-}
-
-async function insertLocalTaskRows(
-  db: Kysely<SyncularClientDb>,
-  rows: LocalTaskRow[],
-  phaseTotals?: BootstrapPhaseTotals
-): Promise<void> {
-  const startedAt = performance.now();
-  for (
-    let index = 0;
-    index < rows.length;
-    index += LOCAL_TASK_INSERT_BATCH_ROWS
-  ) {
-    const batch = rows.slice(index, index + LOCAL_TASK_INSERT_BATCH_ROWS);
-    if (batch.length === 0) continue;
-    await db.insertInto('tasks').values(batch).execute();
-  }
-  if (phaseTotals) {
-    phaseTotals.localApplyMs += performance.now() - startedAt;
-  }
-}
-
-async function upsertLocalTaskRow(
-  db: Kysely<SyncularClientDb>,
-  row: LocalTaskRow,
-  phaseTotals?: BootstrapPhaseTotals
-): Promise<void> {
-  const startedAt = performance.now();
-  await db
-    .insertInto('tasks')
-    .values(row)
-    .onConflict((oc) =>
-      oc.column('id').doUpdateSet({
-        org_id: row.org_id,
-        project_id: row.project_id,
-        owner_id: row.owner_id,
-        title: row.title,
-        completed: row.completed,
-        server_version: row.server_version,
-        updated_at: row.updated_at,
-      })
-    )
-    .execute();
-  if (phaseTotals) {
-    phaseTotals.localApplyMs += performance.now() - startedAt;
-  }
-}
-
-async function applySyncularSubscriptionPayload(args: {
-  db: Kysely<SyncularClientDb>;
-  subscription: SyncPullSubscriptionResponse;
-  transport: ReturnType<typeof createHttpTransport>;
-  phaseTotals?: BootstrapPhaseTotals;
-}): Promise<void> {
-  await args.db.transaction().execute(async (trx) => {
-    for (const snapshot of args.subscription.snapshots ?? []) {
-      const rows = await materializeSyncularSnapshotRows({
-        snapshot,
-        transport: args.transport,
-        scopeValues: args.subscription.scopes,
-        phaseTotals: args.phaseTotals,
-      });
-      await insertLocalTaskRows(trx, rows, args.phaseTotals);
-    }
-
-    for (const commit of args.subscription.commits ?? []) {
-      for (const change of commit.changes ?? []) {
-        const rowId = change.row_id;
-        if (!rowId) continue;
-
-        if (change.op === 'delete') {
-          const deleteStartedAt = performance.now();
-          await trx.deleteFrom('tasks').where('id', '=', rowId).execute();
-          if (args.phaseTotals) {
-            args.phaseTotals.localApplyMs += performance.now() - deleteStartedAt;
-          }
-          continue;
-        }
-
-        const rowJson = change.row_json;
-        if (!isJsonRecord(rowJson)) continue;
-        await upsertLocalTaskRow(
-          trx,
-          normalizeTaskRow(rowJson),
-          args.phaseTotals
-        );
-      }
-    }
-  });
-}
-
-async function applySyncularRelationshipSubscriptionPayload(args: {
-  db: Kysely<SyncularClientDb>;
-  subscription: SyncPullSubscriptionResponse;
-  transport: ReturnType<typeof createHttpTransport>;
-}): Promise<void> {
-  await args.db.transaction().execute(async (trx) => {
-    for (const snapshot of args.subscription.snapshots ?? []) {
-      const rows = await materializeSyncularSnapshotJsonRows({
-        snapshot,
-        transport: args.transport,
-        scopeValues: args.subscription.scopes,
-      });
-
-      if (args.subscription.id === 'organizations') {
-        await insertLocalOrganizationRows(
-          trx,
-          rows.map((row) => normalizeOrganizationRow(row))
-        );
-        continue;
-      }
-
-      if (args.subscription.id === 'projects') {
-        await insertLocalProjectRows(
-          trx,
-          rows.map((row) => normalizeProjectRow(row))
-        );
-        continue;
-      }
-
-      if (args.subscription.id === 'tasks') {
-        await insertLocalTaskRows(
-          trx,
-          rows.map((row) => normalizeTaskRow(row))
-        );
-      }
-    }
-
-    for (const commit of args.subscription.commits ?? []) {
-      for (const change of commit.changes ?? []) {
-        const rowId = change.row_id;
-        if (!rowId) continue;
-
-        if (change.op === 'delete') {
-          if (args.subscription.id === 'organizations') {
-            await trx.deleteFrom('organizations').where('id', '=', rowId).execute();
-            continue;
-          }
-          if (args.subscription.id === 'projects') {
-            await trx.deleteFrom('projects').where('id', '=', rowId).execute();
-            continue;
-          }
-          if (args.subscription.id === 'tasks') {
-            await trx.deleteFrom('tasks').where('id', '=', rowId).execute();
-          }
-          continue;
-        }
-
-        const rowJson = change.row_json;
-        if (!isJsonRecord(rowJson)) continue;
-
-        if (args.subscription.id === 'organizations') {
-          await insertLocalOrganizationRows(trx, [normalizeOrganizationRow(rowJson)]);
-          continue;
-        }
-
-        if (args.subscription.id === 'projects') {
-          await insertLocalProjectRows(trx, [normalizeProjectRow(rowJson)]);
-          continue;
-        }
-
-        if (args.subscription.id === 'tasks') {
-          await upsertLocalTaskRow(trx, normalizeTaskRow(rowJson));
-        }
-      }
-    }
-  });
-}
-
-async function runDirectBootstrap(args: {
-  actorId: string;
-  clientId: string;
-  projectId: string;
-  rowsTarget: number;
-}): Promise<{
-  rowsLoaded: number;
-  requestCount: number;
-  requestBytes: number;
-  responseBytes: number;
-  bytesTransferred: number;
-  avgMemoryMb: number;
-  peakMemoryMb: number;
-  avgCpuPct: number;
-  peakCpuPct: number;
-  durationMs: number;
-  pullRequestMs: number;
-  snapshotFetchMs: number;
-  snapshotDecodeMs: number;
-  localApplyMs: number;
-  serverSnapshotQueryMs: number;
-  serverRowFrameEncodeMs: number;
-  serverChunkCacheLookupMs: number;
-  serverChunkGzipMs: number;
-  serverChunkHashMs: number;
-  serverChunkPersistMs: number;
-}> {
-  const dbPath = await createTempDbPath(`syncular-bootstrap-${args.rowsTarget}`);
-  const db = new Kysely<SyncularClientDb>({
-    dialect: createBunSqliteDialect({ path: dbPath }),
-  });
-  await ensureLocalTables(db);
-
-  const meter = createHttpMeter();
-  const transport = createSyncularHttpTransport({
-    actorId: args.actorId,
-    fetchImpl: meter.fetch,
-  });
-  const sampler = new MemorySampler();
-  const cpuSampler = new CpuSampler();
-  sampler.start();
-  cpuSampler.start();
-  const startedAt = performance.now();
-  let cursor = -1;
-  let bootstrapState: SyncBootstrapState | null = null;
-  let iterations = 0;
-  const phaseTotals: BootstrapPhaseTotals = {
-    pullRequestMs: 0,
-    snapshotFetchMs: 0,
-    snapshotDecodeMs: 0,
-    localApplyMs: 0,
-  };
-  const serverTimings: ServerBootstrapTimings = {
-    snapshotQueryMs: 0,
-    rowFrameEncodeMs: 0,
-    chunkCacheLookupMs: 0,
-    chunkGzipMs: 0,
-    chunkHashMs: 0,
-    chunkPersistMs: 0,
-  };
-
-  try {
-    while (iterations < 200) {
-      iterations += 1;
-
-      const pullStartedAt = performance.now();
-      const { response: body, serverTimings: pullTimings } =
-        await requestSyncularPull({
-          actorId: args.actorId,
-          meterFetch: meter.fetch,
-          captureServerTimings: syncularCaptureBootstrapTimings,
-          body: {
-          clientId: args.clientId,
-          pull: {
-            schemaVersion: 1,
-            limitCommits: 100,
-            limitSnapshotRows: SYNCULAR_BENCH_BOOTSTRAP_LIMIT_SNAPSHOT_ROWS,
-            maxSnapshotPages: SYNCULAR_BENCH_BOOTSTRAP_MAX_SNAPSHOT_PAGES,
-          subscriptions: [
-            {
-              id: 'tasks',
-              table: 'tasks',
-              scopes: {
-                project_id: args.projectId,
-              },
-              cursor,
-              bootstrapState,
-            },
-          ],
-        },
-          },
-        });
-      phaseTotals.pullRequestMs += performance.now() - pullStartedAt;
-      if (pullTimings) {
-        serverTimings.snapshotQueryMs += pullTimings.snapshotQueryMs;
-        serverTimings.rowFrameEncodeMs += pullTimings.rowFrameEncodeMs;
-        serverTimings.chunkCacheLookupMs += pullTimings.chunkCacheLookupMs;
-        serverTimings.chunkGzipMs += pullTimings.chunkGzipMs;
-        serverTimings.chunkHashMs += pullTimings.chunkHashMs;
-        serverTimings.chunkPersistMs += pullTimings.chunkPersistMs;
-      }
-      const subscription = body.pull?.subscriptions?.[0];
-      if (!body.ok || !body.pull?.ok || !subscription) {
-        throw new Error('Syncular direct bootstrap returned an invalid pull payload');
-      }
-      if (subscription.status === 'revoked') {
-        throw new Error('Syncular direct bootstrap subscription was revoked');
-      }
-
-      await applySyncularSubscriptionPayload({
-        db,
-        subscription,
-        transport,
-        phaseTotals,
-      });
-
-      cursor =
-        typeof subscription.nextCursor === 'number'
-          ? subscription.nextCursor
-          : cursor;
-      bootstrapState = subscription.bootstrapState ?? null;
-
-      if (bootstrapState === null) {
-        break;
-      }
-    }
-
-    const rowsLoaded = await countLocalTasks(db);
-    if (rowsLoaded !== args.rowsTarget) {
-      throw new Error(
-        `Syncular direct bootstrap expected ${args.rowsTarget} rows, got ${rowsLoaded}`
-      );
-    }
-
-    const meterSnapshot = meter.snapshot();
-    const memoryMetrics = sampler.stop();
-    const cpuMetrics = cpuSampler.stop();
-    return {
-      rowsLoaded,
-      requestCount: meterSnapshot.requestCount,
-      requestBytes: meterSnapshot.requestBytes,
-      responseBytes: meterSnapshot.responseBytes,
-      bytesTransferred: meterSnapshot.requestBytes + meterSnapshot.responseBytes,
-      avgMemoryMb: memoryMetrics.avgMemoryMb,
-      peakMemoryMb: memoryMetrics.peakMemoryMb,
-      avgCpuPct: cpuMetrics.avgCpuPct,
-      peakCpuPct: cpuMetrics.peakCpuPct,
-      durationMs: performance.now() - startedAt,
-      pullRequestMs: round(phaseTotals.pullRequestMs),
-      snapshotFetchMs: round(phaseTotals.snapshotFetchMs),
-      snapshotDecodeMs: round(phaseTotals.snapshotDecodeMs),
-      localApplyMs: round(phaseTotals.localApplyMs),
-      serverSnapshotQueryMs: round(serverTimings.snapshotQueryMs),
-      serverRowFrameEncodeMs: round(serverTimings.rowFrameEncodeMs),
-      serverChunkCacheLookupMs: round(serverTimings.chunkCacheLookupMs),
-      serverChunkGzipMs: round(serverTimings.chunkGzipMs),
-      serverChunkHashMs: round(serverTimings.chunkHashMs),
-      serverChunkPersistMs: round(serverTimings.chunkPersistMs),
-    };
-  } finally {
-    sampler.stop();
-    cpuSampler.stop();
-    await db.destroy();
-    await rm(dbPath.replace(/\/client\.sqlite$/, ''), {
-      recursive: true,
-      force: true,
-    });
-  }
-}
-
-interface SyncularOfflineReplayCaseResult {
+interface OfflineReplayCaseResult {
   queuedWriteCount: number;
   reconnectConvergenceMs: number;
   conflictCount: number;
@@ -1486,15 +434,20 @@ interface SyncularOfflineReplayCaseResult {
   peakMemoryMb: number;
   avgCpuPct: number;
   peakCpuPct: number;
-  queuedTaskIds: string[];
+  syncRounds: number;
 }
 
-async function runSyncularOfflineReplayCase(args: {
+/**
+ * Shared offline-queue flow: bootstrap, queue `queueSize` writes into the
+ * native outbox while NOT syncing (offline), then reconnect (sync) and
+ * measure convergence until every replayed write is applied server-side.
+ */
+async function runOfflineQueueCase(args: {
   queueSize: number;
   titlePrefix: string;
-}): Promise<SyncularOfflineReplayCaseResult> {
-  await ensureStackUp('syncular');
-  await seedSyncularStack({
+}): Promise<OfflineReplayCaseResult> {
+  await ensureStackUp(STACK_ID);
+  await seedStack(STACK_ID, {
     resetFirst: true,
     orgCount: 1,
     projectsPerOrg: 1,
@@ -1503,1314 +456,890 @@ async function runSyncularOfflineReplayCase(args: {
     membershipsPerProject: 2,
   });
 
-  const fixtures = await getFixtures('syncular');
-  const actorId = fixtures.sampleUserIds[0];
-  const projectId = fixtures.sampleProjectId;
-  if (!actorId || !projectId) {
-    throw new Error('Syncular fixtures are missing actor/project data');
-  }
-
-  const candidateTasks = await listTasks('syncular', {
-    projectId,
-    limit: args.queueSize + 10,
-  });
-  if (candidateTasks.length < args.queueSize) {
-    throw new Error(
-      `Need at least ${args.queueSize} tasks for Syncular offline replay`
-    );
-  }
-
-  const dbPath = await createTempDbPath(args.titlePrefix);
-  const clientId = `${args.titlePrefix}-client`;
-  const initialSession = await createSyncularClientSession({
-    actorId,
-    clientId,
-    projectIds: [projectId],
-    realtime: false,
-    dbPath,
-    pollIntervalMs: 60_000,
-  });
-
-  await initialSession.client.start();
-  await initialSession.client.awaitBootstrapComplete({ timeoutMs: 60_000 });
-  const memorySampler = new MemorySampler();
-  const cpuSampler = new CpuSampler();
-  memorySampler.start();
-  cpuSampler.start();
-  let replaySession: SyncularClientSession | null = null;
-  const replayTimeoutMs = Math.max(120_000, args.queueSize * 500);
+  const fixtures = await requireFixtures();
+  const actorId = fixtures.sampleUserIds[0]!;
+  const projectId = fixtures.sampleProjectId!;
+  const bench = await createBenchClient(actorId);
 
   try {
-    stopService('syncular', 'sync');
+    subscribeTasks(bench, [projectId]);
+    await bench.client.syncUntilIdle(500);
 
-    const offlineTargets = candidateTasks.slice(0, args.queueSize);
-    const expectedTitles = new Map<string, string>();
-    for (let index = 0; index < offlineTargets.length; index += 1) {
-      const task = offlineTargets[index]!;
-      const expectedTitle = `${args.titlePrefix}-${index}-${Date.now()}`;
-      expectedTitles.set(task.id, expectedTitle);
-      await initialSession.client.mutations.tasks.update(task.id, {
-        title: expectedTitle,
-      });
-    }
-
-    await Bun.sleep(300);
-    const queuedWriteCount = await countOutbox(initialSession.db);
-    await initialSession.destroy();
-
-    if (queuedWriteCount < offlineTargets.length) {
+    const targets = readLocalTasks(bench, args.queueSize);
+    if (targets.length < args.queueSize) {
       throw new Error(
-        `Expected at least ${offlineTargets.length} queued writes, got ${queuedWriteCount}`
+        `Need ${args.queueSize} local tasks for the Syncular offline queue, got ${targets.length}`
       );
     }
 
-    startService('syncular', 'sync');
-    await ensureStackUp('syncular');
-
-    replaySession = await createSyncularClientSession({
-      actorId,
-      clientId,
-      projectIds: [projectId],
-      realtime: false,
-      dbPath,
-      pollIntervalMs: 60_000,
-    });
-
-    const startedAt = performance.now();
-    await replaySession.client.start();
-    await waitForOutboxClear({
-      client: replaySession.client,
-      db: replaySession.db,
-      timeoutMs: replayTimeoutMs,
-    });
-
-    for (const [taskId, expectedTitle] of expectedTitles) {
-      await waitForLocalTitle({
-        db: replaySession.db,
-        taskId,
-        expectedTitle,
-        timeoutMs: replayTimeoutMs,
-      });
+    // Offline: mutate() queues into the client outbox; no sync happens.
+    const expectedTitles = new Map<string, string>();
+    for (let index = 0; index < targets.length; index += 1) {
+      const target = targets[index]!;
+      const title = `${args.titlePrefix}-${index}-${Date.now()}`;
+      mutateTaskTitle(bench, target, title);
+      expectedTitles.set(target.id, title);
     }
+    const queuedWriteCount = bench.client.pendingCommits().length;
 
-    const replayMeter = replaySession.meterSnapshot();
+    const baseline = bench.transfer();
+    const memorySampler = new MemorySampler();
+    const cpuSampler = new CpuSampler();
+    memorySampler.start();
+    cpuSampler.start();
+
+    // Reconnect: sync rounds push the whole outbox, then verify the
+    // replayed writes are durably visible through the server admin read.
+    const startedAt = performance.now();
+    const appliedIds = new Set<string>();
+    let conflictCount = 0;
+    let syncRounds = 0;
+    while (bench.client.pendingCommits().length > 0 && syncRounds < 50) {
+      const summary: SyncSummary = await bench.client.sync();
+      syncRounds += 1;
+      for (const id of summary.applied) appliedIds.add(id);
+      conflictCount += summary.conflicts.length;
+    }
+    await waitForServerTitles(projectId, expectedTitles, 120_000);
+    const convergenceMs = performance.now() - startedAt;
+
     const memoryMetrics = memorySampler.stop();
     const cpuMetrics = cpuSampler.stop();
-    const conflicts = await replaySession.client.getConflicts();
-    const convergenceMs = performance.now() - startedAt;
-    const succeeded = expectedTitles.size;
+    const after = bench.transfer();
+    const requestBytes = after.requestBytes - baseline.requestBytes;
+    const responseBytes = after.responseBytes - baseline.responseBytes;
 
     return {
       queuedWriteCount,
       reconnectConvergenceMs: round(convergenceMs),
-      conflictCount: conflicts.length,
-      replayedWriteSuccessRate: round(succeeded / queuedWriteCount, 4),
-      requestCount: replayMeter.requestCount,
-      requestBytes: replayMeter.requestBytes,
-      responseBytes: replayMeter.responseBytes,
-      bytesTransferred: replayMeter.requestBytes + replayMeter.responseBytes,
+      conflictCount,
+      replayedWriteSuccessRate:
+        queuedWriteCount === 0
+          ? 0
+          : round(appliedIds.size / queuedWriteCount, 4),
+      requestCount: after.requestCount - baseline.requestCount,
+      requestBytes,
+      responseBytes,
+      bytesTransferred: requestBytes + responseBytes,
       avgMemoryMb: memoryMetrics.avgMemoryMb,
       peakMemoryMb: memoryMetrics.peakMemoryMb,
       avgCpuPct: cpuMetrics.avgCpuPct,
       peakCpuPct: cpuMetrics.peakCpuPct,
-      queuedTaskIds: Array.from(expectedTitles.keys()),
+      syncRounds,
     };
   } finally {
-    if (replaySession) {
-      await replaySession.destroy();
-    }
-    memorySampler.stop();
-    cpuSampler.stop();
-    await rm(dbPath.replace(/\/client\.sqlite$/, ''), {
-      recursive: true,
-      force: true,
-    });
+    await closeAll([bench]);
   }
-}
-
-interface SyncularReconnectStormCaseResult {
-  clientCount: number;
-  reconnectConvergenceMs: number;
-  requestCount: number;
-  requestBytes: number;
-  responseBytes: number;
-  bytesTransferred: number;
-  syncAvgCpuPct: number;
-  syncPeakCpuPct: number;
-  syncAvgMemoryMb: number;
-  syncPeakMemoryMb: number;
-  syncRxNetworkMb: number;
-  syncTxNetworkMb: number;
-  postgresAvgCpuPct: number;
-  postgresPeakCpuPct: number;
-  postgresAvgMemoryMb: number;
-  postgresPeakMemoryMb: number;
-  postgresRxNetworkMb: number;
-  postgresTxNetworkMb: number;
-}
-
-async function runSyncularReconnectStormCase(args: {
-  clientCount: number;
-}): Promise<SyncularReconnectStormCaseResult> {
-  await ensureStackUp('syncular');
-  await seedSyncularStack({
-    resetFirst: true,
-    orgCount: 1,
-    projectsPerOrg: 1,
-    usersPerOrg: 2,
-    tasksPerProject: 200,
-    membershipsPerProject: 2,
-  });
-
-  const fixtures = await getFixtures('syncular');
-  const actorId = fixtures.sampleUserIds[0];
-  const projectId = fixtures.sampleProjectId;
-  const taskId = fixtures.sampleTaskId;
-  if (!actorId || !projectId || !taskId) {
-    throw new Error('Syncular fixtures are missing actor/project/task data');
-  }
-
-  const sessions = await Promise.all(
-    Array.from({ length: args.clientCount }, (_, index) =>
-      createSyncularClientSession({
-        actorId,
-        clientId: `syncular-storm-${index}`,
-        projectIds: [projectId],
-        realtime: false,
-        pollIntervalMs: 60_000,
-      })
-    )
-  );
-
-  try {
-    await Promise.all(sessions.map((session) => session.client.start()));
-    await Promise.all(
-      sessions.map((session) =>
-        session.client.awaitBootstrapComplete({ timeoutMs: 60_000 })
-      )
-    );
-    const meterBaselines = sessions.map((session) => session.meterSnapshot());
-
-    const syncContainerId = resolveServiceContainerId('syncular', 'sync');
-    const postgresContainerId = resolveServiceContainerId('syncular', 'postgres');
-
-    stopService('syncular', 'sync');
-    await waitForUrlDown(
-      `${getStack('syncular').syncBaseUrl.replace(/\/api$/, '')}/health`
-    );
-    startService('syncular', 'sync');
-    await ensureStackUp('syncular');
-    await waitForSyncularApiReady({ actorId, projectId });
-
-    const sampler = new DockerServiceSampler([
-      { label: 'sync', id: syncContainerId },
-      { label: 'postgres', id: postgresContainerId },
-    ]);
-    sampler.start();
-    const startedAt = performance.now();
-    const expectedTitle = `syncular-storm-${Date.now()}`;
-    await writeSyncularExternalTask({
-      taskId,
-      title: expectedTitle,
-    });
-    await Promise.all(sessions.map((session) => session.client.sync()));
-
-    await Promise.all(
-      sessions.map((session) =>
-        waitForLocalTitle({
-          client: session.client,
-          db: session.db,
-          taskId,
-          expectedTitle,
-          timeoutMs: 60_000,
-        })
-      )
-    );
-
-    const convergenceMs = performance.now() - startedAt;
-    const containerMetrics = sampler.stop();
-    const totalMeter = sessions.reduce(
-      (totals, session, index) => {
-        const snapshot = diffMeterTotals(
-          session.meterSnapshot(),
-          meterBaselines[index] ?? {
-            requestCount: 0,
-            requestBytes: 0,
-            responseBytes: 0,
-          }
-        );
-        return {
-          requestCount: totals.requestCount + snapshot.requestCount,
-          requestBytes: totals.requestBytes + snapshot.requestBytes,
-          responseBytes: totals.responseBytes + snapshot.responseBytes,
-        };
-      },
-      {
-        requestCount: 0,
-        requestBytes: 0,
-        responseBytes: 0,
-      }
-    );
-    const syncMetrics = containerMetrics.sync;
-    const postgresMetrics = containerMetrics.postgres;
-
-    return {
-      clientCount: args.clientCount,
-      reconnectConvergenceMs: round(convergenceMs),
-      requestCount: totalMeter.requestCount,
-      requestBytes: totalMeter.requestBytes,
-      responseBytes: totalMeter.responseBytes,
-      bytesTransferred: totalMeter.requestBytes + totalMeter.responseBytes,
-      syncAvgCpuPct: syncMetrics?.avgCpuPct ?? 0,
-      syncPeakCpuPct: syncMetrics?.peakCpuPct ?? 0,
-      syncAvgMemoryMb: syncMetrics?.avgMemoryMb ?? 0,
-      syncPeakMemoryMb: syncMetrics?.peakMemoryMb ?? 0,
-      syncRxNetworkMb: syncMetrics?.rxNetworkMb ?? 0,
-      syncTxNetworkMb: syncMetrics?.txNetworkMb ?? 0,
-      postgresAvgCpuPct: postgresMetrics?.avgCpuPct ?? 0,
-      postgresPeakCpuPct: postgresMetrics?.peakCpuPct ?? 0,
-      postgresAvgMemoryMb: postgresMetrics?.avgMemoryMb ?? 0,
-      postgresPeakMemoryMb: postgresMetrics?.peakMemoryMb ?? 0,
-      postgresRxNetworkMb: postgresMetrics?.rxNetworkMb ?? 0,
-      postgresTxNetworkMb: postgresMetrics?.txNetworkMb ?? 0,
-    };
-  } finally {
-    await Promise.all(sessions.map((session) => session.destroy()));
-    await Promise.all(
-      sessions.map((session) =>
-        rm(session.dbPath.replace(/\/client\.sqlite$/, ''), {
-          recursive: true,
-          force: true,
-        })
-      )
-    );
-  }
-}
-
-interface LocalQuerySample {
-  elapsedMs: number;
-  resultCount: number;
-}
-
-async function runSyncularLocalListQuery(args: {
-  db: Kysely<SyncularClientDb>;
-  projectId: string;
-  ownerId: string;
-}): Promise<LocalQuerySample> {
-  const startedAt = performance.now();
-  const rows = await args.db
-    .selectFrom('tasks')
-    .select(['id', 'title', 'updated_at'])
-    .where('project_id', '=', args.projectId)
-    .where('owner_id', '=', args.ownerId)
-    .where('completed', '=', false)
-    .orderBy('updated_at', 'desc')
-    .limit(50)
-    .execute();
-
-  return {
-    elapsedMs: round(performance.now() - startedAt),
-    resultCount: rows.length,
-  };
-}
-
-async function runSyncularLocalSearchQuery(args: {
-  db: Kysely<SyncularClientDb>;
-  projectId: string;
-}): Promise<LocalQuerySample> {
-  const startedAt = performance.now();
-  const rows = await args.db
-    .selectFrom('tasks')
-    .select(['id', 'title'])
-    .where('project_id', '=', args.projectId)
-    .where('id', 'like', 'org-1-project-1-task-00%')
-    .orderBy('id', 'asc')
-    .limit(100)
-    .execute();
-
-  return {
-    elapsedMs: round(performance.now() - startedAt),
-    resultCount: rows.length,
-  };
-}
-
-async function runSyncularLocalAggregateQuery(args: {
-  db: Kysely<SyncularClientDb>;
-  projectId: string;
-}): Promise<LocalQuerySample> {
-  const startedAt = performance.now();
-  const rows = await args.db
-    .selectFrom('tasks')
-    .select(['owner_id', 'completed'])
-    .select((expressionBuilder) =>
-      expressionBuilder.fn.countAll<number>().as('task_count')
-    )
-    .where('project_id', '=', args.projectId)
-    .groupBy(['owner_id', 'completed'])
-    .execute();
-
-  return {
-    elapsedMs: round(performance.now() - startedAt),
-    resultCount: rows.length,
-  };
-}
-
-async function runSyncularDashboardQuery(args: {
-  db: Kysely<SyncularClientDb>;
-  orgId: string;
-}): Promise<LocalQuerySample> {
-  const startedAt = performance.now();
-  const rows = await sql<{
-    org_name: string;
-    project_id: string;
-    project_name: string;
-    task_count: number;
-    open_task_count: number;
-  }[]>`
-    select
-      organizations.name as org_name,
-      projects.id as project_id,
-      projects.name as project_name,
-      count(tasks.id) as task_count,
-      sum(case when tasks.completed = 0 then 1 else 0 end) as open_task_count
-    from organizations
-    join projects on projects.org_id = organizations.id
-    left join tasks on tasks.project_id = projects.id
-    where organizations.id = ${args.orgId}
-    group by organizations.name, projects.id, projects.name
-    order by open_task_count desc, projects.id asc
-    limit 20
-  `.execute(args.db);
-
-  return {
-    elapsedMs: round(performance.now() - startedAt),
-    resultCount: rows.rows.length,
-  };
-}
-
-async function runSyncularDetailJoinQuery(args: {
-  db: Kysely<SyncularClientDb>;
-  projectId: string;
-}): Promise<LocalQuerySample> {
-  const startedAt = performance.now();
-  const rows = await sql<{
-    id: string;
-    title: string;
-    project_name: string;
-    org_name: string;
-  }[]>`
-    select
-      tasks.id,
-      tasks.title,
-      projects.name as project_name,
-      organizations.name as org_name
-    from tasks
-    join projects on projects.id = tasks.project_id
-    join organizations on organizations.id = projects.org_id
-    where projects.id = ${args.projectId}
-      and tasks.id like ${'org-1-project-1-task-00%'}
-    order by tasks.id asc
-    limit 100
-  `.execute(args.db);
-
-  return {
-    elapsedMs: round(performance.now() - startedAt),
-    resultCount: rows.rows.length,
-  };
 }
 
 export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
-  readonly stack = getStack('syncular');
+  readonly stack = getStack(STACK_ID);
 
-  async runBootstrap(): Promise<{
-    status: BenchmarkStatus;
-    metrics: Record<string, number | null>;
-    notes: string[];
-    metadata: { [key: string]: JsonValue };
-  }> {
-    await ensureStackUp('syncular');
-    const scales = [1000, 10_000, 100_000, 250_000, 500_000];
-    const scaleResults: BootstrapScaleResult[] = [];
+  async runBootstrap(): Promise<ScenarioOutcome> {
+    const implementation = `${IMPLEMENTATION_PREFIX}-native-bootstrap`;
+    try {
+      await ensureStackUp(STACK_ID);
 
-    for (const rowsTarget of scales) {
-      await seedSyncularStack({
+      const scales = [1_000, 10_000, 100_000];
+      const scaleResults: BootstrapScaleResult[] = [];
+
+      for (const rowsTarget of scales) {
+        await seedStack(STACK_ID, {
+          resetFirst: true,
+          orgCount: 1,
+          projectsPerOrg: 1,
+          usersPerOrg: 2,
+          tasksPerProject: rowsTarget,
+          membershipsPerProject: 2,
+        });
+
+        const fixtures = await requireFixtures();
+        const actorId = fixtures.sampleUserIds[0]!;
+        const projectId = fixtures.sampleProjectId!;
+
+        // Cold-server definition: restart the sync service so in-memory
+        // segment/sqlite-image caches from earlier scales (or runs) never
+        // serve this measurement. Identical in the syncular-rust adapter.
+        await restartServiceCold(
+          STACK_ID,
+          'sync',
+          `${this.stack.syncBaseUrl.replace(/\/api$/, '')}/health`
+        );
+
+        const memorySampler = new MemorySampler();
+        const cpuSampler = new CpuSampler();
+        memorySampler.start();
+        cpuSampler.start();
+
+        const startedAt = performance.now();
+        const bench = await createBenchClient(actorId);
+        let rowsLoaded = 0;
+        try {
+          subscribeTasks(bench, [projectId]);
+          await bench.client.syncUntilIdle(1_000);
+          rowsLoaded = localTaskCount(bench);
+          const elapsedMs = performance.now() - startedAt;
+          const memoryMetrics = memorySampler.stop();
+          const cpuMetrics = cpuSampler.stop();
+          const transfer = bench.transfer();
+
+          if (rowsLoaded !== rowsTarget) {
+            throw new Error(
+              `Syncular bootstrap expected ${rowsTarget} rows, got ${rowsLoaded}`
+            );
+          }
+
+          scaleResults.push({
+            rowsTarget,
+            timeToFirstQueryMs: round(elapsedMs),
+            rowsLoaded,
+            requestCount: transfer.requestCount,
+            requestBytes: transfer.requestBytes,
+            responseBytes: transfer.responseBytes,
+            bytesTransferred: totalBytes(transfer),
+            avgMemoryMb: memoryMetrics.avgMemoryMb,
+            peakMemoryMb: memoryMetrics.peakMemoryMb,
+            avgCpuPct: cpuMetrics.avgCpuPct,
+            peakCpuPct: cpuMetrics.peakCpuPct,
+          });
+        } finally {
+          await closeAll([bench]);
+        }
+      }
+
+      return {
+        status: 'completed',
+        metrics: Object.fromEntries(
+          scaleResults.flatMap((result) => [
+            [`bootstrap_${result.rowsTarget}_ms`, result.timeToFirstQueryMs],
+            [`rows_loaded_${result.rowsTarget}`, result.rowsLoaded],
+            [`request_count_${result.rowsTarget}`, result.requestCount],
+            [`request_bytes_${result.rowsTarget}`, result.requestBytes],
+            [`response_bytes_${result.rowsTarget}`, result.responseBytes],
+            [`bytes_transferred_${result.rowsTarget}`, result.bytesTransferred],
+            [`avg_memory_mb_${result.rowsTarget}`, result.avgMemoryMb],
+            [`peak_memory_mb_${result.rowsTarget}`, result.peakMemoryMb],
+            [`avg_cpu_pct_${result.rowsTarget}`, result.avgCpuPct],
+            [`peak_cpu_pct_${result.rowsTarget}`, result.peakCpuPct],
+          ])
+        ),
+        notes: [
+          'Bootstrap runs the real SyncClient against the v2 sync endpoint into a fresh bun:sqlite database, timed until a local SQL count over the synced tasks table answers.',
+          'The server materializes snapshots from relational Postgres storage; segment/sqlite-image delivery is negotiated by the product client.',
+        ],
+        metadata: {
+          implementation,
+          engine: 'syncular-v2',
+          scales: scaleResults.map((result) => ({
+            rowsTarget: result.rowsTarget,
+            timeToFirstQueryMs: result.timeToFirstQueryMs,
+            rowsLoaded: result.rowsLoaded,
+            requestCount: result.requestCount,
+            requestBytes: result.requestBytes,
+            responseBytes: result.responseBytes,
+            bytesTransferred: result.bytesTransferred,
+            avgMemoryMb: result.avgMemoryMb,
+            peakMemoryMb: result.peakMemoryMb,
+            avgCpuPct: result.avgCpuPct,
+            peakCpuPct: result.peakCpuPct,
+          })),
+        },
+      };
+    } catch (error) {
+      return failedOutcome(error, implementation);
+    }
+  }
+
+  async runOnlinePropagation(): Promise<ScenarioOutcome> {
+    const implementation = `${IMPLEMENTATION_PREFIX}-client-write-realtime-mirror`;
+    const clients: BenchClient[] = [];
+    try {
+      await ensureStackUp(STACK_ID);
+      await seedStack(STACK_ID, {
         resetFirst: true,
         orgCount: 1,
         projectsPerOrg: 1,
         usersPerOrg: 2,
-        tasksPerProject: rowsTarget,
+        tasksPerProject: 200,
         membershipsPerProject: 2,
       });
 
-      const fixtures = await getFixtures('syncular');
-      const actorId = fixtures.sampleUserIds[0];
-      const projectId = fixtures.sampleProjectId;
-      if (!actorId || !projectId) {
-        throw new Error('Syncular fixtures are missing actor/project data');
-      }
+      const fixtures = await requireFixtures();
+      const actorId = fixtures.sampleUserIds[0]!;
+      const projectId = fixtures.sampleProjectId!;
+      const taskId = fixtures.sampleTaskId!;
 
-      const result = await runDirectBootstrap({
-        actorId,
-        clientId: `syncular-bootstrap-${rowsTarget}`,
-        projectId,
-        rowsTarget,
-      });
+      const writer = await createBenchClient(actorId);
+      const mirror = await createBenchClient(actorId);
+      clients.push(writer, mirror);
 
-      scaleResults.push({
-        rowsTarget,
-        timeToFirstQueryMs: round(result.durationMs),
-        rowsLoaded: result.rowsLoaded,
-        requestCount: result.requestCount,
-        requestBytes: result.requestBytes,
-        responseBytes: result.responseBytes,
-        bytesTransferred: result.bytesTransferred,
-        avgMemoryMb: result.avgMemoryMb,
-        peakMemoryMb: result.peakMemoryMb,
-        avgCpuPct: result.avgCpuPct,
-        peakCpuPct: result.peakCpuPct,
-        pullRequestMs: result.pullRequestMs,
-        snapshotFetchMs: result.snapshotFetchMs,
-        snapshotDecodeMs: result.snapshotDecodeMs,
-        localApplyMs: result.localApplyMs,
-        serverSnapshotQueryMs: result.serverSnapshotQueryMs,
-        serverRowFrameEncodeMs: result.serverRowFrameEncodeMs,
-        serverChunkCacheLookupMs: result.serverChunkCacheLookupMs,
-        serverChunkGzipMs: result.serverChunkGzipMs,
-        serverChunkHashMs: result.serverChunkHashMs,
-        serverChunkPersistMs: result.serverChunkPersistMs,
-      });
-    }
+      subscribeTasks(writer, [projectId]);
+      subscribeTasks(mirror, [projectId]);
+      await writer.client.syncUntilIdle(500);
+      await mirror.client.syncUntilIdle(500);
+      // Register the mirror's subscriptions on the realtime session: with
+      // the socket connected, the next sync round runs over it (§8.7).
+      // connectRealtimeReady waits for the server hello so the round is
+      // not dropped by the bench server's async session attach.
+      await mirror.connectRealtimeReady();
+      await mirror.client.sync();
 
-    return {
-      status: 'completed',
-      metrics: Object.fromEntries(
-        scaleResults.flatMap((result) => [
-          [`bootstrap_${result.rowsTarget}_ms`, result.timeToFirstQueryMs],
-          [`rows_loaded_${result.rowsTarget}`, result.rowsLoaded],
-          [`request_count_${result.rowsTarget}`, result.requestCount],
-          [`request_bytes_${result.rowsTarget}`, result.requestBytes],
-          [`response_bytes_${result.rowsTarget}`, result.responseBytes],
-          [`bytes_transferred_${result.rowsTarget}`, result.bytesTransferred],
-          [`avg_memory_mb_${result.rowsTarget}`, result.avgMemoryMb],
-          [`peak_memory_mb_${result.rowsTarget}`, result.peakMemoryMb],
-          [`avg_cpu_pct_${result.rowsTarget}`, result.avgCpuPct],
-          [`peak_cpu_pct_${result.rowsTarget}`, result.peakCpuPct],
-          [`pull_request_ms_${result.rowsTarget}`, result.pullRequestMs ?? null],
-          [
-            `snapshot_fetch_ms_${result.rowsTarget}`,
-            result.snapshotFetchMs ?? null,
-          ],
-          [
-            `snapshot_decode_ms_${result.rowsTarget}`,
-            result.snapshotDecodeMs ?? null,
-          ],
-          [`local_apply_ms_${result.rowsTarget}`, result.localApplyMs ?? null],
-          [
-            `server_snapshot_query_ms_${result.rowsTarget}`,
-            result.serverSnapshotQueryMs ?? null,
-          ],
-          [
-            `server_row_frame_encode_ms_${result.rowsTarget}`,
-            result.serverRowFrameEncodeMs ?? null,
-          ],
-          [
-            `server_chunk_cache_lookup_ms_${result.rowsTarget}`,
-            result.serverChunkCacheLookupMs ?? null,
-          ],
-          [
-            `server_chunk_gzip_ms_${result.rowsTarget}`,
-            result.serverChunkGzipMs ?? null,
-          ],
-          [
-            `server_chunk_hash_ms_${result.rowsTarget}`,
-            result.serverChunkHashMs ?? null,
-          ],
-          [
-            `server_chunk_persist_ms_${result.rowsTarget}`,
-            result.serverChunkPersistMs ?? null,
-          ],
-        ])
-      ),
-      notes: [
-        'Syncular bootstrap uses the low-level /api/sync pull protocol with a local Bun SQLite target.',
-        `The harness requests larger snapshot pages (${SYNCULAR_BENCH_BOOTSTRAP_LIMIT_SNAPSHOT_ROWS} rows/page) directly so the benchmark measures full bootstrap completion instead of background client timer cadence.`,
-      ],
-      metadata: {
-        implementation: 'direct-sync-protocol-bootstrap',
-        scales: scaleResults.map((result) => ({
-          rowsTarget: result.rowsTarget,
-          timeToFirstQueryMs: result.timeToFirstQueryMs,
-          rowsLoaded: result.rowsLoaded,
-          requestCount: result.requestCount,
-          requestBytes: result.requestBytes,
-          responseBytes: result.responseBytes,
-          bytesTransferred: result.bytesTransferred,
-          avgMemoryMb: result.avgMemoryMb,
-          peakMemoryMb: result.peakMemoryMb,
-          avgCpuPct: result.avgCpuPct,
-          peakCpuPct: result.peakCpuPct,
-          pullRequestMs: result.pullRequestMs ?? null,
-          snapshotFetchMs: result.snapshotFetchMs ?? null,
-          snapshotDecodeMs: result.snapshotDecodeMs ?? null,
-          localApplyMs: result.localApplyMs ?? null,
-          serverSnapshotQueryMs: result.serverSnapshotQueryMs ?? null,
-          serverRowFrameEncodeMs: result.serverRowFrameEncodeMs ?? null,
-          serverChunkCacheLookupMs: result.serverChunkCacheLookupMs ?? null,
-          serverChunkGzipMs: result.serverChunkGzipMs ?? null,
-          serverChunkHashMs: result.serverChunkHashMs ?? null,
-          serverChunkPersistMs: result.serverChunkPersistMs ?? null,
-        })),
-      },
-    };
-  }
-
-  async runOnlinePropagation(): Promise<{
-    status: BenchmarkStatus;
-    metrics: Record<string, number | null>;
-    notes: string[];
-    metadata: { [key: string]: JsonValue };
-  }> {
-    await ensureStackUp('syncular');
-    await seedSyncularStack({
-      resetFirst: true,
-      orgCount: 1,
-      projectsPerOrg: 1,
-      usersPerOrg: 2,
-      tasksPerProject: 200,
-      membershipsPerProject: 2,
-    });
-
-    const fixtures = await getFixtures('syncular');
-    const writerActorId = fixtures.sampleUserIds[0];
-    const readerActorId = fixtures.sampleUserIds[0];
-    const projectId = fixtures.sampleProjectId;
-    const taskId = fixtures.sampleTaskId;
-    if (!writerActorId || !readerActorId || !projectId || !taskId) {
-      throw new Error('Syncular fixtures are missing actor, project, or task data');
-    }
-
-    const writer = await createSyncularClientSession({
-      actorId: writerActorId,
-      clientId: 'syncular-writer',
-      projectIds: [projectId],
-      realtime: true,
-      pollIntervalMs: 60_000,
-    });
-    const reader = await createSyncularClientSession({
-      actorId: readerActorId,
-      clientId: 'syncular-reader',
-      projectIds: [projectId],
-      realtime: true,
-      pollIntervalMs: 60_000,
-    });
-
-    await writer.client.start();
-    await reader.client.start();
-    await writer.client.awaitBootstrapComplete({ timeoutMs: 60_000 });
-    await reader.client.awaitBootstrapComplete({ timeoutMs: 60_000 });
-
-    const warmupIterations = 1;
-    for (let warmupIteration = 0; warmupIteration < warmupIterations; warmupIteration += 1) {
-      const expectedTitle = `syncular-online-warmup-${warmupIteration}-${Date.now()}`;
-      const pushResultPromise = waitForNextPushResult(writer.client);
-      const receipt: MutationReceipt = await writer.client.mutations.tasks.update(
-        taskId,
-        { title: expectedTitle }
-      );
-      const pushResult = await pushResultPromise;
-      if (pushResult.clientCommitId !== receipt.clientCommitId) {
-        throw new Error(
-          'Syncular warmup push:result did not match the mutation receipt'
-        );
-      }
-      if (pushResult.status !== 'applied' && pushResult.status !== 'cached') {
-        throw new Error(`Syncular warmup push failed with status ${pushResult.status}`);
-      }
-
-      await waitForLocalTitle({
-        db: reader.db,
-        taskId,
-        expectedTitle,
-        timeoutMs: 30_000,
-      });
-    }
-
-    const writerMeterStart = writer.meterSnapshot();
-    const readerMeterStart = reader.meterSnapshot();
-    const iterations = 15;
-    const samples: OnlinePropagationSample[] = [];
-    const memorySampler = new MemorySampler();
-    const cpuSampler = new CpuSampler();
-    memorySampler.start();
-    cpuSampler.start();
-
-    for (let iteration = 0; iteration < iterations; iteration += 1) {
-      const expectedTitle = `syncular-online-${iteration}-${Date.now()}`;
-      const pushResultPromise = waitForNextPushResult(writer.client);
-      const startedAt = performance.now();
-      const receipt: MutationReceipt = await writer.client.mutations.tasks.update(
-        taskId,
-        { title: expectedTitle }
-      );
-      const pushResult = await pushResultPromise;
-      if (pushResult.clientCommitId !== receipt.clientCommitId) {
-        throw new Error('Syncular push:result did not match the mutation receipt');
-      }
-      if (pushResult.status !== 'applied' && pushResult.status !== 'cached') {
-        throw new Error(`Syncular push failed with status ${pushResult.status}`);
-      }
-      const writeAckMs = performance.now() - startedAt;
-
-      await waitForLocalTitle({
-        db: reader.db,
-        taskId,
-        expectedTitle,
-        timeoutMs: 30_000,
-      });
-
-      samples.push({
-        iteration,
-        writeAckMs: round(writeAckMs),
-        mirrorVisibleMs: round(performance.now() - startedAt),
-      });
-    }
-
-    const writerMeter = diffMeterTotals(writer.meterSnapshot(), writerMeterStart);
-    const readerMeter = diffMeterTotals(reader.meterSnapshot(), readerMeterStart);
-    const requestCount = writerMeter.requestCount + readerMeter.requestCount;
-    const requestBytes = writerMeter.requestBytes + readerMeter.requestBytes;
-    const responseBytes = writerMeter.responseBytes + readerMeter.responseBytes;
-    const meterTotals = requestBytes + responseBytes;
-    const memoryMetrics = memorySampler.stop();
-    const cpuMetrics = cpuSampler.stop();
-    const visibility = samples.map((sample) => sample.mirrorVisibleMs);
-    const writeAcks = samples.map((sample) => sample.writeAckMs);
-
-    await writer.destroy();
-    await reader.destroy();
-    await rm(writer.dbPath.replace(/\/client\.sqlite$/, ''), {
-      recursive: true,
-      force: true,
-    });
-    await rm(reader.dbPath.replace(/\/client\.sqlite$/, ''), {
-      recursive: true,
-      force: true,
-    });
-
-    return {
-      status: 'completed',
-      metrics: {
-        write_ack_ms: average(writeAcks),
-        mirror_visible_p50_ms: percentile(visibility, 50),
-        mirror_visible_p95_ms: percentile(visibility, 95),
-        mirror_visible_p99_ms: percentile(visibility, 99),
-        iterations,
-        request_count: requestCount,
-        request_bytes: requestBytes,
-        response_bytes: responseBytes,
-        bytes_transferred: meterTotals,
-        avg_memory_mb: memoryMetrics.avgMemoryMb,
-        peak_memory_mb: memoryMetrics.peakMemoryMb,
-        avg_cpu_pct: cpuMetrics.avgCpuPct,
-        peak_cpu_pct: cpuMetrics.peakCpuPct,
-      },
-      notes: [
-        'Writes use the real Syncular client mutations API with realtime transport enabled.',
-        'Visibility is measured on a second real Syncular client via realtime wake-up and inline WS delivery, with HTTP catch-up left to the engine fallback path.',
-        `One unmeasured warmup write runs after bootstrap so the reported samples reflect steady-state propagation rather than first-write startup effects.`,
-      ],
-      metadata: {
-        implementation: 'local-syncular-client-with-bun-sqlite-realtime',
-        warmupIterations,
-        samples: samples.map((sample) => ({
-          iteration: sample.iteration,
-          writeAckMs: sample.writeAckMs,
-          mirrorVisibleMs: sample.mirrorVisibleMs,
-        })),
-      },
-    };
-  }
-
-  async runOfflineReplay(): Promise<{
-    status: BenchmarkStatus;
-    metrics: Record<string, number | null>;
-    notes: string[];
-    metadata: { [key: string]: JsonValue };
-  }> {
-    const result = await runSyncularOfflineReplayCase({
-      queueSize: 10,
-      titlePrefix: 'syncular-offline',
-    });
-
-    return {
-      status: 'completed',
-      metrics: {
-        queued_write_count: result.queuedWriteCount,
-        reconnect_convergence_ms: result.reconnectConvergenceMs,
-        conflict_count: result.conflictCount,
-        replayed_write_success_rate: result.replayedWriteSuccessRate,
-        request_count: result.requestCount,
-        request_bytes: result.requestBytes,
-        response_bytes: result.responseBytes,
-        bytes_transferred: result.bytesTransferred,
-        avg_memory_mb: result.avgMemoryMb,
-        peak_memory_mb: result.peakMemoryMb,
-        avg_cpu_pct: result.avgCpuPct,
-        peak_cpu_pct: result.peakCpuPct,
-      },
-      notes: [
-        'Offline replay uses the real Syncular durable outbox persisted in a Bun SQLite database.',
-        'The benchmark stops the Syncular service, queues local writes, recreates the client on the same file, then measures convergence after the service returns.',
-      ],
-      metadata: {
-        implementation: 'local-syncular-client-native-outbox',
-        queuedTaskIds: result.queuedTaskIds,
-      },
-    };
-  }
-
-  async runReconnectStorm(): Promise<{
-    status: BenchmarkStatus;
-    metrics: Record<string, number | null>;
-    notes: string[];
-    metadata: { [key: string]: JsonValue };
-  }> {
-    const clientCounts = [25, 100, 250, 500];
-    const results = [];
-
-    for (const clientCount of clientCounts) {
-      results.push(
-        await runSyncularReconnectStormCase({
-          clientCount,
-        })
-      );
-    }
-
-    const baseline = results[0];
-    if (!baseline) {
-      throw new Error('Syncular reconnect storm produced no results');
-    }
-
-    return {
-      status: 'completed',
-      metrics: Object.fromEntries(
-        results.flatMap((result) => [
-          [`clients_${result.clientCount}_convergence_ms`, result.reconnectConvergenceMs],
-          [`clients_${result.clientCount}_request_count`, result.requestCount],
-          [`clients_${result.clientCount}_request_bytes`, result.requestBytes],
-          [`clients_${result.clientCount}_response_bytes`, result.responseBytes],
-          [`clients_${result.clientCount}_bytes_transferred`, result.bytesTransferred],
-          [`clients_${result.clientCount}_sync_avg_cpu_pct`, result.syncAvgCpuPct],
-          [`clients_${result.clientCount}_sync_peak_cpu_pct`, result.syncPeakCpuPct],
-          [`clients_${result.clientCount}_sync_avg_memory_mb`, result.syncAvgMemoryMb],
-          [`clients_${result.clientCount}_sync_peak_memory_mb`, result.syncPeakMemoryMb],
-          [`clients_${result.clientCount}_sync_rx_network_mb`, result.syncRxNetworkMb],
-          [`clients_${result.clientCount}_sync_tx_network_mb`, result.syncTxNetworkMb],
-          [`clients_${result.clientCount}_postgres_avg_cpu_pct`, result.postgresAvgCpuPct],
-          [`clients_${result.clientCount}_postgres_peak_cpu_pct`, result.postgresPeakCpuPct],
-          [`clients_${result.clientCount}_postgres_avg_memory_mb`, result.postgresAvgMemoryMb],
-          [`clients_${result.clientCount}_postgres_peak_memory_mb`, result.postgresPeakMemoryMb],
-          [`clients_${result.clientCount}_postgres_rx_network_mb`, result.postgresRxNetworkMb],
-          [`clients_${result.clientCount}_postgres_tx_network_mb`, result.postgresTxNetworkMb],
-        ])
-      ),
-      notes: [
-        'Reconnect storm uses already-bootstrapped Syncular HTTP clients at 25 / 100 / 250 / 500 clients catching up after the sync service restarts.',
-        'Server resource metrics sample the sync service and Postgres containers during each reconnect window.',
-      ],
-      metadata: {
-        implementation: 'syncular-http-reconnect-storm-v2',
-        clientCounts,
-        scales: results.map((result) => ({
-          clientCount: result.clientCount,
-          reconnectConvergenceMs: result.reconnectConvergenceMs,
-          requestCount: result.requestCount,
-          requestBytes: result.requestBytes,
-          responseBytes: result.responseBytes,
-          bytesTransferred: result.bytesTransferred,
-          syncAvgCpuPct: result.syncAvgCpuPct,
-          syncPeakCpuPct: result.syncPeakCpuPct,
-          syncAvgMemoryMb: result.syncAvgMemoryMb,
-          syncPeakMemoryMb: result.syncPeakMemoryMb,
-          postgresAvgCpuPct: result.postgresAvgCpuPct,
-          postgresPeakCpuPct: result.postgresPeakCpuPct,
-          postgresAvgMemoryMb: result.postgresAvgMemoryMb,
-          postgresPeakMemoryMb: result.postgresPeakMemoryMb,
-        })),
-        clientCount: baseline.clientCount,
-      },
-    };
-  }
-
-  async runLargeOfflineQueue(): Promise<{
-    status: BenchmarkStatus;
-    metrics: Record<string, number | null>;
-    notes: string[];
-    metadata: { [key: string]: JsonValue };
-  }> {
-    const queueSizes = [100, 500, 1000];
-    const queueResults = [];
-
-    for (const queueSize of queueSizes) {
-      queueResults.push(
-        await runSyncularOfflineReplayCase({
-          queueSize,
-          titlePrefix: `syncular-large-offline-${queueSize}`,
-        })
-      );
-    }
-
-    return {
-      status: 'completed',
-      metrics: Object.fromEntries(
-        queueResults.flatMap((result, index) => {
-          const queueSize = queueSizes[index]!;
-          return [
-            [`queue_${queueSize}_queued_writes`, result.queuedWriteCount],
-            [`queue_${queueSize}_convergence_ms`, result.reconnectConvergenceMs],
-            [`queue_${queueSize}_request_count`, result.requestCount],
-            [`queue_${queueSize}_bytes_transferred`, result.bytesTransferred],
-            [`queue_${queueSize}_avg_memory_mb`, result.avgMemoryMb],
-            [`queue_${queueSize}_peak_memory_mb`, result.peakMemoryMb],
-            [`queue_${queueSize}_avg_cpu_pct`, result.avgCpuPct],
-            [`queue_${queueSize}_peak_cpu_pct`, result.peakCpuPct],
-          ];
-        })
-      ),
-      notes: [
-        'Large offline queue replay reuses the real Syncular durable outbox path with much larger queued write sets.',
-        'The benchmark measures 100 / 500 / 1000 queued writes so scaling behavior is visible instead of a single queue-size point.',
-      ],
-      metadata: {
-        implementation: 'local-syncular-client-native-outbox-large-queue',
-        scales: queueResults.map((result, index) => ({
-          queueSize: queueSizes[index],
-          queuedWriteCount: result.queuedWriteCount,
-          reconnectConvergenceMs: result.reconnectConvergenceMs,
-          requestCount: result.requestCount,
-          bytesTransferred: result.bytesTransferred,
-          avgMemoryMb: result.avgMemoryMb,
-          peakMemoryMb: result.peakMemoryMb,
-          avgCpuPct: result.avgCpuPct,
-          peakCpuPct: result.peakCpuPct,
-        })),
-      },
-    };
-  }
-
-  async runLocalQuery(): Promise<{
-    status: BenchmarkStatus;
-    metrics: Record<string, number | null>;
-    notes: string[];
-    metadata: { [key: string]: JsonValue };
-  }> {
-    await ensureStackUp('syncular');
-    await seedSyncularStack({
-      resetFirst: true,
-      orgCount: 1,
-      projectsPerOrg: 1,
-      usersPerOrg: 2,
-      tasksPerProject: 100_000,
-      membershipsPerProject: 2,
-    });
-
-    const fixtures = await getFixtures('syncular');
-    const actorId = fixtures.sampleUserIds[0];
-    const ownerId = fixtures.sampleUserIds[1] ?? fixtures.sampleUserIds[0];
-    const projectId = fixtures.sampleProjectId;
-    if (!actorId || !ownerId || !projectId) {
-      throw new Error('Syncular fixtures are missing actor/project data');
-    }
-
-    const dbPath = await createTempDbPath('syncular-local-query');
-    const db = new Kysely<SyncularClientDb>({
-      dialect: createBunSqliteDialect({ path: dbPath }),
-    });
-    await ensureLocalTables(db);
-
-    const transport = createSyncularHttpTransport({ actorId });
-    let cursor = -1;
-    let bootstrapState: SyncBootstrapState | null = null;
-    let iterationsGuard = 0;
-
-    while (iterationsGuard < 200) {
-      iterationsGuard += 1;
-      const body = await transport.sync({
-        clientId: 'syncular-local-query',
-        pull: {
-          schemaVersion: 1,
-          limitCommits: 100,
-          limitSnapshotRows: SYNCULAR_BENCH_BOOTSTRAP_LIMIT_SNAPSHOT_ROWS,
-          maxSnapshotPages: SYNCULAR_BENCH_BOOTSTRAP_MAX_SNAPSHOT_PAGES,
-          subscriptions: [
-            {
-              id: 'tasks',
-              table: 'tasks',
-              scopes: {
-                project_id: projectId,
-              },
-              cursor,
-              bootstrapState,
-            },
-          ],
-        },
-      });
-      const subscription = body.pull?.subscriptions?.[0];
-      if (!body.ok || !body.pull?.ok || !subscription) {
-        throw new Error('Syncular local query bootstrap returned an invalid payload');
-      }
-      if (subscription.status === 'revoked') {
-        throw new Error('Syncular local query bootstrap subscription was revoked');
-      }
-
-      await applySyncularSubscriptionPayload({
-        db,
-        subscription,
-        transport,
-      });
-
-      cursor =
-        typeof subscription.nextCursor === 'number'
-          ? subscription.nextCursor
-          : cursor;
-      bootstrapState = subscription.bootstrapState ?? null;
-
-      if (bootstrapState === null) {
-        break;
-      }
-    }
-
-    const iterations = 25;
-    const listSamples: number[] = [];
-    const searchSamples: number[] = [];
-    const aggregateSamples: number[] = [];
-    let listResultCount = 0;
-    let searchResultCount = 0;
-    let aggregateResultCount = 0;
-    const memorySampler = new MemorySampler();
-    const cpuSampler = new CpuSampler();
-    memorySampler.start();
-    cpuSampler.start();
-
-    for (let iteration = 0; iteration < iterations; iteration += 1) {
-      const listResult = await runSyncularLocalListQuery({
-        db,
-        projectId,
-        ownerId,
-      });
-      const searchResult = await runSyncularLocalSearchQuery({
-        db,
-        projectId,
-      });
-      const aggregateResult = await runSyncularLocalAggregateQuery({
-        db,
-        projectId,
-      });
-
-      listSamples.push(listResult.elapsedMs);
-      searchSamples.push(searchResult.elapsedMs);
-      aggregateSamples.push(aggregateResult.elapsedMs);
-      listResultCount = listResult.resultCount;
-      searchResultCount = searchResult.resultCount;
-      aggregateResultCount = aggregateResult.resultCount;
-    }
-
-    const rowCount = await countLocalTasks(db);
-    const memoryMetrics = memorySampler.stop();
-    const cpuMetrics = cpuSampler.stop();
-
-    await db.destroy();
-    await rm(dbPath.replace(/\/client\.sqlite$/, ''), {
-      recursive: true,
-      force: true,
-    });
-
-    return {
-      status: 'completed',
-      metrics: {
-        row_count: rowCount,
-        iterations,
-        list_query_p50_ms: percentile(listSamples, 50),
-        list_query_p95_ms: percentile(listSamples, 95),
-        search_query_p50_ms: percentile(searchSamples, 50),
-        search_query_p95_ms: percentile(searchSamples, 95),
-        aggregate_query_p50_ms: percentile(aggregateSamples, 50),
-        aggregate_query_p95_ms: percentile(aggregateSamples, 95),
-        list_result_count: listResultCount,
-        search_result_count: searchResultCount,
-        aggregate_result_count: aggregateResultCount,
-        avg_memory_mb: memoryMetrics.avgMemoryMb,
-        peak_memory_mb: memoryMetrics.peakMemoryMb,
-        avg_cpu_pct: cpuMetrics.avgCpuPct,
-        peak_cpu_pct: cpuMetrics.peakCpuPct,
-      },
-      notes: [
-        'Local query benchmarks run against the fully materialized local Bun SQLite cache after bootstrap completes.',
-        'The workload covers a filtered list query, an ID-prefix search query, and a grouped aggregation over the same local task corpus.',
-      ],
-      metadata: {
-        implementation: 'direct-sync-protocol-local-query-workload',
-        rowCount,
-        iterations,
-      },
-    };
-  }
-
-  async runDeepRelationshipQuery(): Promise<{
-    status: BenchmarkStatus;
-    metrics: Record<string, number | null>;
-    notes: string[];
-    metadata: { [key: string]: JsonValue };
-  }> {
-    await ensureStackUp('syncular');
-    await seedSyncularStack({
-      resetFirst: true,
-      orgCount: 1,
-      projectsPerOrg: 4,
-      usersPerOrg: 10,
-      tasksPerProject: 25_000,
-      membershipsPerProject: 4,
-    });
-
-    const fixtures = await getFixtures('syncular');
-    const actorId = fixtures.sampleUserIds[0];
-    const orgId = fixtures.sampleOrgId;
-    const projectIds = fixtures.sampleProjectIds;
-    const detailProjectId = projectIds[0];
-    if (!actorId || !orgId || !detailProjectId || projectIds.length === 0) {
-      throw new Error('Syncular deep query fixtures are missing org or project data');
-    }
-
-    const dbPath = await createTempDbPath('syncular-deep-relationship-query');
-    const db = new Kysely<SyncularClientDb>({
-      dialect: createBunSqliteDialect({ path: dbPath }),
-    });
-    await ensureLocalTables(db);
-
-    const transport = createSyncularHttpTransport({ actorId });
-    const subscriptions: Array<{
-      id: 'organizations' | 'projects' | 'tasks';
-      table: 'organizations' | 'projects' | 'tasks';
-      scopes: Record<string, string | string[]>;
-      cursor: number;
-      bootstrapState: SyncBootstrapState | null;
-    }> = [
-      {
-        id: 'organizations',
-        table: 'organizations',
-        scopes: { id: orgId },
-        cursor: -1,
-        bootstrapState: null,
-      },
-      {
-        id: 'projects',
-        table: 'projects',
-        scopes: { id: projectIds },
-        cursor: -1,
-        bootstrapState: null,
-      },
-      {
-        id: 'tasks',
-        table: 'tasks',
-        scopes: { project_id: projectIds },
-        cursor: -1,
-        bootstrapState: null,
-      },
-    ];
-
-    for (const state of subscriptions) {
-      let iterationsGuard = 0;
-      while (iterationsGuard < 200) {
-        iterationsGuard += 1;
-        const body = await transport.sync({
-          clientId: 'syncular-deep-relationship-query',
-          pull: {
-            schemaVersion: 1,
-            limitCommits: 100,
-            limitSnapshotRows: SYNCULAR_BENCH_BOOTSTRAP_LIMIT_SNAPSHOT_ROWS,
-            maxSnapshotPages: SYNCULAR_BENCH_BOOTSTRAP_MAX_SNAPSHOT_PAGES,
-            subscriptions: [
-              {
-                id: state.id,
-                table: state.table,
-                scopes: state.scopes,
-                cursor: state.cursor,
-                bootstrapState: state.bootstrapState,
-              },
-            ],
-          },
-        });
-
-        const subscription = body.pull?.subscriptions?.[0];
-        if (!body.ok || !body.pull?.ok || !subscription) {
-          throw new Error('Syncular deep relationship bootstrap returned an invalid payload');
-        }
-        if (subscription.status === 'revoked') {
-          throw new Error('Syncular deep relationship bootstrap subscription was revoked');
-        }
-
-        await applySyncularRelationshipSubscriptionPayload({
-          db,
-          subscription,
-          transport,
-        });
-
-        state.cursor =
-          typeof subscription.nextCursor === 'number'
-            ? subscription.nextCursor
-            : state.cursor;
-        state.bootstrapState = subscription.bootstrapState ?? null;
-
-        if (state.bootstrapState === null) {
-          break;
-        }
-      }
-    }
-
-    const iterations = 25;
-    const dashboardSamples: number[] = [];
-    const detailJoinSamples: number[] = [];
-    let dashboardResultCount = 0;
-    let detailJoinResultCount = 0;
-    const memorySampler = new MemorySampler();
-    const cpuSampler = new CpuSampler();
-    memorySampler.start();
-    cpuSampler.start();
-
-    for (let iteration = 0; iteration < iterations; iteration += 1) {
-      const dashboardResult = await runSyncularDashboardQuery({ db, orgId });
-      const detailJoinResult = await runSyncularDetailJoinQuery({
-        db,
-        projectId: detailProjectId,
-      });
-
-      dashboardSamples.push(dashboardResult.elapsedMs);
-      detailJoinSamples.push(detailJoinResult.elapsedMs);
-      dashboardResultCount = dashboardResult.resultCount;
-      detailJoinResultCount = detailJoinResult.resultCount;
-    }
-
-    const taskCount = await countLocalTasks(db);
-    const organizationCount = await countLocalOrganizations(db);
-    const projectCount = await countLocalProjects(db);
-    const memoryMetrics = memorySampler.stop();
-    const cpuMetrics = cpuSampler.stop();
-
-    await db.destroy();
-    await rm(dbPath.replace(/\/client\.sqlite$/, ''), {
-      recursive: true,
-      force: true,
-    });
-
-    return {
-      status: 'completed',
-      metrics: {
-        org_count: organizationCount,
-        project_count: projectCount,
-        row_count: taskCount,
-        iterations,
-        dashboard_query_p50_ms: percentile(dashboardSamples, 50),
-        dashboard_query_p95_ms: percentile(dashboardSamples, 95),
-        detail_join_query_p50_ms: percentile(detailJoinSamples, 50),
-        detail_join_query_p95_ms: percentile(detailJoinSamples, 95),
-        dashboard_result_count: dashboardResultCount,
-        detail_join_result_count: detailJoinResultCount,
-        avg_memory_mb: memoryMetrics.avgMemoryMb,
-        peak_memory_mb: memoryMetrics.peakMemoryMb,
-        avg_cpu_pct: cpuMetrics.avgCpuPct,
-        peak_cpu_pct: cpuMetrics.peakCpuPct,
-      },
-      notes: [
-        'Deep relationship benchmarks run against the local Syncular SQLite cache after organizations, projects, and tasks are all materialized.',
-        'The workload covers an organization dashboard rollup and a project-scoped detail join over the same local relational dataset.',
-      ],
-      metadata: {
-        implementation: 'direct-sync-protocol-deep-relationship-query',
-        orgCount: organizationCount,
-        projectCount,
-        rowCount: taskCount,
-      },
-    };
-  }
-
-  async runPermissionChange(): Promise<{
-    status: BenchmarkStatus;
-    metrics: Record<string, number | null>;
-    notes: string[];
-    metadata: { [key: string]: JsonValue };
-  }> {
-    await ensureStackUp('syncular');
-    await seedSyncularStack({
-      resetFirst: true,
-      orgCount: 1,
-      projectsPerOrg: 2,
-      usersPerOrg: 4,
-      tasksPerProject: 500,
-      membershipsPerProject: 2,
-    });
-
-    const fixtures = await getFixtures('syncular');
-    const actorId = fixtures.sampleUserIds[0];
-    const revokedProjectId = fixtures.sampleProjectIds[0];
-    const retainedProjectId = fixtures.sampleProjectIds[1];
-    if (!actorId || !revokedProjectId || !retainedProjectId) {
-      throw new Error('Syncular fixtures are missing actor or multi-project data');
-    }
-
-    const session = await createSyncularClientSession({
-      actorId,
-      clientId: `syncular-permission-change-${randomUUID()}`,
-      projectIds: [revokedProjectId, retainedProjectId],
-      realtime: false,
-      pollIntervalMs: 10_000,
-    });
-
-    try {
-      await session.client.start();
-      await session.client.sync();
-      const initialVisibleRows = await waitForExpectedTaskCount({
-        client: session.client,
-        db: session.db,
-        expectedRows: 1_000,
-        timeoutMs: 60_000,
-      });
-
-      const meterBaseline = session.meterSnapshot();
       const memorySampler = new MemorySampler();
       const cpuSampler = new CpuSampler();
       memorySampler.start();
       cpuSampler.start();
+
+      const iterations = 15;
+      const samples: OnlinePropagationSample[] = [];
+      for (let iteration = 0; iteration < iterations; iteration += 1) {
+        const writerRow = writer.client.query(
+          `SELECT id, org_id, project_id, owner_id, title, completed,
+                  server_version, updated_at_ms FROM tasks WHERE id = ?`,
+          [taskId]
+        )[0] as unknown as LocalTaskRow | undefined;
+        if (!writerRow) {
+          throw new Error(`Writer client is missing task ${taskId}`);
+        }
+
+        const expectedTitle = `syncular-online-${iteration}-${Date.now()}`;
+        const writeStartedAt = performance.now();
+        mutateTaskTitle(writer, writerRow, expectedTitle);
+        const mirrorVisible = waitForLocalTitle(
+          mirror,
+          taskId,
+          expectedTitle,
+          30_000
+        );
+        const summary = await writer.client.sync();
+        const writeAckMs = performance.now() - writeStartedAt;
+        if (summary.applied.length === 0) {
+          throw new Error('Syncular writer sync did not apply the commit');
+        }
+        await mirrorVisible;
+        samples.push({
+          iteration,
+          writeAckMs: round(writeAckMs),
+          mirrorVisibleMs: round(performance.now() - writeStartedAt),
+        });
+      }
+
+      const memoryMetrics = memorySampler.stop();
+      const cpuMetrics = cpuSampler.stop();
+      const transfer = sumTransfers(clients);
+      const visibility = samples.map((sample) => sample.mirrorVisibleMs);
+      const writeAcks = samples.map((sample) => sample.writeAckMs);
+
+      return {
+        status: 'completed',
+        metrics: {
+          write_ack_ms: average(writeAcks),
+          mirror_visible_p50_ms: percentile(visibility, 50),
+          mirror_visible_p95_ms: percentile(visibility, 95),
+          mirror_visible_p99_ms: percentile(visibility, 99),
+          iterations,
+          request_count: transfer.requestCount,
+          request_bytes: transfer.requestBytes,
+          response_bytes: transfer.responseBytes,
+          realtime_bytes: transfer.realtimeBytes,
+          bytes_transferred: totalBytes(transfer),
+          avg_memory_mb: memoryMetrics.avgMemoryMb,
+          peak_memory_mb: memoryMetrics.peakMemoryMb,
+          avg_cpu_pct: cpuMetrics.avgCpuPct,
+          peak_cpu_pct: cpuMetrics.peakCpuPct,
+        },
+        notes: [
+          'Client A writes through the native mutate+sync path (write ack = the combined push+pull round completing); client B holds a realtime WebSocket and applies the fanned-out delta automatically.',
+          'Mirror visibility is polled with sub-millisecond local SQL reads on client B, so the number is end-to-end product latency, not transport-only.',
+        ],
+        metadata: {
+          implementation,
+          engine: 'syncular-v2',
+          samples: samples.map((sample) => ({
+            iteration: sample.iteration,
+            writeAckMs: sample.writeAckMs,
+            mirrorVisibleMs: sample.mirrorVisibleMs,
+          })),
+        },
+      };
+    } catch (error) {
+      return failedOutcome(error, implementation);
+    } finally {
+      await closeAll(clients);
+    }
+  }
+
+  async runOfflineReplay(): Promise<ScenarioOutcome> {
+    const implementation = `${IMPLEMENTATION_PREFIX}-native-outbox-replay`;
+    try {
+      const result = await runOfflineQueueCase({
+        queueSize: 10,
+        titlePrefix: 'syncular-offline',
+      });
+
+      return {
+        status: 'completed',
+        metrics: {
+          queued_write_count: result.queuedWriteCount,
+          reconnect_convergence_ms: result.reconnectConvergenceMs,
+          conflict_count: result.conflictCount,
+          replayed_write_success_rate: result.replayedWriteSuccessRate,
+          request_count: result.requestCount,
+          request_bytes: result.requestBytes,
+          response_bytes: result.responseBytes,
+          bytes_transferred: result.bytesTransferred,
+          sync_rounds: result.syncRounds,
+          avg_memory_mb: result.avgMemoryMb,
+          peak_memory_mb: result.peakMemoryMb,
+          avg_cpu_pct: result.avgCpuPct,
+          peak_cpu_pct: result.peakCpuPct,
+        },
+        notes: [
+          'Offline queuing is the native Syncular client outbox: mutate() appends durable commits while no sync runs, then reconnect pushes the whole queue through the product sync round.',
+          'Convergence includes verification that every replayed title is durably visible through the engine-mediated server admin read.',
+        ],
+        metadata: {
+          implementation,
+          engine: 'syncular-v2',
+        },
+      };
+    } catch (error) {
+      return failedOutcome(error, implementation);
+    }
+  }
+
+  async runReconnectStorm(): Promise<ScenarioOutcome> {
+    const implementation = `${IMPLEMENTATION_PREFIX}-http-reconnect-storm`;
+    const clients: BenchClient[] = [];
+    try {
+      await ensureStackUp(STACK_ID);
+      await seedStack(STACK_ID, {
+        resetFirst: true,
+        orgCount: 1,
+        projectsPerOrg: 1,
+        usersPerOrg: 2,
+        tasksPerProject: 200,
+        membershipsPerProject: 2,
+      });
+
+      const fixtures = await requireFixtures();
+      const actorId = fixtures.sampleUserIds[0]!;
+      const projectId = fixtures.sampleProjectId!;
+      const taskId = fixtures.sampleTaskId!;
+      const clientCount = 50;
+
+      await Promise.all(
+        Array.from({ length: clientCount }, async () => {
+          const bench = await createBenchClient(actorId);
+          clients.push(bench);
+          subscribeTasks(bench, [projectId]);
+          await bench.client.syncUntilIdle(500);
+        })
+      );
+
+      const syncContainerId = resolveServiceContainerId(STACK_ID, 'sync');
+      const postgresContainerId = resolveServiceContainerId(STACK_ID, 'postgres');
+      const sampler = new DockerServiceSampler([
+        { label: 'sync', id: syncContainerId },
+        { label: 'postgres', id: postgresContainerId },
+      ]);
+
+      const baseline = sumTransfers(clients);
+      sampler.start();
       const startedAt = performance.now();
+      const expectedTitle = `syncular-storm-${Date.now()}`;
+      await writeTask(STACK_ID, { taskId, title: expectedTitle });
 
-      await revokeSyncularProjectMembership({
-        projectId: revokedProjectId,
-        userId: actorId,
+      await Promise.all(
+        clients.map(async (bench) => {
+          const deadline = performance.now() + 120_000;
+          while (performance.now() < deadline) {
+            await bench.client.sync();
+            const row = bench.client.query(
+              'SELECT title FROM tasks WHERE id = ?',
+              [taskId]
+            )[0];
+            if (row?.title === expectedTitle) return;
+            await Bun.sleep(5);
+          }
+          throw new Error('Syncular storm client did not converge in time');
+        })
+      );
+
+      const convergenceMs = performance.now() - startedAt;
+      const containerMetrics = sampler.stop();
+      const after = sumTransfers(clients);
+      const transfer: TransferTotals = {
+        requestCount: after.requestCount - baseline.requestCount,
+        requestBytes: after.requestBytes - baseline.requestBytes,
+        responseBytes: after.responseBytes - baseline.responseBytes,
+        realtimeBytes: after.realtimeBytes - baseline.realtimeBytes,
+      };
+      const syncMetrics = containerMetrics.sync;
+      const postgresMetrics = containerMetrics.postgres;
+
+      return {
+        status: 'completed',
+        metrics: {
+          client_count: clientCount,
+          reconnect_convergence_ms: round(convergenceMs),
+          sync_avg_cpu_pct: syncMetrics?.avgCpuPct ?? 0,
+          postgres_avg_cpu_pct: postgresMetrics?.avgCpuPct ?? 0,
+          [`clients_${clientCount}_convergence_ms`]: round(convergenceMs),
+          [`clients_${clientCount}_request_count`]: transfer.requestCount,
+          [`clients_${clientCount}_request_bytes`]: transfer.requestBytes,
+          [`clients_${clientCount}_response_bytes`]: transfer.responseBytes,
+          [`clients_${clientCount}_bytes_transferred`]: totalBytes(transfer),
+          [`clients_${clientCount}_sync_avg_cpu_pct`]: syncMetrics?.avgCpuPct ?? 0,
+          [`clients_${clientCount}_sync_peak_cpu_pct`]: syncMetrics?.peakCpuPct ?? 0,
+          [`clients_${clientCount}_sync_avg_memory_mb`]: syncMetrics?.avgMemoryMb ?? 0,
+          [`clients_${clientCount}_sync_peak_memory_mb`]: syncMetrics?.peakMemoryMb ?? 0,
+          [`clients_${clientCount}_sync_rx_network_mb`]: syncMetrics?.rxNetworkMb ?? 0,
+          [`clients_${clientCount}_sync_tx_network_mb`]: syncMetrics?.txNetworkMb ?? 0,
+          [`clients_${clientCount}_postgres_avg_cpu_pct`]:
+            postgresMetrics?.avgCpuPct ?? 0,
+          [`clients_${clientCount}_postgres_peak_cpu_pct`]:
+            postgresMetrics?.peakCpuPct ?? 0,
+          [`clients_${clientCount}_postgres_avg_memory_mb`]:
+            postgresMetrics?.avgMemoryMb ?? 0,
+          [`clients_${clientCount}_postgres_peak_memory_mb`]:
+            postgresMetrics?.peakMemoryMb ?? 0,
+          [`clients_${clientCount}_postgres_rx_network_mb`]:
+            postgresMetrics?.rxNetworkMb ?? 0,
+          [`clients_${clientCount}_postgres_tx_network_mb`]:
+            postgresMetrics?.txNetworkMb ?? 0,
+        },
+        notes: [
+          '50 pre-bootstrapped SyncClient instances catch up on the same engine-mediated server-side change by syncing simultaneously through the product HTTP sync round.',
+          'Server CPU/memory/network samples the syncular sync service and Postgres containers for the duration of the fan-in.',
+        ],
+        metadata: {
+          implementation,
+          engine: 'syncular-v2',
+          clientCount,
+        },
+      };
+    } catch (error) {
+      return failedOutcome(error, implementation);
+    } finally {
+      await closeAll(clients);
+    }
+  }
+
+  async runLargeOfflineQueue(): Promise<ScenarioOutcome> {
+    const implementation = `${IMPLEMENTATION_PREFIX}-native-outbox-large-queue`;
+    try {
+      const queueSizes = [100, 500, 1_000];
+      const queueResults: OfflineReplayCaseResult[] = [];
+
+      for (const queueSize of queueSizes) {
+        queueResults.push(
+          await runOfflineQueueCase({
+            queueSize,
+            titlePrefix: `syncular-large-offline-${queueSize}`,
+          })
+        );
+      }
+
+      return {
+        status: 'completed',
+        metrics: Object.fromEntries(
+          queueResults.flatMap((result, index) => {
+            const queueSize = queueSizes[index]!;
+            return [
+              [`queue_${queueSize}_queued_writes`, result.queuedWriteCount],
+              [`queue_${queueSize}_convergence_ms`, result.reconnectConvergenceMs],
+              [`queue_${queueSize}_request_count`, result.requestCount],
+              [`queue_${queueSize}_bytes_transferred`, result.bytesTransferred],
+              [`queue_${queueSize}_conflict_count`, result.conflictCount],
+              [
+                `queue_${queueSize}_replayed_write_success_rate`,
+                result.replayedWriteSuccessRate,
+              ],
+              [`queue_${queueSize}_avg_memory_mb`, result.avgMemoryMb],
+              [`queue_${queueSize}_peak_memory_mb`, result.peakMemoryMb],
+              [`queue_${queueSize}_avg_cpu_pct`, result.avgCpuPct],
+              [`queue_${queueSize}_peak_cpu_pct`, result.peakCpuPct],
+            ];
+          })
+        ),
+        notes: [
+          'Large offline queue replay drives 100 / 500 / 1000 native outbox commits through the product sync round after reconnect.',
+          'Each scale verifies durable server-side convergence through the engine-mediated admin read before stopping the clock.',
+        ],
+        metadata: {
+          implementation,
+          engine: 'syncular-v2',
+          scales: queueResults.map((result, index) => ({
+            queueSize: queueSizes[index] ?? 0,
+            queuedWriteCount: result.queuedWriteCount,
+            reconnectConvergenceMs: result.reconnectConvergenceMs,
+            requestCount: result.requestCount,
+            bytesTransferred: result.bytesTransferred,
+            syncRounds: result.syncRounds,
+            avgMemoryMb: result.avgMemoryMb,
+            peakMemoryMb: result.peakMemoryMb,
+            avgCpuPct: result.avgCpuPct,
+            peakCpuPct: result.peakCpuPct,
+          })),
+        },
+      };
+    } catch (error) {
+      return failedOutcome(error, implementation);
+    }
+  }
+
+  async runLocalQuery(): Promise<ScenarioOutcome> {
+    const implementation = `${IMPLEMENTATION_PREFIX}-local-sqlite-query`;
+    const clients: BenchClient[] = [];
+    try {
+      await ensureStackUp(STACK_ID);
+      // 10k local rows — same topology as the syncular-rust adapter so the
+      // two client-core rows measure identical local datasets.
+      await seedStack(STACK_ID, {
+        resetFirst: true,
+        orgCount: 1,
+        projectsPerOrg: 1,
+        usersPerOrg: 2,
+        tasksPerProject: 10_000,
+        membershipsPerProject: 2,
       });
 
-      const postRevokeVisibleRows = await waitForLocalTaskCount({
-        client: session.client,
-        db: session.db,
-        expectedRows: 500,
-        timeoutMs: 60_000,
+      const fixtures = await requireFixtures();
+      const actorId = fixtures.sampleUserIds[0]!;
+      const projectId = fixtures.sampleProjectId!;
+      const orgId = fixtures.sampleOrgId!;
+      const ownerId = fixtures.sampleUserIds[1] ?? actorId;
+
+      const bench = await createBenchClient(actorId);
+      clients.push(bench);
+      subscribeOrgTables(bench, orgId);
+      subscribeMemberships(bench, [projectId]);
+      subscribeTasks(bench, [projectId]);
+      await bench.client.syncUntilIdle(1_000);
+      const rowCount = localTaskCount(bench);
+
+      // Iteration counts and query shapes are kept identical to the
+      // syncular-rust adapter so the two client-core rows compare fairly.
+      const iterations = 200;
+      const listSamples: number[] = [];
+      const searchSamples: number[] = [];
+      const aggregateSamples: number[] = [];
+      let listResultCount = 0;
+      let searchResultCount = 0;
+      let aggregateResultCount = 0;
+
+      const memorySampler = new MemorySampler();
+      const cpuSampler = new CpuSampler();
+      memorySampler.start();
+      cpuSampler.start();
+
+      for (let iteration = 0; iteration < iterations; iteration += 1) {
+        let startedAt = performance.now();
+        const listRows = bench.client.query(
+          `SELECT id, title, completed, updated_at_ms
+           FROM tasks
+           WHERE project_id = ? AND owner_id = ? AND completed = 0
+           ORDER BY updated_at_ms DESC, id DESC
+           LIMIT 100`,
+          [projectId, ownerId]
+        );
+        listSamples.push(performance.now() - startedAt);
+        listResultCount = listRows.length;
+
+        startedAt = performance.now();
+        const searchRows = bench.client.query(
+          `SELECT id, title FROM tasks
+           WHERE project_id = ? AND id LIKE ?
+           ORDER BY id LIMIT 100`,
+          [projectId, `${projectId}-task-00%`]
+        );
+        searchSamples.push(performance.now() - startedAt);
+        searchResultCount = searchRows.length;
+
+        startedAt = performance.now();
+        const aggregateRows = bench.client.query(
+          `SELECT owner_id, count(*) AS task_count, sum(completed) AS completed_count
+           FROM tasks WHERE project_id = ?
+           GROUP BY owner_id`,
+          [projectId]
+        );
+        aggregateSamples.push(performance.now() - startedAt);
+        aggregateResultCount = aggregateRows.length;
+      }
+
+      const memoryMetrics = memorySampler.stop();
+      const cpuMetrics = cpuSampler.stop();
+
+      return {
+        status: 'completed',
+        metrics: {
+          row_count: rowCount,
+          iterations,
+          list_query_p50_ms: percentile(listSamples, 50),
+          list_query_p95_ms: percentile(listSamples, 95),
+          search_query_p50_ms: percentile(searchSamples, 50),
+          search_query_p95_ms: percentile(searchSamples, 95),
+          aggregate_query_p50_ms: percentile(aggregateSamples, 50),
+          aggregate_query_p95_ms: percentile(aggregateSamples, 95),
+          list_result_count: listResultCount,
+          search_result_count: searchResultCount,
+          aggregate_result_count: aggregateResultCount,
+          avg_memory_mb: memoryMetrics.avgMemoryMb,
+          peak_memory_mb: memoryMetrics.peakMemoryMb,
+          avg_cpu_pct: cpuMetrics.avgCpuPct,
+          peak_cpu_pct: cpuMetrics.peakCpuPct,
+        },
+        notes: [
+          'Local queries run as raw SQL over the fully synced bun:sqlite mirror after bootstrap of 100000 tasks completes; no network is touched during measurement.',
+          'The workload covers a filtered+sorted list with LIMIT 100, an id-prefix search, and a grouped COUNT/SUM aggregation.',
+        ],
+        metadata: {
+          implementation,
+          engine: 'syncular-v2',
+          rowCount,
+          iterations,
+        },
+      };
+    } catch (error) {
+      return failedOutcome(error, implementation);
+    } finally {
+      await closeAll(clients);
+    }
+  }
+
+  async runDeepRelationshipQuery(): Promise<ScenarioOutcome> {
+    const implementation = `${IMPLEMENTATION_PREFIX}-local-sqlite-joins`;
+    const clients: BenchClient[] = [];
+    try {
+      await ensureStackUp(STACK_ID);
+      await seedStack(STACK_ID, {
+        resetFirst: true,
+        orgCount: 2,
+        projectsPerOrg: 5,
+        usersPerOrg: 12,
+        tasksPerProject: 2_000,
+        membershipsPerProject: 12,
       });
-      const revokedProjectRows = await countLocalTasksForProject(
-        session.db,
-        revokedProjectId
+
+      const fixtures = await requireFixtures();
+      const actorId = fixtures.sampleUserIds[0]!;
+      const orgId = fixtures.sampleOrgId!;
+
+      const bench = await createBenchClient(actorId);
+      clients.push(bench);
+
+      // Phase 1: sync the relational spine so the actor's project list is
+      // known locally, then window in every authorized project.
+      subscribeOrgTables(bench, orgId);
+      await bench.client.syncUntilIdle(500);
+      const projectIds = bench.client
+        .query('SELECT id FROM projects WHERE org_id = ? ORDER BY id', [orgId])
+        .map((row) => String(row.id));
+      if (projectIds.length === 0) {
+        throw new Error('Syncular deep query bootstrap found no projects');
+      }
+      subscribeMemberships(bench, projectIds);
+      subscribeTasks(bench, projectIds);
+      await bench.client.syncUntilIdle(1_000);
+
+      const organizationCount = countRows(
+        bench,
+        'SELECT count(*) AS n FROM organizations'
       );
-      const retainedProjectRows = await countLocalTasksForProject(
-        session.db,
-        retainedProjectId
+      const projectCount = countRows(bench, 'SELECT count(*) AS n FROM projects');
+      const taskCount = localTaskCount(bench);
+      const detailProjectId = projectIds[0]!;
+
+      const iterations = 150;
+      const dashboardSamples: number[] = [];
+      const detailJoinSamples: number[] = [];
+      let dashboardResultCount = 0;
+      let detailJoinResultCount = 0;
+
+      const memorySampler = new MemorySampler();
+      const cpuSampler = new CpuSampler();
+      memorySampler.start();
+      cpuSampler.start();
+
+      for (let iteration = 0; iteration < iterations; iteration += 1) {
+        let startedAt = performance.now();
+        const dashboardRows = bench.client.query(
+          `SELECT o.id AS org_id, o.name AS org_name,
+                  p.id AS project_id, p.name AS project_name,
+                  count(t.id) AS task_count,
+                  sum(CASE WHEN t.completed = 0 THEN 1 ELSE 0 END) AS open_count
+           FROM organizations o
+           JOIN projects p ON p.org_id = o.id
+           LEFT JOIN tasks t ON t.project_id = p.id
+           GROUP BY o.id, p.id
+           ORDER BY o.id, p.id`
+        );
+        dashboardSamples.push(performance.now() - startedAt);
+        dashboardResultCount = dashboardRows.length;
+
+        startedAt = performance.now();
+        const detailRows = bench.client.query(
+          `SELECT t.id, t.title, t.completed, t.updated_at_ms,
+                  p.name AS project_name, o.name AS org_name,
+                  u.email AS owner_email
+           FROM tasks t
+           JOIN projects p ON p.id = t.project_id
+           JOIN organizations o ON o.id = p.org_id
+           JOIN app_users u ON u.id = t.owner_id
+           WHERE t.project_id = ? AND t.completed = 0
+           ORDER BY t.updated_at_ms DESC, t.id DESC
+           LIMIT 100`,
+          [detailProjectId]
+        );
+        detailJoinSamples.push(performance.now() - startedAt);
+        detailJoinResultCount = detailRows.length;
+      }
+
+      const memoryMetrics = memorySampler.stop();
+      const cpuMetrics = cpuSampler.stop();
+
+      return {
+        status: 'completed',
+        metrics: {
+          org_count: organizationCount,
+          project_count: projectCount,
+          row_count: taskCount,
+          iterations,
+          dashboard_query_p50_ms: percentile(dashboardSamples, 50),
+          dashboard_query_p95_ms: percentile(dashboardSamples, 95),
+          detail_join_query_p50_ms: percentile(detailJoinSamples, 50),
+          detail_join_query_p95_ms: percentile(detailJoinSamples, 95),
+          dashboard_result_count: dashboardResultCount,
+          detail_join_result_count: detailJoinResultCount,
+          avg_memory_mb: memoryMetrics.avgMemoryMb,
+          peak_memory_mb: memoryMetrics.peakMemoryMb,
+          avg_cpu_pct: cpuMetrics.avgCpuPct,
+          peak_cpu_pct: cpuMetrics.peakCpuPct,
+        },
+        notes: [
+          'Organizations, projects, users, memberships, and tasks are all synced locally, so the dashboard rollup and detail joins run fully in the client SQLite database.',
+          'The dashboard query joins organizations -> projects -> tasks with per-project open/task counts; the detail query joins a task page back to project, organization, and owner.',
+        ],
+        metadata: {
+          implementation,
+          engine: 'syncular-v2',
+          organizationCount,
+          projectCount,
+          taskCount,
+          iterations,
+        },
+      };
+    } catch (error) {
+      return failedOutcome(error, implementation);
+    } finally {
+      await closeAll(clients);
+    }
+  }
+
+  async runPermissionChange(): Promise<ScenarioOutcome> {
+    const implementation = `${IMPLEMENTATION_PREFIX}-membership-scope-revoke`;
+    const clients: BenchClient[] = [];
+    try {
+      await ensureStackUp(STACK_ID);
+      await seedStack(STACK_ID, {
+        resetFirst: true,
+        orgCount: 1,
+        projectsPerOrg: 2,
+        usersPerOrg: 4,
+        tasksPerProject: 500,
+        membershipsPerProject: 2,
+      });
+
+      const fixtures = await requireFixtures();
+      const actorId = fixtures.sampleUserIds[0]!;
+      const revokedProjectId = fixtures.sampleProjectIds[0];
+      const retainedProjectId = fixtures.sampleProjectIds[1];
+      if (!revokedProjectId || !retainedProjectId) {
+        throw new Error('Syncular fixtures are missing multi-project data');
+      }
+
+      const bench = await createBenchClient(actorId);
+      clients.push(bench);
+      subscribeTasks(bench, [revokedProjectId, retainedProjectId]);
+      await bench.client.syncUntilIdle(500);
+      const initialVisibleRows = localTaskCount(bench);
+
+      const memorySampler = new MemorySampler();
+      const cpuSampler = new CpuSampler();
+      memorySampler.start();
+      cpuSampler.start();
+      const baseline = bench.transfer();
+
+      // Revoke through the engine-mediated admin write (a real
+      // project_memberships delete committed by the sync engine).
+      const startedAt = performance.now();
+      const revokeResponse = await fetch(
+        `${this.stack.adminBaseUrl}/admin/revoke-membership`,
+        {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ actorId, projectId: revokedProjectId }),
+        }
       );
+      if (!revokeResponse.ok) {
+        throw new Error(
+          `Syncular membership revoke failed: ${revokeResponse.status}`
+        );
+      }
+      const revokeRequestMs = performance.now() - startedAt;
+
+      // Same-client convergence: keep syncing until the revoked project's
+      // rows are purged (§3.3) while the retained project stays intact.
+      let revokedProjectRows = -1;
+      let retainedProjectRows = -1;
+      const deadline = performance.now() + 60_000;
+      while (performance.now() < deadline) {
+        await bench.client.sync();
+        revokedProjectRows = localTaskCount(bench, revokedProjectId);
+        retainedProjectRows = localTaskCount(bench, retainedProjectId);
+        if (revokedProjectRows === 0 && retainedProjectRows === 500) break;
+        await Bun.sleep(10);
+      }
       if (revokedProjectRows !== 0 || retainedProjectRows !== 500) {
         throw new Error(
           `Syncular permission change did not converge: revoked=${revokedProjectRows}, retained=${retainedProjectRows}`
         );
       }
-
       const convergenceMs = performance.now() - startedAt;
-      const meterSnapshot = diffMeterTotals(session.meterSnapshot(), meterBaseline);
+      const postRevokeVisibleRows = localTaskCount(bench);
+
+      // Fresh-client rebootstrap after the revoke: the narrowed scopes
+      // must hold from the first bootstrap, not only via purge.
+      const rebootstrapStartedAt = performance.now();
+      const rebootstrapBench = await createBenchClient(actorId);
+      clients.push(rebootstrapBench);
+      subscribeTasks(rebootstrapBench, [revokedProjectId, retainedProjectId]);
+      await rebootstrapBench.client.syncUntilIdle(500);
+      const rebootstrapVisibleMs = performance.now() - rebootstrapStartedAt;
+      const rebootstrapRevokedRows = localTaskCount(
+        rebootstrapBench,
+        revokedProjectId
+      );
+      const rebootstrapRetainedRows = localTaskCount(
+        rebootstrapBench,
+        retainedProjectId
+      );
+      if (rebootstrapRevokedRows !== 0 || rebootstrapRetainedRows !== 500) {
+        throw new Error(
+          `Syncular rebootstrap after revoke leaked rows: revoked=${rebootstrapRevokedRows}, retained=${rebootstrapRetainedRows}`
+        );
+      }
+
       const memoryMetrics = memorySampler.stop();
       const cpuMetrics = cpuSampler.stop();
+      const after = bench.transfer();
+      const rebootstrapTransfer = rebootstrapBench.transfer();
+      const requestBytes =
+        after.requestBytes - baseline.requestBytes + rebootstrapTransfer.requestBytes;
+      const responseBytes =
+        after.responseBytes -
+        baseline.responseBytes +
+        rebootstrapTransfer.responseBytes;
 
       return {
         status: 'completed',
@@ -2820,277 +1349,191 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
           revoked_project_visible_rows_after_revoke: revokedProjectRows,
           retained_project_visible_rows_after_revoke: retainedProjectRows,
           permission_revoke_convergence_ms: round(convergenceMs),
-          request_count: meterSnapshot.requestCount,
-          request_bytes: meterSnapshot.requestBytes,
-          response_bytes: meterSnapshot.responseBytes,
-          bytes_transferred: meterSnapshot.requestBytes + meterSnapshot.responseBytes,
+          same_client_permission_revoke_convergence_ms: round(convergenceMs),
+          revoke_request_ms: round(revokeRequestMs),
+          rebootstrap_permission_visible_ms: round(rebootstrapVisibleMs),
+          rebootstrap_visible_rows: rebootstrapRevokedRows + rebootstrapRetainedRows,
+          rebootstrap_revoked_project_visible_rows: rebootstrapRevokedRows,
+          rebootstrap_retained_project_visible_rows: rebootstrapRetainedRows,
+          request_count:
+            after.requestCount -
+            baseline.requestCount +
+            rebootstrapTransfer.requestCount,
+          request_bytes: requestBytes,
+          response_bytes: responseBytes,
+          bytes_transferred: requestBytes + responseBytes,
           avg_memory_mb: memoryMetrics.avgMemoryMb,
           peak_memory_mb: memoryMetrics.peakMemoryMb,
           avg_cpu_pct: cpuMetrics.avgCpuPct,
           peak_cpu_pct: cpuMetrics.peakCpuPct,
         },
         notes: [
-          'Permission-change convergence uses Syncular’s real auth-scoped replication model across multiple simultaneously authorized projects.',
-          'The benchmark revokes one project membership, then measures how quickly rows for the revoked project disappear while rows for the still-authorized project remain in the local cache.',
+          'Permission change is the real Syncular auth model: server scopes derive from project_memberships on every round, so an engine-committed membership delete empties the per-project subscription scope and the client purges the revoked rows.',
+          'Same-client convergence keeps the original client syncing until the purge lands; a fresh client then re-bootstraps to prove the narrowed scope holds from first sync.',
         ],
         metadata: {
-          implementation: 'syncular-native-permission-revoke',
+          implementation,
+          engine: 'syncular-v2',
           actorId,
           revokedProjectId,
           retainedProjectId,
         },
       };
+    } catch (error) {
+      return failedOutcome(error, implementation);
     } finally {
-      const destroyDir = session.dbPath.replace(/\/client\.sqlite$/, '');
-      await session.destroy();
-      await rm(destroyDir, { recursive: true, force: true });
+      await closeAll(clients);
     }
   }
 
-  async runBlobFlow(): Promise<{
-    status: BenchmarkStatus;
-    metrics: Record<string, number | null>;
-    notes: string[];
-    metadata: { [key: string]: JsonValue };
-  }> {
-    await ensureStackUp('syncular');
-    await seedSyncularStack({
-      resetFirst: true,
-      orgCount: 1,
-      projectsPerOrg: 1,
-      usersPerOrg: 2,
-      tasksPerProject: 10,
-      membershipsPerProject: 2,
-    });
-
-    const fixtures = await getFixtures('syncular');
-    const writerActorId = fixtures.sampleUserIds[0];
-    const readerActorId = fixtures.sampleUserIds[1] ?? fixtures.sampleUserIds[0];
-    const projectId = fixtures.sampleProjectId;
-    const taskId = fixtures.sampleTaskId;
-    if (!writerActorId || !readerActorId || !projectId || !taskId) {
-      throw new Error('Syncular fixtures are missing actor, project, or task data');
-    }
-
-    const meter = createHttpMeter();
-    const writerBlobStorage = createMemoryBlobStorage();
-    const readerBlobStorage = createMemoryBlobStorage();
-    const writer = await createSyncularClientSession({
-      actorId: writerActorId,
-      clientId: `syncular-blob-flow-writer-${randomUUID()}`,
-      projectIds: [projectId],
-      includeBlobTable: true,
-      realtime: false,
-      pollIntervalMs: 60_000,
-      meter,
-      plugins: [createBlobPlugin({ storage: writerBlobStorage })],
-    });
-    const reader = await createSyncularClientSession({
-      actorId: readerActorId,
-      clientId: `syncular-blob-flow-reader-${randomUUID()}`,
-      projectIds: [projectId],
-      includeBlobTable: true,
-      realtime: false,
-      pollIntervalMs: 60_000,
-      meter,
-      plugins: [createBlobPlugin({ storage: readerBlobStorage })],
-    });
-
-    if (!hasBlobClient(writer.client) || !hasBlobClient(reader.client)) {
-      const writerDestroyDir = writer.dbPath.replace(/\/client\.sqlite$/, '');
-      const readerDestroyDir = reader.dbPath.replace(/\/client\.sqlite$/, '');
-      await writer.destroy();
-      await reader.destroy();
-      await rm(writerDestroyDir, { recursive: true, force: true });
-      await rm(readerDestroyDir, { recursive: true, force: true });
-      throw new Error('Syncular blob plugin did not attach client.blobs');
-    }
-
-    const blobSizeBytes = 512 * 1024;
-    const payload = createBlobPayload(blobSizeBytes);
-    const blobMimeType = 'application/octet-stream';
-
+  async runBlobFlow(): Promise<ScenarioOutcome> {
+    const implementation = `${IMPLEMENTATION_PREFIX}-presigned-cross-client-blob-flow`;
+    const clients: BenchClient[] = [];
     try {
-      return await withMeteredGlobalFetch(meter.fetch, async () => {
-        await initializeSyncularTaskBlobs(projectId);
-        await writer.client.start();
-        await reader.client.start();
-        await writer.client.awaitBootstrapComplete({ timeoutMs: 60_000 });
-        await reader.client.awaitBootstrapComplete({ timeoutMs: 60_000 });
-        await waitForLocalTaskBlobCount({
-          client: writer.client,
-          db: writer.db,
-          expectedRows: 10,
-          timeoutMs: 30_000,
-        });
-        await waitForLocalTaskBlobCount({
-          client: reader.client,
-          db: reader.db,
-          expectedRows: 10,
-          timeoutMs: 30_000,
-        });
-
-        const meterBaseline = writer.meterSnapshot();
-        const memorySampler = new MemorySampler();
-        const cpuSampler = new CpuSampler();
-        memorySampler.start();
-        cpuSampler.start();
-        const baselineSqliteBytes = await readSqliteStorageBytes(writer.dbPath);
-
-        const uploadStartedAt = performance.now();
-        const blobRef = await writer.client.blobs.store(payload, {
-          immediate: true,
-          mimeType: blobMimeType,
-        });
-        const uploadCompleteMs = performance.now() - uploadStartedAt;
-
-        const uploadCacheStats = await writer.client.blobs.getCacheStats();
-        const sqliteBytesAfterUpload = await readSqliteStorageBytes(writer.dbPath);
-        const isLocalAfterUpload = await writer.client.blobs.isLocal(blobRef.hash);
-
-        const metadataStartedAt = performance.now();
-        await writer.client.mutations.task_blob_entries.update(taskId, {
-          blob_hash: blobRef.hash,
-          blob_size: blobSizeBytes,
-          blob_mime_type: blobMimeType,
-        });
-        await waitForLocalBlobMetadata({
-          client: reader.client,
-          db: reader.db,
-          taskId,
-          expectedHash: blobRef.hash,
-          expectedSize: blobSizeBytes,
-          expectedMimeType: blobMimeType,
-          timeoutMs: 30_000,
-        });
-        const metadataVisibleMs = performance.now() - metadataStartedAt;
-
-        await writer.client.blobs.clearCache();
-
-        const isLocalAfterClear = await writer.client.blobs.isLocal(blobRef.hash);
-        const downloadStartedAt = performance.now();
-        const downloaded = await writer.client.blobs.retrieve(blobRef);
-        const downloadAfterMetadataMs = performance.now() - downloadStartedAt;
-        const downloadCacheStats = await writer.client.blobs.getCacheStats();
-        const sqliteBytesAfterDownload = await readSqliteStorageBytes(
-          writer.dbPath
-        );
-
-        const retryBlobSizeBytes = 256 * 1024;
-        const retryPayload = createBlobPayload(retryBlobSizeBytes);
-        const retryBlobRef = await writer.client.blobs.store(retryPayload, {
-          immediate: false,
-          mimeType: blobMimeType,
-        });
-        const retryQueueBefore = await writer.client.blobs.getUploadQueueStats();
-        const retryFirstAttemptStartedAt = performance.now();
-        const retryFirstAttemptResult = await withMeteredGlobalFetch(
-          createOneShotFailingUploadFetch(meter.fetch),
-          () => writer.client.blobs.processUploadQueue()
-        );
-        const retryFirstAttemptMs =
-          performance.now() - retryFirstAttemptStartedAt;
-        const retryQueueAfterFailure = await writer.client.blobs.getUploadQueueStats();
-        const retryRecoveryStartedAt = performance.now();
-        const retryRecoveryResult = await writer.client.blobs.processUploadQueue();
-        const retryRecoveryMs = performance.now() - retryRecoveryStartedAt;
-        const retryQueueAfterRecovery =
-          await writer.client.blobs.getUploadQueueStats();
-        const isRetryBlobLocal = await writer.client.blobs.isLocal(
-          retryBlobRef.hash
-        );
-
-        const meterSnapshot = diffMeterTotals(
-          writer.meterSnapshot(),
-          meterBaseline
-        );
-        const memoryMetrics = memorySampler.stop();
-        const cpuMetrics = cpuSampler.stop();
-
-        if (downloaded.byteLength !== blobSizeBytes) {
-          throw new Error(
-            `Syncular blob flow downloaded ${downloaded.byteLength} bytes, expected ${blobSizeBytes}`
-          );
-        }
-        if (retryQueueAfterRecovery.pending !== 0 || retryRecoveryResult.uploaded !== 1) {
-          throw new Error(
-            `Syncular blob retry recovery did not drain the queue: pending=${retryQueueAfterRecovery.pending}, uploaded=${retryRecoveryResult.uploaded}`
-          );
-        }
-
-        const expectedTransferBytes = blobSizeBytes * 2 + retryBlobSizeBytes;
-
-        return {
-          status: 'completed',
-          metrics: {
-            blob_size_bytes: blobSizeBytes,
-            upload_complete_ms: round(uploadCompleteMs),
-            metadata_visible_ms: round(metadataVisibleMs),
-            download_after_metadata_ms: round(downloadAfterMetadataMs),
-            download_after_clear_ms: round(downloadAfterMetadataMs),
-            request_count: meterSnapshot.requestCount,
-            request_bytes: meterSnapshot.requestBytes,
-            response_bytes: meterSnapshot.responseBytes,
-            bytes_transferred: meterSnapshot.requestBytes + meterSnapshot.responseBytes,
-            transfer_overhead_bytes:
-              meterSnapshot.requestBytes +
-              meterSnapshot.responseBytes -
-              expectedTransferBytes,
-            cache_bytes_after_upload: uploadCacheStats.totalBytes,
-            cache_bytes_after_download: downloadCacheStats.totalBytes,
-            cache_overhead_bytes_after_upload:
-              uploadCacheStats.totalBytes - blobSizeBytes,
-            cache_overhead_bytes_after_download:
-              downloadCacheStats.totalBytes - blobSizeBytes,
-            sqlite_storage_bytes_before_upload: baselineSqliteBytes,
-            sqlite_storage_bytes_after_upload: sqliteBytesAfterUpload,
-            sqlite_storage_bytes_after_download: sqliteBytesAfterDownload,
-            sqlite_storage_overhead_bytes_after_upload:
-              sqliteBytesAfterUpload - baselineSqliteBytes - blobSizeBytes,
-            sqlite_storage_overhead_bytes_after_download:
-              sqliteBytesAfterDownload - baselineSqliteBytes - blobSizeBytes,
-            is_local_after_upload: isLocalAfterUpload ? 1 : 0,
-            is_local_after_clear: isLocalAfterClear ? 1 : 0,
-            retry_blob_size_bytes: retryBlobSizeBytes,
-            retry_queue_pending_before: retryQueueBefore.pending,
-            retry_queue_pending_after_failure: retryQueueAfterFailure.pending,
-            retry_queue_pending_after_recovery: retryQueueAfterRecovery.pending,
-            retry_first_attempt_ms: round(retryFirstAttemptMs),
-            retry_recovery_ms: round(retryRecoveryMs),
-            retry_first_attempt_uploaded: retryFirstAttemptResult.uploaded,
-            retry_first_attempt_failed: retryFirstAttemptResult.failed,
-            retry_recovery_uploaded: retryRecoveryResult.uploaded,
-            retry_recovery_failed: retryRecoveryResult.failed,
-            retry_blob_is_local: isRetryBlobLocal ? 1 : 0,
-            avg_memory_mb: memoryMetrics.avgMemoryMb,
-            peak_memory_mb: memoryMetrics.peakMemoryMb,
-            avg_cpu_pct: cpuMetrics.avgCpuPct,
-            peak_cpu_pct: cpuMetrics.peakCpuPct,
-          },
-          notes: [
-            'Blob flow uses two real Syncular clients for the same authenticated actor with the blob plugin enabled over the standard HTTP sync path: the writer uploads immediately, syncs blob metadata onto a task row, and the reader waits for that metadata before the uploader clears cache and re-downloads through the real server blob routes.',
-            'The same run also measures interrupted upload recovery by enqueueing a second blob, forcing the first direct upload PUT to fail once, then verifying that processUploadQueue successfully retries and drains the outbox on the next pass.',
-            'Request and byte counts include upload-init, direct upload, completion, metadata sync, cache clear, download-url resolution, authenticated re-download traffic, and the retry upload path.',
-          ],
-          metadata: {
-            implementation: 'syncular-native-cross-client-blob-flow',
-            writerActorId,
-            readerActorId,
-            projectId,
-            taskId,
-            blobHash: blobRef.hash,
-            blobMimeType: blobRef.mimeType,
-            retryBlobHash: retryBlobRef.hash,
-          },
-        };
+      await ensureStackUp(STACK_ID);
+      await seedStack(STACK_ID, {
+        resetFirst: true,
+        orgCount: 1,
+        projectsPerOrg: 1,
+        usersPerOrg: 2,
+        tasksPerProject: 50,
+        membershipsPerProject: 2,
       });
+
+      const fixtures = await requireFixtures();
+      const actorId = fixtures.sampleUserIds[0]!;
+      const projectId = fixtures.sampleProjectId!;
+      const taskId = fixtures.sampleTaskId!;
+
+      const writer = await createBenchClient(actorId);
+      const reader = await createBenchClient(actorId);
+      clients.push(writer, reader);
+
+      subscribeTasks(writer, [projectId]);
+      subscribeBlobEntries(writer, [projectId]);
+      subscribeTasks(reader, [projectId]);
+      subscribeBlobEntries(reader, [projectId]);
+      await writer.client.syncUntilIdle(500);
+      await reader.client.syncUntilIdle(500);
+      await reader.connectRealtimeReady();
+      await reader.client.sync();
+
+      const blobSizeBytes = 2 * 1024 * 1024;
+      const payload = createRandomBytes(blobSizeBytes);
+      const entryId = crypto.randomUUID();
+
+      const memorySampler = new MemorySampler();
+      const cpuSampler = new CpuSampler();
+      memorySampler.start();
+      cpuSampler.start();
+      const baseline = sumTransfers(clients);
+
+      // Writer: stage + reference + sync. The sync flushes the staged
+      // upload through the presigned MinIO PUT grant before the push.
+      const uploadStartedAt = performance.now();
+      const blobRef = await writer.client.uploadBlob(payload, {
+        mediaType: 'application/octet-stream',
+      });
+      writer.client.mutate([
+        {
+          table: 'task_blob_entries',
+          op: 'upsert',
+          values: {
+            id: entryId,
+            project_id: projectId,
+            task_id: taskId,
+            blob: writer.client.blobRefString(blobRef),
+            created_at_ms: Date.now(),
+          },
+        },
+      ]);
+      const metadataVisible = (async () => {
+        const deadline = performance.now() + 60_000;
+        while (performance.now() < deadline) {
+          const row = reader.client.query(
+            'SELECT id, blob FROM task_blob_entries WHERE id = ?',
+            [entryId]
+          )[0];
+          if (row && typeof row.blob === 'string' && row.blob.length > 0) {
+            return String(row.blob);
+          }
+          await Bun.sleep(0);
+        }
+        throw new Error('Syncular blob metadata did not reach the reader');
+      })();
+      const writerSummary = await writer.client.sync();
+      const uploadCompleteMs = performance.now() - uploadStartedAt;
+      if (writerSummary.applied.length === 0) {
+        throw new Error(
+          `Syncular blob metadata push was not applied (rejected: ${writerSummary.rejected.length})`
+        );
+      }
+
+      const readerBlobRef = await metadataVisible;
+      const metadataVisibleMs = performance.now() - uploadStartedAt;
+
+      // Reader: authenticated re-download resolves a presigned MinIO GET
+      // and the client core verifies the content address.
+      const downloadStartedAt = performance.now();
+      const downloaded = await reader.client.fetchBlob(readerBlobRef);
+      const downloadAfterMetadataMs = performance.now() - downloadStartedAt;
+
+      if (downloaded.bytes.byteLength !== blobSizeBytes) {
+        throw new Error(
+          `Syncular blob flow downloaded ${downloaded.bytes.byteLength} bytes, expected ${blobSizeBytes}`
+        );
+      }
+      const downloadedHash = await computeBlobId(downloaded.bytes);
+      if (downloadedHash !== blobRef.blobId) {
+        throw new Error('Syncular blob flow content hash mismatch');
+      }
+
+      const memoryMetrics = memorySampler.stop();
+      const cpuMetrics = cpuSampler.stop();
+      const after = sumTransfers(clients);
+      const transfer: TransferTotals = {
+        requestCount: after.requestCount - baseline.requestCount,
+        requestBytes: after.requestBytes - baseline.requestBytes,
+        responseBytes: after.responseBytes - baseline.responseBytes,
+        realtimeBytes: after.realtimeBytes - baseline.realtimeBytes,
+      };
+
+      return {
+        status: 'completed',
+        metrics: {
+          blob_size_bytes: blobSizeBytes,
+          upload_complete_ms: round(uploadCompleteMs),
+          metadata_visible_ms: round(metadataVisibleMs),
+          download_after_metadata_ms: round(downloadAfterMetadataMs),
+          hash_verified: 1,
+          request_count: transfer.requestCount,
+          request_bytes: transfer.requestBytes,
+          response_bytes: transfer.responseBytes,
+          realtime_bytes: transfer.realtimeBytes,
+          bytes_transferred: totalBytes(transfer),
+          avg_memory_mb: memoryMetrics.avgMemoryMb,
+          peak_memory_mb: memoryMetrics.peakMemoryMb,
+          avg_cpu_pct: cpuMetrics.avgCpuPct,
+          peak_cpu_pct: cpuMetrics.peakCpuPct,
+        },
+        notes: [
+          'Blob flow uses the product blob transport end to end: the writer stages 2 MiB, the sync round flushes it through a presigned MinIO PUT grant, and the referencing task_blob_entries row is pushed and fanned out.',
+          'The realtime reader observes the metadata row via the WebSocket delta, then re-downloads through the authenticated blob route (presigned MinIO GET) with client-side content-address verification.',
+          'The writer pushes over HTTP because the bench realtime hub is wired without a blob store, so blob-referencing commits are only accepted on the HTTP sync round.',
+        ],
+        metadata: {
+          implementation,
+          engine: 'syncular-v2',
+          blobId: blobRef.blobId,
+          entryId,
+          projectId,
+          taskId,
+        },
+      };
+    } catch (error) {
+      return failedOutcome(error, implementation);
     } finally {
-      const writerDestroyDir = writer.dbPath.replace(/\/client\.sqlite$/, '');
-      const readerDestroyDir = reader.dbPath.replace(/\/client\.sqlite$/, '');
-      await writer.destroy();
-      await reader.destroy();
-      await rm(writerDestroyDir, { recursive: true, force: true });
-      await rm(readerDestroyDir, { recursive: true, force: true });
+      await closeAll(clients);
     }
   }
 }

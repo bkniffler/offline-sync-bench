@@ -1,35 +1,50 @@
-create table organizations (
-  id text primary key,
-  name text not null,
-  server_version integer not null default 0
+-- Benchmark domain model (mirrors services/bench-admin's Postgres DDL, §2.4
+-- shape only — the syncular server materializes its own per-app tables).
+-- `updated_at_ms` replaces bench-admin's TIMESTAMPTZ (epoch ms integer);
+-- `project_memberships.id` is the composite "<project_id>:<user_id>" since
+-- synced tables key on a single primary column.
+
+CREATE TABLE organizations (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL
 );
 
-create table projects (
-  id text primary key,
-  org_id text not null,
-  name text not null,
-  server_version integer not null default 0
+CREATE TABLE projects (
+  id TEXT PRIMARY KEY,
+  org_id TEXT NOT NULL,
+  name TEXT NOT NULL
 );
 
-create table tasks (
-  id text primary key,
-  org_id text not null,
-  project_id text not null,
-  owner_id text not null,
-  title text not null,
-  completed integer not null default 0,
-  server_version integer not null default 0,
-  updated_at text not null
+CREATE TABLE app_users (
+  id TEXT PRIMARY KEY,
+  org_id TEXT NOT NULL,
+  email TEXT NOT NULL
 );
 
-create index if not exists idx_tasks_project_owner_completed_updated_at
-  on tasks (project_id, owner_id, completed, updated_at desc);
+CREATE TABLE project_memberships (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  role TEXT NOT NULL
+);
 
-create index if not exists idx_tasks_project_owner_completed
-  on tasks (project_id, owner_id, completed);
+CREATE TABLE tasks (
+  id TEXT PRIMARY KEY,
+  org_id TEXT NOT NULL,
+  project_id TEXT NOT NULL,
+  owner_id TEXT NOT NULL,
+  title TEXT NOT NULL,
+  completed BOOLEAN NOT NULL,
+  server_version INTEGER NOT NULL,
+  updated_at_ms INTEGER NOT NULL
+);
 
-create index if not exists idx_tasks_project_id_id
-  on tasks (project_id, id);
-
-create index if not exists idx_projects_org_id
-  on projects (org_id);
+-- Blob-flow metadata rows: the blob ref syncs as a row column (§5.9); the
+-- bytes travel through the /blobs endpoints (presigned when configured).
+CREATE TABLE task_blob_entries (
+  id TEXT PRIMARY KEY,
+  project_id TEXT NOT NULL,
+  task_id TEXT NOT NULL,
+  blob BLOB_REF,
+  created_at_ms INTEGER NOT NULL
+);

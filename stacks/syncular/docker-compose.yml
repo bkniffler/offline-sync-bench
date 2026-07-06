@@ -17,32 +17,73 @@ services:
     volumes:
       - syncular-bench-pgdata:/var/lib/postgresql/data
 
+  minio:
+    image: minio/minio:latest
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "3230:9000"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - syncular-bench-minio:/data
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 minioadmin minioadmin &&
+      mc mb -p local/syncular-blobs || true
+      "
+
   syncular:
     build:
       context: ../../
       dockerfile: stacks/syncular/Dockerfile
       additional_contexts:
-        syncular_branch: "${SYNCULAR_BRANCH_ROOT:-/Users/bkniffler/conductor/workspaces/syncular/indianapolis}"
+        syncular_branch: "${SYNCULAR_BRANCH_ROOT:-/Users/bkniffler/GitHub/syncular}"
+    command: ["bun", "src/server.ts"]
     environment:
       DATABASE_URL: postgresql://bench:bench@postgres:5432/bench
       PORT: "3000"
-      PUBLIC_SYNC_BASE_URL: http://localhost:3210/api/sync
-      BLOB_TOKEN_SECRET: syncular-bench-blob-secret
-      SYNCULAR_BENCH_SNAPSHOT_BUNDLE_MAX_BYTES: "${SYNCULAR_BENCH_SNAPSHOT_BUNDLE_MAX_BYTES-}"
-      SYNCULAR_BENCH_SCOPED_SQLITE_ARTIFACTS: "${SYNCULAR_BENCH_SCOPED_SQLITE_ARTIFACTS-1}"
-      SYNCULAR_BENCH_SCOPED_SQLITE_ARTIFACT_ROW_LIMIT: "${SYNCULAR_BENCH_SCOPED_SQLITE_ARTIFACT_ROW_LIMIT-}"
-      SYNCULAR_BENCH_WS_SYNC_PACK_MAX_BYTES: "${SYNCULAR_BENCH_WS_SYNC_PACK_MAX_BYTES-}"
-      SYNCULAR_BENCH_DEBUG_REALTIME: "${SYNCULAR_BENCH_DEBUG_REALTIME-}"
+      S3_ENDPOINT: http://minio:9000
+      S3_PUBLIC_ENDPOINT: http://localhost:3230
+      S3_REGION: us-east-1
+      S3_BUCKET: syncular-blobs
+      S3_ACCESS_KEY_ID: minioadmin
+      S3_SECRET_ACCESS_KEY: minioadmin
     depends_on:
       postgres:
         condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "bun -e \"const r = await fetch('http://localhost:3000/health'); process.exit(r.ok ? 0 : 1)\"",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
     ports:
       - "3210:3000"
 
   admin:
     build:
       context: ../../
-      dockerfile: services/bench-admin/Dockerfile
+      dockerfile: stacks/syncular/Dockerfile
+      additional_contexts:
+        syncular_branch: "${SYNCULAR_BRANCH_ROOT:-/Users/bkniffler/GitHub/syncular}"
+    command: ["bun", "src/admin.ts"]
     environment:
       DATABASE_URL: postgresql://bench:bench@postgres:5432/bench
       PORT: "3000"
@@ -50,8 +91,11 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      syncular:
+        condition: service_healthy
     ports:
       - "3211:3000"
 
 volumes:
   syncular-bench-pgdata:
+  syncular-bench-minio:

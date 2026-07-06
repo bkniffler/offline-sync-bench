@@ -7,6 +7,11 @@ export const stacks: StackSpec[] = [
     title: 'Syncular',
     composeFile: `${benchmarkRoot}/stacks/syncular/docker-compose.yml`,
     composeProjectName: 'offline-sync-bench-syncular',
+    buildFingerprintPaths: [
+      `${benchmarkRoot}/stacks/syncular/Dockerfile`,
+      `${benchmarkRoot}/stacks/syncular/docker-compose.yml`,
+      `${benchmarkRoot}/stacks/syncular/syncular-app`,
+    ],
     databaseUrl: 'postgresql://bench:bench@localhost:55432/bench?sslmode=disable',
     adminBaseUrl: 'http://localhost:3211',
     syncBaseUrl: 'http://localhost:3210/api',
@@ -28,8 +33,10 @@ export const stacks: StackSpec[] = [
       blobFlow: 'native',
     },
     notes: [
-      'Uses the real Syncular client and server packages.',
-      'Measures bootstrap into a local Bun SQLite database and native outbox replay.',
+      'Syncular v2: the real @syncular/client SyncClient (bun:sqlite local database) against the v2 server with relational Postgres server storage (real per-app tables).',
+      'Admin writes are engine-mediated — there is no CDC because the server tables are engine-owned; the bench-admin equivalents commit through the storage API and wake clients via the engine Postgres LISTEN/NOTIFY fanout.',
+      'Blobs are delivered through presigned MinIO upload grants and download URLs via the product blob transport.',
+      'Subscriptions are per-project scope subscriptions, so membership revocation empties one subscription scope and triggers the native client-side purge.',
     ],
   },
   {
@@ -37,6 +44,11 @@ export const stacks: StackSpec[] = [
     title: 'Syncular Rust Client',
     composeFile: `${benchmarkRoot}/stacks/syncular/docker-compose.yml`,
     composeProjectName: 'offline-sync-bench-syncular',
+    buildFingerprintPaths: [
+      `${benchmarkRoot}/stacks/syncular/Dockerfile`,
+      `${benchmarkRoot}/stacks/syncular/docker-compose.yml`,
+      `${benchmarkRoot}/stacks/syncular/syncular-app`,
+    ],
     databaseUrl: 'postgresql://bench:bench@localhost:55432/bench?sslmode=disable',
     adminBaseUrl: 'http://localhost:3211',
     syncBaseUrl: 'http://localhost:3210/api',
@@ -58,12 +70,9 @@ export const stacks: StackSpec[] = [
       blobFlow: 'native',
     },
     notes: [
-      'Uses the new Syncular Rust-owned SQLite WASM client against the same Syncular benchmark server.',
-      'Set SYNCULAR_RUST_CLIENT_DIST to override the local Rust browser binding dist path.',
-      'Rust outbox scenarios use the native WASM applyMutation path. The default Bun harness uses memory storage; set SYNCULAR_RUST_DURABLE_REOPEN=1 for an IndexedDB-compatible close/reopen durability probe.',
-      'Set SYNCULAR_RUST_BROWSER_DURABLE_REOPEN=1 on offline-replay for a real Chrome worker OPFS process-restart durability probe.',
-      'Rust blob flow uses native WASM blob upload/download/cache APIs plus task_blob_entries metadata sync.',
-      'Rust WS/realtime coverage remains separate from the HTTP reconnect-storm stress scenario.',
+      'Same Syncular v2 server stack (relational Postgres server storage, engine-mediated admin writes with Postgres LISTEN/NOTIFY fanout, presigned MinIO blobs) driven by the native Rust client.',
+      'The Rust client (rusqlite core) runs as a standalone bench binary speaking real HTTP+WebSocket to the Dockerized server — no browser, no WASM.',
+      'Subscriptions are per-project scope subscriptions, matching the JS client workload shape.',
     ],
   },
   {

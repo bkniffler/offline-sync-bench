@@ -57,6 +57,11 @@ switch (command) {
     process.exitCode = 1;
 }
 
+// Adapters hold real product clients (WebSocket reconnect timers, keep-alive
+// sockets, samplers); a stray handle must never zombie the CLI after the run
+// finished and all results are on disk.
+process.exit(process.exitCode ?? 0);
+
 async function runCleanupCommand(): Promise<void> {
   const summary = await cleanupBenchmarkArtifacts();
   console.log(`removed_failed_runs=${summary.removedRunIds.length}`);

@@ -41,36 +41,31 @@ export const tempRoot = join(sharedTempRoot, 'bundle-size');
 export { resultsRoot };
 const require = createRequire(import.meta.url);
 
+/**
+ * Syncular v2 is unpublished; its client bundles from the local checkout's
+ * browser-safe root (the same sources the benchmark adapters run). The v1
+ * `syncular` umbrella package no longer exists.
+ */
+const syncularClientEntry = join(
+  process.env.SYNCULAR_BRANCH_ROOT ?? '/Users/bkniffler/GitHub/syncular',
+  'packages/web-client/src/index.ts'
+);
+
 export const targets: BundleTarget[] = [
   {
     id: 'syncular-client-retained',
-    label: 'Syncular Client',
-    importPath: '@syncular/client',
+    label: 'Syncular Client (v2, local checkout)',
+    importPath: syncularClientEntry,
     versionPackageName: '@syncular/client',
     profile: 'retained-entry',
   },
   {
     id: 'syncular-client-root-named',
-    label: 'Syncular Client Root',
-    importPath: '@syncular/client',
+    label: 'Syncular Client Root (v2, local checkout)',
+    importPath: syncularClientEntry,
     versionPackageName: '@syncular/client',
     profile: 'named-import',
-    namedImports: ['createClient', 'createClientHandler'],
-  },
-  {
-    id: 'syncular-umbrella-retained',
-    label: 'Syncular Umbrella',
-    importPath: 'syncular',
-    versionPackageName: 'syncular',
-    profile: 'retained-entry',
-  },
-  {
-    id: 'syncular-subpath-root-named',
-    label: 'Syncular Umbrella Root',
-    importPath: 'syncular/client',
-    versionPackageName: 'syncular',
-    profile: 'named-import',
-    namedImports: ['createClient', 'createClientHandler'],
+    namedImports: ['SyncClient', 'httpSyncTransport'],
   },
   {
     id: 'electric-retained',

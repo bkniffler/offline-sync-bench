@@ -1,13 +1,14 @@
 {
-  "name": "@offline-sync-bench/syncular-app",
+  "name": "syncular-bench-app",
   "private": true,
+  "type": "module",
+  "scripts": {
+    "server": "bun src/server.ts",
+    "admin": "bun src/admin.ts",
+    "typegen": "bun ../../../../syncular/packages/typegen/src/cli.ts generate --manifest-dir ."
+  },
   "dependencies": {
-    "@syncular/server": "^0.0.6-245",
-    "@syncular/server-dialect-postgres": "^0.0.6-245",
-    "@syncular/server-hono": "^0.0.6-245",
-    "hono": "^4.12.8",
-    "kysely": "^0.28.12",
-    "pg": "8.20.0",
-    "zod": "^4.3.6"
+    "hono": "^4.11.0",
+    "postgres": "^3.4.8"
   }
 }
