@@ -48,3 +48,11 @@ CREATE TABLE task_blob_entries (
   blob BLOB_REF,
   created_at_ms INTEGER NOT NULL
 );
+
+-- Local secondary indexes: materialized on the client (both cores) and on
+-- the server's relational tables — the same app-level indexes bench-admin's
+-- raw-SQL DDL declares for the CDC stacks.
+CREATE INDEX idx_tasks_project_completed ON tasks (project_id, completed, updated_at_ms);
+CREATE INDEX idx_tasks_owner ON tasks (owner_id);
+CREATE INDEX idx_projects_org ON projects (org_id);
+CREATE INDEX idx_memberships_user ON project_memberships (user_id);

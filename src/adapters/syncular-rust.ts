@@ -707,7 +707,30 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
           );
         }
 
+        // Warm second-client bootstrap: same server, no restart — the "new
+        // device joins an existing dataset" path where the server's segment
+        // caches legitimately serve. Reported alongside cold, never instead.
+        const warmStartedAt = performance.now();
+        const warmClient = await RustClient.start({
+          binPath,
+          actorId,
+          clientId: `rust-bootstrap-warm-${rowsTarget}`,
+        });
+        await subscribeAll(warmClient, fixtures.orgId, fixtures.projectIds);
+        await warmClient.syncToIdle();
+        const warmRows = await warmClient.count(
+          'SELECT count(*) AS n FROM tasks'
+        );
+        const warmMs = performance.now() - warmStartedAt;
+        await warmClient.close();
+        if (warmRows !== rowsTarget) {
+          throw new Error(
+            `warm bootstrap expected ${rowsTarget} rows, got ${warmRows}`
+          );
+        }
+
         metrics[`bootstrap_${rowsTarget}_ms`] = round(elapsedMs);
+        metrics[`bootstrap_warm_${rowsTarget}_ms`] = round(warmMs);
         metrics[`rows_loaded_${rowsTarget}`] = rowsLoaded;
         metrics[`request_count_${rowsTarget}`] = stats.requestCount;
         metrics[`request_bytes_${rowsTarget}`] = stats.requestBytes;

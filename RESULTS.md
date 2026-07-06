@@ -6,7 +6,7 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 ## Highlights
 
-- Bootstrap at 100k rows (median of the latest 1 runs where available): Electric is at 353.8 ms; Syncular is at 4874 ms; Replicache is at 877.6 ms.
+- Bootstrap at 100k rows (median of the latest 1 runs where available): Electric is at 353.8 ms; Syncular is at 652.6 ms; Replicache is at 877.6 ms.
 - Online propagation: Electric still leads on tail latency (10.61 ms p95), while Syncular is now at 18.74 ms p95 with 8.90 ms write ack.
 - Native offline replay: Syncular currently converges in 62.11 ms, ahead of Replicache (1378 ms) and PowerSync (5115 ms).
 - Permission change (median of the latest 1 runs where available): Syncular converges in 6.82 ms and Electric in 33.22 ms.
@@ -15,22 +15,22 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 ## Bootstrap
 
-| Stack | 1k | 10k | 100k | 100k reqs | 100k avg mem | Support |
-| --- | --- | --- | --- | --- | --- | --- |
-| Syncular | 144.9 ms | 322.2 ms | 4874 ms | 3 | 106.74 MB | native |
-| Syncular Rust Client | 114.1 ms | 499.7 ms | 5362 ms | 3 | 8.56 MB | native |
-| Electric | 44.58 ms | 59.69 ms | 353.8 ms | 4 | 343.42 MB | native |
-| Zero | 218.5 ms | 936.3 ms | 7178 ms | 0 | 252.50 MB | native |
-| PowerSync | 586.8 ms | 807.5 ms | 6486 ms | 1 | 214.86 MB | native |
-| Replicache | 57.68 ms | 126.8 ms | 877.6 ms | 2 | 284.42 MB | native |
-| LiveStore | 786.0 ms | 1883 ms | n/a | n/a | n/a | native |
+| Stack | 1k | 10k | 100k | 100k warm | 100k reqs | 100k avg mem | Support |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Syncular | 46.34 ms | 96.91 ms | 652.6 ms | 146.7 ms | 3 | 151.43 MB | native |
+| Syncular Rust Client | 78.77 ms | 178.9 ms | 1192 ms | 683.7 ms | 3 | 29.57 MB | native |
+| Electric | 44.58 ms | 59.69 ms | 353.8 ms | n/a | 4 | 343.42 MB | native |
+| Zero | 218.5 ms | 936.3 ms | 7178 ms | n/a | 0 | 252.50 MB | native |
+| PowerSync | 586.8 ms | 807.5 ms | 6486 ms | n/a | 1 | 214.86 MB | native |
+| Replicache | 57.68 ms | 126.8 ms | 877.6 ms | n/a | 2 | 284.42 MB | native |
+| LiveStore | 786.0 ms | 1883 ms | n/a | n/a | n/a | n/a | native |
 
 ## Bootstrap Repeat Summary
 
 | Stack | Runs | 100k median | 100k min | 100k max | Latest 100k |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 1 | 4874 ms | 4874 ms | 4874 ms | 4874 ms |
-| Syncular Rust Client | 1 | 5362 ms | 5362 ms | 5362 ms | 5362 ms |
+| Syncular | 1 | 652.6 ms | 652.6 ms | 652.6 ms | 652.6 ms |
+| Syncular Rust Client | 1 | 1192 ms | 1192 ms | 1192 ms | 1192 ms |
 | Electric | 1 | 353.8 ms | 353.8 ms | 353.8 ms | 353.8 ms |
 | Zero | 1 | 7178 ms | 7178 ms | 7178 ms | 7178 ms |
 | PowerSync | 1 | 6486 ms | 6486 ms | 6486 ms | 6486 ms |
@@ -52,8 +52,8 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | Largest avg mem | Largest avg CPU | Largest peak mem | Largest peak CPU | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 106.74 MB | 3.42% | 252.06 MB | 90.35% | native |
-| Syncular Rust Client | 8.56 MB | 5.18% | 73.34 MB | 81.60% | native |
+| Syncular | 151.43 MB | 29.20% | 283.98 MB | 104.99% | native |
+| Syncular Rust Client | 29.57 MB | 34.34% | 77.77 MB | 85.30% | native |
 | Electric | 768.12 MB | 63.65% | 1109.05 MB | 163.10% | native |
 | Zero | 252.50 MB | 38.92% | 289.67 MB | 187.64% | native |
 | PowerSync | 214.86 MB | 30.39% | 228.80 MB | 464.30% | native |
@@ -139,8 +139,8 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | List p50 | Search p50 | Aggregate p50 | Avg mem | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 1.15 ms | 0.03 ms | 1.22 ms | 195.79 MB | native |
-| Syncular Rust Client | 1.06 ms | 0.02 ms | 2.03 ms | 12.66 MB | native |
+| Syncular | 0.92 ms | 1.31 ms | 1.68 ms | 192.86 MB | native |
+| Syncular Rust Client | 0.87 ms | 1.19 ms | 1.96 ms | 14.55 MB | native |
 | Electric | 3.54 ms | 1.50 ms | 4.60 ms | 864.53 MB | native |
 | Zero | 2.57 ms | 2.03 ms | 5.04 ms | 264.25 MB | native |
 | PowerSync | 41.49 ms | 11.97 ms | 103.7 ms | 260.51 MB | native |
@@ -151,8 +151,8 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | Dashboard p50 | Detail join p50 | Avg mem | Support |
 | --- | --- | --- | --- | --- |
-| Syncular | 2.30 ms | 1.07 ms | 188.52 MB | native |
-| Syncular Rust Client | 2.77 ms | 0.37 ms | n/a | native |
+| Syncular | 1.20 ms | 0.39 ms | 190.34 MB | native |
+| Syncular Rust Client | 2.72 ms | 0.34 ms | n/a | native |
 | Electric | n/a | n/a | n/a | unsupported |
 | Zero | 5.12 ms | 3.18 ms | 332.37 MB | native |
 | PowerSync | 211.5 ms | 3.29 ms | 269.28 MB | native |
@@ -163,8 +163,8 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | Runs | Dashboard median | Detail median | Latest dashboard | Latest detail |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 1 | 2.30 ms | 1.07 ms | 2.30 ms | 1.07 ms |
-| Syncular Rust Client | 1 | 2.77 ms | 0.37 ms | 2.77 ms | 0.37 ms |
+| Syncular | 1 | 1.20 ms | 0.39 ms | 1.20 ms | 0.39 ms |
+| Syncular Rust Client | 1 | 2.72 ms | 0.34 ms | 2.72 ms | 0.34 ms |
 | Zero | 1 | 5.12 ms | 3.18 ms | 5.12 ms | 3.18 ms |
 | PowerSync | 1 | 211.5 ms | 3.29 ms | 211.5 ms | 3.29 ms |
 | Replicache | 1 | 3.19 ms | 1.76 ms | 3.19 ms | 1.76 ms |
@@ -224,7 +224,7 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 - `native` means the benchmark uses the product’s normal client model.
 - Model difference, stated honestly: the CDC stacks (Electric, Zero, PowerSync, LiveStore via sync-electric) observe an app-owned Postgres via WAL/CDC, so the bench admin writes plain SQL. Syncular v2 materializes real per-app Postgres tables but owns them — ingestion goes through the engine (push/storage API), never CDC — so its bench admin writes through the storage API and wakes clients via the engine’s Postgres LISTEN/NOTIFY fanout, while reads use plain SQL over the materialized columns.
 - The two Syncular rows share one server stack and differ only in client core: `syncular` is the JS client on bun:sqlite; `syncular-rust` is the native Rust client (rusqlite) driven over real HTTP+WebSocket by a standalone bench binary. Both are built from the same unpublished v2 checkout; scenario parameters (datasets, query shapes, blob sizes, iteration counts) are identical across the two rows.
-- Syncular bootstrap is measured cold-server + cold-client: the sync service is restarted before every scale so in-memory segment/sqlite-image caches never serve the measurement.
+- Syncular bootstrap is measured cold-server + cold-client: the sync service is restarted before every scale so in-memory segment/sqlite-image caches never serve the measurement. `100k warm` is a second fresh client bootstrapping the same dataset without a restart (populated caches); stacks without the metric show n/a.
 - `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.
 - `unsupported` rows stay visible as `n/a` so the support matrix remains explicit without inventing benchmark-owned adapters.
 - LiveStore local-query remains unsupported at the shared 100000-row scale because the current wa-sqlite configuration aborts with a wasm heap OOM in this harness.

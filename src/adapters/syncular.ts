@@ -542,6 +542,7 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
 
       const scales = [1_000, 10_000, 100_000];
       const scaleResults: BootstrapScaleResult[] = [];
+      const warmByScale = new Map<number, number>();
 
       for (const rowsTarget of scales) {
         await seedStack(STACK_ID, {
@@ -605,6 +606,25 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
         } finally {
           await closeAll([bench]);
         }
+
+        // Warm second-client bootstrap: same server, no restart — the "new
+        // device joins an existing dataset" path where the server's segment
+        // and sqlite-image caches legitimately serve. Reported alongside the
+        // cold number, never instead of it.
+        const warmStartedAt = performance.now();
+        const warmBench = await createBenchClient(actorId);
+        try {
+          subscribeTasks(warmBench, [projectId]);
+          await warmBench.client.syncUntilIdle(1_000);
+          if (localTaskCount(warmBench) !== rowsTarget) {
+            throw new Error(
+              `Syncular warm bootstrap expected ${rowsTarget} rows, got ${localTaskCount(warmBench)}`
+            );
+          }
+          warmByScale.set(rowsTarget, round(performance.now() - warmStartedAt));
+        } finally {
+          await closeAll([warmBench]);
+        }
       }
 
       return {
@@ -612,6 +632,10 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
         metrics: Object.fromEntries(
           scaleResults.flatMap((result) => [
             [`bootstrap_${result.rowsTarget}_ms`, result.timeToFirstQueryMs],
+            [
+              `bootstrap_warm_${result.rowsTarget}_ms`,
+              warmByScale.get(result.rowsTarget) ?? null,
+            ],
             [`rows_loaded_${result.rowsTarget}`, result.rowsLoaded],
             [`request_count_${result.rowsTarget}`, result.requestCount],
             [`request_bytes_${result.rowsTarget}`, result.requestBytes],
@@ -626,6 +650,7 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
         notes: [
           'Bootstrap runs the real SyncClient against the v2 sync endpoint into a fresh bun:sqlite database, timed until a local SQL count over the synced tasks table answers.',
           'The server materializes snapshots from relational Postgres storage; segment/sqlite-image delivery is negotiated by the product client.',
+          'Cold numbers restart the sync service first (on-demand artifact build included); warm numbers are a second fresh client against the already-serving dataset.',
         ],
         metadata: {
           implementation,

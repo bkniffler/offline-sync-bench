@@ -467,6 +467,7 @@ async function main(): Promise<void> {
         formatMs(result?.metrics.bootstrap_1000_ms),
         formatMs(result?.metrics.bootstrap_10000_ms),
         formatMs(result?.metrics.bootstrap_100000_ms),
+        formatMs(result?.metrics.bootstrap_warm_100000_ms),
         formatCount(result?.metrics.request_count_100000),
         formatMb(result?.metrics.avg_memory_mb_100000),
         formatSupport({ result, scenarioId: 'bootstrap', stackId }),
@@ -475,7 +476,16 @@ async function main(): Promise<void> {
   sections.push(
     renderScenarioTable({
       title: 'Bootstrap',
-      headers: ['Stack', '1k', '10k', '100k', '100k reqs', '100k avg mem', 'Support'],
+      headers: [
+        'Stack',
+        '1k',
+        '10k',
+        '100k',
+        '100k warm',
+        '100k reqs',
+        '100k avg mem',
+        'Support',
+      ],
       rows: bootstrapRows,
     })
   );
@@ -1171,7 +1181,7 @@ async function main(): Promise<void> {
     '- The two Syncular rows share one server stack and differ only in client core: `syncular` is the JS client on bun:sqlite; `syncular-rust` is the native Rust client (rusqlite) driven over real HTTP+WebSocket by a standalone bench binary. Both are built from the same unpublished v2 checkout; scenario parameters (datasets, query shapes, blob sizes, iteration counts) are identical across the two rows.'
   );
   sections.push(
-    '- Syncular bootstrap is measured cold-server + cold-client: the sync service is restarted before every scale so in-memory segment/sqlite-image caches never serve the measurement.'
+    '- Syncular bootstrap is measured cold-server + cold-client: the sync service is restarted before every scale so in-memory segment/sqlite-image caches never serve the measurement. `100k warm` is a second fresh client bootstrapping the same dataset without a restart (populated caches); stacks without the metric show n/a.'
   );
   sections.push('- `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.');
   sections.push('- `unsupported` rows stay visible as `n/a` so the support matrix remains explicit without inventing benchmark-owned adapters.');

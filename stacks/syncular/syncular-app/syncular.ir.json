@@ -61,6 +61,15 @@
           "column": "org_id"
         }
       ],
+      "indexes": [
+        {
+          "name": "idx_projects_org",
+          "columns": [
+            "org_id"
+          ],
+          "unique": false
+        }
+      ],
       "extensions": {}
     },
     {
@@ -124,6 +133,15 @@
           "column": "project_id"
         }
       ],
+      "indexes": [
+        {
+          "name": "idx_memberships_user",
+          "columns": [
+            "user_id"
+          ],
+          "unique": false
+        }
+      ],
       "extensions": {}
     },
     {
@@ -176,6 +194,24 @@
           "pattern": "project:{project_id}",
           "variable": "project_id",
           "column": "project_id"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_tasks_project_completed",
+          "columns": [
+            "project_id",
+            "completed",
+            "updated_at_ms"
+          ],
+          "unique": false
+        },
+        {
+          "name": "idx_tasks_owner",
+          "columns": [
+            "owner_id"
+          ],
+          "unique": false
         }
       ],
       "extensions": {}
