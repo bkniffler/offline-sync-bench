@@ -6,8 +6,8 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 ## Highlights
 
-- Bootstrap at 100k rows (median of the latest 1 runs where available): Electric is at 353.8 ms; Syncular is at 652.6 ms; Replicache is at 877.6 ms.
-- Online propagation: Electric still leads on tail latency (10.61 ms p95), while Syncular is now at 18.74 ms p95 with 8.90 ms write ack.
+- Bootstrap at 100k rows (median of the latest 1 runs where available): Electric is at 353.8 ms; Syncular is at 641.7 ms; Replicache is at 877.6 ms.
+- Online propagation: Electric still leads on tail latency (10.61 ms p95), while Syncular is now at 10.65 ms p95 with 6.71 ms write ack.
 - Native offline replay: Syncular currently converges in 62.11 ms, ahead of Replicache (1378 ms) and PowerSync (5115 ms).
 - Permission change (median of the latest 1 runs where available): Syncular converges in 6.82 ms and Electric in 33.22 ms.
 - Client bundle size: Syncular is currently 75.14 KB raw / 22.79 KB gzip for the named-import browser profile.
@@ -17,8 +17,8 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | 1k | 10k | 100k | 100k warm | 100k reqs | 100k avg mem | Support |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Syncular | 46.34 ms | 96.91 ms | 652.6 ms | 146.7 ms | 3 | 151.43 MB | native |
-| Syncular Rust Client | 78.77 ms | 178.9 ms | 1192 ms | 683.7 ms | 3 | 29.57 MB | native |
+| Syncular | 90.98 ms | 141.4 ms | 641.7 ms | 143.7 ms | 3 | 109.66 MB | native |
+| Syncular Rust Client | 431.7 ms | 159.9 ms | 776.5 ms | 304.5 ms | 3 | 19.61 MB | native |
 | Electric | 44.58 ms | 59.69 ms | 353.8 ms | n/a | 4 | 343.42 MB | native |
 | Zero | 218.5 ms | 936.3 ms | 7178 ms | n/a | 0 | 252.50 MB | native |
 | PowerSync | 586.8 ms | 807.5 ms | 6486 ms | n/a | 1 | 214.86 MB | native |
@@ -29,8 +29,8 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | Runs | 100k median | 100k min | 100k max | Latest 100k |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 1 | 652.6 ms | 652.6 ms | 652.6 ms | 652.6 ms |
-| Syncular Rust Client | 1 | 1192 ms | 1192 ms | 1192 ms | 1192 ms |
+| Syncular | 1 | 641.7 ms | 641.7 ms | 641.7 ms | 641.7 ms |
+| Syncular Rust Client | 2 | 796.9 ms | 776.5 ms | 817.4 ms | 776.5 ms |
 | Electric | 1 | 353.8 ms | 353.8 ms | 353.8 ms | 353.8 ms |
 | Zero | 1 | 7178 ms | 7178 ms | 7178 ms | 7178 ms |
 | PowerSync | 1 | 6486 ms | 6486 ms | 6486 ms | 6486 ms |
@@ -52,8 +52,8 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | Largest avg mem | Largest avg CPU | Largest peak mem | Largest peak CPU | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 151.43 MB | 29.20% | 283.98 MB | 104.99% | native |
-| Syncular Rust Client | 29.57 MB | 34.34% | 77.77 MB | 85.30% | native |
+| Syncular | 109.66 MB | 29.62% | 247.13 MB | 101.44% | native |
+| Syncular Rust Client | 19.61 MB | 11.35% | 74.20 MB | 50.80% | native |
 | Electric | 768.12 MB | 63.65% | 1109.05 MB | 163.10% | native |
 | Zero | 252.50 MB | 38.92% | 289.67 MB | 187.64% | native |
 | PowerSync | 214.86 MB | 30.39% | 228.80 MB | 464.30% | native |
@@ -64,8 +64,8 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | Write ack | Visible p50 | Visible p95 | Avg mem | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 8.90 ms | 8.18 ms | 18.74 ms | 331.03 MB | native |
-| Syncular Rust Client | 12.16 ms | 12.60 ms | 26.28 ms | 10.86 MB | native |
+| Syncular | 6.71 ms | 6.05 ms | 10.65 ms | 185.01 MB | native |
+| Syncular Rust Client | 12.72 ms | 12.99 ms | 24.17 ms | 12.29 MB | native |
 | Electric | 2.52 ms | 2.95 ms | 10.61 ms | 1120.70 MB | native |
 | Zero | 17.62 ms | 16.95 ms | 48.51 ms | 189.58 MB | native |
 | PowerSync | 1.05 ms | 1004 ms | 1064 ms | 214.20 MB | native |
@@ -88,8 +88,8 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | 25 clients | 100 clients | 250 clients | 500 clients | 1000 clients | Support |
 | --- | --- | --- | --- | --- | --- | --- |
-| Syncular | 77.94 ms | n/a | n/a | n/a | n/a | native |
-| Syncular Rust Client | 78.15 ms | n/a | n/a | n/a | n/a | native |
+| Syncular | 77.06 ms | n/a | n/a | n/a | n/a | native |
+| Syncular Rust Client | 78.47 ms | n/a | n/a | n/a | n/a | native |
 | Electric | 239.4 ms | 2019 ms | 6055 ms | 8086 ms | n/a | native |
 | Zero | n/a | n/a | n/a | n/a | n/a | unsupported |
 | PowerSync | n/a | n/a | n/a | n/a | n/a | unsupported |
@@ -100,8 +100,8 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | Runs | 25 median | 100 median | 250 median | 500 median | 1000 median |
 | --- | --- | --- | --- | --- | --- | --- |
-| Syncular | 1 | 77.94 ms | n/a | n/a | n/a | n/a |
-| Syncular Rust Client | 1 | 78.15 ms | n/a | n/a | n/a | n/a |
+| Syncular | 1 | 77.06 ms | n/a | n/a | n/a | n/a |
+| Syncular Rust Client | 1 | 78.47 ms | n/a | n/a | n/a | n/a |
 | Electric | 1 | 239.4 ms | 2019 ms | 6055 ms | 8086 ms | n/a |
 | Replicache | 1 | 63.97 ms | 2027 ms | 6082 ms | 2120 ms | n/a |
 
@@ -109,8 +109,8 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | 500 sync avg mem | 500 postgres avg mem | 500 sync avg CPU | 500 postgres avg CPU | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | n/a | n/a | 2.30% | 0.53% | native |
-| Syncular Rust Client | 92.19 MB | 173.90 MB | 1.30% | 0.08% | native |
+| Syncular | n/a | n/a | 5.29% | 1.09% | native |
+| Syncular Rust Client | 107.15 MB | 193.45 MB | 0.42% | 0.08% | native |
 | Electric | 299.17 MB | 180.58 MB | 2.51% | 0.54% | native |
 | Replicache | 40.36 MB | 154.30 MB | 3.18% | 2.30% | native |
 

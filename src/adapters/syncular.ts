@@ -714,9 +714,12 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
       memorySampler.start();
       cpuSampler.start();
 
+      // 5 unmeasured warmup rounds (JIT/plan/socket warm on a freshly
+      // restarted server), then 15 measured — identical in the Rust adapter.
+      const warmup = 5;
       const iterations = 15;
       const samples: OnlinePropagationSample[] = [];
-      for (let iteration = 0; iteration < iterations; iteration += 1) {
+      for (let iteration = -warmup; iteration < iterations; iteration += 1) {
         const writerRow = writer.client.query(
           `SELECT id, org_id, project_id, owner_id, title, completed,
                   server_version, updated_at_ms FROM tasks WHERE id = ?`,
@@ -741,6 +744,7 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
           throw new Error('Syncular writer sync did not apply the commit');
         }
         await mirrorVisible;
+        if (iteration < 0) continue; // warmup round — never measured
         samples.push({
           iteration,
           writeAckMs: round(writeAckMs),

@@ -802,6 +802,9 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
       await mirror.syncToIdle();
       await mirror.call('connectRealtime', {});
 
+      // 5 unmeasured warmup rounds (JIT/plan/socket warm on a freshly
+      // restarted server), then 15 measured — identical in the JS adapter.
+      const warmup = 5;
       const iterations = 15;
       const samples: Array<{
         iteration: number;
@@ -810,7 +813,11 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
         rustWaitedMs: number;
       }> = [];
 
-      for (let iteration = 0; iteration < iterations; iteration += 1) {
+      for (
+        let iteration = -warmup;
+        iteration < iterations;
+        iteration += 1
+      ) {
         const title = `rust-online-${iteration}-${Date.now()}`;
         // Arm the mirror's in-process wait loop BEFORE the write so the
         // visibility latency is measured without stdio round-trip gaps.
@@ -832,6 +839,7 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
         if (!wait.ok) {
           throw new Error(`mirror did not observe title ${title}`);
         }
+        if (iteration < 0) continue; // warmup round — never measured
         samples.push({
           iteration,
           writeAckMs: round(writeAckMs, 3),
