@@ -33,7 +33,7 @@ export const stacks: StackSpec[] = [
       blobFlow: 'native',
     },
     notes: [
-      'Syncular v2: the real @syncular/client SyncClient (bun:sqlite local database) against the v2 server with relational Postgres server storage (real per-app tables).',
+      'Syncular v2 from the published npm packages (@syncular/*@0.2.1, exact-pinned): the real @syncular/client SyncClient (bun:sqlite local database) against the v2 server with relational Postgres server storage (real per-app tables).',
       'Admin writes are engine-mediated — there is no CDC because the server tables are engine-owned; the bench-admin equivalents commit through the storage API and wake clients via the engine Postgres LISTEN/NOTIFY fanout.',
       'Blobs are delivered through presigned MinIO upload grants and download URLs via the product blob transport.',
       'Subscriptions are per-project scope subscriptions, so membership revocation empties one subscription scope and triggers the native client-side purge.',
@@ -71,7 +71,7 @@ export const stacks: StackSpec[] = [
     },
     notes: [
       'Same Syncular v2 server stack (relational Postgres server storage, engine-mediated admin writes with Postgres LISTEN/NOTIFY fanout, presigned MinIO blobs) driven by the native Rust client.',
-      'The Rust client (rusqlite core) runs as a standalone bench binary speaking real HTTP+WebSocket to the Dockerized server — no browser, no WASM.',
+      'The Rust client (rusqlite core) runs as a harness-owned standalone bench binary built against the published crates (crates.io syncular-client/syncular-command/syncular-ffi 0.2.1, exact-pinned), speaking real HTTP+WebSocket to the Dockerized server — no browser, no WASM.',
       'Subscriptions are per-project scope subscriptions, matching the JS client workload shape.',
     ],
   },

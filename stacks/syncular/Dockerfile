@@ -2,18 +2,12 @@ FROM oven/bun:1.3.14
 
 WORKDIR /workspace
 
+# The syncular v2 packages are published to npm (@syncular/*@0.2.1) and pinned
+# exactly in the app package.json — a plain `bun install` resolves them. They
+# ship TS sources directly (no build step), so `bun src/server.ts` runs them
+# as-is. No local checkout or additional build contexts are involved.
 COPY stacks/syncular/syncular-app/package.json ./package.json
 RUN bun install --no-save --ignore-scripts
-
-# syncular v2 packages are unpublished — vendored from the local repo
-# checkout (additional context `syncular_branch`). They ship TS sources
-# directly (no build step), so copying package.json + src suffices.
-COPY --from=syncular_branch packages/core/package.json ./node_modules/@syncular/core/package.json
-COPY --from=syncular_branch packages/core/src ./node_modules/@syncular/core/src
-COPY --from=syncular_branch packages/server/package.json ./node_modules/@syncular/server/package.json
-COPY --from=syncular_branch packages/server/src ./node_modules/@syncular/server/src
-COPY --from=syncular_branch packages/server-hono/package.json ./node_modules/@syncular/server-hono/package.json
-COPY --from=syncular_branch packages/server-hono/src ./node_modules/@syncular/server-hono/src
 
 COPY stacks/syncular/syncular-app/src ./src
 

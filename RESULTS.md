@@ -7,10 +7,10 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 ## Highlights
 
 - Bootstrap at 100k rows (median of the latest 1 runs where available): Electric is at 353.8 ms; Syncular is at 641.7 ms; Replicache is at 877.6 ms.
-- Online propagation: Electric still leads on tail latency (10.61 ms p95), while Syncular is now at 10.65 ms p95 with 6.71 ms write ack.
+- Online propagation: Electric still leads on tail latency (10.61 ms p95), while Syncular is now at 11.92 ms p95 with 8.93 ms write ack.
 - Native offline replay: Syncular currently converges in 62.11 ms, ahead of Replicache (1378 ms) and PowerSync (5115 ms).
 - Permission change (median of the latest 1 runs where available): Syncular converges in 6.82 ms and Electric in 33.22 ms.
-- Client bundle size: Syncular is currently 75.14 KB raw / 22.79 KB gzip for the named-import browser profile.
+- Client bundle size: Syncular is currently 68.79 KB raw / 21.09 KB gzip for the named-import browser profile.
 - Blob flow: Syncular currently uploads a 2097152 byte blob in 68.85 ms, syncs metadata to a second client in 68.85 ms, re-downloads it after cache clear in 9.41 ms, and recovers an interrupted queued upload in n/a.
 
 ## Bootstrap
@@ -64,8 +64,8 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | Write ack | Visible p50 | Visible p95 | Avg mem | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 6.71 ms | 6.05 ms | 10.65 ms | 185.01 MB | native |
-| Syncular Rust Client | 12.72 ms | 12.99 ms | 24.17 ms | 12.29 MB | native |
+| Syncular | 8.93 ms | 8.20 ms | 11.92 ms | 144.63 MB | native |
+| Syncular Rust Client | 11.74 ms | 12.22 ms | 17.16 ms | 11.17 MB | native |
 | Electric | 2.52 ms | 2.95 ms | 10.61 ms | 1120.70 MB | native |
 | Zero | 17.62 ms | 16.95 ms | 48.51 ms | 189.58 MB | native |
 | PowerSync | 1.05 ms | 1004 ms | 1064 ms | 214.20 MB | native |
@@ -212,7 +212,7 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Library | Profile | Raw | Gzip |
 | --- | --- | --- | --- |
-| Syncular | named import | 75.14 KB | 22.79 KB |
+| Syncular | named import | 68.79 KB | 21.09 KB |
 | Electric | named import | 52.77 KB | 16.79 KB |
 | Zero | named import | 287.98 KB | 91.37 KB |
 | PowerSync | named import | 532.98 KB | 165.65 KB |
@@ -223,7 +223,7 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 - `native` means the benchmark uses the product’s normal client model.
 - Model difference, stated honestly: the CDC stacks (Electric, Zero, PowerSync, LiveStore via sync-electric) observe an app-owned Postgres via WAL/CDC, so the bench admin writes plain SQL. Syncular v2 materializes real per-app Postgres tables but owns them — ingestion goes through the engine (push/storage API), never CDC — so its bench admin writes through the storage API and wakes clients via the engine’s Postgres LISTEN/NOTIFY fanout, while reads use plain SQL over the materialized columns.
-- The two Syncular rows share one server stack and differ only in client core: `syncular` is the JS client on bun:sqlite; `syncular-rust` is the native Rust client (rusqlite) driven over real HTTP+WebSocket by a standalone bench binary. Both are built from the same unpublished v2 checkout; scenario parameters (datasets, query shapes, blob sizes, iteration counts) are identical across the two rows.
+- The two Syncular rows share one server stack and differ only in client core: `syncular` is the JS client on bun:sqlite; `syncular-rust` is the native Rust client (rusqlite) driven over real HTTP+WebSocket by a standalone bench binary. Both use the published packages, versions pinned (npm @syncular/*@0.2.1 for the JS client and server stack, crates.io syncular-client/syncular-command/syncular-ffi 0.2.1 for the native binary); scenario parameters (datasets, query shapes, blob sizes, iteration counts) are identical across the two rows.
 - Syncular bootstrap is measured cold-server + cold-client: the sync service is restarted before every scale so in-memory segment/sqlite-image caches never serve the measurement. `100k warm` is a second fresh client bootstrapping the same dataset without a restart (populated caches); stacks without the metric show n/a.
 - `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.
 - `unsupported` rows stay visible as `n/a` so the support matrix remains explicit without inventing benchmark-owned adapters.

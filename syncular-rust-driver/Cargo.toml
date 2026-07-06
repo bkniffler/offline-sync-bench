@@ -1,0 +1,31 @@
+# Origin: copied from the syncular repo at rust/crates/bench (the
+# `syncular-bench` driver binary). It lives here, inside offline-sync-bench,
+# because it is HARNESS-owned tooling — the JSON-lines stdio protocol it speaks
+# is defined by this benchmark, not by the product. The product crates it
+# drives (syncular-client / syncular-command / syncular-ffi) are consumed from
+# crates.io at the pinned published version, exactly like the npm packages the
+# rest of the harness uses. Standalone crate: the empty [workspace] table below
+# keeps it from being absorbed into any parent Cargo workspace.
+[workspace]
+
+[package]
+name = "syncular-bench"
+version = "0.1.0"
+edition = "2021"
+description = "Benchmark driver binary: the shared syncular-command router over the FFI crate's native HTTP+WS transport, spoken as JSON lines over stdio for the offline-sync-bench harness"
+license = "UNLICENSED"
+publish = false
+
+[[bin]]
+name = "syncular-bench"
+path = "src/main.rs"
+
+[dependencies]
+syncular-client = "0.2.1"
+syncular-command = "0.2.1"
+# The bench driver measures the SHIPPING native lane: the same HTTP+WS
+# transport the FFI core owns (ureq + tungstenite), reused rather than copied.
+# The ffi crate's lib name is `syncular`, so `use syncular::transport::...`
+# in main.rs resolves through this dependency.
+syncular-ffi = { version = "0.2.1", features = ["native-transport"] }
+serde_json = "1"

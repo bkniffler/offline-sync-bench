@@ -35,6 +35,8 @@
   },
   "dependencies": {
     "@electric-sql/client": "^1.5.18",
+    "@syncular/client": "0.2.1",
+    "@syncular/core": "0.2.1",
     "@livestore/adapter-node": "^0.3.1",
     "@livestore/livestore": "^0.3.1",
     "@livestore/sync-electric": "^0.3.1",
@@ -52,6 +54,8 @@
   },
   "devDependencies": {
     "@journeyapps/wa-sqlite": "^1.7.0",
+    "@syncular/server": "0.2.1",
+    "@syncular/server-hono": "0.2.1",
     "@types/bun": "^1.3.10",
     "typescript": "^5.9.3"
   }

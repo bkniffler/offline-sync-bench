@@ -1,8 +1,9 @@
 /**
  * Syncular v2 NATIVE Rust client benchmark adapter.
  *
- * Drives the `syncular-bench` Rust driver binary (rust/crates/bench in the
- * syncular repo) over JSON lines on stdio. The binary hosts the real Rust
+ * Drives the `syncular-bench` Rust driver binary (harness-owned, vendored at
+ * syncular-rust-driver/ and built against the published syncular-* crates from
+ * crates.io) over JSON lines on stdio. The binary hosts the real Rust
  * client core (rusqlite) plus the shipping native HTTP+WS transport
  * (ureq + tungstenite) against the SAME Dockerized syncular bench server the
  * TS adapter uses — no browser, no WASM, real network.
@@ -15,7 +16,7 @@ import { mkdir, mkdtemp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Subprocess } from 'bun';
 import { average, DockerServiceSampler, round } from '../metrics';
-import { tempRoot } from '../paths';
+import { benchmarkRoot, tempRoot } from '../paths';
 import {
   ensureStackUp,
   getFixtures,
@@ -35,9 +36,15 @@ import type {
 } from '../types';
 
 const STACK_ID = 'syncular-rust' as const;
-const DEFAULT_BIN_PATH =
-  '/Users/bkniffler/GitHub/syncular/rust/target/release/syncular-bench';
-const SYNCULAR_RUST_ROOT = '/Users/bkniffler/GitHub/syncular/rust';
+// The Rust driver is harness-owned and vendored into this repo at
+// syncular-rust-driver/ (a standalone crate depending on the published
+// syncular-* crates from crates.io). It builds and runs here — no syncular
+// checkout required.
+const SYNCULAR_RUST_ROOT = join(benchmarkRoot, 'syncular-rust-driver');
+const DEFAULT_BIN_PATH = join(
+  SYNCULAR_RUST_ROOT,
+  'target/release/syncular-bench'
+);
 
 /** The generated schema is already the SPEC §2.4 JSON shape the Rust
  *  client's `parse_schema_json` accepts (including the `blob_ref` column
@@ -83,19 +90,16 @@ async function ensureBenchBinary(): Promise<string> {
   }
 
   console.log(
-    `[syncular-rust] ${configured} missing — running \`cargo build --release -p syncular-bench\` in ${SYNCULAR_RUST_ROOT}`
+    `[syncular-rust] ${configured} missing — running \`cargo build --release\` in ${SYNCULAR_RUST_ROOT}`
   );
-  const build = Bun.spawnSync(
-    ['cargo', 'build', '--release', '-p', 'syncular-bench'],
-    {
-      cwd: SYNCULAR_RUST_ROOT,
-      stdout: 'pipe',
-      stderr: 'pipe',
-    }
-  );
+  const build = Bun.spawnSync(['cargo', 'build', '--release'], {
+    cwd: SYNCULAR_RUST_ROOT,
+    stdout: 'pipe',
+    stderr: 'pipe',
+  });
   if (build.exitCode !== 0) {
     throw new Error(
-      `cargo build --release -p syncular-bench failed:\n${new TextDecoder().decode(build.stderr)}`
+      `cargo build --release failed:\n${new TextDecoder().decode(build.stderr)}`
     );
   }
 

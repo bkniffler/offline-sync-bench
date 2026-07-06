@@ -4,17 +4,6 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "baseUrl": ".",
-    "paths": {
-      "@syncular/core": ["../../syncular/packages/core/src/index.ts"],
-      "@syncular/server": ["../../syncular/packages/server/src/index.ts"],
-      "@syncular/server-hono": [
-        "../../syncular/packages/server-hono/src/index.ts"
-      ],
-      "@syncular/client": ["../../syncular/packages/web-client/src/index.ts"],
-      "@syncular/client/bun": [
-        "../../syncular/packages/web-client/src/bun-database.ts"
-      ]
-    },
     "strict": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,

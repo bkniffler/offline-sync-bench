@@ -48,8 +48,6 @@ services:
     build:
       context: ../../
       dockerfile: stacks/syncular/Dockerfile
-      additional_contexts:
-        syncular_branch: "${SYNCULAR_BRANCH_ROOT:-/Users/bkniffler/GitHub/syncular}"
     command: ["bun", "src/server.ts"]
     environment:
       DATABASE_URL: postgresql://bench:bench@postgres:5432/bench
@@ -81,8 +79,6 @@ services:
     build:
       context: ../../
       dockerfile: stacks/syncular/Dockerfile
-      additional_contexts:
-        syncular_branch: "${SYNCULAR_BRANCH_ROOT:-/Users/bkniffler/GitHub/syncular}"
     command: ["bun", "src/admin.ts"]
     environment:
       DATABASE_URL: postgresql://bench:bench@postgres:5432/bench
