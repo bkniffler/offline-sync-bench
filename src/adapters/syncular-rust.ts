@@ -1015,7 +1015,7 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
       await ensureStackUp(STACK_ID);
       const binPath = await ensureBenchBinary();
       const clientCount = Number(
-        process.env.SYNCULAR_RUST_STORM_CLIENTS ?? '50'
+        process.env.SYNCULAR_RUST_STORM_CLIENTS ?? '25'
       );
       await seedStackPatient({
         orgCount: 1,
@@ -1113,6 +1113,11 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
           request_bytes: totals.requestBytes,
           response_bytes: totals.responseBytes,
           bytes_transferred: bytesTransferred(totals),
+          [`clients_${clientCount}_convergence_ms`]: round(convergenceMs),
+          [`clients_${clientCount}_request_count`]: totals.requestCount,
+          [`clients_${clientCount}_request_bytes`]: totals.requestBytes,
+          [`clients_${clientCount}_response_bytes`]: totals.responseBytes,
+          [`clients_${clientCount}_bytes_transferred`]: bytesTransferred(totals),
           sync_avg_cpu_pct: syncMetrics?.avgCpuPct ?? 0,
           sync_peak_cpu_pct: syncMetrics?.peakCpuPct ?? 0,
           sync_avg_memory_mb: syncMetrics?.avgMemoryMb ?? 0,

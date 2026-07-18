@@ -12,12 +12,11 @@ const syncularStackPackageJsonPath = join(
   'syncular-app',
   'package.json'
 );
-const syncularStackLockPath = join(
+const syncularStackLockPath = join(benchmarkRoot, 'bun.lock');
+const syncularRustCargoLockPath = join(
   benchmarkRoot,
-  'stacks',
-  'syncular',
-  'syncular-app',
-  'bun.lock'
+  'syncular-rust-driver',
+  'Cargo.lock'
 );
 
 interface PackageJsonFile {
@@ -174,26 +173,22 @@ function buildRustSyncularVersionMetadata(): {
   versionSource: string;
   versionComponents: JsonObject;
 } {
-  const rustClientPackagePath =
-    process.env.SYNCULAR_RUST_CLIENT_PACKAGE_JSON ??
-    '/Users/bkniffler/conductor/workspaces/syncular/indianapolis/rust/bindings/browser/package.json';
-  const rustClientPackage =
-    readJsonFile<PackageJsonFile>(rustClientPackagePath) ?? {};
   const server = buildPublishedSyncularVersionMetadata().versionComponents;
-  const rustClientVersion = rustClientPackage.version ?? 'local';
+  const rustClientVersion =
+    readCargoLockPackageVersion(
+      syncularRustCargoLockPath,
+      'syncular-client'
+    ) ?? 'unknown';
 
   return {
     frameworkVersion: rustClientVersion,
-    versionSource: rustClientPackagePath,
+    versionSource: 'syncular-rust-driver/Cargo.lock',
     versionComponents: {
       clientRust: rustClientVersion,
-      clientRustPackage: rustClientPackage.name ?? '@syncular/client-rust',
+      clientRustPackage: 'syncular-client',
       server: server.server,
-      serverDialectPostgres: server.serverDialectPostgres,
       serverHono: server.serverHono,
       serverDependencyRange: server.serverDependencyRange,
-      serverDialectPostgresDependencyRange:
-        server.serverDialectPostgresDependencyRange,
       serverHonoDependencyRange: server.serverHonoDependencyRange,
     },
   };
@@ -204,39 +199,29 @@ function buildPublishedSyncularVersionMetadata(): {
   versionSource: string;
   versionComponents: JsonObject;
 } {
+  const installedClientVersion =
+    readInstalledPackageVersion('@syncular/client');
   const frameworkVersion =
-    readInstalledPackageVersion('syncular') ??
-    readDependencyRange('syncular') ??
+    installedClientVersion ??
+    readDependencyRange('@syncular/client') ??
     'unknown';
-  const installedVersionSource = readInstalledPackageVersion('syncular')
-    ? 'node_modules/syncular/package.json'
-    : 'package.json dependency range';
+  const installedVersionSource = installedClientVersion
+    ? 'node_modules/@syncular/client/package.json'
+    : 'package.json @syncular/client dependency range';
 
   return {
     frameworkVersion,
     versionSource: installedVersionSource,
     versionComponents: {
-      syncular: readInstalledPackageVersion('syncular'),
       client: readInstalledPackageVersion('@syncular/client'),
-      clientBlobPlugin: readInstalledPackageVersion('@syncular/client-plugin-blob'),
       core: readInstalledPackageVersion('@syncular/core'),
-      bunSqliteDialect: readInstalledPackageVersion('@syncular/dialect-bun-sqlite'),
-      transportHttp: readInstalledPackageVersion('@syncular/transport-http'),
-      transportWs: readInstalledPackageVersion('@syncular/transport-ws'),
       server: readLockedPackageVersion(syncularStackLockPath, '@syncular/server'),
-      serverDialectPostgres: readLockedPackageVersion(
-        syncularStackLockPath,
-        '@syncular/server-dialect-postgres'
-      ),
       serverHono: readLockedPackageVersion(
         syncularStackLockPath,
         '@syncular/server-hono'
       ),
       serverDependencyRange:
         syncularStackPackageJson.dependencies?.['@syncular/server'] ?? null,
-      serverDialectPostgresDependencyRange:
-        syncularStackPackageJson.dependencies?.['@syncular/server-dialect-postgres'] ??
-        null,
       serverHonoDependencyRange:
         syncularStackPackageJson.dependencies?.['@syncular/server-hono'] ?? null,
     },
@@ -272,17 +257,50 @@ function readLockedPackageVersion(
 ): string | null {
   const lockfile = readJsonFile<BunLockFile>(lockPath);
   const entry = lockfile?.packages?.[packageName];
-  if (!Array.isArray(entry)) {
+  if (Array.isArray(entry)) {
+    const descriptor = entry[0];
+    if (typeof descriptor === 'string') {
+      const prefix = `${packageName}@`;
+      return descriptor.startsWith(prefix)
+        ? descriptor.slice(prefix.length)
+        : null;
+    }
+  }
+
+  // Bun's text lockfile is JSONC, so JSON.parse cannot read versions that
+  // include comments or trailing commas. Fall back to its package descriptor.
+  try {
+    const lockText = readFileSync(lockPath, 'utf8');
+    const escapedName = packageName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return (
+      lockText.match(
+        new RegExp(
+          `"${escapedName}"\\s*:\\s*\\["${escapedName}@([^"\\s]+)"`
+        )
+      )?.[1] ?? null
+    );
+  } catch {
+    return null;
+  }
+}
+
+function readCargoLockPackageVersion(
+  lockPath: string,
+  packageName: string
+): string | null {
+  let text: string;
+  try {
+    text = readFileSync(lockPath, 'utf8');
+  } catch {
     return null;
   }
 
-  const descriptor = entry[0];
-  if (typeof descriptor !== 'string') {
-    return null;
+  for (const block of text.split('[[package]]')) {
+    const name = block.match(/^name = "([^"]+)"$/m)?.[1];
+    if (name !== packageName) continue;
+    return block.match(/^version = "([^"]+)"$/m)?.[1] ?? null;
   }
-
-  const prefix = `${packageName}@`;
-  return descriptor.startsWith(prefix) ? descriptor.slice(prefix.length) : null;
+  return null;
 }
 
 function inspectServiceImageReference(

@@ -8,9 +8,9 @@
     "typegen": "bunx @syncular/typegen generate --manifest-dir ."
   },
   "dependencies": {
-    "@syncular/core": "0.2.1",
-    "@syncular/server": "0.2.1",
-    "@syncular/server-hono": "0.2.1",
+    "@syncular/core": "0.15.14",
+    "@syncular/server": "0.15.14",
+    "@syncular/server-hono": "0.15.14",
     "hono": "^4.11.0",
     "postgres": "^3.4.8"
   }

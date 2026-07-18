@@ -642,7 +642,7 @@ async function main(): Promise<void> {
         scenarioId: 'reconnect-storm',
         stackId,
         limit: 10,
-        metricKeys: ['clients_25_convergence_ms', 'reconnect_convergence_ms'],
+        metricKeys: ['clients_25_convergence_ms'],
       });
       const median100 = medianMetricFromRecentResults({
         latest,
@@ -674,13 +674,7 @@ async function main(): Promise<void> {
       });
       return [
         stackTitle(stackId),
-        formatMs(
-          median25 ??
-            firstMetric(result?.metrics ?? {}, [
-              'clients_25_convergence_ms',
-              'reconnect_convergence_ms',
-            ])
-        ),
+        formatMs(median25 ?? result?.metrics.clients_25_convergence_ms),
         formatMs(median100 ?? result?.metrics.clients_100_convergence_ms),
         formatMs(median250 ?? result?.metrics.clients_250_convergence_ms),
         formatMs(median500 ?? result?.metrics.clients_500_convergence_ms),
@@ -714,12 +708,7 @@ async function main(): Promise<void> {
       });
       if (recentResults.length === 0) return null;
       const samples25 = recentResults
-        .map((result) =>
-          firstMetric(result.metrics, [
-            'clients_25_convergence_ms',
-            'reconnect_convergence_ms',
-          ])
-        )
+        .map((result) => result.metrics.clients_25_convergence_ms)
         .filter((value): value is number => typeof value === 'number')
         .sort((left, right) => left - right);
       const samples100 = recentResults
@@ -781,34 +770,10 @@ async function main(): Promise<void> {
       if (!result) return null;
       return [
         stackTitle(stackId),
-        formatMb(
-          firstMetric(result.metrics, [
-            'clients_500_sync_avg_memory_mb',
-            'clients_250_sync_avg_memory_mb',
-            'sync_avg_memory_mb',
-          ])
-        ),
-        formatMb(
-          firstMetric(result.metrics, [
-            'clients_500_postgres_avg_memory_mb',
-            'clients_250_postgres_avg_memory_mb',
-            'postgres_avg_memory_mb',
-          ])
-        ),
-        formatPct(
-          firstMetric(result.metrics, [
-            'clients_500_sync_avg_cpu_pct',
-            'clients_250_sync_avg_cpu_pct',
-            'sync_avg_cpu_pct',
-          ])
-        ),
-        formatPct(
-          firstMetric(result.metrics, [
-            'clients_500_postgres_avg_cpu_pct',
-            'clients_250_postgres_avg_cpu_pct',
-            'postgres_avg_cpu_pct',
-          ])
-        ),
+        formatMb(result.metrics.clients_500_sync_avg_memory_mb),
+        formatMb(result.metrics.clients_500_postgres_avg_memory_mb),
+        formatPct(result.metrics.clients_500_sync_avg_cpu_pct),
+        formatPct(result.metrics.clients_500_postgres_avg_cpu_pct),
         formatSupport({ result, scenarioId: 'reconnect-storm', stackId }),
       ];
     })
@@ -1178,7 +1143,7 @@ async function main(): Promise<void> {
     '- Model difference, stated honestly: the CDC stacks (Electric, Zero, PowerSync, LiveStore via sync-electric) observe an app-owned Postgres via WAL/CDC, so the bench admin writes plain SQL. Syncular v2 materializes real per-app Postgres tables but owns them — ingestion goes through the engine (push/storage API), never CDC — so its bench admin writes through the storage API and wakes clients via the engine’s Postgres LISTEN/NOTIFY fanout, while reads use plain SQL over the materialized columns.'
   );
   sections.push(
-    '- The two Syncular rows share one server stack and differ only in client core: `syncular` is the JS client on bun:sqlite; `syncular-rust` is the native Rust client (rusqlite) driven over real HTTP+WebSocket by a standalone bench binary. Both use the published packages, versions pinned (npm @syncular/*@0.2.1 for the JS client and server stack, crates.io syncular-client/syncular-command/syncular-ffi 0.2.1 for the native binary); scenario parameters (datasets, query shapes, blob sizes, iteration counts) are identical across the two rows.'
+    '- The two Syncular rows share one server stack and differ only in client core: `syncular` is the JS client on bun:sqlite; `syncular-rust` is the native Rust client (rusqlite) driven over real HTTP+WebSocket by a standalone bench binary. Both use the published packages, versions pinned (npm @syncular/*@0.15.14 for the JS client and server stack, crates.io syncular-client/syncular-command/syncular-ffi 0.15.14 for the native binary); scenario parameters (datasets, query shapes, blob sizes, iteration counts) are identical across the two rows.'
   );
   sections.push(
     '- Syncular bootstrap is measured cold-server + cold-client: the sync service is restarted before every scale so in-memory segment/sqlite-image caches never serve the measurement. `100k warm` is a second fresh client bootstrapping the same dataset without a restart (populated caches); stacks without the metric show n/a.'

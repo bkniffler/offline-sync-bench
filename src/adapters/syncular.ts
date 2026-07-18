@@ -854,16 +854,19 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
       const actorId = fixtures.sampleUserIds[0]!;
       const projectId = fixtures.sampleProjectId!;
       const taskId = fixtures.sampleTaskId!;
-      const clientCount = 50;
+      const clientCount = Number(process.env.SYNCULAR_STORM_CLIENTS ?? '25');
 
-      await Promise.all(
-        Array.from({ length: clientCount }, async () => {
-          const bench = await createBenchClient(actorId);
-          clients.push(bench);
-          subscribeTasks(bench, [projectId]);
-          await bench.client.syncUntilIdle(500);
-        })
-      );
+      for (let offset = 0; offset < clientCount; offset += 8) {
+        const batchSize = Math.min(8, clientCount - offset);
+        await Promise.all(
+          Array.from({ length: batchSize }, async () => {
+            const bench = await createBenchClient(actorId);
+            clients.push(bench);
+            subscribeTasks(bench, [projectId]);
+            await bench.client.syncUntilIdle(500);
+          })
+        );
+      }
 
       const syncContainerId = resolveServiceContainerId(STACK_ID, 'sync');
       const postgresContainerId = resolveServiceContainerId(STACK_ID, 'postgres');
@@ -938,7 +941,7 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
             postgresMetrics?.txNetworkMb ?? 0,
         },
         notes: [
-          '50 pre-bootstrapped SyncClient instances catch up on the same engine-mediated server-side change by syncing simultaneously through the product HTTP sync round.',
+          `${clientCount} pre-bootstrapped SyncClient instances catch up on the same engine-mediated server-side change by syncing simultaneously through the product HTTP sync round (set SYNCULAR_STORM_CLIENTS to change the count).`,
           'Server CPU/memory/network samples the syncular sync service and Postgres containers for the duration of the fan-in.',
         ],
         metadata: {
