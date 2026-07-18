@@ -12,8 +12,8 @@
         "@powersync/node": "^0.18.6",
         "@powersync/web": "^1.38.1",
         "@rocicorp/zero": "^1.1.1",
-        "@syncular/client": "0.15.14",
-        "@syncular/core": "0.15.14",
+        "@syncular/client": "0.15.18",
+        "@syncular/core": "0.15.18",
         "better-sqlite3": "^12.6.2",
         "esbuild": "^0.27.3",
         "fake-indexeddb": "^6.2.5",
@@ -25,8 +25,8 @@
       },
       "devDependencies": {
         "@journeyapps/wa-sqlite": "^1.7.0",
-        "@syncular/server": "0.15.14",
-        "@syncular/server-hono": "0.15.14",
+        "@syncular/server": "0.15.18",
+        "@syncular/server-hono": "0.15.18",
         "@types/bun": "^1.3.10",
         "typescript": "^5.9.3",
       },
@@ -773,13 +773,13 @@
 
     "@standard-schema/spec": ["@standard-schema/spec@1.1.0", "", {}, "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="],
 
-    "@syncular/client": ["@syncular/client@0.15.14", "", { "dependencies": { "@sqlite.org/sqlite-wasm": "^3.53.0-build1", "@syncular/core": "0.15.14" }, "peerDependencies": { "better-sqlite3": ">=11" }, "optionalPeers": ["better-sqlite3"] }, "sha512-3hA3F/qXmK7Oaz5cOj3zC5hA2rXjHfkikM3As/nnA/Eo6qCADyKQ709XGPDGgewpQZPpZGq90yZ0o+ybag2Fsw=="],
+    "@syncular/client": ["@syncular/client@0.15.18", "", { "dependencies": { "@sqlite.org/sqlite-wasm": "^3.53.0-build1", "@syncular/core": "0.15.18" }, "peerDependencies": { "better-sqlite3": ">=11" }, "optionalPeers": ["better-sqlite3"] }, "sha512-LoOS3s/gKlxwk6by1ZObTNYGXNTWdgzxYvuUIBSbS7pLIsYXnAD81TF2HIlsrBUsryPIe946sRXVlKoanTOG9w=="],
 
-    "@syncular/core": ["@syncular/core@0.15.14", "", {}, "sha512-TTfav7ViXoRlsQWjUrqgIwELXEQfqNGvKTiarJdtOl/8Lju85TNJM63UvLgRYlqVUV4SwnHJN6JCa4aYBJ2uIQ=="],
+    "@syncular/core": ["@syncular/core@0.15.18", "", {}, "sha512-SF55djbuqXH9XaSL0Xp74WosCskfYwmDOGz7+PMGar8Dlo3m595K4OluS+ftYEneKcyqlfFQTI4pOG0nkmH6BA=="],
 
-    "@syncular/server": ["@syncular/server@0.15.14", "", { "dependencies": { "@syncular/core": "0.15.14" } }, "sha512-MUcJHLBPOXPKuGa4FQ15LcLfug1XjsTWrTmwuWr4gvC2UzkMt1LC8MFXsazJTejI0eXDDBYDktB3bd3jqovwoA=="],
+    "@syncular/server": ["@syncular/server@0.15.18", "", { "dependencies": { "@syncular/core": "0.15.18" } }, "sha512-5eF4F4q6kX7L5m0nyKZitmcvBCp9rm29C9LspZqDkZQ7zzgPRgZTZN8wFGjdtY5B6SUR9YmhvJqThMITr62ZKw=="],
 
-    "@syncular/server-hono": ["@syncular/server-hono@0.15.14", "", { "dependencies": { "@syncular/server": "0.15.14", "hono": "^4.11.0" } }, "sha512-clg22yVwh0jNU5EeJIvT3VRub8dY/sJtdDIKzVOMZIZryhZpHEWU9jwjHSEWT0D+dx0Dw6Twk3liLq1rzJT4fw=="],
+    "@syncular/server-hono": ["@syncular/server-hono@0.15.18", "", { "dependencies": { "@syncular/server": "0.15.18", "hono": "^4.11.0" } }, "sha512-mGh3M6xnnCjI9yT51faDrvaTxg946vfA9guXmhTYEDK6GZcpQzbH4jgOzrFcMXwCvmaHs1DKviLdLjkmhsr6bw=="],
 
     "@types/aws-lambda": ["@types/aws-lambda@8.10.152", "", {}, "sha512-soT/c2gYBnT5ygwiHPmd9a1bftj462NWVk2tKCc1PYHSIacB2UwbTS2zYG4jzag1mRDuzg/OjtxQjQ2NKRB6Rw=="],
 

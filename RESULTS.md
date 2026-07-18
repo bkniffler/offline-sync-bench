@@ -118,8 +118,8 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | 100 writes | 500 writes | 1000 writes | 1000 reqs | Support |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 243.8 ms | 1821 ms | 2662 ms | 2 | native |
-| Syncular Rust Client | 1415 ms | 10559 ms | 22625 ms | 3 | native |
+| Syncular | 242.3 ms | 1109 ms | 2216 ms | 2 | native |
+| Syncular Rust Client | 251.6 ms | 1334 ms | 2142 ms | 3 | native |
 | Electric | n/a | n/a | n/a | n/a | emulated |
 | Zero | n/a | n/a | n/a | n/a | unsupported |
 | PowerSync | 5461 ms | 6669 ms | 7153 ms | 1007 | native |
@@ -130,8 +130,8 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 | Stack | Runs | 100 median | 500 median | 1000 median | Latest 1000 |
 | --- | --- | --- | --- | --- | --- |
-| Syncular | 1 | 243.8 ms | 1821 ms | 2662 ms | 2662 ms |
-| Syncular Rust Client | 1 | 1415 ms | 10559 ms | 22625 ms | 22625 ms |
+| Syncular | 1 | 242.3 ms | 1109 ms | 2216 ms | 2216 ms |
+| Syncular Rust Client | 1 | 251.6 ms | 1334 ms | 2142 ms | 2142 ms |
 | PowerSync | 1 | 5461 ms | 6669 ms | 7153 ms | 7153 ms |
 | Replicache | 1 | 1310 ms | 1451 ms | 1594 ms | 1594 ms |
 
@@ -223,7 +223,7 @@ Reconnect Storm and Large Offline Queue headline tables prefer current-version m
 
 - `native` means the benchmark uses the product’s normal client model.
 - Model difference, stated honestly: the CDC stacks (Electric, Zero, PowerSync, LiveStore via sync-electric) observe an app-owned Postgres via WAL/CDC, so the bench admin writes plain SQL. Syncular v2 materializes real per-app Postgres tables but owns them — ingestion goes through the engine (push/storage API), never CDC — so its bench admin writes through the storage API and wakes clients via the engine’s Postgres LISTEN/NOTIFY fanout, while reads use plain SQL over the materialized columns.
-- The two Syncular rows share one server stack and differ only in client core: `syncular` is the JS client on bun:sqlite; `syncular-rust` is the native Rust client (rusqlite) driven over real HTTP+WebSocket by a standalone bench binary. Both use the published packages, versions pinned (npm @syncular/*@0.15.14 for the JS client and server stack, crates.io syncular-client/syncular-command/syncular-ffi 0.15.14 for the native binary); scenario parameters (datasets, query shapes, blob sizes, iteration counts) are identical across the two rows.
+- The two Syncular rows share one server stack and differ only in client core: `syncular` is the JS client on bun:sqlite; `syncular-rust` is the native Rust client (rusqlite) driven over real HTTP+WebSocket by a standalone bench binary. Both use the published packages, versions pinned (npm @syncular/*@0.15.18 for the JS client and server stack, crates.io syncular-client/syncular-command/syncular-ffi 0.15.18 for the native binary); scenario parameters (datasets, query shapes, blob sizes, iteration counts) are identical across the two rows.
 - Syncular bootstrap is measured cold-server + cold-client: the sync service is restarted before every scale so in-memory segment/sqlite-image caches never serve the measurement. `100k warm` is a second fresh client bootstrapping the same dataset without a restart (populated caches); stacks without the metric show n/a.
 - `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.
 - `unsupported` rows stay visible as `n/a` so the support matrix remains explicit without inventing benchmark-owned adapters.

@@ -711,9 +711,9 @@ dependencies = [
 
 [[package]]
 name = "syncular-client"
-version = "0.15.14"
+version = "0.15.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "45d72440f279eb82c1abd7ba9539804383f6f1d263746af3bc531601fa57212f"
+checksum = "0fabc1780398793d0c63b63c9c1a17bc31838aa544f33f931dd7a0261032cf6b"
 dependencies = [
  "rusqlite",
  "serde",
@@ -728,9 +728,9 @@ dependencies = [
 
 [[package]]
 name = "syncular-command"
-version = "0.15.14"
+version = "0.15.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bbb12206b0bb52530604d58dcc7ccd83ad1beee4d132cb22f64357e653d8abbb"
+checksum = "a7e8f10b209afdc245c79ebd18a61715635896be7e8e2b919a6638bb528992f9"
 dependencies = [
  "serde_json",
  "syncular-client",
@@ -739,9 +739,9 @@ dependencies = [
 
 [[package]]
 name = "syncular-ffi"
-version = "0.15.14"
+version = "0.15.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ea4208d1c95f332542e1d601210e98ea9cb05c9dfb4efdd7bfbada1822ef96e"
+checksum = "e0bc2b1ff5d3c7f9434f19ac0a98acdbf174dd8ca21e70628e8042d8ff9ae701"
 dependencies = [
  "serde_json",
  "syncular-client",
@@ -750,9 +750,9 @@ dependencies = [
 
 [[package]]
 name = "syncular-ssp2"
-version = "0.15.14"
+version = "0.15.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "66fff2a10032afdd4d68f3004b9f6eb3498850d8bc944effb8c4dcd707a22628"
+checksum = "06095a6a39433ea284452dbbc5ce8cf3fcfc86616a790f56db56dbff018e096c"
 dependencies = [
  "serde_json",
 ]
