@@ -10,7 +10,6 @@ import {
   string,
   table,
 } from '@rocicorp/zero';
-import { toTableName as toLiveStoreEventlogTableName } from '@livestore/sync-electric';
 import postgres from 'postgres';
 import { benchmarkRoot, tempRoot } from './paths';
 import { getStack } from './stacks';
@@ -237,7 +236,11 @@ async function isUrlHealthy(
 }
 
 async function isStackHealthy(stack: StackSpec): Promise<boolean> {
-  if (!(await isUrlHealthy(`${stack.adminBaseUrl}/health`))) {
+  if (
+    !(await isUrlHealthy(
+      `${stack.adminBaseUrl}${stack.adminHealthPath ?? '/health'}`
+    ))
+  ) {
     return false;
   }
 
@@ -246,6 +249,7 @@ async function isStackHealthy(stack: StackSpec): Promise<boolean> {
     case 'syncular-rust':
       return isUrlHealthy(`${stack.syncBaseUrl.replace(/\/api$/, '')}/health`);
     case 'electric':
+    case 'electric-tanstack':
       if (
         !(await isUrlHealthy(`${stack.syncBaseUrl}/v1/shape?table=tasks&offset=-1`, {
           acceptResponse: (response) => response.status < 500,
@@ -269,20 +273,14 @@ async function isStackHealthy(stack: StackSpec): Promise<boolean> {
         return false;
       }
       return stack.appBaseUrl ? isUrlHealthy(`${stack.appBaseUrl}/health`) : true;
-    case 'replicache':
-      return stack.appBaseUrl ? isUrlHealthy(`${stack.appBaseUrl}/health`) : true;
-    case 'livestore':
-      if (stack.appBaseUrl && !(await isUrlHealthy(`${stack.appBaseUrl}/health`))) {
-        return false;
-      }
-      return isUrlHealthy(
-        `${stack.syncBaseUrl}/v1/shape?table=${encodeURIComponent(
-          toLiveStoreEventlogTableName('benchmark')
-        )}&offset=-1`,
-        {
-          acceptResponse: (response) => response.status < 500,
-        }
-      );
+    case 'turso':
+      // The admin process is itself a synced Turso client, so its successful
+      // health query proves both the local database and sync server are ready.
+      return true;
+    case 'jazz-v2':
+      return true;
+    case 'triplit':
+      return true;
   }
 }
 
@@ -402,7 +400,7 @@ export async function ensureStackUp(stackId: StackId): Promise<StackSpec> {
 
   const upArgs = fingerprintState.changed ? ['up', '--build', '-d'] : ['up', '-d'];
   await runDockerComposeUpWithRetries(stack, upArgs);
-  await waitForUrl(`${stack.adminBaseUrl}/health`);
+  await waitForUrl(`${stack.adminBaseUrl}${stack.adminHealthPath ?? '/health'}`);
 
   switch (stack.id) {
     case 'syncular':
@@ -410,6 +408,7 @@ export async function ensureStackUp(stackId: StackId): Promise<StackSpec> {
       await waitForUrl(`${stack.syncBaseUrl.replace(/\/api$/, '')}/health`);
       break;
     case 'electric':
+    case 'electric-tanstack':
       await waitForUrl(`${stack.syncBaseUrl}/v1/shape?table=tasks&offset=-1`, {
         acceptResponse: (response) => response.status < 500,
       });
@@ -433,23 +432,9 @@ export async function ensureStackUp(stackId: StackId): Promise<StackSpec> {
         await waitForUrl(`${stack.appBaseUrl}/health`);
       }
       break;
-    case 'replicache':
-      if (stack.appBaseUrl) {
-        await waitForUrl(`${stack.appBaseUrl}/health`);
-      }
+    case 'jazz-v2':
       break;
-    case 'livestore':
-      if (stack.appBaseUrl) {
-        await waitForUrl(`${stack.appBaseUrl}/health`);
-      }
-      await waitForUrl(
-        `${stack.syncBaseUrl}/v1/shape?table=${encodeURIComponent(
-          toLiveStoreEventlogTableName('benchmark')
-        )}&offset=-1`,
-        {
-          acceptResponse: (response) => response.status < 500,
-        }
-      );
+    case 'triplit':
       break;
   }
 

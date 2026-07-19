@@ -1,0 +1,10 @@
+{
+  "name": "turso-bench-admin",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@hono/node-server": "^1.19.9",
+    "@tursodatabase/sync": "0.7.0",
+    "hono": "^4.12.5"
+  }
+}

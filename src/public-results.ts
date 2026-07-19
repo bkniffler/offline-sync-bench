@@ -306,11 +306,14 @@ async function collectBundleRows(): Promise<BundleSizeRow[]> {
     lookup.get('powersync-minimal')
       ? { ...lookup.get('powersync-minimal')!, label: 'PowerSync', profile: 'named import' }
       : null,
-    lookup.get('replicache-minimal')
-      ? { ...lookup.get('replicache-minimal')!, label: 'Replicache', profile: 'named import' }
+    lookup.get('electric-tanstack-combo')
+      ? { ...lookup.get('electric-tanstack-combo')!, label: 'Electric + TanStack DB', profile: 'named import' }
       : null,
-    lookup.get('livestore-minimal')
-      ? { ...lookup.get('livestore-minimal')!, label: 'LiveStore', profile: 'named import' }
+    lookup.get('jazz-v2-minimal')
+      ? { ...lookup.get('jazz-v2-minimal')!, label: 'Jazz v2 (experimental)', profile: 'named import' }
+      : null,
+    lookup.get('triplit-minimal')
+      ? { ...lookup.get('triplit-minimal')!, label: 'Triplit', profile: 'named import' }
       : null,
   ];
 
@@ -346,16 +349,17 @@ async function main(): Promise<void> {
   sections.push(
     'Reconnect Storm and Large Offline Queue headline tables prefer current-version medians from recent successful runs when available.'
   );
+  sections.push(
+    'Experimental-lane stacks remain visible in scenario tables but are excluded from stable headline rankings.'
+  );
   sections.push('');
   sections.push('## Highlights');
   sections.push('');
   const syncularBootstrap = getResult(latest, 'bootstrap', 'syncular');
   const electricBootstrap = getResult(latest, 'bootstrap', 'electric');
-  const replicacheBootstrap = getResult(latest, 'bootstrap', 'replicache');
   const syncularOnline = getResult(latest, 'online-propagation', 'syncular');
   const electricOnline = getResult(latest, 'online-propagation', 'electric');
   const syncularReplay = getResult(latest, 'offline-replay', 'syncular');
-  const replicacheReplay = getResult(latest, 'offline-replay', 'replicache');
   const powersyncReplay = getResult(latest, 'offline-replay', 'powersync');
   const syncularPermission = getResult(latest, 'permission-change', 'syncular');
   const electricPermission = getResult(latest, 'permission-change', 'electric');
@@ -374,12 +378,6 @@ async function main(): Promise<void> {
     stackId: 'electric',
     limit: 3,
   });
-  const replicacheBootstrapRecent = getRecentResults({
-    latest,
-    scenarioId: 'bootstrap',
-    stackId: 'replicache',
-    limit: 3,
-  });
 
   const syncularBootstrapMedian = median(
     syncularBootstrapRecent
@@ -391,12 +389,6 @@ async function main(): Promise<void> {
       .map((result) => result.metrics.bootstrap_100000_ms)
       .filter((value): value is number => typeof value === 'number')
   );
-  const replicacheBootstrapMedian = median(
-    replicacheBootstrapRecent
-      .map((result) => result.metrics.bootstrap_100000_ms)
-      .filter((value): value is number => typeof value === 'number')
-  );
-
   const syncularPermissionRecent = getRecentResults({
     latest,
     scenarioId: 'permission-change',
@@ -422,11 +414,10 @@ async function main(): Promise<void> {
 
   if (
     electricBootstrapMedian !== null &&
-    syncularBootstrapMedian !== null &&
-    replicacheBootstrapMedian !== null
+    syncularBootstrapMedian !== null
   ) {
     sections.push(
-      `- Bootstrap at 100k rows (median of the latest ${Math.min(electricBootstrapRecent.length, syncularBootstrapRecent.length, replicacheBootstrapRecent.length)} runs where available): Electric is at ${formatMs(electricBootstrapMedian)}; Syncular is at ${formatMs(syncularBootstrapMedian)}; Replicache is at ${formatMs(replicacheBootstrapMedian)}.`
+      `- Bootstrap at 100k rows (median of the latest ${Math.min(electricBootstrapRecent.length, syncularBootstrapRecent.length)} runs where available): Electric is at ${formatMs(electricBootstrapMedian)}; Syncular is at ${formatMs(syncularBootstrapMedian)}.`
     );
   }
   if (electricOnline && syncularOnline) {
@@ -434,9 +425,9 @@ async function main(): Promise<void> {
       `- Online propagation: Electric still leads on tail latency (${formatMs(electricOnline.metrics.mirror_visible_p95_ms)} p95), while Syncular is now at ${formatMs(syncularOnline.metrics.mirror_visible_p95_ms)} p95 with ${formatMs(syncularOnline.metrics.write_ack_ms)} write ack.`
     );
   }
-  if (syncularReplay && replicacheReplay && powersyncReplay) {
+  if (syncularReplay && powersyncReplay) {
     sections.push(
-      `- Native offline replay: Syncular currently converges in ${formatMs(firstMetric(syncularReplay.metrics, ['reconnect_convergence_ms', 'replay_visible_ms']))}, ahead of Replicache (${formatMs(firstMetric(replicacheReplay.metrics, ['reconnect_convergence_ms', 'replay_visible_ms']))}) and PowerSync (${formatMs(firstMetric(powersyncReplay.metrics, ['reconnect_convergence_ms', 'replay_visible_ms']))}).`
+      `- Native offline replay: Syncular currently converges in ${formatMs(firstMetric(syncularReplay.metrics, ['reconnect_convergence_ms', 'replay_visible_ms']))}; PowerSync is at ${formatMs(firstMetric(powersyncReplay.metrics, ['reconnect_convergence_ms', 'replay_visible_ms']))}.`
     );
   }
   if (
@@ -1140,7 +1131,7 @@ async function main(): Promise<void> {
   sections.push('');
   sections.push('- `native` means the benchmark uses the product’s normal client model.');
   sections.push(
-    '- Model difference, stated honestly: the CDC stacks (Electric, Zero, PowerSync, LiveStore via sync-electric) observe an app-owned Postgres via WAL/CDC, so the bench admin writes plain SQL. Syncular v2 materializes real per-app Postgres tables but owns them — ingestion goes through the engine (push/storage API), never CDC — so its bench admin writes through the storage API and wakes clients via the engine’s Postgres LISTEN/NOTIFY fanout, while reads use plain SQL over the materialized columns.'
+    '- Model difference, stated honestly: the CDC stacks (Electric, Zero, and PowerSync) observe an app-owned Postgres via WAL/CDC, so the bench admin writes plain SQL. Syncular v2 materializes real per-app Postgres tables but owns them — ingestion goes through the engine (push/storage API), never CDC — so its bench admin writes through the storage API and wakes clients via the engine’s Postgres LISTEN/NOTIFY fanout, while reads use plain SQL over the materialized columns.'
   );
   sections.push(
     '- The two Syncular rows share one server stack and differ only in client core: `syncular` is the JS client on bun:sqlite; `syncular-rust` is the native Rust client (rusqlite) driven over real HTTP+WebSocket by a standalone bench binary. Both use the published packages, versions pinned (npm @syncular/*@0.15.18 for the JS client and server stack, crates.io syncular-client/syncular-command/syncular-ffi 0.15.18 for the native binary); scenario parameters (datasets, query shapes, blob sizes, iteration counts) are identical across the two rows.'
@@ -1150,7 +1141,6 @@ async function main(): Promise<void> {
   );
   sections.push('- `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.');
   sections.push('- `unsupported` rows stay visible as `n/a` so the support matrix remains explicit without inventing benchmark-owned adapters.');
-  sections.push('- LiveStore local-query remains unsupported at the shared 100000-row scale because the current wa-sqlite configuration aborts with a wasm heap OOM in this harness.');
   sections.push('- Repeat summaries use the latest successful runs for the current framework version per stack/scenario.');
   sections.push('- Bootstrap repeat summary uses up to five successful 100k-row runs per current version when available.');
   sections.push('- Reconnect storm repeat summary uses up to three successful runs per current version and reports tier medians for 25 / 100 / 250 / 500 clients when available.');

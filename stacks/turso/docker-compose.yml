@@ -1,0 +1,39 @@
+name: offline-sync-bench-turso
+
+services:
+  turso:
+    build:
+      context: ../../
+      dockerfile: stacks/turso/Dockerfile
+      args:
+        TURSO_VERSION: "0.7.0"
+    ports:
+      - "3225:8080"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8080"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+    volumes:
+      - turso-server-data:/data
+
+  admin:
+    build:
+      context: ../../
+      dockerfile: services/turso-bench-admin/Dockerfile
+    environment:
+      PORT: "3000"
+      STACK_ID: turso
+      TURSO_SYNC_URL: http://turso:8080
+      TURSO_LOCAL_PATH: /data/admin.db
+    depends_on:
+      turso:
+        condition: service_healthy
+    ports:
+      - "3226:3000"
+    volumes:
+      - turso-admin-data:/data
+
+volumes:
+  turso-server-data:
+  turso-admin-data:

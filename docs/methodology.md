@@ -22,10 +22,20 @@ This keeps public numbers reproducible. Development-only runs against local chec
 
 `unsupported` is preferred over a synthetic benchmark path that would stop measuring the actual framework.
 
+## Stack admission
+
+- Admit a deployable full-stack sync product that supplies both a server/backend and a local client, or an exceptionally popular official combination that supplies those layers together.
+- Require meaningful coverage of the core workloads: bootstrap, online propagation, offline replay or an explicit non-offline product model, and local reads.
+- Exclude generic BYOB client libraries whose benchmark server would define most of the measured behavior.
+- Exclude products whose active row would be dominated by `unsupported` scenarios.
+- Put alpha or otherwise experimental releases in a clearly labeled lane and exclude them from stable headline rankings.
+
+Electric + TanStack DB is the current combination exception. Jazz v2 is the current experimental lane. LiveStore and Replicache are not in the active matrix under these rules.
+
 ## Fairness rules
 
 - All stacks use the same seeded domain model: organizations, projects, users, memberships, and tasks.
-- All stacks start from Docker Compose and are reset between runs so state does not leak across scenarios.
+- All stacks start from Docker Compose. Postgres-backed stacks reset shared state; product-native stacks use isolated dataset identifiers and fresh client stores so rows from another scenario cannot enter a measured query.
 - Results are scenario-scoped. A framework can be strong in bootstrap and intentionally unsupported in offline replay.
 - `emulated` scenarios must be labeled in the stack matrix, the result metadata, and the summaries.
 - The benchmark does not assign a single winner across incomparable capability models.

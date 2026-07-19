@@ -113,7 +113,7 @@ function parseStackFlag(): StackId {
   const stackId = parseOptionalStackFlag();
   if (!stackId) {
     throw new Error(
-      '--stack must be one of: syncular, syncular-rust, electric, zero, powersync, replicache, livestore'
+      `--stack must be one of: ${stacks.map((stack) => stack.id).join(', ')}`
     );
   }
   return stackId;
@@ -124,20 +124,12 @@ function parseOptionalStackFlag(): StackId | null {
   if (stackId == null) {
     return null;
   }
-  if (
-    stackId !== 'syncular' &&
-    stackId !== 'syncular-rust' &&
-    stackId !== 'electric' &&
-    stackId !== 'zero' &&
-    stackId !== 'powersync' &&
-    stackId !== 'replicache' &&
-    stackId !== 'livestore'
-  ) {
+  if (!stacks.some((stack) => stack.id === stackId)) {
     throw new Error(
-      '--stack must be one of: syncular, syncular-rust, electric, zero, powersync, replicache, livestore'
+      `--stack must be one of: ${stacks.map((stack) => stack.id).join(', ')}`
     );
   }
-  return stackId;
+  return stackId as StackId;
 }
 
 function parseScenarioFlag(): ScenarioId {

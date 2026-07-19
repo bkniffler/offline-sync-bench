@@ -8,6 +8,14 @@ const electricBaseUrl = process.env.ELECTRIC_BASE_URL ?? 'http://electric:3000';
 const port = Number(process.env.PORT ?? '3000');
 const sql = postgres(databaseUrl, { max: 5 });
 
+await sql`
+  create table if not exists benchmark_idempotency (
+    idempotency_key text primary key,
+    txid bigint not null,
+    created_at timestamptz not null default now()
+  )
+`;
+
 const app = new Hono();
 
 app.get('/health', async (c) => {
@@ -89,6 +97,74 @@ app.post('/benchmark/revoke-membership', async (c) => {
     ok: true,
     membership,
   });
+});
+
+app.post('/benchmark/tasks/batch', async (c) => {
+  const request = await c.req.json<{
+    idempotencyKey?: string;
+    updates?: Array<{
+      taskId: string;
+      title?: string;
+      completed?: boolean;
+    }>;
+  }>();
+  const idempotencyKey =
+    c.req.header('idempotency-key') ?? request.idempotencyKey;
+  const updates = request.updates ?? [];
+
+  if (!idempotencyKey || updates.length === 0) {
+    return c.json(
+      { error: 'idempotencyKey and at least one update are required' },
+      400
+    );
+  }
+
+  const result = await sql.begin(async (tx) => {
+    const previous = await tx<{ txid: string }[]>`
+      select txid::text as txid
+      from benchmark_idempotency
+      where idempotency_key = ${idempotencyKey}
+    `;
+    if (previous[0]) {
+      return {
+        txid: Number(previous[0].txid),
+        updated: 0,
+        replayed: true,
+      };
+    }
+
+    const transactionRows = await tx<{ txid: string }[]>`
+      select pg_current_xact_id()::xid::text as txid
+    `;
+    const txid = transactionRows[0]?.txid;
+    if (!txid) {
+      throw new Error('Postgres did not return a transaction ID');
+    }
+
+    let updated = 0;
+    for (const update of updates) {
+      const rows = await tx<{ id: string }[]>`
+        update tasks
+        set
+          title = coalesce(${update.title ?? null}, title),
+          completed = coalesce(${update.completed ?? null}, completed),
+          server_version = server_version + 1,
+          updated_at = now()
+        where id = ${update.taskId}
+        returning id
+      `;
+      updated += rows.length;
+    }
+
+    await tx`
+      insert into benchmark_idempotency (idempotency_key, txid)
+      values (${idempotencyKey}, ${txid}::bigint)
+    `;
+
+    return { txid: Number(txid), updated, replayed: false };
+  });
+
+  return c.json({ ok: true, ...result });
 });
 
 Bun.serve({

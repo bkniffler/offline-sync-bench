@@ -42,76 +42,25 @@ Detailed specs live in:
 
 ## Stacks
 
-- `syncular`
-  - `bootstrap`: `native`
-  - `online-propagation`: `native`
-  - `offline-replay`: `native`
-  - `reconnect-storm`: `native`
-  - `large-offline-queue`: `native`
-  - `local-query`: `native`
-  - `deep-relationship-query`: `native`
-  - `permission-change`: `native`
-- `syncular-rust`
-  - `bootstrap`: `native`
-  - `online-propagation`: `native`
-  - `offline-replay`: `unsupported`
-  - `reconnect-storm`: `native`
-  - `large-offline-queue`: `unsupported`
-  - `local-query`: `native`
-  - `deep-relationship-query`: `native`
-  - `permission-change`: `native`
-  - `blob-flow`: `unsupported`
-- `electric`
-  - `bootstrap`: `native`
-  - `online-propagation`: `native`
-  - `offline-replay`: `emulated` via a benchmark-owned Bun SQLite outbox
-  - `reconnect-storm`: `native`
-  - `large-offline-queue`: `emulated`
-  - `local-query`: `native`
-  - `deep-relationship-query`: `unsupported`
-  - `permission-change`: `native` via a benchmark-owned auth-scoped Electric shape proxy
-- `zero`
-  - `bootstrap`: `native`
-  - `online-propagation`: `native`
-  - `offline-replay`: `unsupported`
-  - `reconnect-storm`: `unsupported`
-  - `large-offline-queue`: `unsupported`
-  - `local-query`: `native`
-  - `deep-relationship-query`: `native`
-  - `permission-change`: `unsupported`
-- `powersync`
-  - `bootstrap`: `native`
-  - `online-propagation`: `native`
-  - `offline-replay`: `native`
-  - `reconnect-storm`: `unsupported`
-  - `large-offline-queue`: `native`
-  - `local-query`: `native`
-  - `deep-relationship-query`: `native`
-  - `permission-change`: `unsupported`
-- `replicache`
-  - `bootstrap`: `native`
-  - `online-propagation`: `native`
-  - `offline-replay`: `native`
-  - `reconnect-storm`: `native`
-  - `large-offline-queue`: `native`
-  - `local-query`: `native`
-  - `deep-relationship-query`: `native`
-  - `permission-change`: `native` via an actor-scoped benchmark-owned BYOB pull path
-- `livestore`
-  - `bootstrap`: `native`
-  - `online-propagation`: `native`
-  - `offline-replay`: `unsupported` in this harness for the official Node adapter + `sync-electric` path
-  - `reconnect-storm`: `unsupported`
-  - `large-offline-queue`: `unsupported`
-  - `local-query`: `unsupported` at the shared `100000`-row scale in this harness
-  - `deep-relationship-query`: `unsupported`
-  - `permission-change`: `unsupported`
+The comparison admits deployable full-stack sync products with a server/backend and local client. Exceptionally popular, officially supported combinations may also be included when the combination supplies the missing layer; Electric + TanStack DB is the current exception. Generic BYOB client libraries and rows with little meaningful benchmark coverage are excluded.
 
-Each stack is defined with Docker Compose under [`stacks/`](./stacks/).
+| Stack | Bootstrap | Online | Offline | Large queue | Local query | Deep query | Permission | Blob |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Syncular JS | native | native | native | native | native | native | native | native |
+| Syncular Rust | native | native | native | native | native | native | native | native |
+| Electric | native | native | emulated | emulated | native | unsupported | native | unsupported |
+| Electric + TanStack DB | native | native | native | native | native | native | native | unsupported |
+| Zero | native | native | unsupported | unsupported | native | native | unsupported | unsupported |
+| PowerSync | native | native | native | native | native | native | unsupported | unsupported |
+| Turso Sync | native | native | native | native | native | native | unsupported | unsupported |
+| Triplit | native | native | native | native | emulated | native | unsupported | unsupported |
+| Jazz v2 (experimental) | native | native | native | native | emulated | unsupported | unsupported | unsupported |
 
-## Shared admin service
+Jazz v2 uses an alpha release and is reported in an experimental lane, outside stable headline rankings. Each stack is defined with Docker Compose under [`stacks/`](./stacks/).
 
-The shared admin service owns benchmark schema setup, reset, deterministic seeding, fixture discovery, and direct write helpers against Postgres. It also clears `sync_*` tables during resets so cached commit/snapshot state does not leak across runs.
+## Stack setup and admin services
+
+Postgres-backed stacks share an admin service for schema setup, reset, deterministic seeding, fixture discovery, and direct write helpers. Turso uses a synced native admin client; Jazz v2 and Triplit use their official schema deployment and backend APIs.
 
 Current admin endpoints:
 
@@ -146,14 +95,16 @@ bun run stacks:syncular:up
 bun run stacks:electric:up
 bun run stacks:zero:up
 bun run stacks:powersync:up
-bun run stacks:replicache:up
-bun run stacks:livestore:up
+bun run stacks:turso:up
+bun run stacks:jazz-v2:up
+bun run stacks:triplit:up
 bun run stacks:syncular:down
 bun run stacks:electric:down
 bun run stacks:zero:down
 bun run stacks:powersync:down
-bun run stacks:replicache:down
-bun run stacks:livestore:down
+bun run stacks:turso:down
+bun run stacks:jazz-v2:down
+bun run stacks:triplit:down
 ```
 
 ## Results
@@ -196,22 +147,17 @@ Interpretation:
 
 ## Current status
 
-The benchmark harness is operational for six stacks, with the expanded scenario set currently verified for:
+The benchmark harness is operational for the admitted full-stack products, the Electric + TanStack DB combination, and Syncular's Rust client variant. New coverage includes:
 
 - Syncular: `bootstrap`, `online-propagation`, `offline-replay`, `reconnect-storm`, `large-offline-queue`, `local-query`, `deep-relationship-query`, `permission-change`, `blob-flow`
 - Electric: `bootstrap`, `online-propagation`, `offline-replay` (emulated), `reconnect-storm`, `large-offline-queue` (emulated), `local-query`, `permission-change`
+- Electric + TanStack DB: `bootstrap`, `online-propagation`, `offline-replay`, `large-offline-queue`, `local-query`, `deep-relationship-query`, `permission-change`
 - Zero: `bootstrap`, `online-propagation`, `local-query`, `deep-relationship-query`
-- Replicache: `bootstrap`, `online-propagation`, `offline-replay`, `reconnect-storm`, `large-offline-queue`, `local-query`, `deep-relationship-query`, `permission-change`
 - PowerSync: `bootstrap`, `online-propagation`, `offline-replay`, `large-offline-queue`, `local-query`, `deep-relationship-query`
+- Turso Sync: `bootstrap`, `online-propagation`, `offline-replay`, `large-offline-queue`, `local-query`, `deep-relationship-query`
+- Triplit: `bootstrap`, `online-propagation`, `offline-replay`, `large-offline-queue`, `local-query` (aggregate emulated), `deep-relationship-query`
+- Jazz v2 experimental: `bootstrap`, `online-propagation`, `offline-replay`, `large-offline-queue`, `local-query` (aggregate emulated)
 
-The older full-matrix artifact set is still useful for the first six-stack comparison:
-
-- run ID: `2026-03-07T23-10-07-008Z`
-- markdown summary: [.results/2026-03-07T23-10-07-008Z/SUMMARY.md](./.results/2026-03-07T23-10-07-008Z/SUMMARY.md)
-- json summary: [.results/2026-03-07T23-10-07-008Z/SUMMARY.json](./.results/2026-03-07T23-10-07-008Z/SUMMARY.json)
-- csv summary: [.results/2026-03-07T23-10-07-008Z/SUMMARY.csv](./.results/2026-03-07T23-10-07-008Z/SUMMARY.csv)
-- run manifest: [.results/2026-03-07T23-10-07-008Z/RUN_MANIFEST.json](./.results/2026-03-07T23-10-07-008Z/RUN_MANIFEST.json)
-
-The current gaps are primarily broader scenario coverage for the non-Syncular/Electric stacks, not missing core adapters or missing resource telemetry.
+LiveStore and Replicache were removed from the active matrix: LiveStore had effectively no comparable coverage, and Replicache requires a benchmark-owned BYOB server rather than providing an admitted full-stack deployment.
 
 See [TODO.md](./TODO.md) for the remaining work.

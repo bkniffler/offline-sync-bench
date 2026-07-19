@@ -2,10 +2,12 @@ export type StackId =
   | 'syncular'
   | 'syncular-rust'
   | 'electric'
+  | 'electric-tanstack'
   | 'zero'
   | 'powersync'
-  | 'replicache'
-  | 'livestore';
+  | 'turso'
+  | 'jazz-v2'
+  | 'triplit';
 export type ScenarioId =
   | 'bootstrap'
   | 'online-propagation'
@@ -54,7 +56,7 @@ export interface StackCapabilities {
 export interface StackServices {
   sync: string;
   admin: string;
-  postgres: string;
+  postgres?: string;
   app?: string;
   storage?: string;
 }
@@ -67,6 +69,7 @@ export interface StackSpec {
   buildFingerprintPaths?: string[];
   databaseUrl?: string;
   adminBaseUrl: string;
+  adminHealthPath?: string;
   syncBaseUrl: string;
   syncRealtimeBaseUrl?: string;
   appBaseUrl?: string;

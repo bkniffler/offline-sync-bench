@@ -19,10 +19,8 @@
 - [x] Add Zero stack and verify `bootstrap` / `online-propagation`
 - [x] Mark Zero `offline-replay` unsupported instead of faking an extra client-side durability layer
 - [x] Add PowerSync stack and verify all three scenarios
-- [x] Add Replicache stack and verify all three scenarios
-- [x] Add LiveStore stack and verify `bootstrap` / `online-propagation`
-- [x] Mark LiveStore `offline-replay` unsupported in this harness for the official Node adapter + `sync-electric` path
-- [x] Verify a full `bun run bench:all` run locally across all current stacks
+- [x] Remove BYOB-only Replicache from the active matrix after adopting the full-stack admission rule
+- [x] Verify a full `bun run bench:all` run locally across the original stable matrix
 
 ## Methodology
 
@@ -49,22 +47,31 @@
 ## Coverage
 
 - [x] Mark support levels as `native` / `emulated` / `unsupported`
-- [x] Add reconnect storm / fan-in recovery for Syncular, Electric, and Replicache
+- [x] Add reconnect storm / fan-in recovery for Syncular and Electric
 - [x] Add a larger offline queue replay scenario for Syncular and Electric
-- [x] Extend large-offline-queue to 100 / 500 / 1000 queued writes for Syncular, Replicache, and PowerSync
+- [x] Extend large-offline-queue to 100 / 500 / 1000 queued writes for Syncular and PowerSync
 - [x] Add local-query benchmarking for Syncular and Electric
-- [x] Extend local-query benchmarking to Zero and Replicache on their native local client paths
+- [x] Extend local-query benchmarking to Zero on its native local client path
 - [x] Add native deep-relationship querying for Syncular and PowerSync over a fully synced multi-table local dataset
-- [x] Extend deep-relationship querying to Zero and Replicache on their native local client paths
-- [x] Add permission change convergence with native Syncular coverage plus auth-scoped Electric and Replicache benchmark paths, while keeping the remaining stacks explicitly unsupported
+- [x] Extend deep-relationship querying to Zero on its native local client path
+- [x] Add permission change convergence with native Syncular coverage plus auth-scoped Electric, while keeping the remaining stacks explicitly unsupported
 - [x] Add scoped multi-project datasets to permission-change benchmarks so revocation removes only the unauthorized project while retaining still-authorized data
 - [x] Add a first native Syncular blob flow benchmark covering immediate upload, forced cache-miss download, transferred bytes, and client resource use
 - [x] Extend blob benchmarking to cross-client metadata visibility before authenticated re-download
 - [x] Add interrupted upload recovery and storage-overhead comparisons to blob benchmarking
-- [x] Keep LiveStore local-query unsupported at the shared 100000-row benchmark scale after verifying the current wa-sqlite configuration OOMs in this harness
-- [ ] Add more stacks beyond the current six, likely PowerSync alternatives or CRDT-first systems with clearly marked non-comparable scenarios
+- [x] Add Turso Sync with official client/server bootstrap, propagation, offline queue, and local query coverage
+- [x] Add Electric + TanStack DB using official persistence and offline-transactions packages
+- [x] Add Triplit as a full-stack self-hosted comparison
+- [x] Add Jazz v2 alpha in a separate experimental lane
+- [x] Remove LiveStore and Replicache under the full-stack admission rule
 
 ## Cleanup
 
 - [x] Add a cleanup/archive command for stale failed result directories from early scaffolding runs
 - [x] Decide whether to keep or delete old `.tmp` investigation databases
+
+## Next benchmark campaign
+
+- [ ] Refresh the pre-existing Electric, PowerSync, Zero, and Syncular pins together, then rerun their affected results instead of mixing new packages with historical numbers
+- [ ] Run the complete bootstrap scale sweep and `bench:all` for the expanded admitted matrix
+- [ ] Investigate Jazz v2 alpha and Triplit peak memory during the 100k local-query workload before promoting either result into headline commentary

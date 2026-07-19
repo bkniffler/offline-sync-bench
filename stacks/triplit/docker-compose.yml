@@ -1,0 +1,26 @@
+services:
+  triplit:
+    image: aspencloud/triplit-server-bun:1.0.61
+    ports:
+      - "3229:3229"
+    environment:
+      PORT: "3229"
+      JWT_SECRET: offline-sync-bench-triplit-secret
+      LOCAL_DATABASE_URL: /data/triplit.db
+      PROJECT_ID: offline-sync-bench
+    volumes:
+      - triplit-data:/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "bun",
+          "-e",
+          "fetch('http://127.0.0.1:3229/healthcheck').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 1s
+      timeout: 5s
+      retries: 60
+
+volumes:
+  triplit-data:

@@ -13,8 +13,6 @@
   "include": [
     "src/**/*.ts",
     "services/bench-admin/src/**/*.ts",
-    "services/livestore-bench-app/src/**/*.ts",
-    "services/replicache-bench-app/src/**/*.ts",
     "stacks/syncular/syncular-app/src/**/*.ts",
     "services/zero-bench-app/src/**/*.ts",
     "services/powersync-bench-app/src/**/*.ts"
