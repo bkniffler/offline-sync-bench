@@ -1,0 +1,92 @@
+{
+  "runId": "2026-09-05T21-28-48-602Z",
+  "resultId": "340758d7-b2e5-47b2-88e8-d51641d7d052",
+  "stackId": "syncular",
+  "scenarioId": "reconnect-storm",
+  "status": "failed",
+  "startedAt": "2026-09-05T21:28:48.608Z",
+  "finishedAt": "2026-09-05T21:32:33.702Z",
+  "durationMs": 225094,
+  "metrics": {
+    "clients_25_failed": 1,
+    "clients_100_failed": 1,
+    "clients_250_failed": 1,
+    "clients_500_failed": 1,
+    "clients_1000_failed": 1
+  },
+  "notes": [
+    "Each client-count case starts with fresh, pre-bootstrapped clients and verifies that every client receives the same server-side change. Resource fields are scoped to the measured client count."
+  ],
+  "metadata": {
+    "stackTitle": "Syncular",
+    "supportLevel": "native",
+    "benchmarkEnvironment": {
+      "benchmarkRoot": ".",
+      "bunVersion": "1.4.0",
+      "packageManager": "bun@1.3.9",
+      "platform": "darwin",
+      "arch": "arm64",
+      "hostname": "Mac.fritz.box",
+      "cpuModel": "Apple M4",
+      "cpuCount": 10,
+      "totalMemoryMb": 24576
+    },
+    "framework": "Syncular",
+    "frameworkVersion": "0.16.1",
+    "versionSource": "node_modules/@syncular/client/package.json",
+    "versionComponents": {
+      "client": "0.16.1",
+      "core": "0.16.1",
+      "server": "0.16.1",
+      "serverHono": "0.16.1",
+      "serverDependencyRange": "0.16.1",
+      "serverHonoDependencyRange": "0.16.1"
+    },
+    "implementation": "syncular-http-reconnect-storm-sweep-v2",
+    "clientCounts": [
+      25,
+      100,
+      250,
+      500,
+      1000
+    ],
+    "scales": [
+      {
+        "clientCount": 25,
+        "status": "failed",
+        "notes": [
+          "transport round failed: The operation timed out."
+        ]
+      },
+      {
+        "clientCount": 100,
+        "status": "failed",
+        "notes": [
+          "Error: Benchmark storage returned an invalid client record: {\"clientId\":\"5a3e3666-5316-402d-9f55-82725ca23109\",\"record\":{\"wireVersion\":0,\"cursor\":0,\"updatedAtMs\":0}}"
+        ]
+      },
+      {
+        "clientCount": 250,
+        "status": "failed",
+        "notes": [
+          "TypeError: undefined is not an object (evaluating 'storedScopes[variable]')"
+        ]
+      },
+      {
+        "clientCount": 500,
+        "status": "failed",
+        "notes": [
+          "Error: Benchmark storage returned an invalid client record: {\"clientId\":\"7dd6cd39-8b67-43c5-a110-b03b202e5294\",\"record\":{\"wireVersion\":0,\"cursor\":0,\"updatedAtMs\":0}}"
+        ]
+      },
+      {
+        "clientCount": 1000,
+        "status": "failed",
+        "notes": [
+          "Error: Benchmark storage returned an invalid client record: {\"clientId\":\"250ecc79-ce73-45eb-9434-7dd1e59f0722\",\"record\":{\"wireVersion\":0,\"cursor\":0,\"updatedAtMs\":0}}"
+        ]
+      }
+    ],
+    "productVersion": "0.16.1"
+  }
+}

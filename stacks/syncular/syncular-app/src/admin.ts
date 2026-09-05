@@ -54,7 +54,7 @@ app.get('/health', async (c) => {
 });
 
 app.get('/admin/stats', async (c) => {
-  return c.json(await collectStats());
+  return c.json({ ...await collectStats(), seedInProgress, seedError });
 });
 
 app.get('/admin/fixtures', async (c) => {
@@ -138,6 +138,7 @@ app.post('/admin/reset', async (c) => {
  * (stack-manager.seedStack) poll /admin/stats until the counts match.
  */
 let seedInProgress = false;
+let seedError: string | null = null;
 
 app.post('/admin/seed', async (c) => {
   const request = await c.req.json<SeedRequest>();
@@ -154,6 +155,7 @@ app.post('/admin/seed', async (c) => {
     return c.json({ ok: false, error: 'SEED_IN_PROGRESS' }, 409);
   }
   seedInProgress = true;
+  seedError = null;
   const expected = {
     organizations: options.orgCount,
     projects: options.orgCount * options.projectsPerOrg,
@@ -177,6 +179,7 @@ app.post('/admin/seed', async (c) => {
     try {
       await seedData(options);
     } catch (error) {
+      seedError = error instanceof Error ? error.message : String(error);
       console.error('[syncular-admin] seed failed:', error);
     } finally {
       seedInProgress = false;
@@ -285,115 +288,123 @@ async function resetData(): Promise<void> {
 async function seedData(
   options: Required<SeedRequest>,
 ): Promise<void> {
-  // Collect commit batches first, then apply them with bounded concurrency:
-  // seed rows are disjoint, so parallel engine transactions are safe (the
-  // per-partition commit-seq update serializes only the commit append tail).
-  const batches: EngineWrite[][] = [];
-  let pending: EngineWrite[] = [];
-  const flush = async () => {
-    if (pending.length === 0) return;
-    batches.push(pending);
-    pending = [];
-  };
-  const push = async (write: EngineWrite) => {
-    pending.push(write);
-    if (pending.length >= SEED_COMMIT_BATCH) await flush();
-  };
+  // Setup-only index: fresh upserts otherwise scan the entire scope table
+  // to delete a row's previous scopes. Remove it before seed readiness so no
+  // timed product query or mutation benefits from this fixture optimization.
+  await db.query('CREATE INDEX IF NOT EXISTS bench_seed_scope_row_lookup ON sync_row_scopes(partition, tbl, row_id)');
+  try {
+    // Collect commit batches first, then apply them with bounded concurrency:
+    // seed rows are disjoint, so parallel engine transactions are safe (the
+    // per-partition commit-seq update serializes only the commit append tail).
+    const batches: EngineWrite[][] = [];
+    let pending: EngineWrite[] = [];
+    const flush = async () => {
+      if (pending.length === 0) return;
+      batches.push(pending);
+      pending = [];
+    };
+    const push = async (write: EngineWrite) => {
+      pending.push(write);
+      if (pending.length >= SEED_COMMIT_BATCH) await flush();
+    };
 
-  for (let orgIndex = 0; orgIndex < options.orgCount; orgIndex += 1) {
-    const orgId = `org-${orgIndex + 1}`;
-    await push({
-      table: 'organizations',
-      op: 'upsert',
-      values: { id: orgId, name: `Organization ${orgIndex + 1}` },
-    });
-
-    const userIds: string[] = [];
-    for (let userIndex = 0; userIndex < options.usersPerOrg; userIndex += 1) {
-      const userId = `${orgId}-user-${userIndex + 1}`;
-      userIds.push(userId);
+    for (let orgIndex = 0; orgIndex < options.orgCount; orgIndex += 1) {
+      const orgId = `org-${orgIndex + 1}`;
       await push({
-        table: 'app_users',
+        table: 'organizations',
         op: 'upsert',
-        values: { id: userId, org_id: orgId, email: `${userId}@bench.local` },
-      });
-    }
-
-    for (
-      let projectIndex = 0;
-      projectIndex < options.projectsPerOrg;
-      projectIndex += 1
-    ) {
-      const projectId = `${orgId}-project-${projectIndex + 1}`;
-      await push({
-        table: 'projects',
-        op: 'upsert',
-        values: { id: projectId, org_id: orgId, name: `Project ${projectIndex + 1}` },
+        values: { id: orgId, name: `Organization ${orgIndex + 1}` },
       });
 
-      const membershipCount = Math.min(
-        options.membershipsPerProject,
-        userIds.length,
-      );
-      for (
-        let membershipIndex = 0;
-        membershipIndex < membershipCount;
-        membershipIndex += 1
-      ) {
-        const userId = userIds[membershipIndex];
-        if (!userId) continue;
+      const userIds: string[] = [];
+      for (let userIndex = 0; userIndex < options.usersPerOrg; userIndex += 1) {
+        const userId = `${orgId}-user-${userIndex + 1}`;
+        userIds.push(userId);
         await push({
-          table: 'project_memberships',
+          table: 'app_users',
           op: 'upsert',
-          values: {
-            id: `${projectId}:${userId}`,
-            project_id: projectId,
-            user_id: userId,
-            role: 'member',
-          },
+          values: { id: userId, org_id: orgId, email: `${userId}@bench.local` },
         });
       }
 
-      const seededAtMs = Date.now();
       for (
-        let taskIndex = 0;
-        taskIndex < options.tasksPerProject;
-        taskIndex += 1
+        let projectIndex = 0;
+        projectIndex < options.projectsPerOrg;
+        projectIndex += 1
       ) {
-        const ownerId = userIds[taskIndex % membershipCount];
-        if (!ownerId) continue;
-        const taskOrdinal = String(taskIndex + 1).padStart(6, '0');
+        const projectId = `${orgId}-project-${projectIndex + 1}`;
         await push({
-          table: 'tasks',
+          table: 'projects',
           op: 'upsert',
-          values: {
-            id: `${projectId}-task-${taskOrdinal}`,
-            org_id: orgId,
-            project_id: projectId,
-            owner_id: ownerId,
-            title: `Task ${taskIndex + 1} in ${projectId}`,
-            completed: taskIndex % 3 === 0,
-            server_version: 1,
-            updated_at_ms: seededAtMs,
-          },
+          values: { id: projectId, org_id: orgId, name: `Project ${projectIndex + 1}` },
         });
+
+        const membershipCount = Math.min(
+          options.membershipsPerProject,
+          userIds.length,
+        );
+        for (
+          let membershipIndex = 0;
+          membershipIndex < membershipCount;
+          membershipIndex += 1
+        ) {
+          const userId = userIds[membershipIndex];
+          if (!userId) continue;
+          await push({
+            table: 'project_memberships',
+            op: 'upsert',
+            values: {
+              id: `${projectId}:${userId}`,
+              project_id: projectId,
+              user_id: userId,
+              role: 'member',
+            },
+          });
+        }
+
+        const seededAtMs = Date.now();
+        for (
+          let taskIndex = 0;
+          taskIndex < options.tasksPerProject;
+          taskIndex += 1
+        ) {
+          const ownerId = userIds[taskIndex % membershipCount];
+          if (!ownerId) continue;
+          const taskOrdinal = String(taskIndex + 1).padStart(6, '0');
+          await push({
+            table: 'tasks',
+            op: 'upsert',
+            values: {
+              id: `${projectId}-task-${taskOrdinal}`,
+              org_id: orgId,
+              project_id: projectId,
+              owner_id: ownerId,
+              title: `Task ${taskIndex + 1} in ${projectId}`,
+              completed: taskIndex % 3 === 0,
+              server_version: 1,
+              updated_at_ms: seededAtMs,
+            },
+          });
+        }
       }
     }
+    await flush();
+
+    const concurrency = 4;
+    let next = 0;
+    await Promise.all(
+      Array.from({ length: Math.min(concurrency, batches.length) }, async () => {
+        while (next < batches.length) {
+          const batch = batches[next];
+          next += 1;
+          if (batch === undefined) break;
+          await commitWrites(db, batch, { assumeFresh: true });
+        }
+      }),
+    );
+  } finally {
+    await db.query('DROP INDEX IF EXISTS bench_seed_scope_row_lookup');
   }
-  await flush();
-
-  const concurrency = 4;
-  let next = 0;
-  await Promise.all(
-    Array.from({ length: Math.min(concurrency, batches.length) }, async () => {
-      while (next < batches.length) {
-        const batch = batches[next];
-        next += 1;
-        if (batch === undefined) break;
-        await commitWrites(db, batch, { assumeFresh: true });
-      }
-    }),
-  );
 }
 
 async function collectStats(): Promise<{

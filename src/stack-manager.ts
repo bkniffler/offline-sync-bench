@@ -565,13 +565,14 @@ export async function seedStack(
   const expected = response.expected ?? {};
   const deadline = Date.now() + 25 * 60_000;
   for (;;) {
-    const stats = await fetchJson<StackStats & Record<string, number>>(
+    const stats = await fetchJson<StackStats & { seedInProgress?: boolean; seedError?: string | null }>(
       `${stack.adminBaseUrl}/admin/stats`
     );
+    if (stats.seedError) throw new Error(`Seeding ${stackId} failed: ${stats.seedError}`);
     const done = Object.entries(expected).every(
-      ([key, value]) => Number(stats[key]) === value
+      ([key, value]) => Number(stats[key as keyof StackStats]) === value
     );
-    if (done) return stats;
+    if (done && stats.seedInProgress !== true) return stats;
     if (Date.now() > deadline) {
       throw new Error(
         `Seeding ${stackId} did not reach expected counts within 25 minutes: ${JSON.stringify(stats)} vs ${JSON.stringify(expected)}`

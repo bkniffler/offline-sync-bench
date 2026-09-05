@@ -183,6 +183,7 @@ interface DockerServiceSample {
 
 export class DockerServiceSampler {
   #timer: ReturnType<typeof setInterval> | null;
+  #pending: Promise<void> | null = null;
   readonly #intervalMs: number;
   readonly #containers: Array<{ label: string; id: string }>;
   readonly #samples = new Map<string, DockerServiceSample[]>();
@@ -196,38 +197,35 @@ export class DockerServiceSampler {
     this.#timer = null;
   }
 
-  start(): void {
+  async start(): Promise<void> {
     if (this.#timer || this.#containers.length === 0) {
       return;
     }
 
-    this.#sampleOnce();
+    await this.#sampleOnce();
     this.#timer = setInterval(() => {
-      this.#sampleOnce();
+      // Skip overlapping polls: docker stats can take longer than the interval.
+      if (this.#pending !== null) return;
+      this.#pending = this.#sampleOnce().catch(() => {}).finally(() => {
+        this.#pending = null;
+      });
     }, this.#intervalMs);
   }
 
-  stop(): Record<string, DockerServiceUsageMetrics> {
+  async stop(): Promise<Record<string, DockerServiceUsageMetrics>> {
     if (this.#timer) {
       clearInterval(this.#timer);
       this.#timer = null;
     }
 
-    this.#sampleOnce();
+    await this.#pending;
+    await this.#sampleOnce();
 
     const metrics: Record<string, DockerServiceUsageMetrics> = {};
     for (const { label } of this.#containers) {
       const samples = this.#samples.get(label) ?? [];
       if (samples.length === 0) {
-        metrics[label] = {
-          avgCpuPct: 0,
-          peakCpuPct: 0,
-          avgMemoryMb: 0,
-          peakMemoryMb: 0,
-          rxNetworkMb: 0,
-          txNetworkMb: 0,
-        };
-        continue;
+        throw new Error(`Docker stats returned no samples for ${label}`);
       }
 
       const cpuValues = samples.map((sample) => sample.cpuPct);
@@ -252,12 +250,12 @@ export class DockerServiceSampler {
     return metrics;
   }
 
-  #sampleOnce(): void {
+  async #sampleOnce(): Promise<void> {
     if (this.#containers.length === 0) {
       return;
     }
 
-    const result = Bun.spawnSync(
+    const process = Bun.spawn(
       [
         'docker',
         'stats',
@@ -272,11 +270,13 @@ export class DockerServiceSampler {
       }
     );
 
-    if (result.exitCode !== 0) {
-      return;
-    }
-
-    const output = new TextDecoder().decode(result.stdout).trim();
+    const [exitCode, stdout] = await Promise.all([
+      process.exited,
+      new Response(process.stdout).text(),
+      new Response(process.stderr).text(),
+    ]);
+    if (exitCode !== 0) return;
+    const output = stdout.trim();
     if (!output) {
       return;
     }

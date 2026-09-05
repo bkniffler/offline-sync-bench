@@ -12,7 +12,7 @@
  * (`waitForQuery`) and query timing loops (`benchQuery`) run INSIDE the Rust
  * process so stdio round-trips do not pollute sub-millisecond measurements.
  */
-import { mkdir, mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Subprocess } from 'bun';
 import { average, DockerServiceSampler, round } from '../metrics';
@@ -85,12 +85,17 @@ async function ensureBenchBinary(): Promise<string> {
   if (cachedBinaryPath) return cachedBinaryPath;
   const configured = process.env.SYNCULAR_RUST_BENCH_BIN ?? DEFAULT_BIN_PATH;
   if (await Bun.file(configured).exists()) {
-    cachedBinaryPath = configured;
-    return configured;
+    const binaryMtime = (await stat(configured)).mtimeMs;
+    const sourceStats = await Promise.all(['src/main.rs', 'Cargo.toml', 'Cargo.lock']
+      .map(path => stat(join(SYNCULAR_RUST_ROOT, path))));
+    if (configured !== DEFAULT_BIN_PATH || sourceStats.every(source => source.mtimeMs <= binaryMtime)) {
+      cachedBinaryPath = configured;
+      return configured;
+    }
   }
 
   console.log(
-    `[syncular-rust] ${configured} missing — running \`cargo build --release\` in ${SYNCULAR_RUST_ROOT}`
+    `[syncular-rust] ${configured} missing or outdated — running \`cargo build --release\` in ${SYNCULAR_RUST_ROOT}`
   );
   const build = Bun.spawnSync(['cargo', 'build', '--release'], {
     cwd: SYNCULAR_RUST_ROOT,
@@ -170,16 +175,22 @@ class RustClient {
     // The WS registration REQUIRES actorId + the SAME clientId the client
     // core uses — sync-over-socket rounds fail with sync.invalid_client_id
     // otherwise. HTTP authenticates via the x-actor-id header.
-    await client.call('create', {
-      clientId: args.clientId,
-      schema: schemaJson,
-      ...(args.dbPath ? { dbPath: args.dbPath } : {}),
-      transport: {
-        baseUrl: stack.syncBaseUrl,
-        wsUrl: `${wsBase}?actorId=${encodeURIComponent(args.actorId)}&clientId=${encodeURIComponent(args.clientId)}`,
-        headers: { 'x-actor-id': args.actorId },
-      },
-    });
+    try {
+      await client.call('create', {
+        clientId: args.clientId,
+        schema: schemaJson,
+        ...(args.dbPath ? { dbPath: args.dbPath } : {}),
+        transport: {
+          baseUrl: stack.syncBaseUrl,
+          wsUrl: `${wsBase}?actorId=${encodeURIComponent(args.actorId)}&clientId=${encodeURIComponent(args.clientId)}`,
+          headers: { 'x-actor-id': args.actorId },
+        },
+      });
+    } catch (error) {
+      proc.kill();
+      await proc.exited;
+      throw error;
+    }
     return client;
   }
 
@@ -238,7 +249,16 @@ class RustClient {
     const id = this.#nextId;
     const promise = new Promise<Record<string, JsonValue>>(
       (resolve, reject) => {
-        this.#pending.set(id, { resolve, reject });
+        const timeoutMs = Math.max(180_000, Number(params.timeoutMs ?? 0) + 30_000);
+        const timer = setTimeout(() => {
+          this.#pending.delete(id);
+          reject(new Error(`${this.clientId} driver command ${method} timed out after ${timeoutMs}ms`));
+          this.#proc.kill();
+        }, timeoutMs);
+        this.#pending.set(id, {
+          resolve: value => { clearTimeout(timer); resolve(value); },
+          reject: error => { clearTimeout(timer); reject(error); },
+        });
       }
     );
     this.#proc.stdin.write(`${JSON.stringify({ id, method, params })}\n`);
@@ -479,12 +499,7 @@ async function subscribeAll(
   }
 }
 
-/**
- * `seedStack` with a poll fallback: the syncular seed writes through the
- * engine and a 100k-row seed takes >5 minutes, which trips Bun fetch's
- * built-in timeout while the admin server keeps seeding. On a timeout, poll
- * /admin/stats until every expected count materializes.
- */
+/** Seed through the shared async readiness check, including fixture-index cleanup. */
 async function seedStackPatient(options: {
   orgCount: number;
   projectsPerOrg: number;
@@ -492,48 +507,7 @@ async function seedStackPatient(options: {
   tasksPerProject: number;
   membershipsPerProject: number;
 }): Promise<void> {
-  const seedOptions = { resetFirst: true, ...options };
-  try {
-    await seedStack(STACK_ID, seedOptions);
-    return;
-  } catch (error) {
-    console.log(
-      `[syncular-rust] seed request did not return (${error instanceof Error ? error.message : String(error)}) — polling /admin/stats for completion`
-    );
-  }
-  const expected = {
-    organizations: options.orgCount,
-    projects: options.orgCount * options.projectsPerOrg,
-    users: options.orgCount * options.usersPerOrg,
-    memberships:
-      options.orgCount *
-      options.projectsPerOrg *
-      Math.min(options.membershipsPerProject, options.usersPerOrg),
-    tasks: options.orgCount * options.projectsPerOrg * options.tasksPerProject,
-  };
-  const stack = getStack(STACK_ID);
-  const deadline = Date.now() + 20 * 60_000;
-  while (Date.now() < deadline) {
-    await Bun.sleep(5_000);
-    try {
-      const response = await fetch(`${stack.adminBaseUrl}/admin/stats`);
-      if (!response.ok) continue;
-      const stats = (await response.json()) as Record<string, number>;
-      if (
-        stats.organizations === expected.organizations &&
-        stats.projects === expected.projects &&
-        stats.users === expected.users &&
-        stats.memberships === expected.memberships &&
-        stats.tasks === expected.tasks
-      ) {
-        await Bun.sleep(500);
-        return;
-      }
-    } catch {
-      // Admin busy seeding — keep polling.
-    }
-  }
-  throw new Error('seed did not complete within 20 minutes');
+  await seedStack(STACK_ID, { resetFirst: true, ...options });
 }
 
 function requireFixtures(fixtures: StackFixtures): {
@@ -660,11 +634,12 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
     try {
       await ensureStackUp(STACK_ID);
       const binPath = await ensureBenchBinary();
-      const scales = [1_000, 10_000, 100_000];
+      const scales = [1_000, 10_000, 100_000, 250_000, 500_000];
       const metrics: Record<string, number | null> = {};
       const scaleMetadata: JsonValue[] = [];
 
       for (const rowsTarget of scales) {
+        console.log(`[syncular-bootstrap] ${this.stack.id} rows=${rowsTarget}`);
         await seedStackPatient({
           orgCount: 1,
           projectsPerOrg: 1,
@@ -1010,13 +985,41 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
   }
 
   async runReconnectStorm(): Promise<ScenarioResult> {
+    const counts = (process.env.SYNCULAR_RUST_STORM_CLIENTS ?? '25,100,250,500,1000')
+      .split(',').map(value => Number(value.trim()));
+    if (counts.some(count => !Number.isSafeInteger(count) || count < 1)) {
+      throw new Error('SYNCULAR_RUST_STORM_CLIENTS must contain positive integer client counts');
+    }
+    const metrics: Record<string, number | null> = {};
+    const scales: JsonValue[] = [];
+    let failed = false;
+    for (const clientCount of counts) {
+      console.log(`[syncular-storm] ${this.stack.id} clients=${clientCount}`);
+      const result = await this.runReconnectStormCase(clientCount);
+      Object.assign(metrics, result.metrics);
+      scales.push({ clientCount, status: result.status, notes: result.notes });
+      if (result.status !== 'completed') {
+        failed = true;
+        metrics[`clients_${clientCount}_failed`] = 1;
+        console.log(`[syncular-storm] ${this.stack.id} clients=${clientCount} failed: ${result.notes.join('; ')}`);
+        continue;
+      }
+      console.log(`[syncular-storm] ${this.stack.id} clients=${clientCount} convergence=${result.metrics.reconnect_convergence_ms}ms`);
+    }
+    return {
+      status: failed ? 'failed' : 'completed', metrics,
+      notes: ['Each client-count case starts with fresh, pre-bootstrapped clients and verifies that every client receives the same server-side change. Resource fields are scoped to the measured client count.'],
+      metadata: { ...BASE_METADATA, implementation: 'syncular-rust-reconnect-storm-sweep-v2', clientCounts: counts, scales },
+    };
+  }
+
+  private async runReconnectStormCase(clientCount: number): Promise<ScenarioResult> {
     const clients: RustClient[] = [];
+    let dockerSampler: DockerServiceSampler | undefined;
+    let procSampler: RustProcessSampler | undefined;
     try {
       await ensureStackUp(STACK_ID);
       const binPath = await ensureBenchBinary();
-      const clientCount = Number(
-        process.env.SYNCULAR_RUST_STORM_CLIENTS ?? '25'
-      );
       await seedStackPatient({
         orgCount: 1,
         projectsPerOrg: 1,
@@ -1024,6 +1027,11 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
         tasksPerProject: 200,
         membershipsPerProject: 2,
       });
+      // Fixture reset truncates engine state. Recreate server caches before
+      // bootstrapping the clients, outside the measured catch-up window.
+      await restartServiceCold(
+        STACK_ID, 'sync', `${this.stack.syncBaseUrl.replace(/\/api$/, '')}/health`
+      );
       const fixtures = requireFixtures(await getFixtures(STACK_ID));
 
       await mapWithConcurrency(
@@ -1038,30 +1046,31 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
             actorId,
             clientId: `rust-storm-${index}`,
           });
+          clients.push(client);
           await client.subscribe(`tasks:${fixtures.projectId}`, 'tasks', {
             project_id: [fixtures.projectId],
           });
           await client.syncToIdle();
-          clients.push(client);
         }
       );
 
+      console.log(`[syncular-storm] ${this.stack.id} clients=${clientCount} bootstrapped`);
       const baselines = await Promise.all(clients.map((c) => c.stats()));
-      const dockerSampler = new DockerServiceSampler([
+      dockerSampler = new DockerServiceSampler([
         { label: 'sync', id: resolveServiceContainerId(STACK_ID, 'sync') },
         {
           label: 'postgres',
           id: resolveServiceContainerId(STACK_ID, 'postgres'),
         },
       ]);
-      const procSampler = new RustProcessSampler(
+      procSampler = new RustProcessSampler(
         () => clients.map((c) => c.pid),
         100
       );
 
       const title = `rust-storm-${Date.now()}`;
       const serverTask = await getTask(STACK_ID, fixtures.taskId);
-      dockerSampler.start();
+      await dockerSampler.start();
       procSampler.start();
       const startedAt = performance.now();
       const response = await fetch(`${this.stack.adminBaseUrl}/admin/write`, {
@@ -1095,8 +1104,10 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
         })
       );
       const convergenceMs = performance.now() - startedAt;
-      const containerMetrics = dockerSampler.stop();
+      const containerMetrics = await dockerSampler.stop();
+      dockerSampler = undefined;
       const usage = procSampler.stop();
+      procSampler = undefined;
       const totals = diffStats(
         sumStats(await Promise.all(clients.map((c) => c.stats()))),
         sumStats(baselines)
@@ -1130,6 +1141,18 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
           postgres_peak_memory_mb: postgresMetrics?.peakMemoryMb ?? 0,
           postgres_rx_network_mb: postgresMetrics?.rxNetworkMb ?? 0,
           postgres_tx_network_mb: postgresMetrics?.txNetworkMb ?? 0,
+          [`clients_${clientCount}_sync_avg_cpu_pct`]: syncMetrics?.avgCpuPct ?? null,
+          [`clients_${clientCount}_sync_peak_cpu_pct`]: syncMetrics?.peakCpuPct ?? null,
+          [`clients_${clientCount}_sync_avg_memory_mb`]: syncMetrics?.avgMemoryMb ?? null,
+          [`clients_${clientCount}_sync_peak_memory_mb`]: syncMetrics?.peakMemoryMb ?? null,
+          [`clients_${clientCount}_sync_rx_network_mb`]: syncMetrics?.rxNetworkMb ?? null,
+          [`clients_${clientCount}_sync_tx_network_mb`]: syncMetrics?.txNetworkMb ?? null,
+          [`clients_${clientCount}_postgres_avg_cpu_pct`]: postgresMetrics?.avgCpuPct ?? null,
+          [`clients_${clientCount}_postgres_peak_cpu_pct`]: postgresMetrics?.peakCpuPct ?? null,
+          [`clients_${clientCount}_postgres_avg_memory_mb`]: postgresMetrics?.avgMemoryMb ?? null,
+          [`clients_${clientCount}_postgres_peak_memory_mb`]: postgresMetrics?.peakMemoryMb ?? null,
+          [`clients_${clientCount}_postgres_rx_network_mb`]: postgresMetrics?.rxNetworkMb ?? null,
+          [`clients_${clientCount}_postgres_tx_network_mb`]: postgresMetrics?.txNetworkMb ?? null,
           clients_avg_memory_mb: usage.avgMemoryMb,
           clients_peak_memory_mb: usage.peakMemoryMb,
         },
@@ -1142,6 +1165,8 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
     } catch (error) {
       return failedResult(error);
     } finally {
+      await dockerSampler?.stop().catch(() => {});
+      procSampler?.stop();
       await Promise.all(clients.map((client) => client.close()));
     }
   }
@@ -1336,6 +1361,7 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
 
   async runDeepRelationshipQuery(): Promise<ScenarioResult> {
     let client: RustClient | null = null;
+    let sampler: RustProcessSampler | undefined;
     try {
       await ensureStackUp(STACK_ID);
       const binPath = await ensureBenchBinary();
@@ -1367,6 +1393,8 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
       );
 
       const iterations = 150;
+      sampler = new RustProcessSampler(() => client ? [client.pid] : [], 100);
+      sampler.start();
       const dashboard = await client.benchQueryMs(
         'SELECT o.id AS org_id, p.id AS project_id, p.name AS project_name, count(t.id) AS task_count, sum(t.completed) AS completed_count FROM organizations o JOIN projects p ON p.org_id = o.id LEFT JOIN tasks t ON t.project_id = p.id GROUP BY o.id, p.id ORDER BY o.id, p.id',
         [],
@@ -1378,9 +1406,12 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
         iterations
       );
 
+      const usage = sampler.stop();
       return {
         status: 'completed',
         metrics: {
+          avg_memory_mb: usage.avgMemoryMb,
+          peak_memory_mb: usage.peakMemoryMb,
           row_count: rowCount,
           project_count: projectCount,
           iterations,
@@ -1400,6 +1431,7 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
     } catch (error) {
       return failedResult(error);
     } finally {
+      sampler?.stop();
       await client?.close();
     }
   }
@@ -1581,7 +1613,7 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
         orgCount: 1,
         projectsPerOrg: 1,
         usersPerOrg: 2,
-        tasksPerProject: 200,
+        tasksPerProject: 50,
         membershipsPerProject: 2,
       });
       const fixtures = requireFixtures(await getFixtures(STACK_ID));
@@ -1593,7 +1625,8 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
         actorId: uploaderActor,
         clientId: 'rust-blob-uploader',
       });
-      await subscribeAll(uploader, fixtures.orgId, [fixtures.projectId]);
+      await uploader.subscribe(`tasks:${fixtures.projectId}`, 'tasks', {project_id: [fixtures.projectId]});
+      await uploader.subscribe(`blobs:${fixtures.projectId}`, 'task_blob_entries', {project_id: [fixtures.projectId]});
       await uploader.syncToIdle();
 
       downloader = await RustClient.start({
@@ -1601,13 +1634,20 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
         actorId: downloaderActor,
         clientId: 'rust-blob-downloader',
       });
-      await subscribeAll(downloader, fixtures.orgId, [fixtures.projectId]);
+      await downloader.subscribe(`tasks:${fixtures.projectId}`, 'tasks', {project_id: [fixtures.projectId]});
+      await downloader.subscribe(`blobs:${fixtures.projectId}`, 'task_blob_entries', {project_id: [fixtures.projectId]});
       await downloader.syncToIdle();
       await downloader.call('connectRealtime', {});
 
+      const initialStats = sumStats([await uploader.stats(), await downloader.stats()]);
+      const storageSql = 'SELECT page_count * page_size AS bytes FROM pragma_page_count(), pragma_page_size()';
+      const uploaderStorageBefore = await uploader.count(storageSql);
+      const downloaderStorageBefore = await downloader.count(storageSql);
       const blobSizeBytes = 2 * 1024 * 1024; // 2 MiB — matches the syncular (JS) row
       const blobBytes = new Uint8Array(blobSizeBytes);
-      crypto.getRandomValues(blobBytes);
+      for (let offset = 0; offset < blobBytes.length; offset += 65_536) {
+        crypto.getRandomValues(blobBytes.subarray(offset, Math.min(offset + 65_536, blobBytes.length)));
+      }
       const blobHex = Buffer.from(blobBytes).toString('hex');
 
       // Upload: stage the blob, reference it from a synced row, and sync —
@@ -1654,12 +1694,12 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
         timeoutMs: 30_000,
       });
       await Bun.sleep(10);
-      const pushStartedAt = performance.now();
       await uploader.syncToIdle();
       const uploadCompleteMs = performance.now() - uploadStartedAt;
 
+      const uploaderStorageAfter = await uploader.count(storageSql);
       const wait = await waitPromise;
-      const metadataVisibleMs = performance.now() - pushStartedAt;
+      const metadataVisibleMs = performance.now() - uploadStartedAt;
       if (!wait.ok) {
         throw new Error('blob metadata row did not reach the second client');
       }
@@ -1684,15 +1724,67 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
         );
       }
 
-      const stats = sumStats([
-        await uploader.stats(),
-        await downloader.stats(),
-      ]);
+      if (bytes?.$bytes !== blobHex) throw new Error('Downloaded Rust blob bytes differ from the upload');
+      const downloaderStorageAfter = await downloader.count(storageSql);
+      const stats = diffStats(sumStats([await uploader.stats(), await downloader.stats()]), initialStats);
+
+      // Simulate one unavailable upload pass, including the direct route the
+      // product tries when the presigned PUT fails. The native queue owns retry.
+      const retryBytes = blobBytes.slice();
+      retryBytes[0] = retryBytes[0]! ^ 0xff;
+      const retryHex = Buffer.from(retryBytes).toString('hex');
+      const retryUpload = await uploader.call('uploadBlob', {
+        bytes: { $bytes: retryHex }, options: { mediaType: 'application/octet-stream' },
+      });
+      const retryRef = retryUpload.ref as Record<string, JsonValue>;
+      if (typeof retryRef.blobId !== 'string') throw new Error('Retry upload returned no blob ID');
+      const retryRefString = JSON.stringify({blobId: retryRef.blobId, byteLength: retryRef.byteLength, mediaType: retryRef.mediaType});
+      const retryEntryId = `rust-blob-retry-${Date.now()}`;
+      await uploader.call('mutate', {mutations: [{op: 'upsert', table: 'task_blob_entries', values: {
+        id: retryEntryId, project_id: fixtures.projectId, task_id: fixtures.taskId,
+        blob: retryRefString, created_at_ms: Date.now(),
+      }}]});
+      await uploader.call('blockBlobUploads', {blocked: true});
+      const firstAttemptStarted = performance.now();
+      const firstAttempt = await uploader.call('sync', {});
+      const firstAttemptMs = performance.now() - firstAttemptStarted;
+      const outage = await uploader.call('blockBlobUploads', {blocked: false});
+      const queuedAfterFailure = await uploader.count('SELECT count(*) AS n FROM _syncular_blob_uploads WHERE blob_id = ?', [retryRef.blobId]);
+      if (firstAttempt.ok !== false || outage.rejectedPuts !== 2 || queuedAfterFailure !== 1) {
+        throw new Error(`Rust upload outage did not preserve the pending blob: ${JSON.stringify({firstAttempt,outage,queuedAfterFailure})}`);
+      }
+      const recoveryStarted = performance.now();
+      await uploader.syncToIdle();
+      const retryRecoveryMs = performance.now() - recoveryStarted;
+      const queuedAfterRecovery = await uploader.count('SELECT count(*) AS n FROM _syncular_blob_uploads');
+      if (queuedAfterRecovery !== 0 || await uploader.count('SELECT count(*) AS n FROM _syncular_outbox') !== 0) {
+        throw new Error('Rust retry left pending uploads or metadata commits');
+      }
+      await downloader.syncToIdle();
+      if (await downloader.count('SELECT count(*) AS n FROM task_blob_entries WHERE id = ?', [retryEntryId]) !== 1) {
+        throw new Error('Retried Rust blob metadata did not reach the reader');
+      }
+      const recovered = await downloader.call('fetchBlob', {blob: retryRefString});
+      const recoveredBlob = recovered.blob as Record<string, JsonValue>;
+      const recoveredBytes = recoveredBlob.bytes as {$bytes?: string};
+      if (recoveredBytes.$bytes !== retryHex) throw new Error('Retried Rust blob bytes differ from the upload');
 
       return {
         status: 'completed',
         metrics: {
           blob_size_bytes: blobSizeBytes,
+          hash_verified: 1,
+          retry_first_attempt_ms: round(firstAttemptMs),
+          retry_recovery_ms: round(retryRecoveryMs),
+          retry_failed_puts: Number(outage.rejectedPuts),
+          retry_pending_after_failure: queuedAfterFailure,
+          retry_pending_after_recovery: queuedAfterRecovery,
+          retry_hash_verified: 1,
+          transfer_overhead_bytes: bytesTransferred(stats) - 2 * blobSizeBytes,
+          sqlite_storage_bytes_after_upload: uploaderStorageAfter,
+          sqlite_storage_bytes_after_download: downloaderStorageAfter,
+          sqlite_storage_overhead_bytes_after_upload: uploaderStorageAfter - uploaderStorageBefore - blobSizeBytes,
+          sqlite_storage_overhead_bytes_after_download: downloaderStorageAfter - downloaderStorageBefore - blobSizeBytes,
           upload_complete_ms: round(uploadCompleteMs),
           metadata_visible_ms: round(metadataVisibleMs, 3),
           download_after_metadata_ms: round(downloadMs, 3),
@@ -1702,10 +1794,14 @@ export class SyncularRustBenchmarkAdapter implements BenchmarkAdapter {
           bytes_transferred: bytesTransferred(stats),
         },
         notes: [
+          'Transfer overhead covers the initial upload, metadata sync and first reader download minus two payloads, excluding setup and the separate retry case. Native transport counters omit JSON grant/redirect response bodies; this is a lower bound on protocol overhead.',
+          'SQLite overhead is page-count × page-size growth minus one payload. The retry case rejects signed and authenticated PUTs for one sync pass, verifies native queue retention, restores transport and verifies recovery bytes on the reader.',
           'Blob flow uses the native Rust blob APIs end to end: staged upload + presigned PUT during sync on client A, metadata row sync to client B over realtime, then an authenticated presigned GET re-download on B with byte-length verification.',
         ],
         metadata: {
           ...BASE_METADATA,
+          implementation: 'syncular-rust-presigned-cross-client-blob-flow-v2',
+          transferOverheadLowerBound: true,
           blobDelivery: 'presigned (MinIO)',
           entryId,
           blobId: (ref.blobId as JsonValue) ?? null,

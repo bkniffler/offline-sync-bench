@@ -8,6 +8,11 @@ Baseline: 47 completed, 6 failed, 19 unsupported. Updated, after harness correct
 
 Follow-up: [Syncular performance investigation](SYNCULAR_PERFORMANCE_INVESTIGATION.md) isolates extra server work and checks the large-queue result with repeated runs.
 
+The later [Syncular coverage run](SYNCULAR_COVERAGE.md) changes the server's
+Postgres executor and corrects storm resource polling and HTTP metering. Its
+numbers in `RESULTS.md` are a new benchmark configuration; they are not an
+additional package-only before/after comparison with this table.
+
 ## Selected latencies
 
 | Stack | 100k bootstrap, before → after | Online p95, before → after | Offline replay, before → after |

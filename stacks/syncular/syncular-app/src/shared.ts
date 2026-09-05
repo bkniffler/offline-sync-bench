@@ -1,5 +1,5 @@
 /**
- * Shared wiring for the syncular v2 bench stack: the Bun.sql PgExecutor,
+ * Shared wiring for the syncular v2 bench stack: the Postgres.js PgExecutor,
  * Postgres server storage, and the engine-write helper both processes use.
  *
  * Syncular's relational server storage is ONE-WAY (push/storage API → real
@@ -24,14 +24,12 @@ import {
 import { encodeRow } from '@syncular/core';
 import postgres from 'postgres';
 import { schema } from './syncular.generated';
+import { serverDatabaseProfile } from './benchmark-profile';
 
 export const PARTITION = 'bench';
 export const ADMIN_ACTOR = 'bench-admin';
 
 export const COMPILED: CompiledSchema = compileSchema(schema);
-
-// biome-ignore lint/suspicious/noExplicitAny: Bun.sql is version-fluid.
-const BunSQL = (Bun as any).SQL as new (url: string) => any;
 
 // biome-ignore lint/suspicious/noExplicitAny: driver handle is dynamic.
 function queryableOver(handle: any): PgQueryable {
@@ -61,13 +59,13 @@ export interface Db {
 }
 
 export async function openDb(databaseUrl: string): Promise<Db> {
-  const sql = new BunSQL(databaseUrl);
+  const sql = postgres(databaseUrl, { max: serverDatabaseProfile.poolSize, onnotice: () => {} });
   const q = queryableOver(sql);
   const executor: PgExecutor = {
     query: q.query,
     async transaction<T>(fn: (client: PgQueryable) => Promise<T>): Promise<T> {
       // biome-ignore lint/suspicious/noExplicitAny: dynamic tx handle.
-      return sql.begin(async (tx: any) => fn(queryableOver(tx)));
+      return await sql.begin(async (tx: any) => fn(queryableOver(tx))) as T;
     },
     async close() {
       await sql.end();
@@ -75,6 +73,17 @@ export async function openDb(databaseUrl: string): Promise<Db> {
   };
   const storage = new PostgresServerStorage(executor);
   await storage.ensureSchema(COMPILED);
+  // Catch malformed executor results before they masquerade as an auth
+  // failure during high-concurrency runs. This validates a read contract;
+  // it does not retry or alter storage results.
+  const getClientRecord = storage.getClientRecord.bind(storage);
+  storage.getClientRecord = async (partition, clientId) => {
+    const record = await getClientRecord(partition, clientId);
+    if (record && (record.clientId !== clientId || typeof record.actorId !== 'string')) {
+      throw new Error(`Benchmark storage returned an invalid client record: ${JSON.stringify({ clientId, record })}`);
+    }
+    return record;
+  };
   return {
     executor,
     storage,
@@ -92,8 +101,7 @@ export async function openDb(databaseUrl: string): Promise<Db> {
       ]);
     },
     async listen(handler: (payload: string) => void): Promise<void> {
-      // Bun.sql has no LISTEN surface; a dedicated `postgres` (porsager)
-      // connection carries the fanout channel.
+      // A dedicated connection keeps LISTEN independent of the query pool.
       const listener = postgres(databaseUrl, { max: 1 });
       await listener.listen(FANOUT_CHANNEL, handler);
     },

@@ -1,40 +1,45 @@
 # Reconnect Storm
 
-This scenario measures fan-in recovery after the sync service is restarted.
+This scenario measures concurrent catch-up by already-bootstrapped clients.
 
 ## Workload
 
-1. Seed a single-project dataset with 200 tasks.
-2. Bootstrap 25 clients against the same project.
-3. Stop the sync service.
-4. Start the sync service again.
-5. Write one changed task after restart.
-6. Measure how long it takes all clients to observe the changed title.
+1. Seed one project with 200 tasks.
+2. Bootstrap the selected number of clients, outside the measurement window.
+3. Start service resource sampling and the convergence timer.
+4. Write one changed task, then let all clients catch up simultaneously.
+5. Stop the timer after every client's local query sees the new title.
+
+Syncular JS and Rust default to a full sweep of **25, 100, 250, 500 and 1,000
+clients**. Each case seeds a fresh dataset, restarts the service to clear state from the
+previous fixture, then bootstraps its clients. Setup and restart are excluded
+from the convergence timer; all clients are closed afterward.
+Use `SYNCULAR_STORM_CLIENTS` or `SYNCULAR_RUST_STORM_CLIENTS` with one count or a
+comma-separated list for a targeted run. Targeted runs do not constitute the
+full report scale study.
+
+The Syncular case uses concurrent HTTP sync rounds against a running service;
+it does not restart the service. The Rust adapter runs one native process per
+client. Electric uses its live shape subscriptions and its own reconnect flow.
 
 ## Metrics
 
-- `client_count`
-- `reconnect_convergence_ms`
-- `request_count`
-- `request_bytes`
-- `response_bytes`
-- `bytes_transferred`
-- `sync_avg_cpu_pct`
-- `sync_peak_cpu_pct`
-- `sync_avg_memory_mb`
-- `sync_peak_memory_mb`
-- `sync_rx_network_mb`
-- `sync_tx_network_mb`
-- `postgres_avg_cpu_pct`
-- `postgres_peak_cpu_pct`
-- `postgres_avg_memory_mb`
-- `postgres_peak_memory_mb`
-- `postgres_rx_network_mb`
-- `postgres_tx_network_mb`
+- `clients_<count>_convergence_ms`
+- `clients_<count>_request_count`, request/response bytes and total transfer
+- `clients_<count>_sync_*`: container CPU, memory and network usage
+- `clients_<count>_postgres_*`: database container CPU, memory and network usage
+- Rust aggregate client-process memory
 
-## Notes
+The resource summary displays the 500-client case. Resource metrics must carry
+that count in their names; measurements from a different case cannot fill it.
 
-- The goal is server-side recovery and fanout pressure, not first bootstrap cost.
-- Syncular measures already-bootstrapped HTTP clients catching up after restart.
-- Electric measures already-bootstrapped live-shape clients resuming after restart.
-- Resource metrics are sampled from Docker container stats during the recovery window.
+Docker stats polling runs asynchronously, with one poll in flight at a time.
+The initial sample finishes before the convergence timer starts; the final
+sample is collected after it stops. These coarse container samples can extend
+beyond the short convergence window. Earlier synchronous polling blocked the
+harness event loop and inflated longer runs; results from that implementation
+are excluded from medians for the corrected implementation.
+
+A failed tier records its reason and does not erase successful tiers. The sweep
+continues through the remaining counts. Transport/driver commands have bounded
+timeouts so stalled requests become failures instead of hanging publication.

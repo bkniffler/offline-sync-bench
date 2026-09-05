@@ -6,6 +6,7 @@ import {
   toBenchmarkRelativePath,
 } from './paths';
 import { scenarios } from './scenarios';
+import { syncularCoverageGaps } from './syncular-coverage';
 import { stacks } from './stacks';
 import type { ScenarioId, StackCapabilities, StackId, SupportLevel } from './types';
 
@@ -38,6 +39,7 @@ if (requestedRunIds.some(runId => !runId || !/^[\w-]+$/.test(runId))) {
 }
 const scopedRun = requestedRunIds.length > 0;
 const runOutcomes = new Map<string, StoredBenchmarkResult>();
+const selectedOutcomes: StoredBenchmarkResult[] = [];
 
 async function walkJsonFiles(dir: string): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -83,11 +85,15 @@ async function collectLatestResults(): Promise<
     }
 
     if (scopedRun) {
+      selectedOutcomes.push(parsed);
       const key = `${parsed.stackId}/${parsed.scenarioId}`;
       const previous = runOutcomes.get(key);
       if (!previous || parsed.finishedAt > previous.finishedAt) runOutcomes.set(key, parsed);
     }
-    if (parsed.status !== 'completed') continue;
+    const partialStorm = parsed.scenarioId === 'reconnect-storm' &&
+      (parsed.stackId === 'syncular' || parsed.stackId === 'syncular-rust') &&
+      parsed.status === 'failed' && Array.isArray(parsed.metadata?.scales);
+    if (parsed.status !== 'completed' && !partialStorm) continue;
     const scenarioMap =
       history.get(scenarioId) ?? new Map<StackId, StoredBenchmarkResult[]>();
     const stackResults = scenarioMap.get(typedStackId) ?? [];
@@ -111,42 +117,56 @@ async function collectLatestResults(): Promise<
   if (scopedRun) {
     for (const result of runOutcomes.values()) {
       const scenarioMap = history.get(result.scenarioId);
-      if (result.status !== 'completed') scenarioMap?.delete(result.stackId);
+      if (result.status !== 'completed' && !(result.scenarioId === 'reconnect-storm' && Array.isArray(result.metadata?.scales))) {
+        scenarioMap?.delete(result.stackId);
+      }
     }
+  }
+
+  if (Bun.argv.includes('--require-syncular-coverage')) {
+    const missing: string[] = [];
+    for (const stackId of ['syncular', 'syncular-rust'] as const) {
+      for (const scenarioId of ['bootstrap', 'reconnect-storm', 'blob-flow', 'deep-relationship-query'] as const) {
+        const result = history.get(scenarioId)?.get(stackId)?.[0];
+        missing.push(...syncularCoverageGaps(stackId, scenarioId, result?.metrics ?? {})
+          .map(key => `${stackId}/${scenarioId}: ${key}`));
+      }
+    }
+    if (missing.length > 0) throw new Error(`Syncular report coverage is incomplete:\n${missing.join('\n')}`);
   }
 
   return history;
 }
 
 function formatMs(value: number | null | undefined): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return 'n/a';
+  if (value === null || value === undefined || Number.isNaN(value)) return 'not measured';
   if (value >= 1000) return `${value.toFixed(0)} ms`;
   if (value >= 100) return `${value.toFixed(1)} ms`;
   return `${value.toFixed(2)} ms`;
 }
 
 function formatCount(value: number | null | undefined): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return 'n/a';
+  if (value === null || value === undefined || Number.isNaN(value)) return 'not measured';
   return `${Math.round(value)}`;
 }
 
 function formatKb(value: number | null | undefined): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return 'n/a';
+  if (value === null || value === undefined || Number.isNaN(value)) return 'not measured';
   return `${value.toFixed(2)} KB`;
 }
 
 function formatMb(value: number | null | undefined): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return 'n/a';
+  if (value === null || value === undefined || Number.isNaN(value)) return 'not measured';
   return `${value.toFixed(2)} MB`;
 }
 
 function formatPct(value: number | null | undefined): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return 'n/a';
+  if (value === null || value === undefined || Number.isNaN(value)) return 'not measured';
   return `${value.toFixed(2)}%`;
 }
 
 function formatBytes(value: number | null | undefined): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return 'n/a';
+  if (value === null || value === undefined || Number.isNaN(value)) return 'not measured';
   return `${Math.round(value)} B`;
 }
 
@@ -181,6 +201,10 @@ function formatSupport(args: {
   stackId: StackId;
 }): string {
   const metadataSupport = args.result?.metadata?.supportLevel;
+  if (args.result?.status === 'failed' || runOutcomes.get(`${args.stackId}/${args.scenarioId}`)?.status === 'failed') {
+    const support = stacks.find(stack => stack.id === args.stackId)?.capabilities[capabilityKeyForScenario(args.scenarioId)];
+    return `${support ?? 'unknown'} (failed)`;
+  }
   if (
     metadataSupport === 'native' ||
     metadataSupport === 'emulated' ||
@@ -213,7 +237,12 @@ function firstMetric(
 function markdownTable(headers: string[], rows: string[][]): string {
   const head = `| ${headers.join(' | ')} |`;
   const sep = `| ${headers.map(() => '---').join(' | ')} |`;
-  const body = rows.map((row) => `| ${row.join(' | ')} |`).join('\n');
+  const supportIndex = headers.indexOf('Support');
+  const body = rows.map((row) => {
+    const support = supportIndex < 0 ? undefined : row[supportIndex];
+    const missing = support === 'unsupported' ? 'unsupported' : support?.includes('(failed)') ? 'failed' : 'not measured';
+    return `| ${row.map(cell => cell === 'not measured' ? missing : cell).join(' | ')} |`;
+  }).join('\n');
   return [head, sep, body].join('\n');
 }
 
@@ -236,6 +265,9 @@ function getRecentResults(args: {
   if (!latestResult) {
     return [];
   }
+  // Preserve successful tiers in a partial sweep without hiding its failed
+  // tiers behind an earlier successful run or median.
+  if (latestResult.status === 'failed') return [latestResult];
 
   const latestFrameworkVersion =
     typeof latestResult.metadata?.frameworkVersion === 'string'
@@ -248,6 +280,10 @@ function getRecentResults(args: {
 
   return results
     .filter((result) => {
+      if (latestResult.metadata?.serverDatabaseProfile &&
+          result.metadata?.serverDatabaseProfile !== latestResult.metadata.serverDatabaseProfile) {
+        return false;
+      }
       if (
         latestFrameworkVersion &&
         result.metadata?.frameworkVersion !== latestFrameworkVersion
@@ -352,11 +388,25 @@ function stackTitle(stackId: StackId): string {
 async function main(): Promise<void> {
   const latest = await collectLatestResults();
   const bundleRows = await collectBundleRows();
+  if (Bun.argv.includes('--export-json')) {
+    if (!scopedRun) throw new Error('--export-json requires explicit --run-id inputs');
+    await writeFile(join(ROOT_DIR, 'RESULTS.json'), JSON.stringify({
+      runIds: requestedRunIds,
+      outcomes: selectedOutcomes.sort((a, b) =>
+        `${a.stackId}/${a.scenarioId}/${a.finishedAt}`.localeCompare(`${b.stackId}/${b.scenarioId}/${b.finishedAt}`)),
+      bundles: bundleRows,
+    }, null, 2) + '\n');
+  }
 
   const stackOrder = stacks.map((stack) => stack.id);
   const sections: string[] = [];
   sections.push('# Benchmark Results');
   sections.push('');
+  if (Bun.argv.includes('--export-json')) {
+    sections.push('Raw outcomes: [RESULTS.json](./RESULTS.json). Syncular coverage and configuration changes: [measurement notes](./SYNCULAR_COVERAGE.md).');
+    sections.push('');
+  }
+
   sections.push(
     scopedRun
       ? `This report uses only runs ${requestedRunIds.map(runId => `\`${runId}\``).join(', ')}. The latest attempt per stack/scenario determines its outcome. Failed measurements remain unavailable; older successes are not substituted. See [the dependency upgrade comparison](./UPGRADE_COMPARISON.md) for the before/after results.`
@@ -371,7 +421,7 @@ async function main(): Promise<void> {
     'Reconnect Storm and Large Offline Queue headline tables prefer current-version medians from recent successful runs when available.'
   );
   sections.push(
-    'Experimental-lane stacks remain visible in scenario tables but are excluded from stable headline rankings.'
+    'Experimental-lane stacks remain visible in scenario tables but are excluded from stable headline rankings. “Not measured” means no recorded metric; “unsupported” means the adapter lacks the scenario; “failed” means the selected attempt failed.'
   );
   if (scopedRun) {
     sections.push('');
@@ -383,7 +433,8 @@ async function main(): Promise<void> {
     sections.push('');
     for (const result of outcomes.filter(result => result.status === 'failed')) {
       const detail = (result.notes ?? []).join(' ').replace(/\s+/g, ' ').slice(0, 300);
-      sections.push(`- ${stackTitle(result.stackId)} / ${result.scenarioId}: ${detail} ([raw result](./.results/${result.runId}/${result.stackId}/${result.scenarioId}.json))`);
+      const rawPath = Bun.argv.includes('--export-json') ? './RESULTS.json' : `./.results/${result.runId}/${result.stackId}/${result.scenarioId}.json`;
+      sections.push(`- ${stackTitle(result.stackId)} / ${result.scenarioId}: ${detail} ([raw result](${rawPath}))`);
     }
   }
   sections.push('');
@@ -479,7 +530,7 @@ async function main(): Promise<void> {
   }
   if (syncularBlobFlow) {
     sections.push(
-      `- Blob flow: Syncular currently uploads a ${formatCount(syncularBlobFlow.metrics.blob_size_bytes)} byte blob in ${formatMs(syncularBlobFlow.metrics.upload_complete_ms)}, syncs metadata to a second client in ${formatMs(syncularBlobFlow.metrics.metadata_visible_ms)}, re-downloads it after cache clear in ${formatMs(firstMetric(syncularBlobFlow.metrics, ['download_after_metadata_ms', 'download_after_clear_ms']))}, and recovers an interrupted queued upload in ${formatMs(syncularBlobFlow.metrics.retry_recovery_ms)}.`
+      `- Blob flow: Syncular currently uploads a ${formatCount(syncularBlobFlow.metrics.blob_size_bytes)} byte blob in ${formatMs(syncularBlobFlow.metrics.upload_complete_ms)}, syncs metadata to a second client in ${formatMs(syncularBlobFlow.metrics.metadata_visible_ms)}, downloads it on a fresh reader in ${formatMs(firstMetric(syncularBlobFlow.metrics, ['download_after_metadata_ms', 'download_after_clear_ms']))}, and recovers a queued upload after an injected transport outage in ${formatMs(syncularBlobFlow.metrics.retry_recovery_ms)}.`
     );
   }
   sections.push('');
@@ -699,11 +750,11 @@ async function main(): Promise<void> {
       });
       return [
         stackTitle(stackId),
-        formatMs(median25 ?? result?.metrics.clients_25_convergence_ms),
-        formatMs(median100 ?? result?.metrics.clients_100_convergence_ms),
-        formatMs(median250 ?? result?.metrics.clients_250_convergence_ms),
-        formatMs(median500 ?? result?.metrics.clients_500_convergence_ms),
-        formatMs(median1000 ?? result?.metrics.clients_1000_convergence_ms),
+        result?.metrics.clients_25_failed === 1 ? 'failed' : formatMs(median25 ?? result?.metrics.clients_25_convergence_ms),
+        result?.metrics.clients_100_failed === 1 ? 'failed' : formatMs(median100 ?? result?.metrics.clients_100_convergence_ms),
+        result?.metrics.clients_250_failed === 1 ? 'failed' : formatMs(median250 ?? result?.metrics.clients_250_convergence_ms),
+        result?.metrics.clients_500_failed === 1 ? 'failed' : formatMs(median500 ?? result?.metrics.clients_500_convergence_ms),
+        result?.metrics.clients_1000_failed === 1 ? 'failed' : formatMs(median1000 ?? result?.metrics.clients_1000_convergence_ms),
         formatSupport({ result, scenarioId: 'reconnect-storm', stackId }),
       ];
     });
@@ -722,6 +773,16 @@ async function main(): Promise<void> {
       rows: stormRows,
     })
   );
+
+  for (const stackId of stackOrder) {
+    const result = getResult(latest, 'reconnect-storm', stackId);
+    if (result?.status !== 'failed' || !Array.isArray(result.metadata?.scales)) continue;
+    for (const scale of result.metadata.scales) {
+      if (scale.status !== 'failed') continue;
+      sections.push(`- ${stackTitle(stackId)}, ${scale.clientCount} clients: failed. ${Array.isArray(scale.notes) ? scale.notes.join(' ').replaceAll('\n', ' ') : ''}`);
+    }
+  }
+  sections.push('');
 
   const reconnectRepeatRows = stackOrder
     .map((stackId) => {
@@ -763,11 +824,11 @@ async function main(): Promise<void> {
       return [
         stackTitle(stackId),
         formatCount(runCount),
-        formatMs(samples25.length > 0 ? median(samples25) : null),
-        formatMs(samples100.length > 0 ? median(samples100) : null),
-        formatMs(samples250.length > 0 ? median(samples250) : null),
-        formatMs(samples500.length > 0 ? median(samples500) : null),
-        formatMs(samples1000.length > 0 ? median(samples1000) : null),
+        recentResults[0]?.metrics.clients_25_failed === 1 ? 'failed' : formatMs(samples25.length > 0 ? median(samples25) : null),
+        recentResults[0]?.metrics.clients_100_failed === 1 ? 'failed' : formatMs(samples100.length > 0 ? median(samples100) : null),
+        recentResults[0]?.metrics.clients_250_failed === 1 ? 'failed' : formatMs(samples250.length > 0 ? median(samples250) : null),
+        recentResults[0]?.metrics.clients_500_failed === 1 ? 'failed' : formatMs(samples500.length > 0 ? median(samples500) : null),
+        recentResults[0]?.metrics.clients_1000_failed === 1 ? 'failed' : formatMs(samples1000.length > 0 ? median(samples1000) : null),
       ];
     })
     .filter((row): row is string[] => row !== null);
@@ -1085,7 +1146,7 @@ async function main(): Promise<void> {
         formatMs(result?.metrics.metadata_visible_ms),
         formatMs(firstMetric(result?.metrics ?? {}, ['download_after_metadata_ms', 'download_after_clear_ms'])),
         formatMs(result?.metrics.retry_recovery_ms),
-        formatBytes(result?.metrics.transfer_overhead_bytes),
+        `${result?.metadata?.transferOverheadLowerBound ? '≥ ' : ''}${formatBytes(result?.metrics.transfer_overhead_bytes)}`,
         formatBytes(result?.metrics.sqlite_storage_overhead_bytes_after_upload),
         formatSupport({ result, scenarioId: 'blob-flow', stackId }),
       ];
@@ -1107,6 +1168,9 @@ async function main(): Promise<void> {
       rows: blobRows,
     })
   );
+
+  sections.push('Blob transfer overhead is measured body bytes above one upload and one download. A ≥ prefix marks a lower bound where the native transport omits grant/redirect JSON bodies. SQLite overhead is the client database page allocation increase minus one payload; it excludes separate blob storage such as MinIO. Retry recovery is a separate injected upload-outage case.');
+  sections.push('');
 
   const blobRepeatRows = stackOrder
     .map((stackId) => {
@@ -1171,13 +1235,14 @@ async function main(): Promise<void> {
     '- The two Syncular rows share one server stack and differ only in client core: `syncular` is the JS client on bun:sqlite; `syncular-rust` is the native Rust client (rusqlite) driven over real HTTP+WebSocket by a standalone bench binary. Both use the published packages, versions pinned (npm @syncular/*@0.16.1 for the JS client and server stack, crates.io syncular-client/syncular-command/syncular-ffi 0.16.1 for the native binary); scenario parameters (datasets, query shapes, blob sizes, iteration counts) are identical across the two rows.'
   );
   sections.push(
-    '- Syncular bootstrap is measured cold-server + cold-client: the sync service is restarted before every scale so in-memory segment/sqlite-image caches never serve the measurement. `100k warm` is a second fresh client bootstrapping the same dataset without a restart (populated caches); stacks without the metric show n/a.'
+    '- Syncular bootstrap is measured cold-server + cold-client: the sync service is restarted before every scale so in-memory segment/sqlite-image caches never serve the measurement. `100k warm` is a second fresh client bootstrapping the same dataset without a restart (populated caches); stacks without the metric show `not measured`.'
   );
+  sections.push('- JS memory includes the Bun suite process and allocations retained from earlier cases. Rust memory is native-client process RSS. These columns have different measurement scopes.');
   sections.push('- `emulated` means the scenario required benchmark-owned durability or auth behavior around the product.');
-  sections.push('- `unsupported` rows stay visible as `n/a` so the support matrix remains explicit without inventing benchmark-owned adapters.');
-  sections.push('- Repeat summaries use the latest successful runs for the current framework version per stack/scenario.');
+  sections.push('- `unsupported` rows stay visible as `unsupported` so the support matrix remains explicit without inventing benchmark-owned adapters.');
+  sections.push('- Repeat summaries use recent runs with the current framework version and implementation. Partial reconnect sweeps retain successful tiers and show failed tiers explicitly; earlier successes never replace a failed latest tier.');
   sections.push('- Bootstrap repeat summary uses up to five successful 100k-row runs per current version when available.');
-  sections.push('- Reconnect storm repeat summary uses up to three successful runs per current version and reports tier medians for 25 / 100 / 250 / 500 clients when available.');
+  sections.push('- Reconnect storm repeat summary uses up to ten runs of the current version and implementation and reports tier medians for 25 / 100 / 250 / 500 / 1000 clients when available.');
   sections.push('- Bundle sizes are taken from the named-import browser bundle profile in `.results/BUNDLE_SIZES.json`.');
   sections.push('');
 

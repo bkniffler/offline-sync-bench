@@ -60,6 +60,8 @@ struct TransportStats {
 struct BenchTransport {
     inner: HostTransport,
     stats: TransportStats,
+    block_blob_uploads: bool,
+    rejected_blob_puts: u64,
 }
 
 impl BenchTransport {
@@ -68,6 +70,8 @@ impl BenchTransport {
         BenchTransport {
             inner: HostTransport::new_from_config(&json!({})).expect("null transport"),
             stats: TransportStats::default(),
+            block_blob_uploads: false,
+            rejected_blob_puts: 0,
         }
     }
 
@@ -75,6 +79,8 @@ impl BenchTransport {
         Ok(BenchTransport {
             inner: HostTransport::new_from_config(config)?,
             stats: TransportStats::default(),
+            block_blob_uploads: false,
+            rejected_blob_puts: 0,
         })
     }
 
@@ -151,6 +157,13 @@ impl Transport for BenchTransport {
         bytes: &[u8],
         media_type: Option<&str>,
     ) -> Result<(), TransportError> {
+        if self.block_blob_uploads {
+            self.rejected_blob_puts += 1;
+            return Err(TransportError::new(
+                "sync.transport_failed",
+                "Benchmark injected blob-upload outage",
+            ));
+        }
         self.count_request(bytes.len() as u64);
         self.inner.blob_upload(blob_id, bytes, media_type)
     }
@@ -188,6 +201,13 @@ impl Transport for BenchTransport {
         bytes: &[u8],
         media_type: Option<&str>,
     ) -> Result<(), TransportError> {
+        if self.block_blob_uploads {
+            self.rejected_blob_puts += 1;
+            return Err(TransportError::new(
+                "sync.transport_failed",
+                "Benchmark injected blob-upload outage",
+            ));
+        }
         self.count_request(bytes.len() as u64);
         self.inner.blob_put_url(url, bytes, media_type)
     }
@@ -370,6 +390,15 @@ fn handle(
         "waitForQuery" => wait_for_query(transport, client, params),
         "benchQuery" => bench_query(client, params),
         "stats" => Ok(transport.stats_json()),
+        "blockBlobUploads" => {
+            transport.block_blob_uploads = params
+                .get("blocked")
+                .and_then(Value::as_bool)
+                .ok_or_else(|| {
+                    client_err("blockBlobUploads requires blocked boolean".to_owned())
+                })?;
+            Ok(json!({ "rejectedPuts": transport.rejected_blob_puts }))
+        }
         "sleep" => {
             let ms = params.get("ms").and_then(Value::as_u64).unwrap_or(0);
             std::thread::sleep(Duration::from_millis(ms));

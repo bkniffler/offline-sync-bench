@@ -124,7 +124,10 @@ function meteredRealtimeConnector(
   };
 }
 
-async function createBenchClient(actorId: string): Promise<BenchClient> {
+async function createBenchClient(
+  actorId: string,
+  uploadFault?: { blocked: boolean; rejectedPuts: number }
+): Promise<BenchClient> {
   const stack = getStack(STACK_ID);
   const syncBase = stack.syncBaseUrl;
   const realtimeBase = stack.syncRealtimeBaseUrl;
@@ -132,7 +135,16 @@ async function createBenchClient(actorId: string): Promise<BenchClient> {
     throw new Error('Syncular stack is missing syncRealtimeBaseUrl');
   }
 
-  const meter = createHttpMeter();
+  // Metering must preserve the framing of the product's finite SSP2 bodies.
+  // Bound failed network requests so a tier can report failure and clean up.
+  const timedFetch = Object.assign((input: RequestInfo | URL, init?: RequestInit) => {
+    const inherited = init?.signal ?? (input instanceof Request ? input.signal : undefined);
+    const timeout = AbortSignal.timeout(120_000);
+    return fetch(input, { ...init, signal: inherited ? AbortSignal.any([inherited, timeout]) : timeout });
+  }, { preconnect: fetch.preconnect }) as typeof fetch;
+  const meter = createHttpMeter(timedFetch, { fixedLengthRequests: true });
+  // Preserve Content-Length for presigned S3 PUTs when counting their bodies.
+  const blobMeter = createHttpMeter(fetch, { fixedLengthRequests: true });
   const realtimeCounter = { bytes: 0 };
   const headers = { 'x-actor-id': actorId };
   const clientId = crypto.randomUUID();
@@ -156,7 +168,16 @@ async function createBenchClient(actorId: string): Promise<BenchClient> {
     }),
     blobs: httpBlobTransport(`${syncBase}/blobs`, {
       headers,
-      fetch: meter.fetch,
+      fetch: uploadFault
+        ? Object.assign(async (input: RequestInfo | URL, init?: RequestInit) => {
+            const method = init?.method ?? (input instanceof Request ? input.method : 'GET');
+            if (uploadFault.blocked && method === 'PUT') {
+              uploadFault.rejectedPuts += 1;
+              throw new Error('Benchmark injected blob-upload outage');
+            }
+            return blobMeter.fetch(input, init);
+          }, { preconnect: fetch.preconnect })
+        : blobMeter.fetch,
     }),
     realtime: meteredRealtimeConnector(
       `${realtimeBase}?actorId=${encodeURIComponent(actorId)}&clientId=${clientId}`,
@@ -188,10 +209,11 @@ async function createBenchClient(actorId: string): Promise<BenchClient> {
     },
     transfer: () => {
       const snapshot = meter.snapshot();
+      const blobSnapshot = blobMeter.snapshot();
       return {
-        requestCount: snapshot.requestCount,
-        requestBytes: snapshot.requestBytes,
-        responseBytes: snapshot.responseBytes,
+        requestCount: snapshot.requestCount + blobSnapshot.requestCount,
+        requestBytes: snapshot.requestBytes + blobSnapshot.requestBytes,
+        responseBytes: snapshot.responseBytes + blobSnapshot.responseBytes,
         realtimeBytes: realtimeCounter.bytes,
       };
     },
@@ -540,11 +562,12 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
     try {
       await ensureStackUp(STACK_ID);
 
-      const scales = [1_000, 10_000, 100_000];
+      const scales = [1_000, 10_000, 100_000, 250_000, 500_000];
       const scaleResults: BootstrapScaleResult[] = [];
       const warmByScale = new Map<number, number>();
 
       for (const rowsTarget of scales) {
+        console.log(`[syncular-bootstrap] ${this.stack.id} rows=${rowsTarget}`);
         await seedStack(STACK_ID, {
           resetFirst: true,
           orgCount: 1,
@@ -837,8 +860,38 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
   }
 
   async runReconnectStorm(): Promise<ScenarioOutcome> {
+    const counts = (process.env.SYNCULAR_STORM_CLIENTS ?? '25,100,250,500,1000')
+      .split(',').map(value => Number(value.trim()));
+    if (counts.some(count => !Number.isSafeInteger(count) || count < 1)) {
+      throw new Error('SYNCULAR_STORM_CLIENTS must contain positive integer client counts');
+    }
+    const metrics: Record<string, number | null> = {};
+    const scales: JsonValue[] = [];
+    let failed = false;
+    for (const clientCount of counts) {
+      console.log(`[syncular-storm] ${this.stack.id} clients=${clientCount}`);
+      const result = await this.runReconnectStormCase(clientCount);
+      Object.assign(metrics, result.metrics);
+      scales.push({ clientCount, status: result.status, notes: result.notes });
+      if (result.status !== 'completed') {
+        failed = true;
+        metrics[`clients_${clientCount}_failed`] = 1;
+        console.log(`[syncular-storm] ${this.stack.id} clients=${clientCount} failed: ${result.notes.join('; ')}`);
+        continue;
+      }
+      console.log(`[syncular-storm] ${this.stack.id} clients=${clientCount} convergence=${result.metrics.reconnect_convergence_ms}ms`);
+    }
+    return {
+      status: failed ? 'failed' : 'completed', metrics,
+      notes: ['Each client-count case starts with fresh, pre-bootstrapped clients and verifies that every client receives the same server-side change. Resource fields are scoped to the measured client count.'],
+      metadata: { implementation: 'syncular-http-reconnect-storm-sweep-v2', clientCounts: counts, scales },
+    };
+  }
+
+  private async runReconnectStormCase(clientCount: number): Promise<ScenarioOutcome> {
     const implementation = `${IMPLEMENTATION_PREFIX}-http-reconnect-storm`;
     const clients: BenchClient[] = [];
+    let sampler: DockerServiceSampler | undefined;
     try {
       await ensureStackUp(STACK_ID);
       await seedStack(STACK_ID, {
@@ -850,11 +903,15 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
         membershipsPerProject: 2,
       });
 
+      // Fixture reset truncates engine state. Recreate server caches before
+      // bootstrapping the clients, outside the measured catch-up window.
+      await restartServiceCold(
+        STACK_ID, 'sync', `${this.stack.syncBaseUrl.replace(/\/api$/, '')}/health`
+      );
       const fixtures = await requireFixtures();
       const actorId = fixtures.sampleUserIds[0]!;
       const projectId = fixtures.sampleProjectId!;
       const taskId = fixtures.sampleTaskId!;
-      const clientCount = Number(process.env.SYNCULAR_STORM_CLIENTS ?? '25');
 
       for (let offset = 0; offset < clientCount; offset += 8) {
         const batchSize = Math.min(8, clientCount - offset);
@@ -868,15 +925,16 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
         );
       }
 
+      console.log(`[syncular-storm] ${this.stack.id} clients=${clientCount} bootstrapped`);
       const syncContainerId = resolveServiceContainerId(STACK_ID, 'sync');
       const postgresContainerId = resolveServiceContainerId(STACK_ID, 'postgres');
-      const sampler = new DockerServiceSampler([
+      sampler = new DockerServiceSampler([
         { label: 'sync', id: syncContainerId },
         { label: 'postgres', id: postgresContainerId },
       ]);
 
       const baseline = sumTransfers(clients);
-      sampler.start();
+      await sampler.start();
       const startedAt = performance.now();
       const expectedTitle = `syncular-storm-${Date.now()}`;
       await writeTask(STACK_ID, { taskId, title: expectedTitle });
@@ -884,8 +942,11 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
       await Promise.all(
         clients.map(async (bench) => {
           const deadline = performance.now() + 120_000;
+          let rounds = 0;
+          let lastSummary: SyncSummary | undefined;
           while (performance.now() < deadline) {
-            await bench.client.sync();
+            lastSummary = await bench.client.sync();
+            rounds++;
             const row = bench.client.query(
               'SELECT title FROM tasks WHERE id = ?',
               [taskId]
@@ -893,12 +954,13 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
             if (row?.title === expectedTitle) return;
             await Bun.sleep(5);
           }
-          throw new Error('Syncular storm client did not converge in time');
+          throw new Error(`Syncular storm client did not converge in time after ${rounds} rounds: ${JSON.stringify({ lastSummary, row: bench.client.query('SELECT title FROM tasks WHERE id = ?', [taskId])[0] })}`);
         })
       );
 
       const convergenceMs = performance.now() - startedAt;
-      const containerMetrics = sampler.stop();
+      const containerMetrics = await sampler.stop();
+      sampler = undefined;
       const after = sumTransfers(clients);
       const transfer: TransferTotals = {
         requestCount: after.requestCount - baseline.requestCount,
@@ -953,6 +1015,7 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
     } catch (error) {
       return failedOutcome(error, implementation);
     } finally {
+      await sampler?.stop().catch(() => {});
       await closeAll(clients);
     }
   }
@@ -1419,7 +1482,7 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
   }
 
   async runBlobFlow(): Promise<ScenarioOutcome> {
-    const implementation = `${IMPLEMENTATION_PREFIX}-presigned-cross-client-blob-flow`;
+    const implementation = `${IMPLEMENTATION_PREFIX}-presigned-cross-client-blob-flow-v2`;
     const clients: BenchClient[] = [];
     try {
       await ensureStackUp(STACK_ID);
@@ -1437,7 +1500,8 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
       const projectId = fixtures.sampleProjectId!;
       const taskId = fixtures.sampleTaskId!;
 
-      const writer = await createBenchClient(actorId);
+      const uploadFault = { blocked: false, rejectedPuts: 0 };
+      const writer = await createBenchClient(actorId, uploadFault);
       const reader = await createBenchClient(actorId);
       clients.push(writer, reader);
 
@@ -1459,6 +1523,11 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
       memorySampler.start();
       cpuSampler.start();
       const baseline = sumTransfers(clients);
+      const storageBytes = (bench: BenchClient) => Number(bench.client.query(
+        'SELECT page_count * page_size AS bytes FROM pragma_page_count(), pragma_page_size()'
+      )[0]?.bytes);
+      const writerStorageBefore = storageBytes(writer);
+      const readerStorageBefore = storageBytes(reader);
 
       // Writer: stage + reference + sync. The sync flushes the staged
       // upload through the presigned MinIO PUT grant before the push.
@@ -1501,6 +1570,7 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
         );
       }
 
+      const writerStorageAfter = storageBytes(writer);
       const readerBlobRef = await metadataVisible;
       const metadataVisibleMs = performance.now() - uploadStartedAt;
 
@@ -1520,6 +1590,7 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
         throw new Error('Syncular blob flow content hash mismatch');
       }
 
+      const readerStorageAfter = storageBytes(reader);
       const memoryMetrics = memorySampler.stop();
       const cpuMetrics = cpuSampler.stop();
       const after = sumTransfers(clients);
@@ -1530,6 +1601,52 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
         realtimeBytes: after.realtimeBytes - baseline.realtimeBytes,
       };
 
+      // Hold both upload routes offline for one flush. A failed signed PUT
+      // alone is recovered by the product's authenticated upload route.
+      const retryPayload = createRandomBytes(blobSizeBytes);
+      const retryRef = await writer.client.uploadBlob(retryPayload, {
+        mediaType: 'application/octet-stream',
+      });
+      const retryEntryId = crypto.randomUUID();
+      writer.client.mutate([{ table: 'task_blob_entries', op: 'upsert', values: {
+        id: retryEntryId, project_id: projectId, task_id: taskId,
+        blob: writer.client.blobRefString(retryRef), created_at_ms: Date.now(),
+      } }]);
+      uploadFault.blocked = true;
+      const firstAttemptStarted = performance.now();
+      let firstAttemptFailed = false;
+      try {
+        await writer.client.flushBlobUploads();
+      } catch {
+        firstAttemptFailed = true;
+      } finally {
+        uploadFault.blocked = false;
+      }
+      const firstAttemptMs = performance.now() - firstAttemptStarted;
+      const queuedAfterFailure = Number(writer.client.query(
+        'SELECT count(*) AS n FROM _syncular_blob_uploads WHERE blob_id = ?', [retryRef.blobId]
+      )[0]?.n);
+      if (!firstAttemptFailed || uploadFault.rejectedPuts !== 2 || queuedAfterFailure !== 1) {
+        throw new Error('Injected upload outage did not preserve the pending blob');
+      }
+      const recoveryStarted = performance.now();
+      await writer.client.syncUntilIdle(500);
+      const retryRecoveryMs = performance.now() - recoveryStarted;
+      const queuedAfterRecovery = Number(writer.client.query(
+        'SELECT count(*) AS n FROM _syncular_blob_uploads WHERE blob_id = ?', [retryRef.blobId]
+      )[0]?.n);
+      if (queuedAfterRecovery !== 0 || writer.client.pendingCommits().length !== 0) {
+        throw new Error('Blob retry left pending uploads or metadata commits');
+      }
+      await reader.client.syncUntilIdle(500);
+      if (reader.client.query('SELECT id FROM task_blob_entries WHERE id = ?', [retryEntryId]).length !== 1) {
+        throw new Error('Retried blob metadata did not reach the reader');
+      }
+      const recoveredBlob = await reader.client.fetchBlob(writer.client.blobRefString(retryRef));
+      if (await computeBlobId(recoveredBlob.bytes) !== retryRef.blobId) {
+        throw new Error('Retried blob content hash mismatch');
+      }
+
       return {
         status: 'completed',
         metrics: {
@@ -1538,6 +1655,17 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
           metadata_visible_ms: round(metadataVisibleMs),
           download_after_metadata_ms: round(downloadAfterMetadataMs),
           hash_verified: 1,
+          retry_first_attempt_ms: round(firstAttemptMs),
+          retry_recovery_ms: round(retryRecoveryMs),
+          retry_failed_puts: uploadFault.rejectedPuts,
+          retry_pending_after_failure: queuedAfterFailure,
+          retry_pending_after_recovery: queuedAfterRecovery,
+          retry_hash_verified: 1,
+          transfer_overhead_bytes: totalBytes(transfer) - 2 * blobSizeBytes,
+          sqlite_storage_bytes_after_upload: writerStorageAfter,
+          sqlite_storage_bytes_after_download: readerStorageAfter,
+          sqlite_storage_overhead_bytes_after_upload: writerStorageAfter - writerStorageBefore - blobSizeBytes,
+          sqlite_storage_overhead_bytes_after_download: readerStorageAfter - readerStorageBefore - blobSizeBytes,
           request_count: transfer.requestCount,
           request_bytes: transfer.requestBytes,
           response_bytes: transfer.responseBytes,
@@ -1551,6 +1679,8 @@ export class SyncularBenchmarkAdapter implements BenchmarkAdapter {
         notes: [
           'Blob flow uses the product blob transport end to end: the writer stages 2 MiB, the sync round flushes it through a presigned MinIO PUT grant, and the referencing task_blob_entries row is pushed and fanned out.',
           'The realtime reader observes the metadata row via the WebSocket delta, then re-downloads through the authenticated blob route (presigned MinIO GET) with client-side content-address verification.',
+          'Transfer overhead is initial upload + metadata propagation + first reader download body bytes, minus two blob payloads; the separate retry case is excluded. SQLite overhead is page-count × page-size growth on each client minus one payload.',
+          'The retry case rejects both signed and authenticated PUTs for one flush, verifies the pending upload survives, restores transport, drains it through sync, and verifies the second client receives the correct bytes.',
           'The writer pushes over HTTP because the bench realtime hub is wired without a blob store, so blob-referencing commits are only accepted on the HTTP sync round.',
         ],
         metadata: {

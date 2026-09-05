@@ -1,3 +1,4 @@
+import { serverDatabaseProfile } from '../stacks/syncular/syncular-app/src/benchmark-profile';
 import { readFileSync } from 'node:fs';
 import { cpus, hostname, totalmem } from 'node:os';
 import { join } from 'node:path';
@@ -82,6 +83,9 @@ export function getStackVersionMetadata(stack: StackSpec): JsonObject {
     frameworkVersion: versionMetadata.frameworkVersion,
     versionSource: versionMetadata.versionSource,
     versionComponents: versionMetadata.versionComponents,
+    ...((stack.id === 'syncular' || stack.id === 'syncular-rust') ? {
+      serverDatabaseProfile: `${serverDatabaseProfile.driver}-${readInstalledPackageVersion('postgres')}-pool${serverDatabaseProfile.poolSize}`,
+    } : {}),
   };
 
   stackVersionCache.set(stack.id, metadata);

@@ -654,7 +654,7 @@ async function runElectricReconnectStormCase(args: {
     { label: 'sync', id: syncContainerId },
     { label: 'postgres', id: postgresContainerId },
   ]);
-  sampler.start();
+  await sampler.start();
   const startedAt = performance.now();
   const expectedTitle = `electric-storm-${Date.now()}`;
   await writeTask('electric', {
@@ -677,7 +677,7 @@ async function runElectricReconnectStormCase(args: {
   );
 
   const convergenceMs = performance.now() - startedAt;
-  const containerMetrics = sampler.stop();
+  const containerMetrics = await sampler.stop();
   const totalMeter = updatedClients.reduce(
     (totals, client) => {
       const snapshot = diffMeterTotals(client.meter.snapshot(), client.baseline);
@@ -1163,7 +1163,7 @@ export class ElectricBenchmarkAdapter implements BenchmarkAdapter {
         'Server resource metrics sample the Electric sync service and Postgres containers during each reconnect window.',
       ],
       metadata: {
-        implementation: 'electric-live-shape-reconnect-storm-v2',
+        implementation: 'electric-live-shape-reconnect-storm-v3',
         clientCounts,
         productVersion: baseline.productVersion ?? 'unknown',
         scales: results.map((result) => ({

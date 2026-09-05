@@ -7,6 +7,8 @@ This repo stays separate from any one product repo. The goal is to compare syste
 Current readable report:
 
 - [RESULTS.md](./RESULTS.md)
+- [Published raw measurements](./RESULTS.json)
+- [Syncular coverage and measurement notes](./SYNCULAR_COVERAGE.md)
 - [Dependency upgrade comparison](./UPGRADE_COMPARISON.md)
 
 ## Principles
@@ -18,15 +20,15 @@ Current readable report:
 
 ## Implemented scenarios
 
-- `bootstrap`: cold start until a local query is usable at 1k / 10k / 100k rows
+- `bootstrap`: cold start until a local query is usable at 1k / 10k / 100k rows, plus 250k / 500k for the Syncular scale study
 - `online-propagation`: write on client A, observe on client B
 - `offline-replay`: queue writes offline, reconnect, and measure convergence
-- `reconnect-storm`: restart sync, then fan out one change to many already-bootstrapped clients while sampling server resources
+- `reconnect-storm`: fan out one change to many already-bootstrapped clients while sampling server resources
 - `large-offline-queue`: replay a materially larger queued write set than the baseline offline-replay case
 - `local-query`: run screen-like filtered list, search, and aggregation workloads on the fully synced local client state
 - `deep-relationship-query`: run organization dashboard rollups and project detail joins over a fully synced multi-table local relational dataset
 - `permission-change`: revoke scoped access and measure how quickly previously visible local rows disappear
-- `blob-flow`: upload a blob, observe cross-client metadata visibility, force a cache miss, and measure authenticated re-download plus interrupted upload recovery
+- `blob-flow`: upload a blob, observe cross-client metadata visibility, download on a fresh reader, and measure authenticated download plus upload-outage recovery
 
 Detailed specs live in:
 
@@ -86,12 +88,18 @@ bun run bench:report
 bun run bench:cleanup -- --dry-run
 bun run results:md
 bun run results:md -- --run-id <runId>
+bun run results:md -- --run-id <runId> --require-syncular-coverage --export-json
 bun run bundle:size
 ```
 
 Repeat `--run-id` to combine selected runs, such as a complete suite and a later
 stack rerun. The report uses the latest outcome per stack/scenario and does not
-replace failures with older successes.
+replace failures with older successes. `--require-syncular-coverage` rejects a
+report missing the Syncular bootstrap sizes, reconnect counts/resource fields,
+blob recovery/overhead, or relationship-query memory measurements. An explicitly
+failed reconnect tier counts as attempted coverage and is printed as `failed`,
+with its reason; smaller successful tiers remain visible. `--export-json` writes
+all selected outcomes and bundle measurements to the tracked `RESULTS.json`.
 
 Stack helpers:
 
@@ -163,3 +171,8 @@ The benchmark harness is operational for the admitted full-stack products, the E
 LiveStore and Replicache were removed from the active matrix: LiveStore had effectively no comparable coverage, and Replicache requires a benchmark-owned BYOB server rather than providing an admitted full-stack deployment.
 
 See [TODO.md](./TODO.md) for the remaining work.
+
+Syncular JS and Rust bootstrap include 250k and 500k rows, and reconnect storms
+default to 25/100/250/500/1,000 clients. For targeted reconnect runs, set
+`SYNCULAR_STORM_CLIENTS` or `SYNCULAR_RUST_STORM_CLIENTS` to a single count or a
+comma-separated list. Such a partial run does not satisfy the full coverage check.
