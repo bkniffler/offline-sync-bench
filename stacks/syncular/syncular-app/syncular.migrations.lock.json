@@ -1,0 +1,174 @@
+{
+  "formatVersion": 2,
+  "migrations": [
+    {
+      "name": "0001_initial",
+      "sha256": "28a723ccb92780946c2718a1fde8de895df8d10f441acc55c1d99ccd05558832"
+    }
+  ],
+  "head": {
+    "tables": [
+      {
+        "name": "app_users",
+        "primaryKey": "id",
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "nullable": false
+          },
+          {
+            "name": "org_id",
+            "type": "string",
+            "nullable": false
+          },
+          {
+            "name": "email",
+            "type": "string",
+            "nullable": false
+          }
+        ]
+      },
+      {
+        "name": "organizations",
+        "primaryKey": "id",
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "nullable": false
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "nullable": false
+          }
+        ]
+      },
+      {
+        "name": "project_memberships",
+        "primaryKey": "id",
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "nullable": false
+          },
+          {
+            "name": "project_id",
+            "type": "string",
+            "nullable": false
+          },
+          {
+            "name": "user_id",
+            "type": "string",
+            "nullable": false
+          },
+          {
+            "name": "role",
+            "type": "string",
+            "nullable": false
+          }
+        ]
+      },
+      {
+        "name": "projects",
+        "primaryKey": "id",
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "nullable": false
+          },
+          {
+            "name": "org_id",
+            "type": "string",
+            "nullable": false
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "nullable": false
+          }
+        ]
+      },
+      {
+        "name": "task_blob_entries",
+        "primaryKey": "id",
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "nullable": false
+          },
+          {
+            "name": "project_id",
+            "type": "string",
+            "nullable": false
+          },
+          {
+            "name": "task_id",
+            "type": "string",
+            "nullable": false
+          },
+          {
+            "name": "blob",
+            "type": "blob_ref",
+            "nullable": true
+          },
+          {
+            "name": "created_at_ms",
+            "type": "integer",
+            "nullable": false
+          }
+        ]
+      },
+      {
+        "name": "tasks",
+        "primaryKey": "id",
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "nullable": false
+          },
+          {
+            "name": "org_id",
+            "type": "string",
+            "nullable": false
+          },
+          {
+            "name": "project_id",
+            "type": "string",
+            "nullable": false
+          },
+          {
+            "name": "owner_id",
+            "type": "string",
+            "nullable": false
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "nullable": false
+          },
+          {
+            "name": "completed",
+            "type": "boolean",
+            "nullable": false
+          },
+          {
+            "name": "server_version",
+            "type": "integer",
+            "nullable": false
+          },
+          {
+            "name": "updated_at_ms",
+            "type": "integer",
+            "nullable": false
+          }
+        ]
+      }
+    ]
+  }
+}

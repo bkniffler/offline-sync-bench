@@ -188,7 +188,7 @@ async function runBootstrap(): Promise<RunnerResult> {
       membershipsPerProject: 2,
     });
 
-    const meter = createHttpMeter(globalThis.fetch);
+    const meter = createHttpMeter(globalThis.fetch, { fixedLengthRequests: true });
     const memorySampler = new MemorySampler();
     const cpuSampler = new CpuSampler();
     memorySampler.start();
@@ -246,7 +246,7 @@ async function runBootstrap(): Promise<RunnerResult> {
     ],
     metadata: {
       implementation: 'turso-sync-native-js',
-      productVersion: '0.7.0',
+      productVersion: '0.7.2',
       scales: scaleResults as unknown as JsonValue,
     },
   };
@@ -265,7 +265,7 @@ async function runOnlinePropagation(): Promise<RunnerResult> {
   const fixtures = await getFixtures('turso');
   if (!fixtures.sampleTaskId) throw new Error('Turso fixtures are missing a task');
 
-  const meter = createHttpMeter(globalThis.fetch);
+  const meter = createHttpMeter(globalThis.fetch, { fixedLengthRequests: true });
   const writer = await createSession('online-writer', meter.fetch);
   const reader = await createSession('online-reader', meter.fetch);
   const memorySampler = new MemorySampler();
@@ -324,7 +324,7 @@ async function runOnlinePropagation(): Promise<RunnerResult> {
       ],
       metadata: {
         implementation: 'turso-sync-native-js',
-        productVersion: '0.7.0',
+        productVersion: '0.7.2',
         samples: samples as unknown as JsonValue,
       },
     };
@@ -358,7 +358,7 @@ async function runOfflineReplay(): Promise<RunnerResult> {
     ],
     metadata: {
       implementation: 'turso-sync-native-offline-replay',
-      productVersion: '0.7.0',
+      productVersion: '0.7.2',
       cdcOperationsBeforeReplay: replay.cdcOperationsBeforeReplay,
       pendingAfterReplay: replay.pendingAfterReplay,
     },
@@ -396,7 +396,7 @@ async function runLargeOfflineQueue(): Promise<RunnerResult> {
     ],
     metadata: {
       implementation: 'turso-sync-native-large-queue',
-      productVersion: '0.7.0',
+      productVersion: '0.7.2',
       queueSizes,
       cdcOperationsBeforeReplay: results.map(
         (entry) => entry.cdcOperationsBeforeReplay
@@ -432,7 +432,7 @@ async function runOfflineReplayCase(
     throw new Error(`Turso queue needs ${queueSize} rows, got ${targets.length}`);
   }
 
-  const meter = createHttpMeter(globalThis.fetch);
+  const meter = createHttpMeter(globalThis.fetch, { fixedLengthRequests: true });
   const writer = await createSession(`offline-writer-${queueSize}`, meter.fetch);
   const reader = await createSession(`offline-reader-${queueSize}`, meter.fetch);
   const memorySampler = new MemorySampler();
@@ -600,7 +600,7 @@ async function runLocalQuery(): Promise<RunnerResult> {
       ],
       metadata: {
         implementation: 'turso-sync-native-local-sql',
-        productVersion: '0.7.0',
+        productVersion: '0.7.2',
       },
     };
   } finally {
@@ -693,7 +693,7 @@ async function runDeepRelationshipQuery(): Promise<RunnerResult> {
       ],
       metadata: {
         implementation: 'turso-sync-native-relational-sql',
-        productVersion: '0.7.0',
+        productVersion: '0.7.2',
       },
     };
   } finally {

@@ -23,7 +23,7 @@ services:
       retries: 10
 
   electric:
-    image: electricsql/electric:canary
+    image: electricsql/electric:1.8.0
     environment:
       DATABASE_URL: postgresql://bench:bench@postgres:5432/bench?sslmode=disable
       ELECTRIC_INSECURE: "true"

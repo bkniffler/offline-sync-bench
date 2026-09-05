@@ -54,7 +54,7 @@ services:
       - "3218:3000"
 
   powersync:
-    image: journeyapps/powersync-service:latest
+    image: journeyapps/powersync-service:1.25.0
     command: ["start", "-r", "unified"]
     volumes:
       - ./config:/config:ro

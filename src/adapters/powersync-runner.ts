@@ -74,12 +74,10 @@ const scenario = process.argv[2];
 
 const AppSchema = new Schema({
   organizations: new Table({
-    id: column.text,
     name: column.text,
   }),
   projects: new Table(
     {
-      id: column.text,
       org_id: column.text,
       name: column.text,
     },
@@ -205,7 +203,7 @@ async function runBootstrap(): Promise<RunnerResult> {
     });
 
     const baseFetch = globalThis.fetch;
-    const meter = createHttpMeter(baseFetch);
+    const meter = createHttpMeter(baseFetch, { streamResponses: true });
     globalThis.fetch = meter.fetch;
 
     const sampler = new MemorySampler();
@@ -266,7 +264,7 @@ async function runBootstrap(): Promise<RunnerResult> {
     ],
     metadata: {
       implementation: 'powersync-node-sdk',
-      productVersion: '0.18.0',
+      productVersion: '1.0.0',
       scales: scaleResults.map((result) => ({
         rowsTarget: result.rowsTarget,
         timeToFirstQueryMs: result.timeToFirstQueryMs,
@@ -301,7 +299,7 @@ async function runOnlinePropagation(): Promise<RunnerResult> {
   }
 
   const baseFetch = globalThis.fetch;
-  const meter = createHttpMeter(baseFetch);
+  const meter = createHttpMeter(baseFetch, { streamResponses: true });
   globalThis.fetch = meter.fetch;
   const memorySampler = new MemorySampler();
   const cpuSampler = new CpuSampler();
@@ -373,7 +371,7 @@ async function runOnlinePropagation(): Promise<RunnerResult> {
       ],
       metadata: {
         implementation: 'powersync-node-sdk',
-        productVersion: '0.18.0',
+        productVersion: '1.0.0',
         samples: samples.map((sample) => ({
           iteration: sample.iteration,
           writeAckMs: sample.writeAckMs,
@@ -418,7 +416,7 @@ async function runOfflineReplay(): Promise<RunnerResult> {
     ],
     metadata: {
       implementation: 'powersync-native-upload-queue',
-      productVersion: '0.18.0',
+      productVersion: '1.0.0',
       queuedTaskIds: result.queuedTaskIds,
     },
   };
@@ -460,7 +458,7 @@ async function runLargeOfflineQueue(): Promise<RunnerResult> {
     ],
     metadata: {
       implementation: 'powersync-native-upload-queue-large-queue',
-      productVersion: '0.18.0',
+      productVersion: '1.0.0',
       scales: queueResults.map((result, index) => ({
         queueSize: queueSizes[index],
         queuedWriteCount: result.queuedWriteCount,
@@ -563,7 +561,7 @@ async function runLocalQuery(): Promise<RunnerResult> {
       ],
       metadata: {
         implementation: 'powersync-node-local-query',
-        productVersion: '0.18.0',
+        productVersion: '1.0.0',
       },
     };
   } finally {
@@ -651,7 +649,7 @@ async function runDeepRelationshipQuery(): Promise<RunnerResult> {
       ],
       metadata: {
         implementation: 'powersync-node-deep-relationship-query',
-        productVersion: '0.18.0',
+        productVersion: '1.0.0',
       },
     };
   } finally {
@@ -759,7 +757,7 @@ async function runOfflineReplayCase(args: {
 
   const baseFetch = globalThis.fetch;
   const replayTimeoutMs = Math.max(120_000, args.queueSize * 500);
-  const meter = createHttpMeter(baseFetch);
+  const meter = createHttpMeter(baseFetch, { streamResponses: true });
   globalThis.fetch = meter.fetch;
   const memorySampler = new MemorySampler();
   const cpuSampler = new CpuSampler();

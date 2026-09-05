@@ -1,7 +1,7 @@
 FROM debian:bookworm-slim
 
 ARG TARGETARCH
-ARG TURSO_VERSION=0.7.0
+ARG TURSO_VERSION=0.7.2
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends ca-certificates curl netcat-openbsd xz-utils \

@@ -6,8 +6,7 @@ export type StackId =
   | 'zero'
   | 'powersync'
   | 'turso'
-  | 'jazz-v2'
-  | 'triplit';
+  | 'jazz-v2';
 export type ScenarioId =
   | 'bootstrap'
   | 'online-propagation'

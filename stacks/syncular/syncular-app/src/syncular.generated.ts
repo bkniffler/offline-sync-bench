@@ -2,6 +2,20 @@
 // irVersion: 1
 // irHash: sha256:9f7fdee42e4283ce2b38d2a4a6120a4044b60b263f63cb15f70cf534ddc55795
 
+/** Structural descriptor consumed by renderer bindings; phantom type
+ * fields make row/insert/update/id inference available without imports. */
+export interface SyncTable<Row, Insert, Update, Id> {
+  readonly name: string;
+  /** Language-facing key used in generated row and mutation types. */
+  readonly primaryKey: keyof Row & string;
+  /** Physical SQLite/wire primary-key column. */
+  readonly physicalPrimaryKey: string;
+  readonly __row?: Row;
+  readonly __insert?: Insert;
+  readonly __update?: Update;
+  readonly __id?: Id;
+}
+
 /** ServerSchema-compatible schema object (SPEC §2.4, §3.1). */
 export const schema = {
   version: 1,
@@ -116,145 +130,176 @@ export interface OrganizationsUpdate {
   name?: string;
 }
 
+/** Typed mutation/resource descriptor for 'organizations'. */
+export const organizationsTable: SyncTable<OrganizationsRow, OrganizationsInsert, OrganizationsUpdate, string> = {
+  name: 'organizations',
+  primaryKey: 'id',
+  physicalPrimaryKey: 'id',
+};
+
 /** One projects row (§2.4 column order). */
 export interface ProjectsRow {
   id: string;
-  org_id: string;
+  orgId: string;
   name: string;
 }
 
 /** Insert shape: nullable columns may be omitted. */
 export interface ProjectsInsert {
   id: string;
-  org_id: string;
+  orgId: string;
   name: string;
 }
 
 /** Update shape: primary key required, all other columns optional. */
 export interface ProjectsUpdate {
   id: string;
-  org_id?: string;
+  orgId?: string;
   name?: string;
 }
+
+/** Typed mutation/resource descriptor for 'projects'. */
+export const projectsTable: SyncTable<ProjectsRow, ProjectsInsert, ProjectsUpdate, string> = {
+  name: 'projects',
+  primaryKey: 'id',
+  physicalPrimaryKey: 'id',
+};
 
 /** One app_users row (§2.4 column order). */
 export interface AppUsersRow {
   id: string;
-  org_id: string;
+  orgId: string;
   email: string;
 }
 
 /** Insert shape: nullable columns may be omitted. */
 export interface AppUsersInsert {
   id: string;
-  org_id: string;
+  orgId: string;
   email: string;
 }
 
 /** Update shape: primary key required, all other columns optional. */
 export interface AppUsersUpdate {
   id: string;
-  org_id?: string;
+  orgId?: string;
   email?: string;
 }
+
+/** Typed mutation/resource descriptor for 'app_users'. */
+export const appUsersTable: SyncTable<AppUsersRow, AppUsersInsert, AppUsersUpdate, string> = {
+  name: 'app_users',
+  primaryKey: 'id',
+  physicalPrimaryKey: 'id',
+};
 
 /** One project_memberships row (§2.4 column order). */
 export interface ProjectMembershipsRow {
   id: string;
-  project_id: string;
-  user_id: string;
+  projectId: string;
+  userId: string;
   role: string;
 }
 
 /** Insert shape: nullable columns may be omitted. */
 export interface ProjectMembershipsInsert {
   id: string;
-  project_id: string;
-  user_id: string;
+  projectId: string;
+  userId: string;
   role: string;
 }
 
 /** Update shape: primary key required, all other columns optional. */
 export interface ProjectMembershipsUpdate {
   id: string;
-  project_id?: string;
-  user_id?: string;
+  projectId?: string;
+  userId?: string;
   role?: string;
 }
+
+/** Typed mutation/resource descriptor for 'project_memberships'. */
+export const projectMembershipsTable: SyncTable<ProjectMembershipsRow, ProjectMembershipsInsert, ProjectMembershipsUpdate, string> = {
+  name: 'project_memberships',
+  primaryKey: 'id',
+  physicalPrimaryKey: 'id',
+};
 
 /** One tasks row (§2.4 column order). */
 export interface TasksRow {
   id: string;
-  org_id: string;
-  project_id: string;
-  owner_id: string;
+  orgId: string;
+  projectId: string;
+  ownerId: string;
   title: string;
   completed: boolean;
-  server_version: number;
-  updated_at_ms: number;
+  serverVersion: number;
+  updatedAtMs: number;
 }
 
 /** Insert shape: nullable columns may be omitted. */
 export interface TasksInsert {
   id: string;
-  org_id: string;
-  project_id: string;
-  owner_id: string;
+  orgId: string;
+  projectId: string;
+  ownerId: string;
   title: string;
   completed: boolean;
-  server_version: number;
-  updated_at_ms: number;
+  serverVersion: number;
+  updatedAtMs: number;
 }
 
 /** Update shape: primary key required, all other columns optional. */
 export interface TasksUpdate {
   id: string;
-  org_id?: string;
-  project_id?: string;
-  owner_id?: string;
+  orgId?: string;
+  projectId?: string;
+  ownerId?: string;
   title?: string;
   completed?: boolean;
-  server_version?: number;
-  updated_at_ms?: number;
+  serverVersion?: number;
+  updatedAtMs?: number;
 }
+
+/** Typed mutation/resource descriptor for 'tasks'. */
+export const tasksTable: SyncTable<TasksRow, TasksInsert, TasksUpdate, string> = {
+  name: 'tasks',
+  primaryKey: 'id',
+  physicalPrimaryKey: 'id',
+};
 
 /** One task_blob_entries row (§2.4 column order). */
 export interface TaskBlobEntriesRow {
   id: string;
-  project_id: string;
-  task_id: string;
+  projectId: string;
+  taskId: string;
   blob: string | null;
-  created_at_ms: number;
+  createdAtMs: number;
 }
 
 /** Insert shape: nullable columns may be omitted. */
 export interface TaskBlobEntriesInsert {
   id: string;
-  project_id: string;
-  task_id: string;
+  projectId: string;
+  taskId: string;
   blob?: string | null;
-  created_at_ms: number;
+  createdAtMs: number;
 }
 
 /** Update shape: primary key required, all other columns optional. */
 export interface TaskBlobEntriesUpdate {
   id: string;
-  project_id?: string;
-  task_id?: string;
+  projectId?: string;
+  taskId?: string;
   blob?: string | null;
-  created_at_ms?: number;
+  createdAtMs?: number;
 }
 
-/** Kysely `Database` interface (table → Row); the generic for
- *  @syncular/kysely's SyncularDialect. */
-export interface Database {
-  organizations: OrganizationsRow;
-  projects: ProjectsRow;
-  app_users: AppUsersRow;
-  project_memberships: ProjectMembershipsRow;
-  tasks: TasksRow;
-  task_blob_entries: TaskBlobEntriesRow;
-}
+/** Typed mutation/resource descriptor for 'task_blob_entries'. */
+export const taskBlobEntriesTable: SyncTable<TaskBlobEntriesRow, TaskBlobEntriesInsert, TaskBlobEntriesUpdate, string> = {
+  name: 'task_blob_entries',
+  primaryKey: 'id',
+  physicalPrimaryKey: 'id',
+};
 
 export interface TasksInProjectsParams {
   projectIds: string;

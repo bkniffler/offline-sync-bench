@@ -18,7 +18,6 @@
  * host-side bench clients fetch (presigned URLs bind the Host header).
  */
 import {
-  buildSqliteImage,
   createRealtimeHub,
   MemorySegmentStore,
   PostgresFanout,
@@ -29,6 +28,7 @@ import {
   s3PresignedBlobUrls,
   type SyncServerConfig,
 } from '@syncular/server';
+import { buildSqliteImage } from '@syncular/server/sqlite';
 import { createSyncularHono } from '@syncular/server-hono';
 import { Hono } from 'hono';
 import { type Db, openDb, PARTITION } from './shared';

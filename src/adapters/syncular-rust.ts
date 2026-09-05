@@ -263,8 +263,8 @@ class RustClient {
           `${this.clientId} sync failed: ${String(outcome.errorCode)} ${String(outcome.message)}`
         );
       }
-      const needed = await this.call('syncNeeded', {});
-      if (needed.value !== true) return;
+      const status = await this.call('statusSnapshot', {});
+      if (status.syncNeeded !== true) return;
     }
     throw new Error(`${this.clientId} did not reach sync idle`);
   }

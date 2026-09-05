@@ -6,7 +6,6 @@ import { PowerSyncBenchmarkAdapter } from './powersync';
 import { SyncularRustBenchmarkAdapter } from './syncular-rust';
 import { SyncularBenchmarkAdapter } from './syncular';
 import { TursoBenchmarkAdapter } from './turso';
-import { TriplitBenchmarkAdapter } from './triplit';
 import { ZeroBenchmarkAdapter } from './zero';
 
 export function createAdapter(stackId: StackId): BenchmarkAdapter {
@@ -27,8 +26,6 @@ export function createAdapter(stackId: StackId): BenchmarkAdapter {
       return new TursoBenchmarkAdapter();
     case 'jazz-v2':
       return new JazzV2BenchmarkAdapter();
-    case 'triplit':
-      return new TriplitBenchmarkAdapter();
     default:
       throw new Error(`Unsupported stack adapter: ${stackId}`);
   }

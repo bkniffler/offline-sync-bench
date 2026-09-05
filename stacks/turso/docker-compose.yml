@@ -6,7 +6,7 @@ services:
       context: ../../
       dockerfile: stacks/turso/Dockerfile
       args:
-        TURSO_VERSION: "0.7.0"
+        TURSO_VERSION: "0.7.2"
     ports:
       - "3225:8080"
     healthcheck:

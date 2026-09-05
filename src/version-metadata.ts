@@ -103,12 +103,12 @@ function buildVersionMetadata(
       return buildRustSyncularVersionMetadata();
     case 'electric':
       return {
-        frameworkVersion: imageRef ?? 'electricsql/electric:canary',
+        frameworkVersion: imageRef ?? 'electricsql/electric:1.8.0',
         versionSource: imageRef
           ? 'docker image digest for electric service'
           : 'compose image reference',
         versionComponents: {
-          electricImage: imageRef ?? 'electricsql/electric:canary',
+          electricImage: imageRef ?? 'electricsql/electric:1.8.0',
         },
       };
     case 'electric-tanstack':
@@ -130,7 +130,7 @@ function buildVersionMetadata(
             '@tanstack/node-db-sqlite-persistence'
           ),
           electricClient: readInstalledPackageVersion('@electric-sql/client'),
-          electricImage: imageRef ?? 'electricsql/electric:canary',
+          electricImage: imageRef ?? 'electricsql/electric:1.8.0',
         },
       };
     case 'zero':
@@ -156,7 +156,7 @@ function buildVersionMetadata(
           ? 'docker image digest for powersync service'
           : 'node_modules/@powersync/node/package.json',
         versionComponents: {
-          serviceImage: imageRef ?? 'journeyapps/powersync-service:latest',
+          serviceImage: imageRef ?? 'journeyapps/powersync-service:1.25.0',
           nodeSdk: readInstalledPackageVersion('@powersync/node'),
         },
       };
@@ -169,7 +169,7 @@ function buildVersionMetadata(
         versionSource: 'node_modules/@tursodatabase/sync/package.json',
         versionComponents: {
           syncClient: readInstalledPackageVersion('@tursodatabase/sync'),
-          syncServer: 'tursodb:0.7.0',
+          syncServer: 'tursodb:0.7.2',
         },
       };
     case 'jazz-v2':
@@ -184,20 +184,6 @@ function buildVersionMetadata(
           jazzNapi: readInstalledPackageVersion('jazz-napi'),
           server: 'jazz-tools server 2.0.0-alpha.53',
           releaseChannel: 'v2 alpha',
-        },
-      };
-    case 'triplit':
-      return {
-        frameworkVersion:
-          readInstalledPackageVersion('@triplit/client') ??
-          readDependencyRange('@triplit/client') ??
-          'unknown',
-        versionSource: 'node_modules/@triplit/client/package.json',
-        versionComponents: {
-          client: readInstalledPackageVersion('@triplit/client'),
-          cli: readInstalledPackageVersion('@triplit/cli'),
-          serverImage: 'aspencloud/triplit-server-bun:1.0.61',
-          serverPackage: '1.1.8',
         },
       };
   }

@@ -126,14 +126,6 @@ export const targets: BundleTarget[] = [
     profile: 'named-import',
     namedImports: ['createDb', 'schema'],
   },
-  {
-    id: 'triplit-minimal',
-    label: 'Triplit',
-    importPath: '@triplit/client',
-    versionPackageName: '@triplit/client',
-    profile: 'named-import',
-    namedImports: ['TriplitClient'],
-  },
 ];
 
 export async function fileExists(path: string): Promise<boolean> {

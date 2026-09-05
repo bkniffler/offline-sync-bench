@@ -279,8 +279,6 @@ async function isStackHealthy(stack: StackSpec): Promise<boolean> {
       return true;
     case 'jazz-v2':
       return true;
-    case 'triplit':
-      return true;
   }
 }
 
@@ -433,8 +431,6 @@ export async function ensureStackUp(stackId: StackId): Promise<StackSpec> {
       }
       break;
     case 'jazz-v2':
-      break;
-    case 'triplit':
       break;
   }
 

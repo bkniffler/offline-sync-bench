@@ -32,6 +32,12 @@ interface BundleSizeRow {
 const ROOT_DIR = benchmarkRoot;
 const RESULTS_DIR = resultsRoot;
 const OUTPUT_MARKDOWN = join(ROOT_DIR, 'RESULTS.md');
+const requestedRunIds = Bun.argv.flatMap((arg, index) => arg === '--run-id' ? [Bun.argv[index + 1]] : []);
+if (requestedRunIds.some(runId => !runId || !/^[\w-]+$/.test(runId))) {
+  throw new Error('--run-id requires a benchmark run ID');
+}
+const scopedRun = requestedRunIds.length > 0;
+const runOutcomes = new Map<string, StoredBenchmarkResult>();
 
 async function walkJsonFiles(dir: string): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -54,7 +60,9 @@ async function walkJsonFiles(dir: string): Promise<string[]> {
 async function collectLatestResults(): Promise<
   Map<ScenarioId, Map<StackId, StoredBenchmarkResult[]>>
 > {
-  const files = await walkJsonFiles(RESULTS_DIR);
+  const files = scopedRun
+    ? (await Promise.all(requestedRunIds.map(runId => walkJsonFiles(join(RESULTS_DIR, runId!))))).flat()
+    : await walkJsonFiles(RESULTS_DIR);
   const history = new Map<ScenarioId, Map<StackId, StoredBenchmarkResult[]>>();
 
   for (const filePath of files) {
@@ -74,6 +82,11 @@ async function collectLatestResults(): Promise<
       continue;
     }
 
+    if (scopedRun) {
+      const key = `${parsed.stackId}/${parsed.scenarioId}`;
+      const previous = runOutcomes.get(key);
+      if (!previous || parsed.finishedAt > previous.finishedAt) runOutcomes.set(key, parsed);
+    }
     if (parsed.status !== 'completed') continue;
     const scenarioMap =
       history.get(scenarioId) ?? new Map<StackId, StoredBenchmarkResult[]>();
@@ -92,6 +105,13 @@ async function collectLatestResults(): Promise<
         stackId,
         results.sort((left, right) => right.finishedAt.localeCompare(left.finishedAt))
       );
+    }
+  }
+
+  if (scopedRun) {
+    for (const result of runOutcomes.values()) {
+      const scenarioMap = history.get(result.scenarioId);
+      if (result.status !== 'completed') scenarioMap?.delete(result.stackId);
     }
   }
 
@@ -312,9 +332,6 @@ async function collectBundleRows(): Promise<BundleSizeRow[]> {
     lookup.get('jazz-v2-minimal')
       ? { ...lookup.get('jazz-v2-minimal')!, label: 'Jazz v2 (experimental)', profile: 'named import' }
       : null,
-    lookup.get('triplit-minimal')
-      ? { ...lookup.get('triplit-minimal')!, label: 'Triplit', profile: 'named import' }
-      : null,
   ];
 
   return rows.filter((entry): entry is BundleSizeRow => entry !== null);
@@ -341,10 +358,14 @@ async function main(): Promise<void> {
   sections.push('# Benchmark Results');
   sections.push('');
   sections.push(
-    'This report is generated from the latest successful result for each stack/scenario pair under `.results/`.'
+    scopedRun
+      ? `This report uses only runs ${requestedRunIds.map(runId => `\`${runId}\``).join(', ')}. The latest attempt per stack/scenario determines its outcome. Failed measurements remain unavailable; older successes are not substituted. See [the dependency upgrade comparison](./UPGRADE_COMPARISON.md) for the before/after results.`
+      : 'This report is generated from the latest successful result for each stack/scenario pair under `.results/`.'
   );
   sections.push(
-    'Numbers are directly comparable within a scenario, but they may come from different run IDs because newer scenarios are being iterated independently.'
+    scopedRun
+      ? 'These are individual scenario measurements on one machine, not statistically established performance rankings.'
+      : 'Numbers are directly comparable within a scenario, but they may come from different run IDs because newer scenarios are being iterated independently.'
   );
   sections.push(
     'Reconnect Storm and Large Offline Queue headline tables prefer current-version medians from recent successful runs when available.'
@@ -352,6 +373,19 @@ async function main(): Promise<void> {
   sections.push(
     'Experimental-lane stacks remain visible in scenario tables but are excluded from stable headline rankings.'
   );
+  if (scopedRun) {
+    sections.push('');
+    sections.push('## Run outcomes');
+    sections.push('');
+    const outcomes = [...runOutcomes.values()];
+    const count = (status: string) => outcomes.filter(result => result.status === status).length;
+    sections.push(`${count('completed')} completed, ${count('failed')} failed, ${count('unsupported')} unsupported.`);
+    sections.push('');
+    for (const result of outcomes.filter(result => result.status === 'failed')) {
+      const detail = (result.notes ?? []).join(' ').replace(/\s+/g, ' ').slice(0, 300);
+      sections.push(`- ${stackTitle(result.stackId)} / ${result.scenarioId}: ${detail} ([raw result](./.results/${result.runId}/${result.stackId}/${result.scenarioId}.json))`);
+    }
+  }
   sections.push('');
   sections.push('## Highlights');
   sections.push('');
@@ -422,7 +456,7 @@ async function main(): Promise<void> {
   }
   if (electricOnline && syncularOnline) {
     sections.push(
-      `- Online propagation: Electric still leads on tail latency (${formatMs(electricOnline.metrics.mirror_visible_p95_ms)} p95), while Syncular is now at ${formatMs(syncularOnline.metrics.mirror_visible_p95_ms)} p95 with ${formatMs(syncularOnline.metrics.write_ack_ms)} write ack.`
+      `- Online propagation: Electric is at ${formatMs(electricOnline.metrics.mirror_visible_p95_ms)} p95; Syncular is at ${formatMs(syncularOnline.metrics.mirror_visible_p95_ms)} p95 with ${formatMs(syncularOnline.metrics.write_ack_ms)} write ack.`
     );
   }
   if (syncularReplay && powersyncReplay) {
@@ -1134,7 +1168,7 @@ async function main(): Promise<void> {
     '- Model difference, stated honestly: the CDC stacks (Electric, Zero, and PowerSync) observe an app-owned Postgres via WAL/CDC, so the bench admin writes plain SQL. Syncular v2 materializes real per-app Postgres tables but owns them — ingestion goes through the engine (push/storage API), never CDC — so its bench admin writes through the storage API and wakes clients via the engine’s Postgres LISTEN/NOTIFY fanout, while reads use plain SQL over the materialized columns.'
   );
   sections.push(
-    '- The two Syncular rows share one server stack and differ only in client core: `syncular` is the JS client on bun:sqlite; `syncular-rust` is the native Rust client (rusqlite) driven over real HTTP+WebSocket by a standalone bench binary. Both use the published packages, versions pinned (npm @syncular/*@0.15.18 for the JS client and server stack, crates.io syncular-client/syncular-command/syncular-ffi 0.15.18 for the native binary); scenario parameters (datasets, query shapes, blob sizes, iteration counts) are identical across the two rows.'
+    '- The two Syncular rows share one server stack and differ only in client core: `syncular` is the JS client on bun:sqlite; `syncular-rust` is the native Rust client (rusqlite) driven over real HTTP+WebSocket by a standalone bench binary. Both use the published packages, versions pinned (npm @syncular/*@0.16.1 for the JS client and server stack, crates.io syncular-client/syncular-command/syncular-ffi 0.16.1 for the native binary); scenario parameters (datasets, query shapes, blob sizes, iteration counts) are identical across the two rows.'
   );
   sections.push(
     '- Syncular bootstrap is measured cold-server + cold-client: the sync service is restarted before every scale so in-memory segment/sqlite-image caches never serve the measurement. `100k warm` is a second fresh client bootstrapping the same dataset without a restart (populated caches); stacks without the metric show n/a.'

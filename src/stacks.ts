@@ -33,7 +33,7 @@ export const stacks: StackSpec[] = [
       blobFlow: 'native',
     },
     notes: [
-      'Syncular v2 from the published npm packages (@syncular/*@0.15.18, exact-pinned): the real @syncular/client SyncClient (bun:sqlite local database) against the v2 server with relational Postgres server storage (real per-app tables).',
+      'Syncular v2 from the published npm packages (@syncular/*@0.16.1, exact-pinned): the real @syncular/client SyncClient (bun:sqlite local database) against the v2 server with relational Postgres server storage (real per-app tables).',
       'Admin writes are engine-mediated — there is no CDC because the server tables are engine-owned; the bench-admin equivalents commit through the storage API and wake clients via the engine Postgres LISTEN/NOTIFY fanout.',
       'Blobs are delivered through presigned MinIO upload grants and download URLs via the product blob transport.',
       'Subscriptions are per-project scope subscriptions, so membership revocation empties one subscription scope and triggers the native client-side purge.',
@@ -71,7 +71,7 @@ export const stacks: StackSpec[] = [
     },
     notes: [
       'Same Syncular v2 server stack (relational Postgres server storage, engine-mediated admin writes with Postgres LISTEN/NOTIFY fanout, presigned MinIO blobs) driven by the native Rust client.',
-      'The Rust client (rusqlite core) runs as a harness-owned standalone bench binary built against the published crates (crates.io syncular-client/syncular-command/syncular-ffi 0.15.18, exact-pinned), speaking real HTTP+WebSocket to the Dockerized server — no browser, no WASM.',
+      'The Rust client (rusqlite core) runs as a harness-owned standalone bench binary built against the published crates (crates.io syncular-client/syncular-command/syncular-ffi 0.16.1, exact-pinned), speaking real HTTP+WebSocket to the Dockerized server — no browser, no WASM.',
       'Subscriptions are per-project scope subscriptions, matching the JS client workload shape.',
     ],
   },
@@ -250,7 +250,7 @@ export const stacks: StackSpec[] = [
       blobFlow: 'unsupported',
     },
     notes: [
-      'Uses the official Turso Sync 0.7.0 client against the official tursodb 0.7.0 local sync server.',
+      'Uses the official Turso Sync 0.7.2 client against the official tursodb 0.7.2 local sync server.',
       'Offline writes accumulate in Turso\'s native local database change log and replay through push(); the harness does not add an outbox.',
       'The benchmark uses whole-database sync, so row-level permission revocation and blob transport are unsupported rather than emulated.',
     ],
@@ -282,36 +282,6 @@ export const stacks: StackSpec[] = [
       'Experimental lane using jazz-tools 2.0.0-alpha.53 and its official self-hosted server; results are excluded from stable headline rankings.',
       'Offline writes use the public JazzClient transport disconnect/reconnect API over a persistent local jazz-napi runtime; the harness does not add an outbox.',
       'Local list and search filters are native, while the aggregate portion is application-side because Jazz v2 alpha does not expose local aggregate queries.',
-    ],
-  },
-  {
-    id: 'triplit',
-    title: 'Triplit',
-    composeFile: `${benchmarkRoot}/stacks/triplit/docker-compose.yml`,
-    composeProjectName: 'offline-sync-bench-triplit',
-    buildFingerprintPaths: [`${benchmarkRoot}/stacks/triplit`],
-    adminBaseUrl: 'http://localhost:3229',
-    adminHealthPath: '/healthcheck',
-    syncBaseUrl: 'http://localhost:3229',
-    services: {
-      sync: 'triplit',
-      admin: 'triplit',
-    },
-    capabilities: {
-      bootstrap: 'native',
-      onlinePropagation: 'native',
-      offlineReplay: 'native',
-      reconnectStorm: 'unsupported',
-      largeOfflineQueue: 'native',
-      localQuery: 'emulated',
-      deepRelationshipQuery: 'native',
-      permissionChange: 'unsupported',
-      blobFlow: 'unsupported',
-    },
-    notes: [
-      'Uses the official Triplit 1.0.61 self-hosted Bun server with durable SQLite storage and @triplit/client 1.0.50.',
-      'Client state and the native outbox use Triplit\'s IndexedDB adapter under fake-indexeddb in Node, matching the repository\'s other browser-client harnesses.',
-      'List/search and relationship traversals use the native Triplit query engine; the local aggregate subtest groups a native result in JavaScript because Triplit exposes no aggregate query operator.',
     ],
   },
 ];

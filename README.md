@@ -7,6 +7,7 @@ This repo stays separate from any one product repo. The goal is to compare syste
 Current readable report:
 
 - [RESULTS.md](./RESULTS.md)
+- [Dependency upgrade comparison](./UPGRADE_COMPARISON.md)
 
 ## Principles
 
@@ -53,14 +54,13 @@ The comparison admits deployable full-stack sync products with a server/backend 
 | Zero | native | native | unsupported | unsupported | native | native | unsupported | unsupported |
 | PowerSync | native | native | native | native | native | native | unsupported | unsupported |
 | Turso Sync | native | native | native | native | native | native | unsupported | unsupported |
-| Triplit | native | native | native | native | emulated | native | unsupported | unsupported |
 | Jazz v2 (experimental) | native | native | native | native | emulated | unsupported | unsupported | unsupported |
 
 Jazz v2 uses an alpha release and is reported in an experimental lane, outside stable headline rankings. Each stack is defined with Docker Compose under [`stacks/`](./stacks/).
 
 ## Stack setup and admin services
 
-Postgres-backed stacks share an admin service for schema setup, reset, deterministic seeding, fixture discovery, and direct write helpers. Turso uses a synced native admin client; Jazz v2 and Triplit use their official schema deployment and backend APIs.
+Postgres-backed stacks share an admin service for schema setup, reset, deterministic seeding, fixture discovery, and direct write helpers. Turso uses a synced native admin client; Jazz v2 uses its official schema deployment and backend APIs.
 
 Current admin endpoints:
 
@@ -85,8 +85,13 @@ bun run bench:all
 bun run bench:report
 bun run bench:cleanup -- --dry-run
 bun run results:md
+bun run results:md -- --run-id <runId>
 bun run bundle:size
 ```
+
+Repeat `--run-id` to combine selected runs, such as a complete suite and a later
+stack rerun. The report uses the latest outcome per stack/scenario and does not
+replace failures with older successes.
 
 Stack helpers:
 
@@ -97,14 +102,12 @@ bun run stacks:zero:up
 bun run stacks:powersync:up
 bun run stacks:turso:up
 bun run stacks:jazz-v2:up
-bun run stacks:triplit:up
 bun run stacks:syncular:down
 bun run stacks:electric:down
 bun run stacks:zero:down
 bun run stacks:powersync:down
 bun run stacks:turso:down
 bun run stacks:jazz-v2:down
-bun run stacks:triplit:down
 ```
 
 ## Results
@@ -155,7 +158,6 @@ The benchmark harness is operational for the admitted full-stack products, the E
 - Zero: `bootstrap`, `online-propagation`, `local-query`, `deep-relationship-query`
 - PowerSync: `bootstrap`, `online-propagation`, `offline-replay`, `large-offline-queue`, `local-query`, `deep-relationship-query`
 - Turso Sync: `bootstrap`, `online-propagation`, `offline-replay`, `large-offline-queue`, `local-query`, `deep-relationship-query`
-- Triplit: `bootstrap`, `online-propagation`, `offline-replay`, `large-offline-queue`, `local-query` (aggregate emulated), `deep-relationship-query`
 - Jazz v2 experimental: `bootstrap`, `online-propagation`, `offline-replay`, `large-offline-queue`, `local-query` (aggregate emulated)
 
 LiveStore and Replicache were removed from the active matrix: LiveStore had effectively no comparable coverage, and Replicache requires a benchmark-owned BYOB server rather than providing an admitted full-stack deployment.

@@ -61,7 +61,6 @@
 - [x] Add interrupted upload recovery and storage-overhead comparisons to blob benchmarking
 - [x] Add Turso Sync with official client/server bootstrap, propagation, offline queue, and local query coverage
 - [x] Add Electric + TanStack DB using official persistence and offline-transactions packages
-- [x] Add Triplit as a full-stack self-hosted comparison
 - [x] Add Jazz v2 alpha in a separate experimental lane
 - [x] Remove LiveStore and Replicache under the full-stack admission rule
 
@@ -72,6 +71,6 @@
 
 ## Next benchmark campaign
 
-- [ ] Refresh the pre-existing Electric, PowerSync, Zero, and Syncular pins together, then rerun their affected results instead of mixing new packages with historical numbers
-- [ ] Run the complete bootstrap scale sweep and `bench:all` for the expanded admitted matrix
-- [ ] Investigate Jazz v2 alpha and Triplit peak memory during the 100k local-query workload before promoting either result into headline commentary
+- [x] Refresh dependency pins and run before/after comparisons; see [UPGRADE_COMPARISON.md](./UPGRADE_COMPARISON.md)
+- [x] Attempt the complete bootstrap scale sweep and `bench:all` for the admitted matrix; Jazz v2's extended bootstrap reaches its 30-minute timeout
+- [ ] Investigate Jazz v2 alpha peak memory during the 100k local-query workload before promoting its result into headline commentary

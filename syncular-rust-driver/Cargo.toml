@@ -21,11 +21,11 @@ name = "syncular-bench"
 path = "src/main.rs"
 
 [dependencies]
-syncular-client = "0.15.18"
-syncular-command = "0.15.18"
+syncular-client = "0.16.1"
+syncular-command = "0.16.1"
 # The bench driver measures the SHIPPING native lane: the same HTTP+WS
 # transport the FFI core owns (ureq + tungstenite), reused rather than copied.
 # The ffi crate's lib name is `syncular`, so `use syncular::transport::...`
 # in main.rs resolves through this dependency.
-syncular-ffi = { version = "0.15.18", features = ["native-transport"] }
+syncular-ffi = { version = "0.16.1", features = ["native-transport"] }
 serde_json = "1"
