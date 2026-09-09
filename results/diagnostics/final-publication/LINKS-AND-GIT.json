@@ -15,13 +15,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 19360,
-      "sha256": "37f47c1f098d1eebec026a8e4494e97793cf26d7da991944999e19a1e744666a"
+      "bytes": 18652,
+      "sha256": "75d917317b1a026f64411a4fd1c55c10136a15208bbd54a407abf40b3fac0fb5"
     },
     {
       "path": "RESULTS.json",
       "bytes": 2057,
-      "sha256": "45441e0be751b4501632342ffb4b6bbb4b68d5d448fefc0708672a10a7e7fbe4"
+      "sha256": "1cec27ccbe8ad5ccb8c1a0e2bbfc360aac8ee9f1254194fb6f2e0261d8d44fc7"
     },
     {
       "path": "RESULTS.md",
@@ -85,13 +85,13 @@
     },
     {
       "path": "docs/methodology.md",
-      "bytes": 5013,
-      "sha256": "78c930e309165cde08fa82dc5308fe542410149bf8ed493ba703103e05fb9794"
+      "bytes": 5082,
+      "sha256": "7407f354e6665f4836c2fb60600c0fdb709e20121366fbb122a16a58a29848bc"
     },
     {
       "path": "docs/reporting.md",
-      "bytes": 5335,
-      "sha256": "de6987451897c985cb2f8a668140af7852ee8841f494f16de517d9cad7e12585"
+      "bytes": 5383,
+      "sha256": "1d4c08c9c149da8d75136ac71d415c1590ffd17f65ee3e3522bcc812cb91d2d7"
     },
     {
       "path": "results/diagnostics/browser-collaboration-development/VERIFICATION.json",
@@ -140,12 +140,12 @@
     {
       "path": "results/diagnostics/final-publication/README-TABLE-AUDIT.json",
       "bytes": 337,
-      "sha256": "c99c9192cb71506b01b372447ae53a003b6408aa9c7cc740cbddf20665b3c87b"
+      "sha256": "2f80a1204d2391ca5e66c3a005c3ab071587d77b82418c785be956e109008906"
     },
     {
       "path": "results/diagnostics/final-publication/RESULT-AUDIT.json",
       "bytes": 3765,
-      "sha256": "db8d9c341b3ed5b66e3001b643e0a66bd4f4273a92b60a3d1d5977107b41cb1b"
+      "sha256": "81721bc46f8b5cc6eb1bcb8de630901b1f2adb8e966c86681fa649e7660b99c3"
     },
     {
       "path": "results/diagnostics/final-publication/SQL-PUBLICATION.json",
@@ -314,8 +314,8 @@
     },
     {
       "path": "results/history/2026-09-07-withdrawn-campaign/RETAINED-RESULTS.md",
-      "bytes": 19058,
-      "sha256": "5fc9a1b24838b9afe7f045b6d6d877f9738e76dca07dfc1054c9f38f9b4bc302"
+      "bytes": 19040,
+      "sha256": "467810e04e6ce67c0078f2e3b535aa7d86b03c1bbf43c61b196a55bf5a8eea8d"
     },
     {
       "path": "results/history/2026-09-07-withdrawn-campaign/campaign.tar.gz",
@@ -5954,13 +5954,13 @@
     },
     {
       "path": "scripts/audit-publication.ts",
-      "bytes": 8144,
-      "sha256": "29236acf2a8652bda0fd244775af590e194ff9245c1f78c028ed42bc7ea0d1a0"
+      "bytes": 8084,
+      "sha256": "e0022c225845b78e1239fd6932919e0b90392c5104014ff572059a442adf1447"
     },
     {
       "path": "scripts/audit-readme-tables.py",
-      "bytes": 5344,
-      "sha256": "357245c624fe7d53c3405068099956a8f2f481553e3868e36be6b163c9d66155"
+      "bytes": 5308,
+      "sha256": "a09127afdedcb24daa8465bc688e73f830db4121de9d618c797552bb6e858f86"
     },
     {
       "path": "scripts/diagnose-screen-index-effect.ts",

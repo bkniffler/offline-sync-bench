@@ -79,12 +79,12 @@ if(config.presentation==='readme-benchmarks-v1'){
  assert.equal((page.match(/^\| Client \|/gm)??[]).length,14);
  for(const section of sections){
   assert(section.includes('[Workload details](')&&section.includes('[Results, ranges and samples]('));
-  for(const label of ['Syncular JS','Syncular Rust','PowerSync','Turso','Electric ‡','Electric + TanStack DB ‡','Jazz v2 (experimental) ‡'])assert(section.includes(`| ${label} |`));
-  assert(section.includes('| Zero † |')||section.includes('| Zero ‡ |'));
-  assert(section.includes('[Historical details]('));
+  for(const label of ['Syncular JS','Syncular Rust','PowerSync','Turso','Electric','Electric + TanStack DB','Jazz v2 (experimental)'])assert(section.includes(`| ${label} |`));
+  assert(section.includes('| Zero |'));
+  assert(section.includes('[Other client details]('));
  }
- assert.equal((page.match(/^\| Zero † \|/gm)??[]).length,2);
- assert.equal((page.match(/^\| Zero ‡ \|/gm)??[]).length,12);
+ assert.equal((page.match(/^\| Zero \|/gm)??[]).length,14);
+ assert(!page.includes('‡')&&!page.includes('†'));
  assert(page.includes('## Latest results'));
  assert(!page.includes('| Attempts |')&&!page.includes('| Passed / attempted |'));
  assert((await readFile('RESULTS.md','utf8')).includes('./README.md#latest-results'));

@@ -27,8 +27,8 @@ metrics = [
  ('blob-flow', ['initial_upload_ms', 'fresh_download_ms', 'download_interruption_recovery_ms']),
 ]
 labels = {'Syncular JS': 'syncular', 'Syncular Rust': 'syncular-rust', 'PowerSync': 'powersync', 'Turso': 'turso',
-          'Zero †': 'zero', 'Zero ‡': 'zero', 'Electric ‡': 'electric',
-          'Electric + TanStack DB ‡': 'electric-tanstack', 'Jazz v2 (experimental) ‡': 'jazz-v2'}
+          'Zero': 'zero', 'Electric': 'electric',
+          'Electric + TanStack DB': 'electric-tanstack', 'Jazz v2 (experimental)': 'jazz-v2'}
 groups = {}
 for source in config['sources']:
     raw = gzip.decompress(Path(source['manifest']).read_bytes())

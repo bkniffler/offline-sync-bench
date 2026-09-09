@@ -39,7 +39,7 @@ Optional charts use `scripts/export-finding-chart.ts` and `scripts/render-findin
 
 ## Update the README
 
-`SUMMARY.json` binds the packaged SQL and Zero manifests, archives and complete coverage. Its `readme-benchmarks-v1` presentation gives each of the 14 benchmarks a short explanation, results table, relevant caveats and links to details. It also verifies the retained September 7 archive and includes Electric, TanStack, Jazz and the other Zero cases with historical labels. Samples stay within their source campaign; separately collected configurations and different guarantees are labeled. Python 3 reads the historical archive during rendering; a generated historical companion retains ranges and sample sizes.
+`SUMMARY.json` binds the packaged SQL and Zero manifests, archives and complete coverage. Its `readme-benchmarks-v1` presentation gives each of the 14 benchmarks a short explanation, results table, relevant caveats and links to details. It also verifies the retained September 7 archive and includes Electric, TanStack, Jazz and the other Zero cases in the comparison tables. Collection dates and provenance live in the linked details; relevant differences in guarantees stay beside the numbers. Samples stay within their source campaign. Python 3 reads the historical archive during rendering; a generated historical companion retains ranges and sample sizes.
 
 ```sh
 bun scripts/render-publication-summary.ts SUMMARY.json README.md

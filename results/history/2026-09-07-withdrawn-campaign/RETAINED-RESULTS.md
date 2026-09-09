@@ -16,7 +16,7 @@ Filter a task list, search titles and count tasks by group across 100,000 alread
 | Electric + TanStack DB | 0.450 ms (0.430 ms–0.540 ms; n=5) | 0.650 ms (0.590 ms–0.810 ms; n=5) | 397.03 ms (388.71 ms–439.93 ms; n=5) |
 | Jazz v2 (experimental) | 1429.33 ms (1407.03 ms–1524.43 ms; n=4) | 1435.88 ms (1338.08 ms–1730.14 ms; n=4) | 2380.73 ms (2223.61 ms–2561.81 ms; n=4) |
 
-Historical paths: Electric filters/sorts arrays; TanStack uses indexed native queries; Jazz combines indexed search with JavaScript grouping.
+Electric filters/sorts arrays; TanStack uses indexed native queries; Jazz combines indexed search with JavaScript grouping.
 
 - **Electric**: javascript-map; application-processing. Outcomes: trial 1: completed, trial 2: completed, trial 3: completed, trial 4: completed.
 - **Electric + TanStack DB**: tanstack-sqlite-persistence; native-reactive-query. Outcomes: trial 1: completed, trial 2: completed, trial 3: completed, trial 4: completed, trial 5: completed.

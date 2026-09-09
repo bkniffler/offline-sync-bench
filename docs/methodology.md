@@ -8,13 +8,13 @@ We compare application outcomes: the same expected records, query output, timing
 
 SQL, native reactive queries and JavaScript processing are distinct execution paths. Electric's benchmark-owned outbox establishes application behavior, not product-provided queue durability. Experimental Jazz, browser clients and incompatible access/conflict guarantees remain separate. Zero's current screen numbers come from a separate campaign; no samples are pooled across campaigns. There is no overall product score.
 
-The current collection uses Syncular JS/Rust 0.17.0, three attempts per changed case, fresh processes and seeded randomized order. A failed attempt counts toward that limit. Electric, TanStack, Jazz and unchanged Zero cases retain clearly labeled historical results. The earlier untuned SQL and array-based Zero screen comparisons were withdrawn.
+The current collection uses Syncular JS/Rust 0.17.0, three attempts per changed case, fresh processes and seeded randomized order. A failed attempt counts toward that limit. Electric, TanStack, Jazz and unchanged Zero cases use retained September 7 results; their companion report identifies that collection. The earlier untuned SQL and array-based Zero screen comparisons were withdrawn.
 
 ## Timing and correctness
 
 The harness owns fixtures, warmups, repetitions, fault timing and validation. It checks complete records and exact query outputs; a matching row count is insufficient. Validation stays outside timed operations where the contract permits. Each case records its actual observation boundary, including IPC or query polling where used.
 
-The README shows current and retained historical results together with date markers. September 7 rows come from unchanged cases in a stopped, withdrawn campaign and are not a newly completed comparison. It reports medians across independent runs within each case and source. A query p50 is the median operation time inside one run; it is not another independent trial. Full reports retain observed ranges and samples. Three attempts provide no confidence interval; the statistics code requires at least five successful trials to compute one.
+The README shows current and retained historical results together, with collection dates in the linked details. September 7 rows come from unchanged cases in a stopped, withdrawn campaign and are not a newly completed comparison. It reports medians across independent runs within each case and source. A query p50 is the median operation time inside one run; it is not another independent trial. Full reports retain observed ranges and samples. Three attempts provide no confidence interval; the statistics code requires at least five successful trials to compute one.
 
 A failed latest attempt supplies no latency estimate, even if an earlier attempt passed. Earlier failures remain visible after later success. Missing measurements are unavailable, never zero. An unimplemented adapter case does not imply a missing product capability. See [all outcomes](../COVERAGE.md).
 

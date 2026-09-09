@@ -39,7 +39,7 @@
   "withdrawnIndexSha256": "4bc5e295d3366de7e56a02954c64cd764e8ba90385e0aec48e53af536c946e5b",
   "presentation": "readme-benchmarks-v1",
   "renderer": "scripts/render-publication-summary.ts",
-  "rendererSha256": "181bab874117b5db7fb919836ed020a1f3b64f77ed4af731941c55e8acc3d15d",
+  "rendererSha256": "7f1fc1ddd89d83740962706665615b0c1412b492088183bbf68cc0fa7367ca29",
   "documentationHistory": "docs/history/INDEX.json",
   "historicalReport": "results/history/2026-09-07-withdrawn-campaign/RETAINED-RESULTS.md"
 }

@@ -82,12 +82,12 @@ for(const ref of config.findings){
 const lead=selected[0].annotation;
 if (config.presentation === 'readme-benchmarks-v1') {
  const sql=sources.get('tuned-sql')!,zero=sources.get('tuned-zero')!;
- const labels:Record<string,string>={syncular:'Syncular JS','syncular-rust':'Syncular Rust',powersync:'PowerSync',turso:'Turso',zero:'Zero †'};
+ const labels:Record<string,string>={syncular:'Syncular JS','syncular-rust':'Syncular Rust',powersync:'PowerSync',turso:'Turso',zero:'Zero'};
  const details=(s:Source,anchor:string)=>posix.join(s.root,reportDetailsPath(s.manifest.id))+'#'+anchor;
  type Section={id:string;title:string;description:string;columns:Array<[string,string]>;anchor:string;definition:string;caveat?:string;zero?:boolean;conflict?:boolean};
  const sections:Section[]=[
   {id:'local-query',title:'Local task queries',description:'Filter a task list, search titles and count tasks by group across 100,000 already-loaded tasks. Each run measures 25 operations after five warmups.',columns:[['Task list','list_query_p50_ms'],['Prefix search','search_query_p50_ms'],['Grouped counts','aggregate_query_p50_ms']],anchor:'task-screens',definition:'local-screens',zero:true,caveat:'Matching SQL indexes remove an avoidable sort, as confirmed by a controlled test. Syncular uses in-memory SQL here; PowerSync and Turso use file-backed stores. Sub-millisecond gaps are small in practice. [Index investigation](./docs/investigations/screen-index-effect.md).'},
-  {id:'deep-relationship-query',title:'Queries across related records',description:'Query 100,000 tasks across four projects. **Project detail** returns the first 100 tasks in one project, with each task’s title, project name and organization name. **Organization dashboard** summarizes all four projects with total, completed and open task counts, ordered by most open tasks.',columns:[['Project detail','detail_join_query_p50_ms'],['Organization dashboard','dashboard_query_p50_ms']],anchor:'relationship-screens',definition:'local-screens',zero:true,caveat:'The same storage differences apply as above. † Zero uses native queries and relationships, then JavaScript aggregation. The cost of materialization versus aggregation has not been isolated.'},
+  {id:'deep-relationship-query',title:'Queries across related records',description:'Query 100,000 tasks across four projects. **Project detail** returns the first 100 tasks in one project, with each task’s title, project name and organization name. **Organization dashboard** summarizes all four projects with total, completed and open task counts, ordered by most open tasks.',columns:[['Project detail','detail_join_query_p50_ms'],['Organization dashboard','dashboard_query_p50_ms']],anchor:'relationship-screens',definition:'local-screens',zero:true,caveat:'The same storage differences apply as above. Zero uses native queries and relationships, then JavaScript aggregation. The cost of materialization versus aggregation has not been isolated.'},
   {id:'bootstrap',title:'Starting with an empty client',description:'Download data into a fresh client. These results use 100,000 tasks and warm services; details also cover 1,000/10,000 tasks and restarted services.',columns:[['First correct screen','startup_warm_100000_first_screen_ms'],['Complete local dataset','startup_warm_100000_full_data_ms']],anchor:'initial-startup-100000-tasks',definition:'startup',caveat:'PowerSync timed out at the initial 1,000-task stage and never reached this size. Screen and full-copy milestones are observed independently. Server storage and OS caches are retained.'},
   {id:'replica-reopen',title:'Reopening an offline replica',description:'Open an existing 2,000-task store in a new process with the network blocked. Measure when the first screen and all expected rows become available.',columns:[['First correct screen','reopen_first_screen_ms'],['All rows available','reopen_all_rows_ms']],anchor:'persisted-replica-startup',definition:'startup',caveat:'PowerSync timed out during setup. Turso’s * marks an earlier connection failure. The OS file cache remains warm.'},
   {id:'online-propagation',title:'Sharing an edit',description:'Make 50 title edits with 200 tasks loaded on independent writer and reader clients. Measure local commit, observed server acceptance and visibility on the reader.',columns:[['Local commit','local_commit_p50_ms'],['Server accepted','server_accepted_p50_ms'],['Reader visible','mirror_visible_p50_ms']],anchor:'collaboration',definition:'collaboration',caveat:'These milestones overlap; local commit does not prove crash durability. PowerSync’s default 1,000 ms upload throttle may contribute to its delay, but that cause remains unproven. [Investigation](./docs/investigations/powersync-collaboration.md).'},
@@ -140,7 +140,7 @@ with tarfile.open(base/source['archive']) as archive:
  }
  assert.equal(historyAttempts.length,230);
  const historyGroups=groupAttempts(historyAttempts);
- const historyLabels:Record<string,string>={electric:'Electric ‡','electric-tanstack':'Electric + TanStack DB ‡','jazz-v2':'Jazz v2 (experimental) ‡',zero:'Zero ‡'};
+ const historyLabels:Record<string,string>={electric:'Electric','electric-tanstack':'Electric + TanStack DB','jazz-v2':'Jazz v2 (experimental)',zero:'Zero'};
  const historyDetailsPath='results/history/2026-09-07-withdrawn-campaign/RETAINED-RESULTS.md';
  const formatMs=(n:number)=>(n<1?n.toFixed(3):n.toFixed(2))+' ms';
  const historyCell=(attempts:CampaignAttempt[],metric:string,range=false)=>{
@@ -152,7 +152,7 @@ with tarfile.open(base/source['archive']) as archive:
   return `${value} (${formatMs(Math.min(...values))}–${formatMs(Math.max(...values))}; n=${values.length})`;
  };
  const historicalCaveats:Record<string,string>={
-  'local-query':'Historical paths: Electric filters/sorts arrays; TanStack uses indexed native queries; Jazz combines indexed search with JavaScript grouping.',
+  'local-query':'Electric filters/sorts arrays; TanStack uses indexed native queries; Jazz combines indexed search with JavaScript grouping.',
   'bootstrap':'Electric and Zero load memory caches, so their “Complete local dataset” does not establish a persistent offline copy.',
   'replica-reopen':'Electric and Zero have no eligible persistent-reopen path in these tested configurations.',
   'offline-restart':'Electric’s durable outbox is benchmark-owned. TanStack and Zero use memory queues here and cannot establish crash recovery.',
@@ -165,8 +165,8 @@ with tarfile.open(base/source['archive']) as archive:
   'A benchmark suite comparing offline-first sync stacks through the same task app: local queries, startup, sharing edits, offline recovery, conflicts, many connected clients, access changes and attachments. The harness creates fixtures, runs workloads and checks the actual returned data.','',
   'Adapters cover Syncular JS/Rust, PowerSync, Turso, Zero, Electric, Electric + TanStack DB and experimental Jazz. Results describe the tested application implementations and their guarantees; there is no overall product score.','',
   '## Latest results','',
-  '**September 9, 2026 · Apple M4 · local services · Syncular JS/Rust 0.17.0.** All timings below are **milliseconds; lower is faster**. Values are medians of successful runs. September 9 cases have three attempts; historical cases have four or five. Query/edit values summarize each run’s p50. An * marks earlier failures; current marked cells use two successes. A failed latest attempt supplies no timing. A dash means the timing was not exposed.','',
-  '† Zero’s screen results were collected separately on September 9. ‡ marks September 7 results retained from a stopped, withdrawn campaign: Electric, TanStack, experimental Jazz and Zero’s other cases. These use earlier configurations; samples are never pooled across dates. Small samples give limited evidence about variability; details retain ranges, profiles and raw samples. [Methods](./docs/methodology.md) · [Failure explanations](./docs/investigations/tuned-publication-failures.md)',''];
+  '**Latest available measurements · Apple M4 · local services · Syncular JS/Rust 0.17.0.** Times are **milliseconds; lower is faster**. Values are medians; query/edit timings summarize each run’s p50. An * marks earlier failures. A dash means no measurement.','',
+  'Collection dates, configurations, sample sizes and ranges are in the linked details. [Methods](./docs/methodology.md) · [Failure explanations](./docs/investigations/tuned-publication-failures.md)',''];
  for(const section of sections){
   lines.push(`### ${section.title}`,'',section.description,'',`| Client | ${section.conflict?'Verified outcome | ':''}${section.columns.map(c=>c[0]).join(' | ')} |`,`| --- | ${section.conflict?'--- | ':''}${section.columns.map(()=>'---:').join(' | ')} |`);
   for(const source of section.zero?[sql,zero]:[sql])for(const stack of source.manifest.config.stacks){
@@ -202,7 +202,7 @@ with tarfile.open(base/source['archive']) as archive:
    historicalLines.push(`- **${historyLabels[stack].replace(' ‡','')}**: ${escape(String(profile.storage??'undeclared storage'))}; ${escape(String(profile.execution??'undeclared execution'))}. Outcomes: ${attempts.map(a=>`trial ${a.trial}: ${a.result.status}`).join(', ')}.`);
   }
   historicalLines.push('');
-  lines.push('',[section.caveat,historicalCaveats[section.id]].filter(Boolean).join(' '), '',`[Workload details](./docs/benchmarks.md#${section.definition}) · [Results, ranges and samples](${details(sql,section.anchor)})${section.zero?` · [Zero details](${details(zero,section.anchor)})`:''} · [Historical details](${historyDetailsPath}#${section.id})`,'');
+  lines.push('',[section.caveat,historicalCaveats[section.id]].filter(Boolean).join(' '), '',`[Workload details](./docs/benchmarks.md#${section.definition}) · [Results, ranges and samples](${details(sql,section.anchor)})${section.zero?` · [Zero details](${details(zero,section.anchor)})`:''} · [Other client details](${historyDetailsPath}#${section.id})`,'');
  }
  lines.push('## Run a benchmark','','Install Bun and start Docker, then:','','```sh','bun install --frozen-lockfile','bun run bench:run -- --stack syncular --scenario local-query','```','','The harness resets the selected stack’s benchmark fixtures. [Running campaigns and publishing results](./docs/reporting.md) · [Benchmark definitions](./docs/benchmarks.md)','');
  await writeFile(resolve(base,historyDetailsPath),historicalLines.join('\n'));
