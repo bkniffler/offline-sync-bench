@@ -64,7 +64,7 @@ try {
     const pkg = JSON.parse(await readFile(join(root, 'node_modules/@syncular', name, 'package.json'), 'utf8'));
     if (pkg.version !== '0.17.0') throw new Error(`Installed ${name} is not 0.17.0`);
   }
-  const lock = await readFile(join(root, 'syncular-rust-driver/Cargo.lock'), 'utf8');
+  const lock = await readFile(join(root, 'drivers/syncular-rust/Cargo.lock'), 'utf8');
   for (const name of ['syncular-client', 'syncular-command', 'syncular-ffi']) {
     if (!lock.includes(`name = "${name}"\nversion = "0.17.0"`)) throw new Error(`Rust lock does not pin ${name} 0.17.0`);
   }

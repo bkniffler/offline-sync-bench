@@ -50,7 +50,11 @@ test('publication requires build provenance bound to the archived Cargo inputs',
     inputs, command: rustBuildCommand(binary.path, inputs.target, inputs.targetDirectory),
     environment: { RUSTC: binary.path, RUSTC_WRAPPER: '', RUSTC_WORKSPACE_WRAPPER: '' }, configuration: cargoConfigurationFixture(), cargoTomlSha256: 'b'.repeat(64), cargoLockSha256: 'c'.repeat(64) };
   const inventory = { rustDriver: { origin: 'source-build', executable: binary, build } };
-  const source = { sourceHash: build.sourceHash, files: { 'syncular-rust-driver/Cargo.toml': { sha256: build.cargoTomlSha256 }, 'syncular-rust-driver/Cargo.lock': { sha256: build.cargoLockSha256 } } };
+  const oldFiles = { 'syncular-rust-driver/Cargo.toml': { sha256: build.cargoTomlSha256 }, 'syncular-rust-driver/Cargo.lock': { sha256: build.cargoLockSha256 } };
+  const newFiles = { 'drivers/syncular-rust/Cargo.toml': { sha256: build.cargoTomlSha256 }, 'drivers/syncular-rust/Cargo.lock': { sha256: build.cargoLockSha256 } };
+  for (const files of [oldFiles, newFiles]) expect(() => validateExecutableProvenance(inventory, ['syncular-rust'], true, { sourceHash: build.sourceHash, files })).not.toThrow();
+  expect(() => validateExecutableProvenance(inventory, ['syncular-rust'], true, { sourceHash: build.sourceHash, files: { ...oldFiles, ...newFiles } })).toThrow('ambiguous');
+  const source = { sourceHash: build.sourceHash, files: newFiles };
   expect(() => validateExecutableProvenance(inventory, ['syncular-rust'], true, source)).not.toThrow();
   const legacy = structuredClone(inventory) as any; delete legacy.rustDriver.build.inputs; legacy.rustDriver.build.command = [binary.path, 'build', '--release', '--locked', '--message-format=json'];
   expect(() => validateExecutableProvenance(legacy, ['syncular-rust'], false, source)).not.toThrow();

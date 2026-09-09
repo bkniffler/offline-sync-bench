@@ -16,7 +16,7 @@ const syncularStackPackageJsonPath = join(
 const syncularStackLockPath = join(benchmarkRoot, 'bun.lock');
 const syncularRustCargoLockPath = join(
   benchmarkRoot,
-  'syncular-rust-driver',
+  'drivers/syncular-rust',
   'Cargo.lock'
 );
 
@@ -207,7 +207,7 @@ function buildRustSyncularVersionMetadata(): {
 
   return {
     frameworkVersion: rustClientVersion,
-    versionSource: 'syncular-rust-driver/Cargo.lock',
+    versionSource: 'drivers/syncular-rust/Cargo.lock',
     versionComponents: {
       clientRust: rustClientVersion,
       clientRustPackage: 'syncular-client',

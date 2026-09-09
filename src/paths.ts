@@ -21,3 +21,11 @@ export function toMarkdownPath(path: string): string {
   const relativePath = toBenchmarkRelativePath(path);
   return relativePath === '.' ? './' : `./${relativePath}`;
 }
+
+/** Published snapshots retain their original driver location. */
+export function rustDriverSourceRoot(files: Record<string, unknown>): string {
+  const roots = ['drivers/syncular-rust', 'syncular-rust-driver'].filter(root =>
+    Object.hasOwn(files, `${root}/Cargo.toml`) || Object.hasOwn(files, `${root}/Cargo.lock`));
+  if (roots.length !== 1) throw new Error('Missing or ambiguous Rust driver in archived source');
+  return roots[0]!;
+}

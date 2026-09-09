@@ -5,7 +5,7 @@ node_modules
 .env
 *.log
 !results/**/*.log
-syncular-rust-driver/target
+drivers/syncular-rust/target
 
 .cache/
 

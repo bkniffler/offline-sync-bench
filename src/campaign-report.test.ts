@@ -278,14 +278,14 @@ test('the complete roster stays compact without hiding unselected suite failures
   manifest.plan = planCampaign(manifest.config);
   const cargoToml = 'synthetic Cargo.toml', cargoLock = 'synthetic Cargo.lock';
   const files = manifest.source.files as JsonObject;
-  files['syncular-rust-driver/Cargo.toml'] = { kind: 'file', mode: 420, sha256: sha256(cargoToml) };
-  files['syncular-rust-driver/Cargo.lock'] = { kind: 'file', mode: 420, sha256: sha256(cargoLock) };
+  files['drivers/syncular-rust/Cargo.toml'] = { kind: 'file', mode: 420, sha256: sha256(cargoToml) };
+  files['drivers/syncular-rust/Cargo.lock'] = { kind: 'file', mode: 420, sha256: sha256(cargoLock) };
   manifest.source.sourceHash = hash(files);
   manifest.configuration = configurationFixture(manifest.source).identity;
   (manifest.source.snapshot as JsonObject).sha256 = sha256(encodeSourceSnapshot(manifest.source, {
     'src/test.ts': Buffer.from('fixture source').toString('base64'),
-    'syncular-rust-driver/Cargo.toml': Buffer.from(cargoToml).toString('base64'),
-    'syncular-rust-driver/Cargo.lock': Buffer.from(cargoLock).toString('base64'),
+    'drivers/syncular-rust/Cargo.toml': Buffer.from(cargoToml).toString('base64'),
+    'drivers/syncular-rust/Cargo.lock': Buffer.from(cargoLock).toString('base64'),
   }));
   const binary = { path: '/synthetic/driver', sha256: 'a'.repeat(64), bytes: 1, mode: 0o755 };
   const inputs = rustBuildIdentityFixture(String(manifest.source.sourceHash), binary.sha256);

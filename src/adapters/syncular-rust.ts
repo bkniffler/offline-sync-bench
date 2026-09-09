@@ -12,7 +12,7 @@ import { measureScreens, screenSeed, screenQueries, type ScreenCase, type Row } 
  * Syncular v2 NATIVE Rust client benchmark adapter.
  *
  * Drives the `syncular-bench` Rust driver binary (harness-owned, vendored at
- * syncular-rust-driver/ and built against the published syncular-* crates from
+ * drivers/syncular-rust/ and built against the published syncular-* crates from
  * crates.io) over JSON lines on stdio. The binary hosts the real Rust
  * client core (rusqlite) plus the shipping native HTTP+WS transport
  * (ureq + tungstenite) against the SAME Dockerized syncular bench server the
@@ -47,10 +47,10 @@ import type {
 
 const STACK_ID = 'syncular-rust' as const;
 // The Rust driver is harness-owned and vendored into this repo at
-// syncular-rust-driver/ (a standalone crate depending on the published
+// drivers/syncular-rust/ (a standalone crate depending on the published
 // syncular-* crates from crates.io). It builds and runs here — no syncular
 // checkout required.
-const SYNCULAR_RUST_ROOT = join(benchmarkRoot, 'syncular-rust-driver');
+const SYNCULAR_RUST_ROOT = join(benchmarkRoot, 'drivers/syncular-rust');
 const DEFAULT_BIN_PATH = join(
   SYNCULAR_RUST_ROOT,
   'target/release/syncular-bench'

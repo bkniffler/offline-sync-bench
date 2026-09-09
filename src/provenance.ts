@@ -7,7 +7,7 @@ import type { JsonObject, StackId } from './types.ts';
 const command = (program: string, args: string[]) => execFileSync(program, args, { cwd: benchmarkRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 export function sourceIdentity(): JsonObject {
   const files = [...new Set(command('git', ['ls-files', '-z', '--cached', '--others', '--exclude-standard']).split('\0'))]
-    .filter(file => /^(src\/|services\/|stacks\/|syncular-rust-driver\/(src\/|Cargo\.)|package\.json$|bun\.lock$|tsconfig\.json$)/.test(file)).sort();
+    .filter(file => /^(src\/|services\/|stacks\/|drivers\/syncular-rust\/(src\/|Cargo\.)|package\.json$|bun\.lock$|tsconfig\.json$)/.test(file)).sort();
   const { files: fileHashes } = readSourceFiles(benchmarkRoot, files);
   return { version: 2, revision: command('git', ['rev-parse', 'HEAD']), dirty: command('git', ['status', '--porcelain']).length > 0, sourceHash: sha256(JSON.stringify(fileHashes)), files: fileHashes };
 

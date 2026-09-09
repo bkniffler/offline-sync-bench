@@ -3,13 +3,13 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { sourceIdentity } from './provenance.ts';
-import { benchmarkRoot } from './paths.ts';
+import { benchmarkRoot, rustDriverSourceRoot } from './paths.ts';
 import { sha256 } from './source-snapshot.ts';
 import type { BenchmarkResult, JsonObject, StackId } from './types.ts';
 import { prepareRustBuild, assertPreparedRustBuildUnchanged, validateRustBuildIdentity, rustBuildCommand, type RustBuildIdentity } from './rust-build.ts';
 
 export interface ExecutableIdentity { path: string; sha256: string; bytes: number; mode: number }
-export const rustRoot = join(benchmarkRoot, 'syncular-rust-driver');
+export const rustRoot = join(benchmarkRoot, 'drivers/syncular-rust');
 const command = (program: string, args: string[], env = process.env) => execFileSync(program, args, { cwd: rustRoot, env, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 export function executableIdentity(path: string): ExecutableIdentity {
   const absolute = realpathSync(resolve(path)), info = statSync(absolute);
@@ -110,7 +110,8 @@ export function validateExecutableProvenance(executables: JsonObject | undefined
   if (source) {
     if (build.sourceHash !== source.sourceHash) throw new Error('Rust build differs from archived benchmark source');
     const files = source.files as JsonObject;
-    if (build.cargoTomlSha256 !== (files?.['syncular-rust-driver/Cargo.toml'] as JsonObject)?.sha256 || build.cargoLockSha256 !== (files?.['syncular-rust-driver/Cargo.lock'] as JsonObject)?.sha256) throw new Error('Rust build inputs differ from archived source');
+    const driverRoot = rustDriverSourceRoot(files);
+    if (build.cargoTomlSha256 !== (files?.[`${driverRoot}/Cargo.toml`] as JsonObject)?.sha256 || build.cargoLockSha256 !== (files?.[`${driverRoot}/Cargo.lock`] as JsonObject)?.sha256) throw new Error('Rust build inputs differ from archived source');
   } else if (publication) throw new Error('Rust build requires archived source provenance');
 }
 

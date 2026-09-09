@@ -8,7 +8,7 @@ import { captureCargoConfiguration, assertCargoConfiguration, validateCargoConfi
 import { configurationHash, environmentSummary } from './configuration.ts';
 import { sourceIdentity } from './provenance.ts';
 import { sha256 } from './source-snapshot.ts';
-import { tempRoot } from './paths.ts';
+import { tempRoot, rustDriverSourceRoot } from './paths.ts';
 import { resolvedBuildInputPath } from './build-inputs.ts';
 import type { ExecutableIdentity } from './executables.ts';
 import type { JsonObject } from './types.ts';
@@ -177,9 +177,10 @@ export async function readCampaignRustBuild(directory: string, identity: RustBui
     }
   }
   const sourceFiles = source.files as JsonObject;
-  for (const [name, expected] of [['Cargo.toml', record.cargoSources.cargoTomlSha256], ['Cargo.lock', record.cargoSources.cargoLockSha256]]) if ((sourceFiles[`syncular-rust-driver/${name}`] as JsonObject)?.sha256 !== expected) throw new Error('Rust build Cargo manifests differ from archived source');
+  const driverRoot = rustDriverSourceRoot(sourceFiles);
+  for (const [name, expected] of [['Cargo.toml', record.cargoSources.cargoTomlSha256], ['Cargo.lock', record.cargoSources.cargoLockSha256]]) if ((sourceFiles[`${driverRoot}/${name}`] as JsonObject)?.sha256 !== expected) throw new Error('Rust build Cargo manifests differ from archived source');
   for (const [path, entry] of Object.entries(record.cargoSources.inputs.entries)) if (inside(join(record.workingDirectory, 'src'), path) && entry.kind === 'file') {
-    const name = `syncular-rust-driver/${relative(record.workingDirectory, path)}`;
+    const name = `${driverRoot}/${relative(record.workingDirectory, path)}`;
     if ((sourceFiles[name] as JsonObject)?.sha256 !== entry.sha256) throw new Error('Rust driver source differs from archived benchmark');
   }
   return { bytes, record };
