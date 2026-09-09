@@ -1,0 +1,20 @@
+import json, os, pathlib, subprocess, datetime, hashlib
+root=pathlib.Path.cwd(); evidence=root/'results/diagnostics/tuned-v017-recovery/gap-0088'; run=root/'.tmp/tuned-v017-run'
+assert 'recovery-check=passed; 88 retained attempts; next=89' in (root/'.tmp/tuned-recovery-0088-check.log').read_text()
+m=json.loads((root/'.results/campaign-2026-09-08T22-58-56-419Z/CAMPAIGN.json').read_text()); assert m['status']=='invalid' and len(m['attempts'])==88 and m['error']=='Cannot inspect Docker configuration (compose)'
+for pid in [5835,5836,5837]:
+ try: os.kill(pid,0)
+ except ProcessLookupError: pass
+ else: raise RuntimeError(f'Previous process {pid} exists')
+for name in ['continuation.lock','recovery.lock']:assert not (run/name).exists(),name
+evidence.mkdir(parents=True,exist_ok=True)
+for src,dst in [('.tmp/tuned-recovery-0088-check.log','precheck.log'),('.tmp/dns-recovery-verification.json','DNS-VERIFICATION.json'),('.tmp/review-dns-recovery.ts','dns-verifier.ts.txt'),('.tmp/docker-container-operations.go','docker-container-operations.go.txt')]:
+ with (evidence/dst).open('xb') as f:f.write((root/src).read_bytes())
+with (evidence/'DOCKER-VERSION.json').open('xb') as f:f.write(subprocess.check_output(['docker','version','--format','{{json .Server}}']))
+with (evidence/'launcher.py.txt').open('xb') as f:f.write(pathlib.Path(__file__).read_bytes())
+env=os.environ.copy();env.update(json.loads((root/'.tmp/recovery-environment-0079.json').read_text()))
+with (run/'continuation-0088.log').open('xb') as log:
+ child=subprocess.Popen(['/Users/bkniffler/.volta/tools/image/packages/bun/lib/node_modules/bun/bin/bun.exe','scripts/continue-tuned-publication.ts'],cwd=root,env=env,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
+receipt={'launchedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'pid':child.pid,'retainedAttempts':88,'nextAttempt':89,'previousProcessesVerifiedAbsent':[5835,5836,5837],'priorRecovery':'../gap-0079/RECOVERY.json','controllerFailure':m['error'],'recovery':'Started the stopped OrbStack daemon and the existing benchmark containers, preserving volumes and images. Restored the prior runtime environment. The only configuration exception is the recorded empty-DNS serialization equivalence.','dnsSource':'https://github.com/moby/moby/blob/daa0cb7f/daemon/container_operations.go#L60-L74','dnsSourceSha256':hashlib.sha256((evidence/'docker-container-operations.go.txt').read_bytes()).hexdigest(),'processLifetime':'Detached session with file-backed output.','limitation':'The controller inspection failed after attempt 88 was saved; its original invalid manifest is preserved. Restarted services and the daemon do not recreate uninterrupted cache conditions. No measurement is repeated; the exact cause of OrbStack stopping is unknown.'}
+with (evidence/'LAUNCH.json').open('x') as f:json.dump(receipt,f,indent=2);f.write('\n')
+print(json.dumps({'pid':child.pid,'nextAttempt':89,'evidence':str(evidence)}))

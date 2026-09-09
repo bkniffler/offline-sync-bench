@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 300000,
+  "stacks": ["syncular", "syncular-rust"],
+  "scenarios": ["blob-flow"],
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run the complete shared attachment contract once for both native clients. Require exact task and metadata contents, native applied-commit receipts, independent upload/acceptance/visibility milestones, retained upload queue on preflight failure, fresh-cache downloads and recovery from a real partial-response interruption. Validate declared object reset and client resource scope. Keep every failure; this smoke cannot establish comparative performance."
+}

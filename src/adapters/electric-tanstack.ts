@@ -1,7 +1,13 @@
+import { runConflicts } from '../recovery/conflicts.ts';
+import { runFanout } from '../fanout/run.ts';
+import { runRecovery } from '../recovery/run.ts';
+import { runReopen } from '../recovery/reopen.ts';
+import { runAccess } from '../access/run.ts';
+import { runStartup } from '../startup/run.ts';
 import { spawnSync } from 'node:child_process';
 import { benchmarkRoot } from '../paths';
 import { ensureStackUp } from '../stack-manager';
-import { getStack } from '../stacks';
+import { getClientStack as getStack } from '../stacks';
 import { createUnsupportedScenarioResult } from '../unsupported';
 import type { BenchmarkAdapter, BenchmarkStatus, JsonValue } from '../types';
 
@@ -13,13 +19,9 @@ interface RunnerResult {
 }
 
 type TanStackScenario =
-  | 'bootstrap'
   | 'online-propagation'
-  | 'offline-replay'
-  | 'large-offline-queue'
   | 'local-query'
-  | 'deep-relationship-query'
-  | 'permission-change';
+  | 'deep-relationship-query';
 
 async function runTanStackScenario(
   scenario: TanStackScenario
@@ -59,29 +61,33 @@ async function runTanStackScenario(
 export class ElectricTanStackBenchmarkAdapter implements BenchmarkAdapter {
   readonly stack = getStack('electric-tanstack');
 
+  async runConflictUpdateUpdate() { return runConflicts('electric-tanstack', 'conflict-update-update'); }
+  async runConflictUpdateDelete() { return runConflicts('electric-tanstack', 'conflict-update-delete'); }
+
+  async runReplicaReopen() { return runReopen('electric-tanstack'); }
+
   async runBootstrap() {
-    return runTanStackScenario('bootstrap');
+    return runStartup('electric-tanstack');
   }
 
   async runOnlinePropagation() {
     return runTanStackScenario('online-propagation');
   }
 
-  async runOfflineReplay() {
-    return runTanStackScenario('offline-replay');
+  async runOfflineRestart() {
+    return createUnsupportedScenarioResult({ implementation: 'electric-tanstack-node-restart', coverage: 'unsupported-tested-configuration', notes: ['The current Node offline executor uses fake-indexeddb, whose queue is in process memory. SQLite collection persistence does not make that executor queue survive process termination. A browser IndexedDB profile remains to be implemented.'] });
   }
 
-  async runReconnectStorm() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: [
-        'The Electric + TanStack DB reconnect-storm workload is not implemented yet; the raw Electric adapter covers the shared transport path.',
-      ],
-    });
+  async runOfflineReplay() {
+    return runRecovery('electric-tanstack', 'offline-replay');
   }
+
+  async runConnectedFanout() { return runFanout('electric-tanstack', 'connected-fanout'); }
+
+  async runReconnectStorm() { return runFanout('electric-tanstack', 'reconnect-storm'); }
 
   async runLargeOfflineQueue() {
-    return runTanStackScenario('large-offline-queue');
+    return runRecovery('electric-tanstack', 'large-offline-queue');
   }
 
   async runLocalQuery() {
@@ -92,9 +98,7 @@ export class ElectricTanStackBenchmarkAdapter implements BenchmarkAdapter {
     return runTanStackScenario('deep-relationship-query');
   }
 
-  async runPermissionChange() {
-    return runTanStackScenario('permission-change');
-  }
+  async runPermissionChange() { return runAccess('electric-tanstack'); }
 
   async runBlobFlow() {
     return createUnsupportedScenarioResult({

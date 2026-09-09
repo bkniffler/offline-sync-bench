@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 1800000,
+  "stacks": ["syncular", "syncular-rust", "powersync", "turso", "electric", "electric-tanstack", "zero", "jazz-v2"],
+  "scenarios": ["bootstrap"],
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run one canonical six-case startup trial per adapter under observation policy v3. Require exact full records and ordered screens in fresh clients, explicit memory/persistent profiles, single native-completion and first-screen candidate captures with incomplete candidates retained, or a complete progress count agreeing with the final snapshot, at least five seconds between progress counts, and reader-only resource samples. Keep the 90-second observation deadline, preserving failed cases and partial evidence. Verify all eight adapters after the shared observer change. This correctness smoke cannot establish a performance ranking or replace the prior count-frequency diagnostic."
+}

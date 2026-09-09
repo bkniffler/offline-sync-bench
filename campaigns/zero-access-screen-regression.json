@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260910,
+  "trials": 1,
+  "trialTimeoutMs": 900000,
+  "stacks": ["zero"],
+  "scenarios": ["local-query", "deep-relationship-query"],
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run both canonical 100000-task screen cases once after the shared Zero schema and authenticated query endpoint change. Require exact task, related-row and query-output contracts with source/configuration/storage bindings. Preserve failures; these are correctness regressions, not publication samples."
+}

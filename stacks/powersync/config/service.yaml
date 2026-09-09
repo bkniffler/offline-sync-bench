@@ -17,13 +17,7 @@ storage:
 port: !env PS_PORT
 
 sync_rules:
-  content: |
-    bucket_definitions:
-      global:
-        data:
-          - SELECT id, name FROM organizations
-          - SELECT id, org_id, name FROM projects
-          - SELECT id, org_id, project_id, owner_id, title, completed, server_version, updated_at FROM tasks
+  path: /config/sync-config.yaml
 
 client_auth:
   jwks_uri: !env PS_JWKS_URL

@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "kind": "source-separated-publication-summary",
+  "sources": [
+    {
+      "id": "tuned-sql",
+      "label": "Tuned SQL clients",
+      "root": "results/reports/tuned-v017-sql",
+      "manifest": "results/reports/tuned-v017-sql/archive/files/RESULTS.json.gz",
+      "manifestSha256": "16dddbc2f3da2ba4e007ef472a20e830896a67ba3e4ffd0f11ed52ca89d61076",
+      "archiveSha256": "a6f040d393c09a950485e8f094516c3c2ce5b9959f2ad476b0ebb46e85d9797c"
+    },
+    {
+      "id": "tuned-zero",
+      "label": "Zero native screens",
+      "root": "results/reports/tuned-v017-zero",
+      "manifest": "results/reports/tuned-v017-zero/archive/files/RESULTS.json.gz",
+      "manifestSha256": "1ba318573a79fc9b16082422be1540050c4fd134f29aebfbaa3a555c8e39d2a6",
+      "archiveSha256": "bab7e2a0623f2573ab709171511183fa3cb7f64791c40832496678a8c5128a16"
+    }
+  ],
+  "findings": [
+    {
+      "source": "tuned-sql",
+      "annotation": "tuned-local-screens"
+    },
+    {
+      "source": "tuned-sql",
+      "annotation": "collaboration-milestones"
+    },
+    {
+      "source": "tuned-sql",
+      "annotation": "startup-readiness"
+    },
+    {
+      "source": "tuned-zero",
+      "annotation": "zero-application-aggregation"
+    }
+  ],
+  "coverage": "COVERAGE.json",
+  "coverageSha256": "05214ed5fd6fb9dd94081976a5fa8848e5282c231335e1704ca0448a8ae8b57e",
+  "coverageMarkdown": "COVERAGE.md",
+  "coverageMarkdownSha256": "3102ddc3e21635a2481cd764c1037a7ad6d08486147423dda7d325ca4b767365",
+  "presentation": "readme-benchmarks-v1"
+}

@@ -1,0 +1,65 @@
+{
+  "reviewedAt": "2026-09-09T00:07:38.122925+00:00",
+  "campaignId": "campaign-2026-09-08T22-58-56-419Z",
+  "resultId": "f9d140e4-dd91-43db-b44c-bafe8776f760",
+  "sourceHash": "8ecde51941dc281ad277fea9b6a28b7165e0c72cc9202d1fbb71c64201ca9a03",
+  "rawSha256": "482995387baa8d1e815dcfcd8e3a6d48ac90831e99a81709c67cd9764bb892cb",
+  "status": "supported-hypothesis",
+  "observation": "Rust attachment reader preparation failed with a realtime sync-round timeout before initial state validation or any upload variant was recorded.",
+  "confirmedFacts": {
+    "outcome": "timed-out",
+    "durationMs": 49342.29825,
+    "error": [
+      "5a51636b-3873-40ce-b3c4-cd8d96308dc1 sync failed: sync.transport_failed realtime sync round timed out (\u00a78.7)"
+    ],
+    "completedUploadVariants": 0,
+    "initialStateRecorded": false,
+    "clientVersions": {
+      "clientRust": "0.17.0",
+      "clientRustPackage": "syncular-client",
+      "server": "0.17.0",
+      "serverHono": "0.17.0",
+      "serverDependencyRange": "0.17.0",
+      "serverHonoDependencyRange": "0.17.0"
+    },
+    "serverBefore": {
+      "containerId": "8a806c618d68f8286262fdccfe122eca7cad85c1edaf7983aea1adcd71749fa5",
+      "startedAt": "2026-09-09T00:02:26.828955646Z",
+      "running": true,
+      "health": "healthy"
+    },
+    "failureEvidence": null,
+    "captureErrors": 0
+  },
+  "hypothesis": "The first realtime sync request may reach the benchmark server before ws.data.session is assigned and be discarded. The server message callback uses optional chaining while hub.connect resolves asynchronously. Rust native connect returns after socket setup and reader-thread creation without waiting for hello; realtime_sync can then send immediately. The JS adapter separately waits for hello.",
+  "limitations": "Source inspection proves that this message-loss path exists, but the failed trial has no frame trace showing that it occurred. The logged timeout alone cannot establish which request or response was lost. This is a possible benchmark-server readiness race, not a confirmed Rust product defect or an attachment transfer measurement.",
+  "serviceLogReview": "Captured server output reports startup only; the object initializer reports successful bucket setup. No captured log identifies a rejected sync frame or attachment transfer error. Temporary client stores were removed by the harness finally block, so no postmortem database is available.",
+  "nextExperiment": "After fixed collection, trace hello, first outbound sync frame and server-session assignment during the same reader setup. Compare current handling with buffering inbound messages until session assignment in a separate diagnostic; preserve both outcomes and do not mix them with publication samples.",
+  "sourceInspection": [
+    {
+      "originalPath": "src/attachments/run.ts",
+      "copy": "source-0-run.ts.txt",
+      "bytes": 9235,
+      "sha256": "b630eefafe84fb139837a7ef155941094b6910cc005046400ad3a4ef353648f0"
+    },
+    {
+      "originalPath": "src/recovery/worker.ts",
+      "copy": "source-1-worker.ts.txt",
+      "bytes": 23318,
+      "sha256": "2962fc21e6bf90349ae8ff04d30e72938f74c9d78d08dfda76408aa05e22c25a"
+    },
+    {
+      "originalPath": "stacks/syncular/syncular-app/src/server.ts",
+      "copy": "source-2-server.ts.txt",
+      "bytes": 6632,
+      "sha256": "00bd1765c540fe0c87de0b7235d4b17d23a1070744aaae61398cfd1bc3197e4c"
+    },
+    {
+      "originalPath": "/Users/bkniffler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/syncular-client-0.17.0/src/native_transport.rs",
+      "copy": "source-3-native_transport.rs.txt",
+      "bytes": 40134,
+      "sha256": "623a764f01999b6d6787fb3664488677a4787ad977b6bf8e2746add07f7f6f75"
+    }
+  ],
+  "verification": "Every captured artifact matches its receipt; raw result equals the recorded attempt. Reviewed source copies are checksum-bound separately; no measured code was changed."
+}

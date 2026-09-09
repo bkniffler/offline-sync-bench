@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260928,
+  "trials": 1,
+  "trialTimeoutMs": 900000,
+  "stacks": [
+    "syncular",
+    "syncular-rust",
+    "powersync",
+    "turso",
+    "zero"
+  ],
+  "scenarios": [
+    "local-query",
+    "deep-relationship-query"
+  ],
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "One correctness and query-plan attempt per changed adapter/screen case; never pool with publication."
+}

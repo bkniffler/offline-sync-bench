@@ -9,8 +9,13 @@ export type StackId =
   | 'jazz-v2';
 export type ScenarioId =
   | 'bootstrap'
+  | 'replica-reopen'
   | 'online-propagation'
   | 'offline-replay'
+  | 'offline-restart'
+  | 'conflict-update-update'
+  | 'conflict-update-delete'
+  | 'connected-fanout'
   | 'reconnect-storm'
   | 'large-offline-queue'
   | 'local-query'
@@ -18,7 +23,7 @@ export type ScenarioId =
   | 'permission-change'
   | 'blob-flow';
 export type SupportLevel = 'native' | 'emulated' | 'unsupported';
-export type BenchmarkStatus = 'completed' | 'failed' | 'unsupported';
+export type BenchmarkStatus = 'completed' | 'failed' | 'unsupported' | 'invalid' | 'timed-out';
 
 export type JsonValue =
   | string
@@ -44,6 +49,7 @@ export interface StackCapabilities {
   bootstrap: SupportLevel;
   onlinePropagation: SupportLevel;
   offlineReplay: SupportLevel;
+  offlineRestart?: SupportLevel;
   reconnectStorm: SupportLevel;
   largeOfflineQueue: SupportLevel;
   localQuery: SupportLevel;
@@ -72,6 +78,7 @@ export interface StackSpec {
   syncBaseUrl: string;
   syncRealtimeBaseUrl?: string;
   appBaseUrl?: string;
+  mutationBaseUrl?: string;
   services: StackServices;
   capabilities: StackCapabilities;
   notes: string[];
@@ -165,6 +172,11 @@ export interface BenchmarkRunContext {
 }
 
 export interface BenchmarkAdapter {
+  runConnectedFanout?(): Promise<{ status: BenchmarkStatus; metrics: Record<string, number | null>; notes: string[]; metadata: JsonObject }>;
+  runReplicaReopen?(): Promise<{ status: BenchmarkStatus; metrics: Record<string, number | null>; notes: string[]; metadata: JsonObject }>;
+  runConflictUpdateUpdate?(): Promise<{ status: BenchmarkStatus; metrics: Record<string, number | null>; notes: string[]; metadata: JsonObject }>;
+  runConflictUpdateDelete?(): Promise<{ status: BenchmarkStatus; metrics: Record<string, number | null>; notes: string[]; metadata: JsonObject }>;
+  runOfflineRestart?(): Promise<{ status: BenchmarkStatus; metrics: Record<string, number | null>; notes: string[]; metadata: JsonObject }>;
   stack: StackSpec;
   runBootstrap(): Promise<{
     status: BenchmarkStatus;

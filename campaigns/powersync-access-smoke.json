@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260908,
+  "trials": 1,
+  "trialTimeoutMs": 900000,
+  "stacks": ["powersync", "syncular"],
+  "scenarios": ["permission-change", "bootstrap", "online-propagation"],
+  "parameters": { "startupSizes": [1000] },
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run six planned attempts once. Validate PowerSync membership-scoped native purge online and after reconnect, its global startup/collaboration regressions, and Syncular controller regressions. Require exact retained, offline and fresh-actor data plus same-file PowerSync identity. Preserve all failures and service/storage evidence. This is a correctness smoke, not a performance publication."
+}

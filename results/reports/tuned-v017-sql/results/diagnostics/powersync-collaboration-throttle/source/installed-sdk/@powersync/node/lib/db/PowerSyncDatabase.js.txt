@@ -1,0 +1,44 @@
+import { BasePowerSyncDatabase, openDatabase } from '@powersync/shared-internals';
+import { NodeRemote } from '../sync/stream/NodeRemote.js';
+import { NodeStreamingSyncImplementation } from '../sync/stream/NodeStreamingSyncImplementation.js';
+import { WorkerConnectionPool } from './WorkerConnectionPool.js';
+class NodePowerSyncDatabase extends BasePowerSyncDatabase {
+    constructor(options) {
+        super(options);
+    }
+    async _initialize() {
+        if ('initialize' in this.database) {
+            await this.database.initialize();
+        }
+    }
+    openDBAdapter() {
+        return openDatabase(this.options, (open) => new WorkerConnectionPool(open));
+    }
+    generateSyncStreamImplementation(connector, options) {
+        const logger = this.logger;
+        const remote = new NodeRemote(connector, logger, this.options.remoteOptions);
+        return new NodeStreamingSyncImplementation({
+            ...this.commonSyncOptions(connector, options),
+            remote
+        });
+    }
+}
+/**
+ * A PowerSync database which provides SQLite functionality
+ * which is automatically synced.
+ *
+ * @example
+ * ```typescript
+ * export const db = new PowerSyncDatabase({
+ *  schema: AppSchema,
+ *  database: {
+ *    dbFilename: 'example.db'
+ *  }
+ * });
+ * ```
+ *
+ * @public
+ */
+// Typed constructor to avoid leaking AbstractPowerSyncDatabase into the public interface
+export const PowerSyncDatabase = NodePowerSyncDatabase;
+//# sourceMappingURL=PowerSyncDatabase.js.map

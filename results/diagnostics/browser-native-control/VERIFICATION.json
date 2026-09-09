@@ -1,0 +1,32 @@
+{
+  "verifiedAt": "2026-09-07T01:20:36.915Z",
+  "sourceHash": "601d480d9e12fce14fc87de7de984f6a9e4d472bb34b4fe719ff68ee0db13f64",
+  "sourceDependenciesConfigurationStorageValidated": true,
+  "rawResultProfilesValidated": true,
+  "sameSourceBrowserComparisonSeparated": true,
+  "smokePublicationRejected": true,
+  "attempts": [
+    {
+      "stack": "zero",
+      "scenario": "online-propagation",
+      "resultId": "1022afd4-cc5e-4533-8ce3-8f7eb652a670",
+      "status": "completed",
+      "digest": "b97c720009ac1d06f1999893e31b7ff64b3a7d09834fad470470877667e7182c"
+    },
+    {
+      "stack": "syncular",
+      "scenario": "online-propagation",
+      "resultId": "d27c715b-e7ba-4623-9570-facde7b79d91",
+      "status": "completed",
+      "digest": "96b8eb1aef5816132ef0ffdd508fa49d5105b33a42aa294073b5aad6a173f0f4"
+    },
+    {
+      "stack": "electric",
+      "scenario": "online-propagation",
+      "resultId": "e0d09e32-3ee0-4b1c-a46e-c989c057979a",
+      "status": "completed",
+      "digest": "de84bbb1cb728b7bf00312147766ff071334bee0f165f1fe2f706ca299f7bb4c"
+    }
+  ],
+  "limitation": "One native-host control attempt per stack. Verifies default runtime selection and native correctness after browser integration; does not estimate a browser/native performance effect."
+}

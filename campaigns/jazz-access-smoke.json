@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260910,
+  "trials": 1,
+  "trialTimeoutMs": 900000,
+  "stacks": ["jazz-v2", "syncular"],
+  "scenarios": ["permission-change", "bootstrap", "online-propagation"],
+  "parameters": { "startupSizes": [1000] },
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Execute all six attempts once. Exercise both canonical Jazz access modes using native actor tokens, membership policies, independent processes, shared outage gates and separate raw/visible cache observations. Preserve purge timeouts and continue fresh-actor/server verification. Regress ordinary Jazz startup/collaboration and Syncular control cases. This smoke validates behavior and failure retention; it is not a performance publication."
+}

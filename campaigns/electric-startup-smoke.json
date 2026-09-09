@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 600000,
+  "stacks": ["electric"],
+  "scenarios": ["bootstrap"],
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run all six shared startup cases: 1000, 10000 and 100000 tasks with a restarted sync service and a warm second client. Require distinct fresh processes and initially empty SDK memory caches, exact first-screen and full-dataset validation, parent monotonic milestones, scoped process samples and route counters. Preserve failures. This smoke validates the memory profile and does not establish a performance comparison or process durability."
+}

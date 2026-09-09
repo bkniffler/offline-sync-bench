@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260907,
+  "trials": 1,
+  "trialTimeoutMs": 900000,
+  "stacks": ["syncular", "syncular-rust", "electric", "electric-tanstack", "zero", "powersync", "turso", "jazz-v2"],
+  "scenarios": ["bootstrap", "online-propagation"],
+  "parameters": { "startupSizes": [1000] },
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run every planned adapter/case once. Startup has fresh clients against restarted and warm servers at 1000 tasks. Preserve every failure and unrun case. Verify trial and per-startup physical disk observations, complete container/mount coverage, timing boundaries, native outputs and resources. This single-trial retained-state smoke cannot support product rankings or establish normalized storage."
+}

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260911,
+  "trials": 1,
+  "trialTimeoutMs": 900000,
+  "stacks": ["jazz-v2", "syncular"],
+  "scenarios": ["local-query"],
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run both canonical 100,000-task local-screen cases once after the Jazz schema and deployment-guard changes. Verify complete fixtures and all outputs, isolated Jazz seeding, stable source/dependencies/configuration and server-storage evidence. Retain failures; this regression is not a performance comparison."
+}

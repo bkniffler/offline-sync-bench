@@ -259,11 +259,11 @@ export async function measureBundle(
 
 export function buildMarkdown(rows: BundleSizeRow[]): string {
   return [
-    '# Client Library Bundle Sizes',
+    '# Entrypoint JavaScript sizes',
     '',
-    'Browser-targeted minified bundles built from benchmark entrypoints. `retained-entry` keeps the whole public namespace live; `named-import` is a more realistic tree-shaken import profile.',
+    'Browser-targeted minified JavaScript emitted for declared import entrypoints. `retained-entry` exposes the public namespace; `named-import` references selected exports. These imports do not implement equivalent working applications. Only emitted .js files are counted; storage/WASM assets and runtime downloads may be absent. Gzip totals sum each file compressed separately at level 9. Values are KiB (1,024 bytes), not a complete deployment footprint.',
     '',
-    '| Library | Import path | Profile | Version | Status | Raw KB | Gzip KB | Artifacts | Notes |',
+    '| Library | Import path | Profile | Version | Status | Raw KiB | Gzip KiB | Artifacts | Notes |',
     '| --- | --- | --- | --- | --- | ---: | ---: | ---: | --- |',
     ...rows.map((row) =>
       `| ${row.label} | \`${row.importPath}\` | ${row.profile} | ${row.version ?? 'unknown'} | ${row.status} | ${row.rawKb ?? 'n/a'} | ${row.gzipKb ?? 'n/a'} | ${row.artifactCount} | ${row.error ?? ''} |`

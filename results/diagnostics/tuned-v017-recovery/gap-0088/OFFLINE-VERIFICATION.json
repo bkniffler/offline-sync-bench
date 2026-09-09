@@ -1,0 +1,36 @@
+{
+  "checkedAt": "2026-09-09T08:48:24.781Z",
+  "status": "verified",
+  "result": {
+    "observedFingerprint": "677e3e0f2b39ebf556bc04cce1394abbba237c6a7ee3431d0467d9b4a3fee5a8",
+    "equivalentFingerprint": "aa09f9acd1ca8277b4d43ac366ebc3baaad4b020725b83491d58e119f871271f",
+    "changes": [
+      {
+        "container": "/offline-sync-bench-turso-admin-1",
+        "fields": [
+          "Dns",
+          "DnsOptions",
+          "DnsSearch"
+        ],
+        "from": [],
+        "to": null,
+        "observedHostSha256": "09e0745d659f314359d1835c8703124b0746f89a3df43c82f5281c5bc811bf6e",
+        "originalHostSha256": "abcaae5492643db248b40a589db09120ee14e63148ff376ed5070f0843a32841"
+      },
+      {
+        "container": "/offline-sync-bench-turso-turso-1",
+        "fields": [
+          "Dns",
+          "DnsOptions",
+          "DnsSearch"
+        ],
+        "from": [],
+        "to": null,
+        "observedHostSha256": "342a22269fb546392d74afd4487c205c9d1f12a1721fc3559112fa66137dee94",
+        "originalHostSha256": "4df91a3d653f8c41d2d1852fb65ae9637f7efba475d0897ffa29ffee3152058d"
+      }
+    ]
+  },
+  "rejectedMutations": 4,
+  "scope": "Actual container and full-configuration hash equivalence with rejection checks for three nonempty DNS overrides and another runtime change."
+}

@@ -1,0 +1,308 @@
+{
+  "verifiedAt": "2026-09-07T01:16:38.964Z",
+  "sourceHash": "601d480d9e12fce14fc87de7de984f6a9e4d472bb34b4fe719ff68ee0db13f64",
+  "sourceDependenciesConfigurationBrowserValidated": true,
+  "rawResultProfileStorageBindingsValidated": true,
+  "browser": {
+    "version": "151.0.7922.34",
+    "installationFingerprint": "8824c91b1f26fbef1353d8955a2270f568db6ce6e449cc308804c7c58d3ffe6c",
+    "installationFiles": 326,
+    "installationBytes": 372002382,
+    "bundleSha256": "306ce570eaadf13419559cc3771add6a1ddaff98fb16ea30bd5c27f35b50ce0d",
+    "bundleBytes": 954638,
+    "inputFiles": 274
+  },
+  "summaries": [
+    {
+      "stack": "zero",
+      "scenario": "online-propagation",
+      "status": "completed",
+      "resultId": "618035a3-c74b-420a-b3b4-6136f5e8728b",
+      "digest": "663ce7b3aa774935fac43bf9bf27069952ac6e9a1587f0186ccf4939230bf254",
+      "coverage": {
+        "status": "implemented",
+        "reason": "Adapter executed this case."
+      },
+      "notes": [
+        "Five warmups and 50 measured writes. Local commit, client-observed server acceptance, and independent reader visibility are separate milestones; no p99 is reported.",
+        "The controller observes native browser subscription and mutation receipts through CDP. Timings include arming, dispatch and binding delivery. Idle bridge calibration is retained separately and is not subtracted."
+      ],
+      "profile": "c5b6329af49e6a4cff804badcf979c7e08c9d46639d1b7f72df43282f6b48cd9",
+      "browser": {
+        "clients": [
+          {
+            "pid": 8306,
+            "clientId": "6b7a17e4-f6dc-404f-9384-c45c018a5850",
+            "storage": "native-indexeddb",
+            "version": "Chrome/151.0.7922.34"
+          },
+          {
+            "pid": 8325,
+            "clientId": "ad7fc8d6-9d3d-4b86-b4cb-6045df659a26",
+            "storage": "native-indexeddb",
+            "version": "Chrome/151.0.7922.34"
+          }
+        ],
+        "cleanup": [
+          {
+            "pid": 8306,
+            "observed": 11,
+            "remaining": 0
+          },
+          {
+            "pid": 8325,
+            "observed": 9,
+            "remaining": 0
+          }
+        ],
+        "calibrationSamples": [
+          100,
+          100
+        ]
+      }
+    },
+    {
+      "stack": "zero",
+      "scenario": "offline-restart",
+      "status": "unsupported",
+      "resultId": "18410c19-9c90-4617-bdf3-847a4873f8ec",
+      "digest": "f59bb35e6dd402f439613d858aed511bf01707dc29f89007ac677baeaceed8f3",
+      "coverage": {
+        "status": "not-implemented",
+        "reason": "zero/offline-restart is not implemented in the Chromium runtime. Native-host coverage does not establish browser coverage."
+      },
+      "notes": [
+        "zero/offline-restart is not implemented in the Chromium runtime. Native-host coverage does not establish browser coverage."
+      ],
+      "profile": "76f88105ba81ac88b859be753aedccebea9478ecb5b68af7159f195fd1030c07",
+      "browser": null
+    },
+    {
+      "stack": "syncular",
+      "scenario": "offline-restart",
+      "status": "unsupported",
+      "resultId": "b9c3ed5c-3c64-4427-be38-2ecea976b4cc",
+      "digest": "de66ea0b9a0b618a5a98fdcb86e59c85ef1d58240907aacbb83f179c07848c35",
+      "coverage": {
+        "status": "not-implemented",
+        "reason": "syncular/offline-restart is not implemented in the Chromium runtime. Native-host coverage does not establish browser coverage."
+      },
+      "notes": [
+        "syncular/offline-restart is not implemented in the Chromium runtime. Native-host coverage does not establish browser coverage."
+      ],
+      "profile": "76f88105ba81ac88b859be753aedccebea9478ecb5b68af7159f195fd1030c07",
+      "browser": null
+    },
+    {
+      "stack": "syncular",
+      "scenario": "online-propagation",
+      "status": "unsupported",
+      "resultId": "ab0579e9-4d65-4500-a689-34394e51ee89",
+      "digest": "1b3a1d9da950b5573db52841781be02e703b47f99b8c5bffdb13e5c068d62420",
+      "coverage": {
+        "status": "not-implemented",
+        "reason": "syncular/online-propagation is not implemented in the Chromium runtime. Native-host coverage does not establish browser coverage."
+      },
+      "notes": [
+        "syncular/online-propagation is not implemented in the Chromium runtime. Native-host coverage does not establish browser coverage."
+      ],
+      "profile": "76f88105ba81ac88b859be753aedccebea9478ecb5b68af7159f195fd1030c07",
+      "browser": null
+    },
+    {
+      "stack": "electric",
+      "scenario": "offline-restart",
+      "status": "unsupported",
+      "resultId": "f50540f8-08bd-4480-8740-917a5caf9a34",
+      "digest": "12d15c5e058dbdba3b945f38ac1d0c5036f229d8534d85ed9caf3c5c085da2c0",
+      "coverage": {
+        "status": "not-implemented",
+        "reason": "electric/offline-restart is not implemented in the Chromium runtime. Native-host coverage does not establish browser coverage."
+      },
+      "notes": [
+        "electric/offline-restart is not implemented in the Chromium runtime. Native-host coverage does not establish browser coverage."
+      ],
+      "profile": "76f88105ba81ac88b859be753aedccebea9478ecb5b68af7159f195fd1030c07",
+      "browser": null
+    },
+    {
+      "stack": "electric",
+      "scenario": "online-propagation",
+      "status": "completed",
+      "resultId": "e8552996-f8b6-4ad5-a6b7-54bf05149b74",
+      "digest": "1369ad63e7c541d79d48e5eb7c560daf066cd779038edb2f8f237973117f6ac8",
+      "coverage": {
+        "status": "implemented",
+        "reason": "Adapter executed this case."
+      },
+      "notes": [
+        "Five warmups and 50 measured writes. Local commit, client-observed server acceptance, and independent reader visibility are separate milestones; no p99 is reported.",
+        "The controller observes native browser subscription and mutation receipts through CDP. Timings include arming, dispatch and binding delivery. Idle bridge calibration is retained separately and is not subtracted."
+      ],
+      "profile": "c5b6329af49e6a4cff804badcf979c7e08c9d46639d1b7f72df43282f6b48cd9",
+      "browser": {
+        "clients": [
+          {
+            "pid": 9013,
+            "clientId": "9f2ee6fe-2714-41e8-ad3b-f4bce3812eb3",
+            "storage": "sdk-memory-shape",
+            "version": "Chrome/151.0.7922.34"
+          },
+          {
+            "pid": 9032,
+            "clientId": "4cb533e8-470f-4aab-b642-f890cda6c565",
+            "storage": "sdk-memory-shape",
+            "version": "Chrome/151.0.7922.34"
+          }
+        ],
+        "cleanup": [
+          {
+            "pid": 9013,
+            "observed": 9,
+            "remaining": 0
+          },
+          {
+            "pid": 9032,
+            "observed": 9,
+            "remaining": 0
+          }
+        ],
+        "calibrationSamples": [
+          100,
+          100
+        ]
+      }
+    }
+  ],
+  "negative": [
+    {
+      "stack": "zero",
+      "name": "wrong outer implementation",
+      "rejected": true
+    },
+    {
+      "stack": "zero",
+      "name": "lost browser identity",
+      "rejected": true
+    },
+    {
+      "stack": "zero",
+      "name": "wrong bundle binding",
+      "rejected": true
+    },
+    {
+      "stack": "zero",
+      "name": "wrong actual browser version",
+      "rejected": true
+    },
+    {
+      "stack": "zero",
+      "name": "changed initial native row",
+      "rejected": true
+    },
+    {
+      "stack": "zero",
+      "name": "changed final native row",
+      "rejected": true
+    },
+    {
+      "stack": "zero",
+      "name": "missing native receipt",
+      "rejected": true
+    },
+    {
+      "stack": "zero",
+      "name": "missing helper cleanup",
+      "rejected": true
+    },
+    {
+      "stack": "zero",
+      "name": "missing idle calibration",
+      "rejected": true
+    },
+    {
+      "stack": "zero",
+      "name": "changed outer sample summary",
+      "rejected": true
+    },
+    {
+      "stack": "electric",
+      "name": "wrong outer implementation",
+      "rejected": true
+    },
+    {
+      "stack": "electric",
+      "name": "lost browser identity",
+      "rejected": true
+    },
+    {
+      "stack": "electric",
+      "name": "wrong bundle binding",
+      "rejected": true
+    },
+    {
+      "stack": "electric",
+      "name": "wrong actual browser version",
+      "rejected": true
+    },
+    {
+      "stack": "electric",
+      "name": "changed initial native row",
+      "rejected": true
+    },
+    {
+      "stack": "electric",
+      "name": "changed final native row",
+      "rejected": true
+    },
+    {
+      "stack": "electric",
+      "name": "missing native receipt",
+      "rejected": true
+    },
+    {
+      "stack": "electric",
+      "name": "missing helper cleanup",
+      "rejected": true
+    },
+    {
+      "stack": "electric",
+      "name": "missing idle calibration",
+      "rejected": true
+    },
+    {
+      "stack": "electric",
+      "name": "changed outer sample summary",
+      "rejected": true
+    }
+  ],
+  "nativeCampaignRejectsBrowser": true,
+  "missingBrowserIdentityRejected": true,
+  "smokePublicationRejected": true,
+  "limitation": "One independent trial per configured case. Local browser SDK collaboration only; idle CDP calibration is not loaded instrumentation overhead. Other cases remain explicitly not implemented. No browser durability, DOM rendering or cross-runtime performance claim.",
+  "publishedArtifactRelocation": {
+    "validated": true,
+    "alteredBundleRejected": true,
+    "changedDependencyInputRejected": true,
+    "changedSourceInputRejected": true,
+    "restorationValidated": true,
+    "temporaryDirectory": ".tmp/browser-published-artifacts-zlKOZK"
+  },
+  "relocationVerifierSha256": "b7353517546265e7d781081972ded5651b4bf273eba1ac4480ac4ed4e3ae4425",
+  "annotationsValidated": true,
+  "annotationDigest": "7686dbeeda570dac400b6a6324988cca5f402fc6e639f3f9b2e9f02998712a8a",
+  "changedResultAnnotationRejected": true,
+  "relocationVerifierHashEncoding": "file-bytes",
+  "tests": {
+    "passed": 228,
+    "failed": 0,
+    "assertions": 1119,
+    "files": 49,
+    "typescript": "passed",
+    "whitespace": "passed"
+  },
+  "testLogSha256": {
+    "FULL-TESTS.log": "f275db02c8842f3a268d8edc83813a054fae62f2acc717670d1adac84ba1e14e",
+    "FOCUSED-TESTS.log": "ae20819594aa193cf425f90ea369f0b491c06fa8b7cdc54d05fba08c60f872bc"
+  }
+}

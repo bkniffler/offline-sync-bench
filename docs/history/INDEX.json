@@ -1,0 +1,282 @@
+{
+  "purpose": "Exact documentation before consolidation on 2026-09-09; includes the RFC and its completed audit.",
+  "archive": "documents.tar.gz",
+  "archiveSha256": "296977284049a3e4b7c14703338979241947de05c7ae7bd9446b5b74c409fd54",
+  "files": [
+    {
+      "path": "docs/appendices/deployment-footprint.md",
+      "bytes": 2131,
+      "sha256": "44bd3138cc2aa0660b897cdddf7846d97009b138330551fe2552623494a19728"
+    },
+    {
+      "path": "docs/implementation/browser-instrumentation-plan.md",
+      "bytes": 6614,
+      "sha256": "14b1bdb32e4e3578a5291274f98e6d5692daed64317846a1fb98d944be4068c5"
+    },
+    {
+      "path": "docs/implementation/publication-plan.md",
+      "bytes": 4276,
+      "sha256": "4c9238c39e4363c646ffa8f2f608267b928fdef35a754478de27702b8246643f"
+    },
+    {
+      "path": "docs/implementation/query-index-correction.md",
+      "bytes": 6662,
+      "sha256": "72a8a1230c2508b932ba4b4c1c097b573dc27e48b90605676e26080d9d9641e8"
+    },
+    {
+      "path": "docs/implementation/rfc-0001.md",
+      "bytes": 5355,
+      "sha256": "2597b3410e36c7b554150c9aea20148e5fd99cd68bd2b0dddc9531f6d789f69c"
+    },
+    {
+      "path": "docs/implementation/rust-build-inputs.md",
+      "bytes": 4394,
+      "sha256": "16f8b4dfba40089d345f4163c20aa962ba2b75ea78539b8dbe029018832c331a"
+    },
+    {
+      "path": "docs/implementation/variability-pilot-review.md",
+      "bytes": 2517,
+      "sha256": "2e56c071b7a2267f3f93b5ab295d60f4fadaa1bb6f1a571746eb482997a75f68"
+    },
+    {
+      "path": "docs/investigations/attachment-object-state.md",
+      "bytes": 1770,
+      "sha256": "3d93fc11e08d7473d3af06449d5fea315ff1eddc96bafa652a29e1720489cbfd"
+    },
+    {
+      "path": "docs/investigations/browser-collaboration.md",
+      "bytes": 8910,
+      "sha256": "62923678f428d55382a3121eb9f5a1a16a474d7c1b43b16f1e2f7eb1f250a4cf"
+    },
+    {
+      "path": "docs/investigations/collection-interruptions.md",
+      "bytes": 3792,
+      "sha256": "29600c3bb820a48b3343b14b4873ffd0b45c28c7d4ac94faf37b11ff172591f8"
+    },
+    {
+      "path": "docs/investigations/electric-collaboration-acknowledgment.md",
+      "bytes": 3682,
+      "sha256": "4b9df87acc85fc4a6e16053130b0f24c47965acbd408e0350ee4edff17edb66c"
+    },
+    {
+      "path": "docs/investigations/electric-conflicts.md",
+      "bytes": 3829,
+      "sha256": "be6f546ae0488543f7e9a32e5e01e54c465a95cb7f634457125b88a62d7e1c5f"
+    },
+    {
+      "path": "docs/investigations/electric-startup.md",
+      "bytes": 4726,
+      "sha256": "498d8ae14dc75c0a82b587f57b31f3a21b1275b6022c2e3bda8e5b723d383c9b"
+    },
+    {
+      "path": "docs/investigations/fanout-harness-corrections.md",
+      "bytes": 5252,
+      "sha256": "d0f1b390b26c9577e61389ebb45779e8ee2443da8cd10dedaf3f516f4bb33e06"
+    },
+    {
+      "path": "docs/investigations/fixture-preparation.md",
+      "bytes": 5767,
+      "sha256": "49ed070c518502abf3d4ae1729efea8f0b4733f57453ffde84d4ad390555ff8c"
+    },
+    {
+      "path": "docs/investigations/jazz-access-revocation.md",
+      "bytes": 3875,
+      "sha256": "32cd9dff16a97260dcb71632660acdfcdcfe112e3cc0173e4cf68a8923aa750b"
+    },
+    {
+      "path": "docs/investigations/jazz-conflicting-edits.md",
+      "bytes": 4562,
+      "sha256": "6384dd35dd79acc85ce11a1c5b8737206b7ffc890224596c553ca2a48baa300a"
+    },
+    {
+      "path": "docs/investigations/jazz-recovery-durability.md",
+      "bytes": 2957,
+      "sha256": "8045403f13b25feeca0595669199b16304295acf8136f5d7ddff5de6bd034408"
+    },
+    {
+      "path": "docs/investigations/jazz-screen-seeding.md",
+      "bytes": 1916,
+      "sha256": "af9e9ef67ab1bd4f4655f554425067d2e014e66abd19496bb796658f76fdf3b5"
+    },
+    {
+      "path": "docs/investigations/jazz-startup.md",
+      "bytes": 9309,
+      "sha256": "63cc854b42168a006e521168877b50cc2c4e5497439fd372e691ecad70fb4e19"
+    },
+    {
+      "path": "docs/investigations/network-emulator-calibration.md",
+      "bytes": 7232,
+      "sha256": "84d0413913f3efac8848c9cf0542ee8d1a4448a7bed6950d8f5fa8fbd2a3013a"
+    },
+    {
+      "path": "docs/investigations/powersync-access-revocation.md",
+      "bytes": 2467,
+      "sha256": "945805153eb5f6e69a50085ec442ae12212325421c1a8c847f8544161edd4b96"
+    },
+    {
+      "path": "docs/investigations/powersync-collaboration.md",
+      "bytes": 2086,
+      "sha256": "7cb5fabebab4c27a939fde45ec7958a5417a294d7d397ae05bf5eb6ccce53b5e"
+    },
+    {
+      "path": "docs/investigations/publication-failures.md",
+      "bytes": 23865,
+      "sha256": "5a57847ab60e19e3c984a01757f8eb40c1f9fea6f69906e3aed0d1d48a53d71a"
+    },
+    {
+      "path": "docs/investigations/recovery-restoration.md",
+      "bytes": 4576,
+      "sha256": "0838e49e6d9de3934a3d54bcbe569bae04029071f06eed01fb2771de67d30a0b"
+    },
+    {
+      "path": "docs/investigations/replica-reopen-resource-scope.md",
+      "bytes": 1578,
+      "sha256": "91f3b60a53b68f5df50b6a5ae537eefe88d53b7971d513b016003ca137a07ff4"
+    },
+    {
+      "path": "docs/investigations/screen-index-effect.md",
+      "bytes": 2561,
+      "sha256": "20bde59bc0d84ddd077c4c1bbb533be49fd5e4a13d872af21a03c98906eb0a37"
+    },
+    {
+      "path": "docs/investigations/startup-completion-signals.md",
+      "bytes": 2246,
+      "sha256": "de5b56226f151759c5498fd9b2f7666cfda7233f9cf44973f33ad27f1739fe31"
+    },
+    {
+      "path": "docs/investigations/tuned-publication-failures.md",
+      "bytes": 4054,
+      "sha256": "9e696010a7129aedc5b05b0e77818c65131238d189c97ffaa4ec91dc6d0703e1"
+    },
+    {
+      "path": "docs/investigations/turso-recovery-queue-counter.md",
+      "bytes": 1819,
+      "sha256": "310e18488f656cd0f0b61df352196da788bfb4181e15794b6682d009d73c1751"
+    },
+    {
+      "path": "docs/investigations/turso-startup-physical-state.md",
+      "bytes": 5090,
+      "sha256": "4bdee5ca7dcdddb61ab007e1d792e2f4e0ca18badc19e3792ff85e29aadb934b"
+    },
+    {
+      "path": "docs/investigations/zero-access-revocation.md",
+      "bytes": 2599,
+      "sha256": "1c8b8c1f0439d7c8c125ae74f8185c9f4d396124d797d03aa36ca49f8157c183"
+    },
+    {
+      "path": "docs/investigations/zero-recovery.md",
+      "bytes": 3964,
+      "sha256": "c1eea8f1d79f6bfacead3a47db635eab2a03ae1002df36ca5b0683df17e744b3"
+    },
+    {
+      "path": "docs/methodology.md",
+      "bytes": 19152,
+      "sha256": "efbef0fe9f1d059c136d9a2bf36242c86e30234c267baa1adc5fc37d6cfd3f21"
+    },
+    {
+      "path": "docs/reporting.md",
+      "bytes": 9405,
+      "sha256": "ce95011a65fb912c7491050459e2408104bc80c7dfc7489374234c9ccbe60f47"
+    },
+    {
+      "path": "docs/rfcs/0001-meaningful-comparisons-and-explainable-results.md",
+      "bytes": 21338,
+      "sha256": "cf4e83a9f650f3fc07a678e0777b6a0c6268343ca052d9107da96fbccc71a77a"
+    },
+    {
+      "path": "docs/scenarios/blob-flow.md",
+      "bytes": 3939,
+      "sha256": "a9cc645ec7a48edd5c1a6ab0659089b0fa7ea83b51e372f5eb865ed691817a76"
+    },
+    {
+      "path": "docs/scenarios/bootstrap.md",
+      "bytes": 7475,
+      "sha256": "9171acbbcaa4142cc74b3b2653a418b2cab72e24b7df923690da4955cc91e5c8"
+    },
+    {
+      "path": "docs/scenarios/conflicting-edits.md",
+      "bytes": 5776,
+      "sha256": "7325635789626788d9dbfb5e4c0cef4f70636e95d593d029a0f8c8adb01d703e"
+    },
+    {
+      "path": "docs/scenarios/connected-fanout.md",
+      "bytes": 2882,
+      "sha256": "70bdd6f65bb4df9435a2d447782f1978a065e430934fd80ee36bace83d84fa21"
+    },
+    {
+      "path": "docs/scenarios/deep-relationship-query.md",
+      "bytes": 659,
+      "sha256": "beac9052dec8a8d7a14366af1e581028abe660c192e584e93095b9e3218f4e13"
+    },
+    {
+      "path": "docs/scenarios/large-offline-queue.md",
+      "bytes": 413,
+      "sha256": "fe9a4678a59aa65dd9b4b01aab967759039c0073ad16a60ed6812a07ae3964a5"
+    },
+    {
+      "path": "docs/scenarios/local-query.md",
+      "bytes": 917,
+      "sha256": "d990a8c9c5afd51949b678c5b3d3c03091c6444651dd39ca449989b3c63632dc"
+    },
+    {
+      "path": "docs/scenarios/offline-replay.md",
+      "bytes": 7845,
+      "sha256": "4eb17239345342b06874b76b17e1883dd04743aa082ba81226df7135c81d9bd5"
+    },
+    {
+      "path": "docs/scenarios/offline-restart.md",
+      "bytes": 1086,
+      "sha256": "2a08bca4c4e9d224a27a7af98c35d2b56805d3d4963a5440ffeecef576d4674a"
+    },
+    {
+      "path": "docs/scenarios/online-propagation.md",
+      "bytes": 1113,
+      "sha256": "b5e134e84f01a0e653358e3169b1763f5a2b3c0c0b304cbe2e717fe6b828994f"
+    },
+    {
+      "path": "docs/scenarios/permission-change.md",
+      "bytes": 5414,
+      "sha256": "62d3c5bd3a6107c608bdb05ef49d3ffdd72249b7c67c702ca7de97e869af55c0"
+    },
+    {
+      "path": "docs/scenarios/reconnect-storm.md",
+      "bytes": 2529,
+      "sha256": "e5e4d85c0558da6f04e56a8ce8179a89f9b2d7c70c0e512e62ac8ffc6d1be4ad"
+    },
+    {
+      "path": "docs/scenarios/replica-reopen.md",
+      "bytes": 2966,
+      "sha256": "3d7d1ebc2f6d5a5ec4200b63f1aa6f18f877fb5f62df246b19fdf96ea7f770cd"
+    },
+    {
+      "path": "docs/source-snapshots.md",
+      "bytes": 10479,
+      "sha256": "01a5283092939cf5db9ed873f4faf0e0c3d24d653041d3783d0bdf69c9a94a6f"
+    },
+    {
+      "path": "docs/implementation/rfc-0001-audit.json",
+      "bytes": 76152,
+      "sha256": "6bdf8e9bb5f57590f2a422aaec9c9113b9434adc03dbdfb821840803d008ddd1"
+    },
+    {
+      "path": "TODO.md",
+      "bytes": 667,
+      "sha256": "112307a4e5e68eff7f1767381266ae33a5a75cd23be512832dc6758065a4fb9e"
+    },
+    {
+      "path": "src/browser/README.md",
+      "bytes": 2931,
+      "sha256": "fc03aa6087eb7e8c372c83de13ed9d54cc163d650de8b4d75b92837de562c9d4"
+    },
+    {
+      "path": "stacks/electric/README.md",
+      "bytes": 547,
+      "sha256": "423e37c7fbd452ba7809af3cfebcf9f6397fa72a2413ad85e9791cda2496fd44"
+    },
+    {
+      "path": "stacks/syncular/README.md",
+      "bytes": 490,
+      "sha256": "ffb49dd4b7b5e619c49545d1b5749772fc99243d8709381dfcac34ae126a789e"
+    }
+  ]
+}

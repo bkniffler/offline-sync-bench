@@ -31,12 +31,15 @@
     "stacks:turso:down": "docker compose -f stacks/turso/docker-compose.yml down -v --remove-orphans",
     "stacks:jazz-v2:config": "docker compose -f stacks/jazz-v2/docker-compose.yml config",
     "stacks:jazz-v2:up": "docker compose -f stacks/jazz-v2/docker-compose.yml up --build -d",
-    "stacks:jazz-v2:down": "docker compose -f stacks/jazz-v2/docker-compose.yml down -v --remove-orphans"
+    "stacks:jazz-v2:down": "docker compose -f stacks/jazz-v2/docker-compose.yml down -v --remove-orphans",
+    "bench:campaign": "bun run src/campaign.ts",
+    "test": "bun test",
+    "bench:meter-audit": "bun run src/meter-audit.ts"
   },
   "dependencies": {
     "@electric-sql/client": "1.5.27",
-    "@syncular/client": "0.16.1",
-    "@syncular/core": "0.16.1",
+    "@syncular/client": "0.17.0",
+    "@syncular/core": "0.17.0",
     "@tanstack/db": "0.8.7",
     "@tanstack/electric-db-collection": "0.4.7",
     "@tanstack/node-db-sqlite-persistence": "0.2.20",
@@ -56,8 +59,8 @@
   },
   "devDependencies": {
     "@journeyapps/wa-sqlite": "2.0.4",
-    "@syncular/server": "0.16.1",
-    "@syncular/server-hono": "0.16.1",
+    "@syncular/server": "0.17.0",
+    "@syncular/server-hono": "0.17.0",
     "@types/bun": "1.4.1",
     "typescript": "7.0.2"
   }

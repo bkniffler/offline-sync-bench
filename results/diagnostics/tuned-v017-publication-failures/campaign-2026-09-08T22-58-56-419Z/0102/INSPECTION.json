@@ -1,0 +1,275 @@
+{
+  "reviewedAt": "2026-09-09T09:13:34.452024+00:00",
+  "campaignId": "campaign-2026-09-08T22-58-56-419Z",
+  "resultId": "ac80a33d-82d7-4570-a35a-675485cd261c",
+  "sourceHash": "8ecde51941dc281ad277fea9b6a28b7165e0c72cc9202d1fbb71c64201ca9a03",
+  "rawSha256": "cf1a9b110dea0a32363118291d3bc4dd88ebc8020dc34afce63b193a1ec17959",
+  "status": "unexplained",
+  "observation": "PowerSync bootstrap trial 2 reached the 90-second observation deadline at the first 1000-task client without a validated first screen or full dataset. All 18 progress counts were zero.",
+  "confirmedFacts": {
+    "outcome": "timed-out",
+    "durationMs": 97362.375334,
+    "stage": "process-cold-1000",
+    "completedCases": 0,
+    "condition": "process-cold",
+    "clientElapsedMs": 90209.344625,
+    "initializedAtMs": 199.56354199999987,
+    "traffic": {
+      "blocked": false,
+      "rejectedConnections": 0,
+      "forwardedConnections": 2,
+      "requestBytes": 1428,
+      "responseBytes": 196032958,
+      "endpoints": {
+        "sync": {
+          "blocked": false,
+          "rejectedConnections": 0,
+          "forwardedConnections": 1,
+          "requestBytes": 1223,
+          "responseBytes": 196032271
+        },
+        "app": {
+          "blocked": false,
+          "rejectedConnections": 0,
+          "forwardedConnections": 1,
+          "requestBytes": 205,
+          "responseBytes": 687
+        }
+      }
+    },
+    "startupObservation": {
+      "policy": {
+        "version": 3,
+        "screenPollDelayMs": 5,
+        "progressCountDelayMs": 5000,
+        "timeoutMs": 90000,
+        "fullDataTrigger": "single-native-completion-and-first-screen-candidates-or-complete-progress-count",
+        "screen": "query-until-first-correct-screen"
+      },
+      "polls": 16287,
+      "observations": [
+        {
+          "atMs": 0.9533749999999941,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 5001.96525,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 10006.480083999999,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 15010.802,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 20016.306334,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 25021.779749999998,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 30026.721333999998,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 35028.572792000006,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 40029.587250000004,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 45034.745417000006,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 50039.730042,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 55044.703,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 60048.945167000005,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 65051.412084,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 70051.93887499999,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 75055.953667,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 80057.905542,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 85062.512292,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        }
+      ],
+      "screenQueries": 16287,
+      "countQueries": [
+        {
+          "startMs": 0.8179169999999942,
+          "durationMs": 0.11795799999998735,
+          "rows": 0
+        },
+        {
+          "startMs": 5001.64675,
+          "durationMs": 0.3079589999997552,
+          "rows": 0
+        },
+        {
+          "startMs": 10006.183874999999,
+          "durationMs": 0.27941699999973935,
+          "rows": 0
+        },
+        {
+          "startMs": 15010.524958999998,
+          "durationMs": 0.2615409999998519,
+          "rows": 0
+        },
+        {
+          "startMs": 20016.080416999997,
+          "durationMs": 0.21091700000033597,
+          "rows": 0
+        },
+        {
+          "startMs": 25021.518874999998,
+          "durationMs": 0.24625000000014552,
+          "rows": 0
+        },
+        {
+          "startMs": 30026.475083999998,
+          "durationMs": 0.23083300000143936,
+          "rows": 0
+        },
+        {
+          "startMs": 35028.316125000005,
+          "durationMs": 0.23387499999807915,
+          "rows": 0
+        },
+        {
+          "startMs": 40029.329667000005,
+          "durationMs": 0.2445000000006985,
+          "rows": 0
+        },
+        {
+          "startMs": 45034.554459000006,
+          "durationMs": 0.16895799999474548,
+          "rows": 0
+        },
+        {
+          "startMs": 50039.371334,
+          "durationMs": 0.3433329999970738,
+          "rows": 0
+        },
+        {
+          "startMs": 55044.468792,
+          "durationMs": 0.2147079999995185,
+          "rows": 0
+        },
+        {
+          "startMs": 60048.785417,
+          "durationMs": 0.14154200000484707,
+          "rows": 0
+        },
+        {
+          "startMs": 65051.220250000006,
+          "durationMs": 0.16395899999770336,
+          "rows": 0
+        },
+        {
+          "startMs": 70051.636667,
+          "durationMs": 0.2802079999964917,
+          "rows": 0
+        },
+        {
+          "startMs": 75055.444917,
+          "durationMs": 0.4879169999912847,
+          "rows": 0
+        },
+        {
+          "startMs": 80057.675542,
+          "durationMs": 0.21412499999860302,
+          "rows": 0
+        },
+        {
+          "startMs": 85062.336875,
+          "durationMs": 0.15708400000585243,
+          "rows": 0
+        }
+      ],
+      "candidateSnapshots": [],
+      "fullSnapshot": null,
+      "syncCompletedAtMs": null,
+      "syncFinished": false,
+      "expectedRows": 1000,
+      "timeoutMs": 90000,
+      "elapsedMs": 90007.848709,
+      "firstScreen": false,
+      "fullData": false,
+      "pendingQuery": null,
+      "lastScreenMismatch": "Invalid measurement: startup screen: expected 50 rows, got 0"
+    },
+    "serviceLogs": "All five captures succeeded. PowerSync boot, logical decoding consistency and PostgreSQL checkpoints were logged. Storage PostgreSQL reported a 73.051-second checkpoint; this does not identify a client synchronization cause.",
+    "rawEqualsManifest": true,
+    "captureHashesVerified": true
+  },
+  "limitations": [
+    "No startup latency is available for a correct screen or complete offline dataset. Larger and warm-service cases did not run.",
+    "Transport byte counts do not identify decoded operations, a completed native checkpoint or application row visibility.",
+    "The service checkpoint duration overlaps the attempt but is not evidence that it caused the client timeout."
+  ],
+  "nextAction": "After collection, trace decoded download operations, sync checkpoint completion and local apply milestones. Compare fresh and retained server storage with identical fixtures in a separately declared diagnostic; preserve this attempt without replacement."
+}

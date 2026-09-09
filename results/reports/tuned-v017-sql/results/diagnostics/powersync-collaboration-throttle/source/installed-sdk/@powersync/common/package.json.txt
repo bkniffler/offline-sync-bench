@@ -1,0 +1,45 @@
+{
+  "name": "@powersync/common",
+  "version": "2.2.0",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "description": "API definitions for PowerSync",
+  "type": "module",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    }
+  },
+  "author": "PowerSync",
+  "license": "Apache-2.0",
+  "files": [
+    "lib",
+    "dist",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/powersync-ja/powersync-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/powersync-ja/powersync-js/issues"
+  },
+  "homepage": "https://docs.powersync.com",
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/uuid": "^9.0.6",
+    "@microsoft/api-extractor": "^7.59.0"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "build:prod": "tsc -b",
+    "clean": "rm -rf lib dist tsconfig.tsbuildinfo",
+    "test": "vitest",
+    "test:exports": "attw --pack . --ignore-rules no-resolution cjs-resolves-to-esm",
+    "api-diff": "api-extractor run --verbose"
+  }
+}

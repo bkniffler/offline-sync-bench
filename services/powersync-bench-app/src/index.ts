@@ -47,7 +47,10 @@ app.get('/api/auth/keys', async (c) => {
 
 app.get('/api/auth/token', async (c) => {
   const userId = c.req.query('user_id') ?? 'bench-user';
-  const token = await new SignJWT({})
+  // This benchmark issuer supplies identities; login security is outside the
+  // workload. Access clients receive no grant to the global benchmark bucket.
+  const profile = c.req.query('profile') === 'access' ? 'access' : 'global';
+  const token = await new SignJWT({ bench_profile: profile })
     .setProtectedHeader({ alg: 'RS256', kid: keyId })
     .setIssuedAt()
     .setIssuer(issuer)

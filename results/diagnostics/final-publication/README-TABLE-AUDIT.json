@@ -1,0 +1,11 @@
+{
+  "status": "verified",
+  "sections": 14,
+  "clientRows": 112,
+  "cells": 248,
+  "numericalTimings": 186,
+  "currentAttempts": 174,
+  "historicalAttempts": 230,
+  "readmeSha256": "37f47c1f098d1eebec026a8e4494e97793cf26d7da991944999e19a1e744666a",
+  "auditorSha256": "357245c624fe7d53c3405068099956a8f2f481553e3868e36be6b163c9d66155"
+}

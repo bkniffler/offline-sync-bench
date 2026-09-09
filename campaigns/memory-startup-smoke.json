@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 600000,
+  "stacks": [
+    "electric",
+    "zero"
+  ],
+  "scenarios": [
+    "bootstrap"
+  ],
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Run all six 1k/10k/100k shared startup cases per adapter with restarted and warm sync services. Require fresh processes, distinct empty constructed SDK memory caches, exact first screens and full snapshots, native completion receipts where available and worker-only resources. Preserve failures. This smoke establishes correctness of the memory startup implementations, not a speed ranking or process durability."
+}

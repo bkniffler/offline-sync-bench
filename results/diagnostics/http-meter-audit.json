@@ -1,0 +1,515 @@
+{
+  "kind": "instrumentation-experiment",
+  "capturedAt": "2026-09-06T06:32:50.909Z",
+  "source": {
+    "revision": "a75aab6a1880a2a405c3831aca5f21a02879bb0a",
+    "dirty": true,
+    "sourceHash": "042ab57614eca5f3c172e73dd995f3c3ed5a84691079ef7a1da964385c53d823",
+    "files": {
+      "bun.lock": "754ad9c9597bc3d9f133cbbcbb538a60a5520c74a53bc36d4e08e6f8750c4f68",
+      "package.json": "cd4cf284a6602031f1905d9430242d7b7300df96f64cc04b1954d0e5031bbfd7",
+      "services/bench-admin/Dockerfile": "64cbfaad2eb74fed369e77150af44d9df1660fe9f9e3aa0ff35315eb86268ae7",
+      "services/bench-admin/package.json": "a0f98dcbf14c59fa9ab836b1acfb61a484fa18c30798808ac925ba66c0d04ae1",
+      "services/bench-admin/src/index.ts": "f8415d781a0f3147c1eb39fa5a5a2284293c66db4f114fa6b7d75bac7c59581b",
+      "services/powersync-bench-app/Dockerfile": "894be68d00e476c6c1360b1413895fc98aada0b69db39bd1afb17d769b8875b4",
+      "services/powersync-bench-app/package.json": "c045bcd287a64df528b713c61cc538a7ccbdacc9643a92d9e2764807dcd06739",
+      "services/powersync-bench-app/src/index.ts": "99ad884c08e82b70eb13a3810a95f22f76979fb19f01df32a865e820c23d6f89",
+      "services/turso-bench-admin/Dockerfile": "4d767713962b9fc195032c310c519f8d6ac63fe2edb2206f174af97d5e118485",
+      "services/turso-bench-admin/package.json": "41c1d369030fae74e2bdd235676d56b6465b2bb90d8d53463ff5825aa765ea4c",
+      "services/turso-bench-admin/src/index.ts": "9699d484b431d703c4c0c5867452961bd7bcfbcf45b40397c9b1ca2107a779b1",
+      "services/zero-bench-app/Dockerfile": "3c7b6119b37f464c2e9a4a0241958ac32e3ab0964597d3f849099128f0ac3587",
+      "services/zero-bench-app/package.json": "b5e1d92bc4e3be40643cf64244c411c07d8d4bb9b3f719c8d5935fdef0e2c43b",
+      "services/zero-bench-app/src/index.js": "cde02be8937327982d0d2c2952e080508a3b557e97d544fbfb7f5993e89d63e2",
+      "src/adapters/electric-tanstack-runner.ts": "654618057f21b8e03c35174cb33dc503cf0081de4e7256c43435ac2754ab1ef2",
+      "src/adapters/electric-tanstack.ts": "148c0a1d8ce172ea2cb745f92213d72a5d57089dcf646f059ab8b9a7c6e70d2a",
+      "src/adapters/electric.ts": "794c054b8a6df11c69d8072ce38489eb12364b0714b6283cacfd704fcdf57a6f",
+      "src/adapters/index.ts": "c0ea4def2f229c90a9ae9f41c2e75293a72803c788cd2f17ddba3114589b0ffb",
+      "src/adapters/jazz-v2-runner.ts": "2c011ed13593ae008f960ac2a89bbadb28dfba8678c15e20aa9a98207b86fbef",
+      "src/adapters/jazz-v2.ts": "b16d54d084d8dcbc16fe94c55aa3bc9aad9fdba04347e4d77869e9e82cbff8a1",
+      "src/adapters/powersync-runner.ts": "b8a79af9af0dcf832582fe6852020c18cbcda5e8717bb560b3f7b340c19bb8d2",
+      "src/adapters/powersync.ts": "eebf819306516befddbeafe326f6a55f2bd8bea056b5898dbfe980dee8b5a8f3",
+      "src/adapters/syncular-rust.ts": "8f72011f7f37927aca91fc72d717f99dcc61d052aeaa94ff21f8e239ef47096a",
+      "src/adapters/syncular.ts": "dc2bb20f3ed5b93aeaca66215488bde77588465bf0b818dd9841a688d3ea9c1a",
+      "src/adapters/turso-runner.ts": "0275f58a3be29ca51f754ed0c03074961b5f72afa56f2a9a058affe20c0a56eb",
+      "src/adapters/turso.ts": "4568c4fe2407de77ef8ed2d730f78ef6287d674ef0326dd9a198838b0a3fcae8",
+      "src/adapters/zero-runner.mjs": "e1bf10327837839b4636d38872a91f67b98dddd9e3490513f01aedc52f7eee8e",
+      "src/adapters/zero.ts": "5d89dbe54eee57c34cb02186c66f435eebc9d9383af94681cc3e4fa3e3c9ecbf",
+      "src/bundle-size.ts": "8e14671f6fd23c47c484e8f8fd6b78b34f784a0c9497464a047ace9c63911f6c",
+      "src/campaign-report.ts": "42d8f392bd4d35c36db8f3c8965cf3ed487797534ec0e750ca63f3fb1c3f755f",
+      "src/campaign.test.ts": "ef648ba709c9becc9b0e153d0022066a51383d32a0293cff257030db5b7897cb",
+      "src/campaign.ts": "2d4eb2877f50c2d3aeebe53119a7fc3e6028f6b9dd2c54f8e6688da8b8ecca55",
+      "src/cleanup.ts": "558295f1ecdd4b980c30092955d8d1e3a24e36680b46e0ec19ab7543bb1058ac",
+      "src/cli.ts": "ab88c81b107f302d919af513f4f6e4873d21db35adc821f94f9ed1c2ba8e17da",
+      "src/contracts/screens.test.ts": "60ec2bbc8d7aab886a31612bda6b2a8237b4254d14625aa265900e6bdfcce331",
+      "src/contracts/screens.ts": "da92ddf92f2a43675d90826a64d9fd23d46de03fcd6e590bdd872e647674c738",
+      "src/execution.test.ts": "e7b12dc46d41c48bb295ba4db5198a5f5b5dfbe1994f85d232fec04d684b9bc8",
+      "src/execution.ts": "b2875fd637b367f7d2951e88160656db78815a4c02c232a977f7d9ab8b6df863",
+      "src/http-meter.test.ts": "01d87ac09c31433a69034bb79d552f955c60194af50228ef8c9e4242643dc059",
+      "src/http-meter.ts": "6da0f26b878a1b1ed783c44ae0112fd87348cf51c0f3d6e6a19b015ae2f4a3b7",
+      "src/meter-audit.ts": "2c2df1a674d36dd1c16a9935368a725267b49dc4796973e2674de5942bd1afe4",
+      "src/methodology.ts": "818ed6d38680839af2e29aca78a4838ec2952c9d197b34a85db445d518536f73",
+      "src/metrics.test.ts": "7142c643cccb4e941adc39773f92797863b1fb1172ac739ea2fe2607fe30c9a8",
+      "src/metrics.ts": "bab275895561c4d09283f1d47570ec61250756975cd94f3fa56ee66196b8494a",
+      "src/paths.ts": "e2ffcb457b94eba99871200cc0197dfb3d2002d8a973109527eb948c37e7c983",
+      "src/profiles.ts": "d44ba6f7c82a7dfd9ceeff522fc276e5103f7e441d2d6e93198e75f91892e57d",
+      "src/provenance.ts": "4d671f6c7331de0f4252ac6a81ca661cd714554887f83973b5e20742add5b002",
+      "src/public-results.ts": "45d963e88370361587020a0e9a238422b7132ab37e1d0ca288507fc445ccd359",
+      "src/resource-worker.mjs": "af0f95a3632f856835889fadfa1d22b82aaab2d887c708b270bf70aef27e0afc",
+      "src/resources.test.ts": "9951878b23e815f8a777aedf6f6ebd2b74533a8b5c2c2a6eecf7647e127afd4e",
+      "src/resources.ts": "47a4d124303deffe10dbabfd2d3fd7d72d725bdd55c504d1dfbf1b2558519af7",
+      "src/runners/blob-flow.ts": "deleted",
+      "src/runners/bootstrap.ts": "deleted",
+      "src/runners/deep-relationship-query.ts": "deleted",
+      "src/runners/large-offline-queue.ts": "deleted",
+      "src/runners/local-query.ts": "deleted",
+      "src/runners/offline-replay.ts": "deleted",
+      "src/runners/online-propagation.ts": "deleted",
+      "src/runners/permission-change.ts": "deleted",
+      "src/runners/reconnect-storm.ts": "deleted",
+      "src/scenarios.ts": "26269d24a06287d32d1ab75e96bb06f7fb1690bfd73ddbec1b044ae0219aac33",
+      "src/stack-manager.ts": "3efb1ecdd294dfe2bc4316187fe55435c222474e7fe44ed42b63379795fa9947",
+      "src/stacks.ts": "1d4ebf8e8454f220ca86f7e5fb7a31bb49a0825252fb27ef3fdef33bad02626e",
+      "src/statistics.ts": "a5412dd0229bbf0ee48584a86e67083f89cfc13a75d4267972905237fcd933a5",
+      "src/store.ts": "7aea8db5daf9c962d29b79a7feb93f6aeb2107d1e1a80012090b1314e35a1d4c",
+      "src/suites.ts": "b0d23092795ba5fe40149b0c8fb52d99476168acf4350817ce0c3710c95fbaf8",
+      "src/syncular-coverage.test.ts": "15514c855307cfadce01f8f4a777e442efe17b9ab722ee4d082420ba98972412",
+      "src/syncular-coverage.ts": "d157878565af373955a7c91753fac63ba2fa4e31c2da5afaee1ffc3a7c483e9b",
+      "src/trial.ts": "91a7d79f6fbdad5e0295a3cb2406d6cdc6e76160a6d810a3813ca7509676bc57",
+      "src/types.ts": "167bb57eaa51a37d6877d32e5ca273491002e76423805552ebbd4bd58a34bf68",
+      "src/unsupported.ts": "d08f6095f0880d51267a2dcf6c9580f1b5adcbf010671ada73bc25319f59ceb8",
+      "src/version-metadata.ts": "98cb29a94adde26ef59f4ba78ddc24c973acdde56d0fb38460cf186c0e81e797",
+      "stacks/electric/README.md": "423e37c7fbd452ba7809af3cfebcf9f6397fa72a2413ad85e9791cda2496fd44",
+      "stacks/electric/app/Dockerfile": "798f5018bbaaf943a22306e90439ee5d1e9fbb34ea6a0f7a3b1481b8e638d78e",
+      "stacks/electric/app/package.json": "216dfc578d51d209e48068ee100147627ee0eee5b464976234533b2066f2b20b",
+      "stacks/electric/app/src/index.ts": "5be1f86770992980d146b48e5df6bd387262e033b140ed42f62b44262d7706d6",
+      "stacks/electric/docker-compose.yml": "4f997a00957c15e94ddc6f0770406f13ad92ea595effc5b03e6ddf1f3d63d549",
+      "stacks/electric/postgres.conf": "14c61dc4db86fb5acd63baa0d11374af0181e4ccd6fc08b3bc4921f17cfd8a63",
+      "stacks/jazz-v2/Dockerfile": "e99880122762a05db495d7fbe735cc1515dff95e20afea2f67c40c24230f8bff",
+      "stacks/jazz-v2/docker-compose.yml": "0af8b9cd6eb030d35669830f1df1faa977e67f8654946be6b796471812625dda",
+      "stacks/powersync/config/service.yaml": "23e32c6ce5eb8413acc2d405b01c470c9c25c0092def29ce0425b7f692de9234",
+      "stacks/powersync/config/sync-config.yaml": "6e765dad52df79ac4b918ba90d66fb00aff2cdbd633344c5a66c334788e551f1",
+      "stacks/powersync/docker-compose.yml": "ac1acdd9363a84680f9bbc61346cd6e68533f8130921b53ebd57a7c016549727",
+      "stacks/powersync/init-scripts/setup.sql": "9350f830bad554d0a0c23410da0010102ecc4647c3c235db33f6391888c5debf",
+      "stacks/syncular/Dockerfile": "61a93df939b471f46d0a5e8d32713dbb14432f00fbd0067177c17bc6e60cdc83",
+      "stacks/syncular/README.md": "ffb49dd4b7b5e619c49545d1b5749772fc99243d8709381dfcac34ae126a789e",
+      "stacks/syncular/docker-compose.yml": "c4fcb328e1e40161222b7e3412193fd437b2951cee956a143e7c33990bbfb933",
+      "stacks/syncular/syncular-app/migrations/0001_initial/up.sql": "28a723ccb92780946c2718a1fde8de895df8d10f441acc55c1d99ccd05558832",
+      "stacks/syncular/syncular-app/package.json": "a3fb4cda1f3649b2a808259b35a47bf7765df138b23a897884321092d6931401",
+      "stacks/syncular/syncular-app/src/admin.ts": "e7345c5c863c9c056eb2fab79937d0b8ee2f2c8c3af18f80089721242213fcee",
+      "stacks/syncular/syncular-app/src/benchmark-profile.ts": "b6f5afa3c9e6474b15b9d987f9a725394310757c7b3c5f8f31b438b6462debbb",
+      "stacks/syncular/syncular-app/src/server.ts": "00bd1765c540fe0c87de0b7235d4b17d23a1070744aaae61398cfd1bc3197e4c",
+      "stacks/syncular/syncular-app/src/shared.ts": "87b9671faa0eab63adf0d9a835a224f45ca7b90368135b3735e2d7a298ae0d22",
+      "stacks/syncular/syncular-app/src/syncular.generated.ts": "6b994262920cf458b9b5467de093cbf0585f9e8fb0a324645fc2a47f69c74bb3",
+      "stacks/syncular/syncular-app/syncular.ir.json": "9f7fdee42e4283ce2b38d2a4a6120a4044b60b263f63cb15f70cf534ddc55795",
+      "stacks/syncular/syncular-app/syncular.json": "92ce60917bbffae6488f44722b8ed394485fc99f37c6f315b492f6c79b56c911",
+      "stacks/syncular/syncular-app/syncular.migrations.lock.json": "7f33b86c72f62133348b4fa64384e90881106e04b5a56fcb8479c5df02ce14b2",
+      "stacks/turso/Dockerfile": "e995a497edd1eb9b1581724bb2ab1412f542dcc0e57bb323eb60c7312fb91c86",
+      "stacks/turso/docker-compose.yml": "297136fc3d4e53f66253e47aa134efbbe66dfcd87a4b775841213798610de275",
+      "stacks/zero/docker-compose.yml": "e93ccbe505bcd1c93632d3b1dd9e985455af4a82b62ffdb73ece788b478ab570",
+      "stacks/zero/init-scripts/setup.sql": "0b37cca28fc34898a4f969c600499f8ab03a4a2ae8c78e4c68af8a16fc7d4e2b",
+      "stacks/zero/zero-cache/Dockerfile": "069a5cd9d61159c7eb5e0c0de92653efdc44bf8872c770c7eeabd33f0e2525b3",
+      "syncular-rust-driver/Cargo.lock": "ce0358198edc4701f2af6f63f8d99409641d20026be5965bb8bd00cd69ec1fc5",
+      "syncular-rust-driver/Cargo.toml": "fa88ff1d70808054620b61146d7ee3d3f4b69f8ecb618197e0b3885cd00041ac",
+      "syncular-rust-driver/src/main.rs": "ccdf9ef131a7e146d77331aa4e7ffd101821ffb94f66a1e5ce286ca4e46fdb8f",
+      "tsconfig.json": "233717a507631ee76fbf69dd540b309741771fc0b0ffcb198665918f1200ad7c"
+    }
+  },
+  "runtime": "1.4.0",
+  "protocol": "loopback HTTP, 16 KiB response chunks, full body consumption",
+  "warmups": 2,
+  "trials": 10,
+  "limitations": [
+    "One runtime and machine; this experiment does not establish overhead for all product transports.",
+    "Sub-millisecond loopback durations are noisy. Product comparisons require their own phase diagnostics."
+  ],
+  "summaries": [
+    {
+      "bytes": 65536,
+      "unmetered": {
+        "trials": 10,
+        "median": 0.21520850000000102,
+        "min": 0.18654200000000287,
+        "max": 0.25320899999999824,
+        "confidence95": [
+          0.19466699999999904,
+          0.2255830000000003
+        ]
+      },
+      "metered": {
+        "trials": 10,
+        "median": 0.22806250000000183,
+        "min": 0.17729200000000134,
+        "max": 0.24937499999999702,
+        "confidence95": [
+          0.1827500000000022,
+          0.24164550000000062
+        ]
+      },
+      "pairedRatio": {
+        "trials": 10,
+        "median": 1.0673477227102037,
+        "min": 0.72173579928045,
+        "max": 1.1600990409263132,
+        "confidence95": [
+          0.9499906229069092,
+          1.1075058692006559
+        ]
+      }
+    },
+    {
+      "bytes": 2097152,
+      "unmetered": {
+        "trials": 10,
+        "median": 3.417749999999998,
+        "min": 2.795125000000013,
+        "max": 4.564291999999995,
+        "confidence95": [
+          3.137229000000005,
+          4.488917000000015
+        ]
+      },
+      "metered": {
+        "trials": 10,
+        "median": 3.922374999999988,
+        "min": 2.949667000000005,
+        "max": 4.910875000000004,
+        "confidence95": [
+          3.7143335000000093,
+          4.3542289999999895
+        ]
+      },
+      "pairedRatio": {
+        "trials": 10,
+        "median": 1.1350933541713344,
+        "min": 0.8085043638750599,
+        "max": 1.4808706209019458,
+        "confidence95": [
+          0.90144173614664,
+          1.33747757255936
+        ]
+      }
+    }
+  ],
+  "samples": [
+    {
+      "bytes": 65536,
+      "mode": "stream-metered",
+      "trial": 0,
+      "durationMs": 0.1827500000000022,
+      "receivedBytes": 65536,
+      "meteredBytes": 65536
+    },
+    {
+      "bytes": 65536,
+      "mode": "unmetered",
+      "trial": 0,
+      "durationMs": 0.25320899999999824,
+      "receivedBytes": 65536,
+      "meteredBytes": null
+    },
+    {
+      "bytes": 65536,
+      "mode": "stream-metered",
+      "trial": 1,
+      "durationMs": 0.2258330000000015,
+      "receivedBytes": 65536,
+      "meteredBytes": 65536
+    },
+    {
+      "bytes": 65536,
+      "mode": "unmetered",
+      "trial": 1,
+      "durationMs": 0.19466699999999904,
+      "receivedBytes": 65536,
+      "meteredBytes": null
+    },
+    {
+      "bytes": 65536,
+      "mode": "unmetered",
+      "trial": 2,
+      "durationMs": 0.2255830000000003,
+      "receivedBytes": 65536,
+      "meteredBytes": null
+    },
+    {
+      "bytes": 65536,
+      "mode": "stream-metered",
+      "trial": 2,
+      "durationMs": 0.24049999999999727,
+      "receivedBytes": 65536,
+      "meteredBytes": 65536
+    },
+    {
+      "bytes": 65536,
+      "mode": "stream-metered",
+      "trial": 3,
+      "durationMs": 0.24766599999999883,
+      "receivedBytes": 65536,
+      "meteredBytes": 65536
+    },
+    {
+      "bytes": 65536,
+      "mode": "unmetered",
+      "trial": 3,
+      "durationMs": 0.22362500000000196,
+      "receivedBytes": 65536,
+      "meteredBytes": null
+    },
+    {
+      "bytes": 65536,
+      "mode": "stream-metered",
+      "trial": 4,
+      "durationMs": 0.23562500000000242,
+      "receivedBytes": 65536,
+      "meteredBytes": 65536
+    },
+    {
+      "bytes": 65536,
+      "mode": "unmetered",
+      "trial": 4,
+      "durationMs": 0.22429200000000193,
+      "receivedBytes": 65536,
+      "meteredBytes": null
+    },
+    {
+      "bytes": 65536,
+      "mode": "stream-metered",
+      "trial": 5,
+      "durationMs": 0.24937499999999702,
+      "receivedBytes": 65536,
+      "meteredBytes": 65536
+    },
+    {
+      "bytes": 65536,
+      "mode": "unmetered",
+      "trial": 5,
+      "durationMs": 0.22674999999999912,
+      "receivedBytes": 65536,
+      "meteredBytes": null
+    },
+    {
+      "bytes": 65536,
+      "mode": "stream-metered",
+      "trial": 6,
+      "durationMs": 0.23029200000000216,
+      "receivedBytes": 65536,
+      "meteredBytes": 65536
+    },
+    {
+      "bytes": 65536,
+      "mode": "unmetered",
+      "trial": 6,
+      "durationMs": 0.2067920000000001,
+      "receivedBytes": 65536,
+      "meteredBytes": null
+    },
+    {
+      "bytes": 65536,
+      "mode": "unmetered",
+      "trial": 7,
+      "durationMs": 0.19895799999999753,
+      "receivedBytes": 65536,
+      "meteredBytes": null
+    },
+    {
+      "bytes": 65536,
+      "mode": "stream-metered",
+      "trial": 7,
+      "durationMs": 0.182500000000001,
+      "receivedBytes": 65536,
+      "meteredBytes": 65536
+    },
+    {
+      "bytes": 65536,
+      "mode": "stream-metered",
+      "trial": 8,
+      "durationMs": 0.17729200000000134,
+      "receivedBytes": 65536,
+      "meteredBytes": 65536
+    },
+    {
+      "bytes": 65536,
+      "mode": "unmetered",
+      "trial": 8,
+      "durationMs": 0.18662499999999937,
+      "receivedBytes": 65536,
+      "meteredBytes": null
+    },
+    {
+      "bytes": 65536,
+      "mode": "stream-metered",
+      "trial": 9,
+      "durationMs": 0.19933299999999932,
+      "receivedBytes": 65536,
+      "meteredBytes": 65536
+    },
+    {
+      "bytes": 65536,
+      "mode": "unmetered",
+      "trial": 9,
+      "durationMs": 0.18654200000000287,
+      "receivedBytes": 65536,
+      "meteredBytes": null
+    },
+    {
+      "bytes": 2097152,
+      "mode": "stream-metered",
+      "trial": 0,
+      "durationMs": 3.9028749999999945,
+      "receivedBytes": 2097152,
+      "meteredBytes": 2097152
+    },
+    {
+      "bytes": 2097152,
+      "mode": "unmetered",
+      "trial": 0,
+      "durationMs": 2.996667000000002,
+      "receivedBytes": 2097152,
+      "meteredBytes": null
+    },
+    {
+      "bytes": 2097152,
+      "mode": "stream-metered",
+      "trial": 1,
+      "durationMs": 4.910875000000004,
+      "receivedBytes": 2097152,
+      "meteredBytes": 2097152
+    },
+    {
+      "bytes": 2097152,
+      "mode": "unmetered",
+      "trial": 1,
+      "durationMs": 3.316208000000003,
+      "receivedBytes": 2097152,
+      "meteredBytes": null
+    },
+    {
+      "bytes": 2097152,
+      "mode": "unmetered",
+      "trial": 2,
+      "durationMs": 3.519291999999993,
+      "receivedBytes": 2097152,
+      "meteredBytes": null
+    },
+    {
+      "bytes": 2097152,
+      "mode": "stream-metered",
+      "trial": 2,
+      "durationMs": 4.766582999999997,
+      "receivedBytes": 2097152,
+      "meteredBytes": 2097152
+    },
+    {
+      "bytes": 2097152,
+      "mode": "stream-metered",
+      "trial": 3,
+      "durationMs": 2.949667000000005,
+      "receivedBytes": 2097152,
+      "meteredBytes": 2097152
+    },
+    {
+      "bytes": 2097152,
+      "mode": "unmetered",
+      "trial": 3,
+      "durationMs": 3.2721659999999986,
+      "receivedBytes": 2097152,
+      "meteredBytes": null
+    },
+    {
+      "bytes": 2097152,
+      "mode": "stream-metered",
+      "trial": 4,
+      "durationMs": 4.220957999999996,
+      "receivedBytes": 2097152,
+      "meteredBytes": 2097152
+    },
+    {
+      "bytes": 2097152,
+      "mode": "unmetered",
+      "trial": 4,
+      "durationMs": 4.546750000000003,
+      "receivedBytes": 2097152,
+      "meteredBytes": null
+    },
+    {
+      "bytes": 2097152,
+      "mode": "stream-metered",
+      "trial": 5,
+      "durationMs": 3.6902500000000202,
+      "receivedBytes": 2097152,
+      "meteredBytes": 2097152
+    },
+    {
+      "bytes": 2097152,
+      "mode": "unmetered",
+      "trial": 5,
+      "durationMs": 4.564291999999995,
+      "receivedBytes": 2097152,
+      "meteredBytes": null
+    },
+    {
+      "bytes": 2097152,
+      "mode": "stream-metered",
+      "trial": 6,
+      "durationMs": 3.7247919999999795,
+      "receivedBytes": 2097152,
+      "meteredBytes": 2097152
+    },
+    {
+      "bytes": 2097152,
+      "mode": "unmetered",
+      "trial": 6,
+      "durationMs": 3.2777910000000077,
+      "receivedBytes": 2097152,
+      "meteredBytes": null
+    },
+    {
+      "bytes": 2097152,
+      "mode": "unmetered",
+      "trial": 7,
+      "durationMs": 2.795125000000013,
+      "receivedBytes": 2097152,
+      "meteredBytes": null
+    },
+    {
+      "bytes": 2097152,
+      "mode": "stream-metered",
+      "trial": 7,
+      "durationMs": 3.7384169999999983,
+      "receivedBytes": 2097152,
+      "meteredBytes": 2097152
+    },
+    {
+      "bytes": 2097152,
+      "mode": "stream-metered",
+      "trial": 8,
+      "durationMs": 3.941874999999982,
+      "receivedBytes": 2097152,
+      "meteredBytes": 2097152
+    },
+    {
+      "bytes": 2097152,
+      "mode": "unmetered",
+      "trial": 8,
+      "durationMs": 4.488917000000015,
+      "receivedBytes": 2097152,
+      "meteredBytes": null
+    },
+    {
+      "bytes": 2097152,
+      "mode": "stream-metered",
+      "trial": 9,
+      "durationMs": 4.133791999999971,
+      "receivedBytes": 2097152,
+      "meteredBytes": 2097152
+    },
+    {
+      "bytes": 2097152,
+      "mode": "unmetered",
+      "trial": 9,
+      "durationMs": 3.645916999999997,
+      "receivedBytes": 2097152,
+      "meteredBytes": null
+    }
+  ]
+}

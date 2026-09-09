@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 600000,
+  "stacks": [
+    "electric-tanstack"
+  ],
+  "scenarios": [
+    "online-propagation",
+    "local-query",
+    "deep-relationship-query"
+  ],
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Run one native collaboration and each 100,000-task screen trial after removing legacy recovery code from the shared TanStack runner. Require complete canonical fixtures and all workload-specific receipts, exact query outputs and external resources. Retain declared package versions with source and dependency provenance. This smoke checks shared-runner regression and makes no performance comparison."
+}

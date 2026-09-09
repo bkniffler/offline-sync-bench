@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 600000,
+  "stacks": ["zero", "syncular"],
+  "scenarios": ["conflict-update-update", "conflict-update-delete", "offline-replay", "connected-fanout"],
+  "parameters": { "clientCounts": [5, 25] },
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run all eight declared attempts. Verify three independent clients and all 2000 canonical records for a queued stale update against a server-accepted peer update or delete. Zero uses the existing title-only application mutator that ignores absent rows, retaining application version 1; Syncular uses explicit version preconditions. Include live replay and canonical 5/25-reader connected-delivery regressions because native mutation receipt collection is shared. Preserve failures and separate configured policy profiles. This single-trial smoke cannot establish performance rankings."
+}

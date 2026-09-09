@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 360000,
+  "stacks": ["syncular", "syncular-rust", "electric", "electric-tanstack"],
+  "scenarios": ["permission-change"],
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run online and offline-reconnect revocation once for each implemented native-purge or application-refresh adapter. Require exact cache contents, fresh-actor authorization, blocked routes and declared disposal/persistence evidence. Keep native, memory-refresh and SQLite-refresh profiles separate. Preserve failures; this smoke cannot establish performance comparisons."
+}

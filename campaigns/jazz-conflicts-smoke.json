@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 600000,
+  "stacks": ["jazz-v2", "syncular"],
+  "scenarios": ["conflict-update-update", "conflict-update-delete", "offline-replay"],
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run all six attempts. Jazz uses three fresh native Node clients and a separately seeded 2000-task dataset. Register native edge write receipts before awaiting local durability. Require the later peer title for update/update; update/delete tests the application requirement to retain the accepted deletion, whose precise native race policy remains unverified. Preserve the complete observed failure states if all three clients do not converge within the shared 90-second observation limit. Diagnostic 15-second failures do not shorten this limit or establish root cause. Include the Syncular control and both live-replay regressions. No rankings from this smoke."
+}

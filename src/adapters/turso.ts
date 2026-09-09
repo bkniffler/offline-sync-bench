@@ -1,6 +1,11 @@
+import { runFanout } from '../fanout/run.ts';
+import { runStartup } from '../startup/run.ts';
+import { runReopen } from '../recovery/reopen.ts';
+import { runConflicts } from '../recovery/conflicts.ts';
+import { runRecovery } from '../recovery/run.ts';
 import { spawnSync } from 'node:child_process';
 import { benchmarkRoot } from '../paths';
-import { getStack } from '../stacks';
+import { getClientStack as getStack } from '../stacks';
 import { createUnsupportedScenarioResult } from '../unsupported';
 import type { BenchmarkAdapter, BenchmarkStatus, JsonValue } from '../types';
 
@@ -12,10 +17,7 @@ interface RunnerResult {
 }
 
 type TursoScenario =
-  | 'bootstrap'
   | 'online-propagation'
-  | 'offline-replay'
-  | 'large-offline-queue'
   | 'local-query'
   | 'deep-relationship-query';
 
@@ -52,27 +54,29 @@ function runTursoScenario(scenario: TursoScenario): RunnerResult {
 export class TursoBenchmarkAdapter implements BenchmarkAdapter {
   readonly stack = getStack('turso');
 
-  async runBootstrap() {
-    return runTursoScenario('bootstrap');
-  }
+  async runBootstrap() { return runStartup('turso'); }
 
   async runOnlinePropagation() {
     return runTursoScenario('online-propagation');
   }
 
+  async runReplicaReopen() { return runReopen('turso'); }
+
+  async runConflictUpdateUpdate() { return runConflicts('turso', 'conflict-update-update'); }
+  async runConflictUpdateDelete() { return runConflicts('turso', 'conflict-update-delete'); }
+
+  async runOfflineRestart() { return runRecovery('turso', 'offline-restart'); }
+
   async runOfflineReplay() {
-    return runTursoScenario('offline-replay');
+    return runRecovery('turso', 'offline-replay');
   }
 
-  async runReconnectStorm() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Reconnect storm is not implemented for Turso Sync yet.'],
-    });
-  }
+  async runConnectedFanout() { return runFanout('turso', 'connected-fanout'); }
+
+  async runReconnectStorm() { return runFanout('turso', 'reconnect-storm'); }
 
   async runLargeOfflineQueue() {
-    return runTursoScenario('large-offline-queue');
+    return runRecovery('turso', 'large-offline-queue');
   }
 
   async runLocalQuery() {

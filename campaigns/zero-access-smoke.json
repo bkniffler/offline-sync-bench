@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260909,
+  "trials": 1,
+  "trialTimeoutMs": 900000,
+  "stacks": ["zero", "syncular"],
+  "scenarios": ["permission-change", "bootstrap", "online-propagation"],
+  "parameters": { "startupSizes": [1000] },
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run all six planned attempts once. Verify Zero membership-scoped read revocation against both native raw cached rows and the materialized view, same native client identity, offline retention, and fresh affected/unaffected actors. Regress ordinary startup/collaboration and the shared Syncular controller. Preserve every failure. Single-trial correctness evidence is not a performance publication."
+}

@@ -1,0 +1,82 @@
+--- a/src/campaign-report.ts
++++ b/src/campaign-report.ts
+@@ -136,7 +136,7 @@
+   const annotations = validateAnnotations(manifest);
+   const groups = groupAttempts(manifest.attempts);
+   const lines = ['# Benchmark results', '', `Campaign \`${manifest.id}\`. ${manifest.config.trials} independent trials per case, with seeded randomized order. Network: ${describeNetworkProfile(manifest.config.network)}. [Measurements and manifest](./RESULTS.json). [Methodology](./docs/methodology.md).`, '',
+-    'These measurements describe the listed runtime and workload profiles. A failed latest attempt remains failed; older successful attempts do not replace it. Confidence intervals resample independent trial medians. Results with fewer than five successful trials have no confidence interval.', '',
++    'These measurements describe the listed runtime and workload profiles. A failed latest attempt remains failed; older successful attempts do not replace it. Confidence intervals resample independent trial medians. Results with fewer than five successful trials show the observed min–max range, not a confidence interval.', '',
+     '## Coverage and outcomes', '', '| Stack | Case | Latest outcome | Passed / attempted | Comparison |', '| --- | --- | --- | --- | --- |'];
+   for (const [key, group] of groups) {
+     const latest = group.at(-1)!;
+@@ -195,9 +195,9 @@
+       const cells = metrics.map(metric => {
+         const summary = summarizeCase(group, metric);
+         if (!summary.summary) return summary.status;
+-        const { median, confidence95, trials } = summary.summary;
++        const { median, min, max, confidence95, trials } = summary.summary;
+         const wide = confidence95 && median > 0 && (confidence95[1] - confidence95[0]) / median > 0.25;
+-        return `${number(median)}${confidence95 ? ` [${number(confidence95[0])}, ${number(confidence95[1])}]` : ` (n=${trials}; interval unavailable)`}${wide ? ' †' : ''}`;
++        return `${number(median)}${confidence95 ? ` [${number(confidence95[0])}, ${number(confidence95[1])}]` : ` [${number(min)}–${number(max)}] (n=${trials})`}${wide ? ' †' : ''}`;
+       });
+       lines.push(`| ${group[0].stackId} / ${profile.lane} | ${cells.join(' | ')} |`);
+     }
+@@ -231,7 +231,8 @@
+   for (const annotation of selected) {
+     lines.push(`### ${annotation.observation}`, '', annotation.question!, '');
+     if (annotation.chart) lines.push(`![${annotation.chart.alt.replace(/[\[\]\\]/g, '\\$&')}](${annotation.chart.path})`, '', annotation.chart.caption, '');
+-    for (const { profile, attempts } of findingGroups(manifest, annotation)) {
++    // The companion retains exact tables; do not repeat a plotted comparison.
++    for (const { profile, attempts } of annotation.chart ? [] : findingGroups(manifest, annotation)) {
+       lines.push(`${workloadLabel(annotation.table!.scenarioId, manifest.config.parameters?.startupSizes)} Profile: ${escape(profileLabel(profile))}. [Full configuration](./${detailPath}).`, '');
+       const metrics = annotation.table!.metrics;
+       const columns = ['Stack / client path', 'Passed / attempted', 'Latest outcome', ...metrics.map(m => `${escape(m.label)} (${metricUnit(m.key)})`)];
+@@ -243,9 +244,9 @@
+         const cells = metrics.map(metric => {
+           const result = summarizeCase(group, metric.key);
+           if (!result.summary) return result.status;
+-          const { median, confidence95 } = result.summary;
++          const { median, min, max, confidence95 } = result.summary;
+           const wide = confidence95 && median > 0 && (confidence95[1] - confidence95[0]) / median > 0.25;
+-          return `${number(median)}${confidence95 ? ` [${number(confidence95[0])}, ${number(confidence95[1])}]` : ' (interval unavailable)'}${wide ? ' †' : ''}`;
++          return `${number(median)}${confidence95 ? ` [${number(confidence95[0])}, ${number(confidence95[1])}]` : ` [${number(min)}–${number(max)}]`}${wide ? ' †' : ''}`;
+         });
+         const implementation = latest.metadata.profile as JsonObject;
+         const path = implementation.execution !== 'unspecified' ? implementation.execution : implementation.storage;
+@@ -262,7 +263,7 @@
+   if (unselected) lines.push(`${unselected} additional reviewed annotation${unselected === 1 ? '' : 's'} remain in the [full report](./${detailPath}#findings).`, '');
+   lines.push('## Reading these results', '',
+     'Server volumes and writable layers are retained under the declared preparation policy. Physical-state observations are linked in the full report; logical fixture resets do not establish fresh storage.', '',
+-    'Cells summarize independent trial values with 95% bootstrap intervals where at least five successful trials are available. † marks an interval wider than 25% of the median; treat that estimate as imprecise. Operation percentiles remain distinct from trial counts. A failed latest attempt has no speed estimate; earlier failures remain in the coverage summary and full tables. Different profiles appear in separate tables.', '',
++    'Cells summarize independent trial values: median and observed min–max range with fewer than five successes, or median and 95% bootstrap interval with at least five. † marks an interval wider than 25% of the median; treat that estimate as imprecise. Operation percentiles remain distinct from trial counts. A failed latest attempt has no speed estimate; earlier failures remain in the coverage summary and full tables. Different profiles appear in separate tables.', '',
+     `Stopping rule: ${manifest.config.stoppingRule}`, '',
+     `[Exact benchmark source snapshot](./results/sources/${manifest.source.sourceHash}/SOURCE.json). [Installed dependency inventory](./results/dependencies/${manifest.dependencies!.fingerprint}/DEPENDENCIES.json) records host package and native addon checksums. [Runtime and service configuration](./results/configurations/${manifest.configuration!.fingerprint}/CONFIGURATION.json) records overrides, resolved services and mounted configuration inputs. Raw operation samples, resource windows, output checks and configuration are in the measurements. Source revision: \`${manifest.source.revision}\`; dirty: ${manifest.source.dirty}.`, '',
+     'Historical measurements predating the shared contracts remain in [the archive](./results/history/2026-09-05/README.md).', '');
+--- a/src/campaign-report.test.ts
++++ b/src/campaign-report.test.ts
+@@ -261,14 +261,14 @@
+   manifest.attempts[0].result.status = 'failed';
+   manifest.attempts[0].result.metadata.profile = resultProfile(manifest.attempts[0].result, { ...manifest, network: manifest.config.network });
+   select();
+-  expect(renderCampaign(manifest)).toContain('| electric / application-processing | 4 / 5 | completed | 35.00 (interval unavailable) |');
++  expect(renderCampaign(manifest)).toContain('| electric / application-processing | 4 / 5 | completed | 35.00 [20.00–50.00] |');
+   manifest.attempts.at(-1)!.result.status = 'timed-out';
+   manifest.attempts.at(-1)!.result.metadata.profile = resultProfile(manifest.attempts.at(-1)!.result, { ...manifest, network: manifest.config.network });
+   select();
+   const failed = renderCampaign(manifest);
+   expect(failed).toContain('| electric / application-processing | 3 / 5 | timed-out | timed-out |');
+   expect(failed).toContain('2 failed trials');
+-  expect(failed).not.toContain('35.00 (interval unavailable)');
++  expect(failed).not.toContain('35.00 [20.00–50.00]');
+ });
+ 
+ test('the complete roster stays compact without hiding unselected suite failures', () => {
+@@ -354,6 +354,8 @@
+   expect(report.indexOf('Campaign `')).toBeLessThan(report.indexOf('## Coverage'));
+   expect(report).toContain('![Five trials \\[including failures\\]](results/figures/finding.svg)');
+   expect(report).toContain(first.chart.caption);
++  const firstFinding = report.split('## Findings')[1]!.split('### ')[1]!;
++  expect(firstFinding).not.toContain('| Stack / client path |');
+   first.chart.path = '../outside.svg'; first.evidence.at(-1)!.path = first.chart.path;
+   expect(() => validateAnnotations(manifest)).toThrow('chart needs');
+ });

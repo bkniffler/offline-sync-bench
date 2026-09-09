@@ -2,10 +2,38 @@
   "version": 1,
   "purpose": "publication",
   "seed": 20260925,
-  "trials": 10,
+  "trials": 3,
   "trialTimeoutMs": 900000,
-  "stacks": ["syncular", "syncular-rust", "electric", "electric-tanstack", "zero", "powersync", "turso", "jazz-v2"],
-  "scenarios": ["bootstrap", "replica-reopen", "online-propagation", "offline-replay", "large-offline-queue", "offline-restart", "conflict-update-update", "conflict-update-delete", "local-query", "deep-relationship-query", "connected-fanout", "reconnect-storm", "permission-change", "blob-flow"],
-  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
-  "stoppingRule": "Run all 1,120 planned attempts: ten independent trials for each of eight native adapters and fourteen cases, in seeded randomized blocks. The completed variability pilot selected ten trials under the predeclared rule in docs/implementation/publication-plan.md; see results/diagnostics/variability-pilot/ANALYSIS.json. Failed and unavailable attempts count toward the declared total. Do not retry selectively, stop early for favorable results, append trials to improve an ordering, or pool pilot data. Publish uncertainty only with at least five successful independent trials and flag interval width above 25% of the median as imprecise."
+  "stacks": [
+    "syncular",
+    "syncular-rust",
+    "electric",
+    "electric-tanstack",
+    "zero",
+    "powersync",
+    "turso",
+    "jazz-v2"
+  ],
+  "scenarios": [
+    "bootstrap",
+    "replica-reopen",
+    "online-propagation",
+    "offline-replay",
+    "large-offline-queue",
+    "offline-restart",
+    "conflict-update-update",
+    "conflict-update-delete",
+    "local-query",
+    "deep-relationship-query",
+    "connected-fanout",
+    "reconnect-storm",
+    "permission-change",
+    "blob-flow"
+  ],
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Run exactly three independent attempts per configured adapter/case, counting failures and unavailable cases. User capped the replacement runs at three on 2026-09-08. Use published Syncular 0.17.0 for both JS and Rust. No selective retries or pooling pre-tuning, old-version or smoke results. Report medians and observed ranges; confidence intervals remain unavailable with fewer than five successful independent trials."
 }

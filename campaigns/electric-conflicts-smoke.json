@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 600000,
+  "stacks": ["electric", "electric-tanstack", "syncular"],
+  "scenarios": ["conflict-update-update", "conflict-update-delete", "offline-replay", "offline-restart", "connected-fanout"],
+  "parameters": { "clientCounts": [5] },
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run all fifteen attempts, preserving unsupported TanStack memory-queue restart and every failure. Electric and TanStack use a shared application SQL update/delete path with persisted idempotent affected-row receipts. Require update version 3 after a competing update, and absence with a zero-row writer receipt after peer deletion. Native row-change receipts remain distinct from application no-op receipts. Check all 2000 canonical records, independent clients and unchanged queued identities. Include live replay, process-restart and five-reader fanout regressions because cache/outbox schema and native commit bookkeeping changed. Keep ownership and persistence profiles separate. No performance rankings from this smoke."
+}

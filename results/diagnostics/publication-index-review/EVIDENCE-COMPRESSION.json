@@ -1,0 +1,2048 @@
+{
+  "pausedAt": "2026-09-09T01:02:49.986842+00:00",
+  "pid": 27488,
+  "freeBytesBefore": 5363183616,
+  "finishedAttempts": 59,
+  "scope": "Transparent APFS compression of static retired diagnostic text files. Paths and bytes are preserved. Current campaign, dependencies, sources and live failure collector directory excluded. Pause verified with no child processes.",
+  "files": [
+    {
+      "path": "results/diagnostics/variability-pilot/CAMPAIGN.json",
+      "sha256": "a80d1b8f4a1baa7b3106b4226fb8e712c91d008ebe50128ba4da558c3f79ad14",
+      "bytes": 104378095,
+      "allocatedBefore": 104378368,
+      "allocatedAfter": 6152192
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-6/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-1/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-8/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/jazz-recovery-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/browser-native-control/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-9/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/browser-readiness-regression/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/electric-ack-latency/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-7/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/electric-ack-local/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-subscription-development/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/startup-observer-first-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/server-storage-development/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/jazz-conflict-settlement/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/turso-physical-development/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/extended-fanout-development/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/network-collaboration-loss/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/turso-reset-native/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/browser-collaboration-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/startup-extended-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/turso-physical-pairs/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/electric-recovery-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/configuration-change-guard/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/jazz-subscription-startup-reopen-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/extended-reopen-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/jazz-recovery-development/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/startup-observer-development/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/browser-loaded-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/zero-recovery-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/browser-loaded-instrumentation/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/dependency-change-guard/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-2/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-5/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/network-collaboration-latency/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/dependency-provenance-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/tanstack-fanout-recovery-regression/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/powersync-access-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/tanstack-reopen-startup-regression/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-4/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/electric-ack-development/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/configuration-provenance-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-3/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/zero-conflicts-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/jazz-conflict-retained-subscription/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/browser-loaded-development/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/electric-conflicts-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/variability-pilot/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/network-trial-timeout/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/zero-access-screen-regression/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/powersync-storage-regression/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-screen-strategy/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/zero-access-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/recovery-restoration-extended/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/rust-build-inputs-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/jazz-access-screen-regression/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/cargo-configuration-change-guard/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/jazz-conflicts-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-subscription-extended/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/configuration-restoration-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/recovery-restoration-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/extended-fanout-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/jazz-access-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/electric-recovery-development/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/jazz-access-development/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/cargo-configuration-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/jazz-conflict-retained-transport/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/server-storage-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/powersync-storage-development/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/electric-ack-loss/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/startup-observer-v3-smoke/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/tanstack-recovery-runner-regression/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-count-frequency/reversed/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-count-frequency/original/DEPENDENCIES.json",
+      "sha256": "437cffc64c7cf1de5de2b479835937cec284a2b6916f3a352a1c4f6c4e82a8f1",
+      "bytes": 31072961,
+      "allocatedBefore": 31076352,
+      "allocatedAfter": 8380416
+    },
+    {
+      "path": "results/diagnostics/electric-conflicts-smoke/CAMPAIGN.json",
+      "sha256": "ac04433dbc292927449debc3ee024e1c1a1c49e480dcbfdabcefd82ca3451e72",
+      "bytes": 30937552,
+      "allocatedBefore": 30941184,
+      "allocatedAfter": 1163264
+    },
+    {
+      "path": "results/diagnostics/recovery-restoration-extended/CAMPAIGN.json",
+      "sha256": "21494daf0fad5eb746a5a825e1cd57a109c249fccd25631fe41c3f9cc3500b0b",
+      "bytes": 24830708,
+      "allocatedBefore": 24834048,
+      "allocatedAfter": 1781760
+    },
+    {
+      "path": "results/diagnostics/powersync-fixture-probe/local-query-complete.json",
+      "sha256": "8c4406cb02d8f0386c167191c36bb690ed1cb4bdf27a26d8aaaefe2d5a2b1151",
+      "bytes": 22673037,
+      "allocatedBefore": 22675456,
+      "allocatedAfter": 1011712
+    },
+    {
+      "path": "results/diagnostics/powersync-fixture-probe/local-query-initial.json",
+      "sha256": "8c4406cb02d8f0386c167191c36bb690ed1cb4bdf27a26d8aaaefe2d5a2b1151",
+      "bytes": 22673037,
+      "allocatedBefore": 22675456,
+      "allocatedAfter": 1011712
+    },
+    {
+      "path": "results/diagnostics/powersync-fixture-probe/deep-relationship-query-complete.json",
+      "sha256": "aa9ef8e6b4d7ee8788c97ca90c1c3ff3cfcd4f620596a1394dd2c1b05ff973d1",
+      "bytes": 22641901,
+      "allocatedBefore": 22642688,
+      "allocatedAfter": 1167360
+    },
+    {
+      "path": "results/diagnostics/variability-pilot/RUST-BUILD.json",
+      "sha256": "4eca44f832fde3bd64e4d94e283374677e0d4acbfcdad6f84dea82732c917f20",
+      "bytes": 21746208,
+      "allocatedBefore": 21749760,
+      "allocatedAfter": 3883008
+    },
+    {
+      "path": "results/diagnostics/rust-build-inputs-smoke/RUST-BUILD.json",
+      "sha256": "c597a894d356a217188e4d6c33677ecbe671cce4722de2b526940dbddb36c924",
+      "bytes": 21746202,
+      "allocatedBefore": 21749760,
+      "allocatedAfter": 3883008
+    },
+    {
+      "path": "results/diagnostics/rust-build-development/RUST-BUILD-FAILED.json",
+      "sha256": "78f15fe8829de531d815c02c434a496c99d49ee79c63fcedf52fd2c764ce49a9",
+      "bytes": 21706678,
+      "allocatedBefore": 21708800,
+      "allocatedAfter": 3883008
+    },
+    {
+      "path": "results/diagnostics/variability-pilot/RUST-BUILD-PREPARED.json",
+      "sha256": "540356f558ce4bfb851438d547031a42e90873a292eb2f6162d1cc10f4e90473",
+      "bytes": 21578677,
+      "allocatedBefore": 21581824,
+      "allocatedAfter": 3870720
+    },
+    {
+      "path": "results/diagnostics/rust-build-inputs-smoke/RUST-BUILD-PREPARED.json",
+      "sha256": "05b455acedba828be36a40767e2cacc3a18287611c460fc71e0ddcb21cde3de8",
+      "bytes": 21578677,
+      "allocatedBefore": 21581824,
+      "allocatedAfter": 3870720
+    },
+    {
+      "path": "results/diagnostics/rust-build-development/RUST-BUILD-PREPARED.json",
+      "sha256": "4d77d41bef49203fe7f8c5c1129087eced64f89c6016073cf1cf51d20a07fd75",
+      "bytes": 21571055,
+      "allocatedBefore": 21573632,
+      "allocatedAfter": 3866624
+    },
+    {
+      "path": "results/diagnostics/jazz-conflicts-smoke/CAMPAIGN.json",
+      "sha256": "d228755cf4ad7eaf4562a98da94b782df3489a89ca82731b9dfc99a064d0d9a7",
+      "bytes": 19655129,
+      "allocatedBefore": 19656704,
+      "allocatedAfter": 770048
+    },
+    {
+      "path": "results/diagnostics/rust-input-discovery/NATIVE-INPUTS.json",
+      "sha256": "bffc5138204707e8385d64e580cbcee02bbf24bc32816b7e60bef1668e09f8d8",
+      "bytes": 18212677,
+      "allocatedBefore": 18214912,
+      "allocatedAfter": 3375104
+    },
+    {
+      "path": "results/diagnostics/powersync-fixture-probe/deep-relationship-query-initial.json",
+      "sha256": "7c39e49f76694effc1ccdd12acacd300a50da03ad05bf8e854ce27603b9c0e57",
+      "bytes": 16751007,
+      "allocatedBefore": 16752640,
+      "allocatedAfter": 864256
+    },
+    {
+      "path": "results/diagnostics/jazz-access-smoke/CAMPAIGN.json",
+      "sha256": "8274b3d307f57de188747961bafea800fe5e382c6b35091c5dbab350c84467ec",
+      "bytes": 16579797,
+      "allocatedBefore": 16580608,
+      "allocatedAfter": 892928
+    },
+    {
+      "path": "results/diagnostics/browser-loaded-instrumentation/EXPERIMENT.json",
+      "sha256": "185cc71a9fcc2baa79a5261113ce9571001fb17524a04d912cad99a15387e9fd",
+      "bytes": 14177958,
+      "allocatedBefore": 14180352,
+      "allocatedAfter": 933888
+    },
+    {
+      "path": "results/diagnostics/variability-pilot/0134-jazz-v2-permission-change.json",
+      "sha256": "676cbbac94e44564c138c869f77b82f74630f88929fa9be24dcae3de1ec455e9",
+      "bytes": 14004762,
+      "allocatedBefore": 14008320,
+      "allocatedAfter": 819200
+    },
+    {
+      "path": "results/diagnostics/variability-pilot-jazz-access-3/0134-jazz-v2-permission-change.json",
+      "sha256": "676cbbac94e44564c138c869f77b82f74630f88929fa9be24dcae3de1ec455e9",
+      "bytes": 14004762,
+      "allocatedBefore": 14008320,
+      "allocatedAfter": 819200
+    },
+    {
+      "path": "results/diagnostics/publication-failure-captures/0162/0162-jazz-v2-permission-change.json",
+      "sha256": "5e964c05bd52526f071591d14d62a527a6251bb2f54be6af588e99afbf022fe4",
+      "bytes": 13979902,
+      "allocatedBefore": 13983744,
+      "allocatedAfter": 819200
+    },
+    {
+      "path": "results/diagnostics/jazz-access-smoke/0002-jazz-v2-permission-change.json",
+      "sha256": "e072796bf331fb4c9cdc4b22f62576e37bf7e9e470b5ab80a45c2903093b2595",
+      "bytes": 13978877,
+      "allocatedBefore": 13979648,
+      "allocatedAfter": 819200
+    },
+    {
+      "path": "results/diagnostics/publication-failure-captures/0377/0377-jazz-v2-permission-change.json",
+      "sha256": "b76fd6bfaa6e6cd6501e4361490c92e3d785e358b32b4f6e28c428fd29cc67a4",
+      "bytes": 13971664,
+      "allocatedBefore": 13975552,
+      "allocatedAfter": 819200
+    },
+    {
+      "path": "results/diagnostics/variability-pilot-jazz-access-1/0023-jazz-v2-permission-change.json",
+      "sha256": "1c867ad4232b09db7c3c509a7d395050a73ff486a8ffced1322ec714c468b38e",
+      "bytes": 13970267,
+      "allocatedBefore": 13971456,
+      "allocatedAfter": 815104
+    },
+    {
+      "path": "results/diagnostics/variability-pilot/0023-jazz-v2-permission-change.json",
+      "sha256": "1c867ad4232b09db7c3c509a7d395050a73ff486a8ffced1322ec714c468b38e",
+      "bytes": 13970267,
+      "allocatedBefore": 13971456,
+      "allocatedAfter": 815104
+    },
+    {
+      "path": "results/diagnostics/variability-pilot/0075-jazz-v2-permission-change.json",
+      "sha256": "a1748efad1f24cb0d8ebd72caa59a842b620b936d11baddac59a3667186a2830",
+      "bytes": 13969271,
+      "allocatedBefore": 13971456,
+      "allocatedAfter": 815104
+    },
+    {
+      "path": "results/diagnostics/variability-pilot-jazz-access-2/0075-jazz-v2-permission-change.json",
+      "sha256": "a1748efad1f24cb0d8ebd72caa59a842b620b936d11baddac59a3667186a2830",
+      "bytes": 13969271,
+      "allocatedBefore": 13971456,
+      "allocatedAfter": 815104
+    },
+    {
+      "path": "results/diagnostics/publication-failure-captures/0283/0283-jazz-v2-permission-change.json",
+      "sha256": "ac8f628e7fdd738c4457be47aa75612fdaa0f5e46c4958fa0ea58b893f4bf9f6",
+      "bytes": 13867002,
+      "allocatedBefore": 13869056,
+      "allocatedAfter": 811008
+    },
+    {
+      "path": "results/diagnostics/publication-failure-captures/0088/0088-jazz-v2-permission-change.json",
+      "sha256": "f65daeffd06943afa888f6baccdba4617ad9f3fb904984892a52602c8398c99d",
+      "bytes": 13714219,
+      "allocatedBefore": 13717504,
+      "allocatedAfter": 798720
+    },
+    {
+      "path": "results/diagnostics/publication-failure-captures/0448/0448-jazz-v2-conflict-update-delete.json",
+      "sha256": "a75db7ca7e82419132c43a643b9bcd84a6f189bfdb9ecf9c9411a423bbaa6568",
+      "bytes": 10436658,
+      "allocatedBefore": 10440704,
+      "allocatedAfter": 438272
+    },
+    {
+      "path": "results/diagnostics/publication-failure-captures/0464/0464-jazz-v2-conflict-update-delete.json",
+      "sha256": "94ed5817c16639070b599dc1da585c7dd4192b7b4b5635ee3ab59179f9a42d1c",
+      "bytes": 10402521,
+      "allocatedBefore": 10403840,
+      "allocatedAfter": 438272
+    },
+    {
+      "path": "results/diagnostics/publication-failure-captures/0100/0100-jazz-v2-conflict-update-delete.json",
+      "sha256": "9fda3ba9b486b36115cfcd38b68de43ae561111c95b2ebbdf57373aa38a41434",
+      "bytes": 10399776,
+      "allocatedBefore": 10403840,
+      "allocatedAfter": 442368
+    },
+    {
+      "path": "results/diagnostics/jazz-conflicts-smoke/0006-jazz-v2-conflict-update-delete.json",
+      "sha256": "d84abe55d3a884d1367ea29c4b51d652e4003aebbac13157806bdb5af543fd5c",
+      "bytes": 10399356,
+      "allocatedBefore": 10399744,
+      "allocatedAfter": 434176
+    },
+    {
+      "path": "results/diagnostics/publication-failure-captures/0153/0153-jazz-v2-conflict-update-delete.json",
+      "sha256": "392406ef923ef5e63d151cbbbf8093f292a5d40072b55a3a17c0511d2bec4856",
+      "bytes": 10390831,
+      "allocatedBefore": 10391552,
+      "allocatedAfter": 438272
+    },
+    {
+      "path": "results/diagnostics/publication-failure-captures/0278/0278-jazz-v2-conflict-update-delete.json",
+      "sha256": "fcabfd97545c0071a260cfa7780384bbb9e6574b2e98328d4f7a7b9417d777c8",
+      "bytes": 10292072,
+      "allocatedBefore": 10293248,
+      "allocatedAfter": 434176
+    },
+    {
+      "path": "results/diagnostics/electric-recovery-smoke/CAMPAIGN.json",
+      "sha256": "f2fa7af26f2060a0d096d7052cdeb6fd41b3a7a80f2419251c83d2a004482963",
+      "bytes": 7173965,
+      "allocatedBefore": 7176192,
+      "allocatedAfter": 1044480
+    },
+    {
+      "path": "results/diagnostics/electric-recovery-development/CAMPAIGN.json",
+      "sha256": "ab6b95af62c6535e7a57b5bb7d8a171789c9914e20714736926722e495dd7a1c",
+      "bytes": 7005426,
+      "allocatedBefore": 7008256,
+      "allocatedAfter": 913408
+    },
+    {
+      "path": "results/diagnostics/extended-fanout-smoke/CAMPAIGN.json",
+      "sha256": "07d4e6eb8094d20f15f4f239db557d0e0527d9ce4a05f00b01cc8f7702fe0fb4",
+      "bytes": 6734308,
+      "allocatedBefore": 6737920,
+      "allocatedAfter": 421888
+    },
+    {
+      "path": "results/diagnostics/electric-conflicts-smoke/0003-electric-conflict-update-update.json",
+      "sha256": "d04d59ce55c3a3ba41ba44858729dd468d1baaf47c94842663acef092432e3f2",
+      "bytes": 6205559,
+      "allocatedBefore": 6209536,
+      "allocatedAfter": 217088
+    },
+    {
+      "path": "results/diagnostics/electric-conflicts-smoke/0009-electric-tanstack-conflict-update-update.json",
+      "sha256": "4c46be49edef0b24c9c32e1b8ed344c10e115ebafba478c400d3bd66f8a3eb57",
+      "bytes": 6201238,
+      "allocatedBefore": 6201344,
+      "allocatedAfter": 217088
+    },
+    {
+      "path": "results/diagnostics/electric-conflicts-smoke/0004-electric-tanstack-conflict-update-delete.json",
+      "sha256": "513170e5ee7ed6a4bde8a943ff98e1e66a94c9f81c8ce717f8053d15b2d4c36a",
+      "bytes": 6199377,
+      "allocatedBefore": 6201344,
+      "allocatedAfter": 217088
+    },
+    {
+      "path": "results/diagnostics/jazz-conflicts-smoke/0005-jazz-v2-conflict-update-update.json",
+      "sha256": "b8d7c6a18e922e42ba20c52bf3375a8d8b89351ebd7476766e390a77c6216d14",
+      "bytes": 6194984,
+      "allocatedBefore": 6197248,
+      "allocatedAfter": 286720
+    },
+    {
+      "path": "results/diagnostics/electric-conflicts-smoke/0005-electric-conflict-update-delete.json",
+      "sha256": "9d6ae6f3a83c37f83e0ccce16374a49b3b8c554e6b2a069b8825b09ddd4d5152",
+      "bytes": 6186425,
+      "allocatedBefore": 6189056,
+      "allocatedAfter": 217088
+    },
+    {
+      "path": "results/diagnostics/zero-access-smoke/CAMPAIGN.json",
+      "sha256": "6c51d18acc599f8098c50cae076625a60168c00f7a2afffe4d2b06c1c28b561c",
+      "bytes": 5606425,
+      "allocatedBefore": 5607424,
+      "allocatedAfter": 225280
+    },
+    {
+      "path": "results/diagnostics/recovery-restoration-extended/0003-electric-tanstack-large-offline-queue.json",
+      "sha256": "024fd6bdf4ed5c29b7a9a3bde6c0ba684056e0a504190fb873c30c792c594772",
+      "bytes": 5515035,
+      "allocatedBefore": 5517312,
+      "allocatedAfter": 630784
+    },
+    {
+      "path": "results/diagnostics/zero-recovery-smoke/CAMPAIGN.json",
+      "sha256": "bf7335a2de899f7b944d0955f01728b22bc8d45f0f350b32b918abc55e2fbd33",
+      "bytes": 5031165,
+      "allocatedBefore": 5033984,
+      "allocatedAfter": 430080
+    },
+    {
+      "path": "results/diagnostics/turso-physical-pairs/EXPERIMENT.json",
+      "sha256": "12f99c080135d5ba8082120dd35dd4f139d40b1dcf4012784742286a5a94bd41",
+      "bytes": 4895828,
+      "allocatedBefore": 4898816,
+      "allocatedAfter": 208896
+    },
+    {
+      "path": "results/diagnostics/zero-access-smoke/0005-zero-permission-change.json",
+      "sha256": "e95b9974e7744700efe3b8c9408e4118d843d9ee7ec48ebb0b6733f614429ae9",
+      "bytes": 4560257,
+      "allocatedBefore": 4562944,
+      "allocatedAfter": 163840
+    },
+    {
+      "path": "results/diagnostics/variability-pilot/0106-zero-permission-change.json",
+      "sha256": "b864f8ede52e30ddb3ca33c1d5ccd14afefbe49bb7634857998bbb59d5df4811",
+      "bytes": 4559139,
+      "allocatedBefore": 4562944,
+      "allocatedAfter": 163840
+    },
+    {
+      "path": "results/diagnostics/variability-pilot/0031-zero-permission-change.json",
+      "sha256": "4d7fc529d4513c8ae12f64f3b1db8da179d4c5c4436a90adcccde84d44ab7958",
+      "bytes": 4558927,
+      "allocatedBefore": 4562944,
+      "allocatedAfter": 163840
+    },
+    {
+      "path": "results/diagnostics/variability-pilot/0049-zero-permission-change.json",
+      "sha256": "105a22fcdcd853441ad7e3e6cbea15e68d1ea6b2597f63f4f366c11a2e8f9cd0",
+      "bytes": 4558291,
+      "allocatedBefore": 4558848,
+      "allocatedAfter": 163840
+    },
+    {
+      "path": "results/diagnostics/tanstack-fanout-recovery-regression/CAMPAIGN.json",
+      "sha256": "43d1e37ab6068703aae87d43cc8adcf32e57329aa1688d76242365a71efed45c",
+      "bytes": 4159588,
+      "allocatedBefore": 4161536,
+      "allocatedAfter": 569344
+    },
+    {
+      "path": "results/diagnostics/recovery-restoration-smoke/CAMPAIGN.json",
+      "sha256": "ed0211e00129d86fddae11225d944e2dbf2f177c32bef878ddd1a0a7b3554d38",
+      "bytes": 4113555,
+      "allocatedBefore": 4116480,
+      "allocatedAfter": 212992
+    },
+    {
+      "path": "results/diagnostics/electric-recovery-development/0006-electric-tanstack-large-offline-queue.json",
+      "sha256": "2b116b741b826755d86c9f959acf9a687b469e78559c3d1b1425ce2da93dc3ec",
+      "bytes": 3492680,
+      "allocatedBefore": 3493888,
+      "allocatedAfter": 532480
+    },
+    {
+      "path": "results/diagnostics/tanstack-fanout-recovery-regression/0001-electric-tanstack-large-offline-queue.json",
+      "sha256": "4655c85448640c59ba7a00d7912337dedda0dd7361f52be5a77058875892f48a",
+      "bytes": 3488596,
+      "allocatedBefore": 3489792,
+      "allocatedAfter": 528384
+    },
+    {
+      "path": "results/diagnostics/electric-recovery-smoke/0006-electric-tanstack-large-offline-queue.json",
+      "sha256": "74ef0b26886ccf63523bb28f1a2d334d264a8744333f445b1c91935f388eeb2d",
+      "bytes": 3486934,
+      "allocatedBefore": 3489792,
+      "allocatedAfter": 528384
+    },
+    {
+      "path": "results/diagnostics/extended-fanout-development/CAMPAIGN.json",
+      "sha256": "3ccdecf351a29f0483f203818f4d935b7d7157a3abe889b34521a2000cb65064",
+      "bytes": 3441936,
+      "allocatedBefore": 3444736,
+      "allocatedAfter": 249856
+    },
+    {
+      "path": "results/diagnostics/zero-recovery-smoke/0007-zero-large-offline-queue.json",
+      "sha256": "1b4d027ee99ae2755a2a7acfa86675a124456ae84413d512c53e90e2b43ba28f",
+      "bytes": 3258847,
+      "allocatedBefore": 3260416,
+      "allocatedAfter": 299008
+    },
+    {
+      "path": "results/diagnostics/startup-observer-v3-smoke/CAMPAIGN.json",
+      "sha256": "a890a440ef99b5cc1d2d1a9ab001414e7b947acc3103a623b9a6e20c41e75c34",
+      "bytes": 3172627,
+      "allocatedBefore": 3174400,
+      "allocatedAfter": 311296
+    },
+    {
+      "path": "results/diagnostics/browser-loaded-smoke/EXPERIMENT.json",
+      "sha256": "e9492df0ad5cd33bca2204c1610700467b60a93cd5f2cdcae3dfd644c13ad242",
+      "bytes": 2919338,
+      "allocatedBefore": 2920448,
+      "allocatedAfter": 208896
+    },
+    {
+      "path": "results/diagnostics/startup-observer-first-smoke/CAMPAIGN.json",
+      "sha256": "a9bceb925d172a346cf731ecbc8be152bd49ee2db6501272c3486878ab6a768b",
+      "bytes": 2828767,
+      "allocatedBefore": 2830336,
+      "allocatedAfter": 282624
+    },
+    {
+      "path": "results/diagnostics/network-collaboration-latency/CAMPAIGN.json",
+      "sha256": "7503654a2c53cc2885a749e14b92dc0600cc344fa0e5ae37634fae0961a49e81",
+      "bytes": 2803208,
+      "allocatedBefore": 2805760,
+      "allocatedAfter": 323584
+    },
+    {
+      "path": "results/diagnostics/recovery-restoration-extended/0014-zero-large-offline-queue.json",
+      "sha256": "727c81521533aa1dc2d6c5d924a90c2724d646053f9f3b3dd0cd6598dc32ee10",
+      "bytes": 2570309,
+      "allocatedBefore": 2572288,
+      "allocatedAfter": 172032
+    },
+    {
+      "path": "results/diagnostics/network-collaboration-loss/CAMPAIGN.json",
+      "sha256": "07bc3b744f37b4445e29089e0f1765b920f55a1c2753599b7d3b8095ac2fdc5a",
+      "bytes": 2557644,
+      "allocatedBefore": 2560000,
+      "allocatedAfter": 307200
+    },
+    {
+      "path": "results/diagnostics/rust-input-discovery/CARGO-SOURCES.json",
+      "sha256": "046f064b10be9117140bb0e91d71c8773a50bcff58c95b747b7d4d4f6bebe21d",
+      "bytes": 2532239,
+      "allocatedBefore": 2535424,
+      "allocatedAfter": 471040
+    },
+    {
+      "path": "results/diagnostics/recovery-restoration-extended/0016-electric-large-offline-queue.json",
+      "sha256": "9e8326effa73858070b6a3b88af757ea073572847a90d757e3274dd7447ae1bd",
+      "bytes": 2510024,
+      "allocatedBefore": 2510848,
+      "allocatedAfter": 286720
+    },
+    {
+      "path": "results/diagnostics/publication-failure-captures/0178/0178-powersync-conflict-update-update.json",
+      "sha256": "6fa0f5e8b0c0347c405653e151d0c5faf1ed4917d7af6862c0ed14b3611e42b9",
+      "bytes": 2414185,
+      "allocatedBefore": 2416640,
+      "allocatedAfter": 69632
+    },
+    {
+      "path": "results/diagnostics/publication-powersync-conflict-setup-1/0027-powersync-conflict-update-update.json",
+      "sha256": "1b3d828e83b3b218e9372647f203af54903146229e4afb935ebdb77e8f40653e",
+      "bytes": 2414184,
+      "allocatedBefore": 2416640,
+      "allocatedAfter": 69632
+    },
+    {
+      "path": "results/diagnostics/publication-failure-captures/0027/0027-powersync-conflict-update-update.json",
+      "sha256": "1b3d828e83b3b218e9372647f203af54903146229e4afb935ebdb77e8f40653e",
+      "bytes": 2414184,
+      "allocatedBefore": 2416640,
+      "allocatedAfter": 69632
+    },
+    {
+      "path": "results/diagnostics/publication-failure-captures/0074/0074-powersync-conflict-update-delete.json",
+      "sha256": "aa1881a9a2884d431005bfd60f49fbd7b2242f721d47d3fd5cb38ae6a6dff61f",
+      "bytes": 2414177,
+      "allocatedBefore": 2416640,
+      "allocatedAfter": 69632
+    },
+    {
+      "path": "results/diagnostics/jazz-access-native/offline-reconnect/RESULT.json",
+      "sha256": "561e781ca0b63b8fbc91663805a282b684dec615cc67e210c471faa8cc77c583",
+      "bytes": 2384129,
+      "allocatedBefore": 2387968,
+      "allocatedAfter": 618496
+    },
+    {
+      "path": "results/diagnostics/publication-failure-captures/0440/0440-powersync-bootstrap.json",
+      "sha256": "3c9776ff36e8ea9573f58d1fdebd659f5e131a9c466182bd43fec017fb195d42",
+      "bytes": 2352817,
+      "allocatedBefore": 2355200,
+      "allocatedAfter": 192512
+    },
+    {
+      "path": "results/diagnostics/extended-fanout-development/0004-electric-tanstack-connected-fanout.json",
+      "sha256": "40ce008040acbcad8e7db705789c846a1c05b3f3e98cd1f8285ff74f2781e91d",
+      "bytes": 2274766,
+      "allocatedBefore": 2277376,
+      "allocatedAfter": 131072
+    },
+    {
+      "path": "results/diagnostics/browser-loaded-development/EXPERIMENT.json",
+      "sha256": "471372257075fce42690a2c442b1a03dd3a238fde24471e6c33310f668c972a6",
+      "bytes": 2264641,
+      "allocatedBefore": 2265088,
+      "allocatedAfter": 167936
+    },
+    {
+      "path": "results/diagnostics/tuned-v017-preflight-failures/SOURCE.json",
+      "sha256": "19c3c91d3d9c1a8cbd072b81d61cbdd4e54bcaede7521a90b3065ea736652af9",
+      "bytes": 2204345,
+      "allocatedBefore": 2207744,
+      "allocatedAfter": 884736
+    },
+    {
+      "path": "results/diagnostics/browser-readiness-regression/SOURCE.json",
+      "sha256": "6bae09e07313e5598780081cd50f520d4dce9ddbabc006c7ec1fded35a31a381",
+      "bytes": 2185147,
+      "allocatedBefore": 2187264,
+      "allocatedAfter": 880640
+    },
+    {
+      "path": "results/diagnostics/browser-loaded-smoke/SOURCE.json",
+      "sha256": "6bae09e07313e5598780081cd50f520d4dce9ddbabc006c7ec1fded35a31a381",
+      "bytes": 2185147,
+      "allocatedBefore": 2187264,
+      "allocatedAfter": 880640
+    },
+    {
+      "path": "results/diagnostics/browser-loaded-instrumentation/SOURCE.json",
+      "sha256": "6bae09e07313e5598780081cd50f520d4dce9ddbabc006c7ec1fded35a31a381",
+      "bytes": 2185147,
+      "allocatedBefore": 2187264,
+      "allocatedAfter": 880640
+    },
+    {
+      "path": "results/diagnostics/browser-loaded-development/SOURCE.json",
+      "sha256": "49e178fa9060b16ae5897a2c5ef76f34ac33ceced8cfde17dc3dc8f6c70fc6fe",
+      "bytes": 2179069,
+      "allocatedBefore": 2179072,
+      "allocatedAfter": 876544
+    },
+    {
+      "path": "results/diagnostics/variability-pilot/SOURCE.json",
+      "sha256": "bbc966e6a99ed2a4028a0a06f28e868347809e344b90ad643a51ae7ff1d95767",
+      "bytes": 2048163,
+      "allocatedBefore": 2052096,
+      "allocatedAfter": 823296
+    },
+    {
+      "path": "results/diagnostics/rust-build-inputs-smoke/SOURCE.json",
+      "sha256": "fc685ac7cfd175a000a892acdb1f9a60b1be5614cade5ac8c5ce9128cba5fcb9",
+      "bytes": 2047763,
+      "allocatedBefore": 2048000,
+      "allocatedAfter": 827392
+    },
+    {
+      "path": "results/diagnostics/browser-native-control/SOURCE.json",
+      "sha256": "d4c931be56f35866daa335e84b858e1d89f06658e16c406842a0c2b6aea24032",
+      "bytes": 1981107,
+      "allocatedBefore": 1982464,
+      "allocatedAfter": 798720
+    },
+    {
+      "path": "results/diagnostics/browser-collaboration-smoke/SOURCE.json",
+      "sha256": "d4c931be56f35866daa335e84b858e1d89f06658e16c406842a0c2b6aea24032",
+      "bytes": 1981107,
+      "allocatedBefore": 1982464,
+      "allocatedAfter": 798720
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-count-frequency/original/trial-03.json",
+      "sha256": "562d76935ee4da6eb3a871d598082c3c46c49fc11e3403b2efc8210fb896ebfc",
+      "bytes": 1914192,
+      "allocatedBefore": 1916928,
+      "allocatedAfter": 192512
+    },
+    {
+      "path": "results/diagnostics/recovery-restoration-extended/0013-electric-offline-restart.json",
+      "sha256": "e3d75e27322cb038b5607e70f124b9bf9328f6ca940b46cf7451adbd2c7f3b3d",
+      "bytes": 1899762,
+      "allocatedBefore": 1900544,
+      "allocatedAfter": 233472
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-6/SOURCE.json",
+      "sha256": "949f188f51991ed18542921536a4bf4889b2f2fefcb959d3f78aec7cccd86b04",
+      "bytes": 1880947,
+      "allocatedBefore": 1884160,
+      "allocatedAfter": 753664
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-1/SOURCE.json",
+      "sha256": "949f188f51991ed18542921536a4bf4889b2f2fefcb959d3f78aec7cccd86b04",
+      "bytes": 1880947,
+      "allocatedBefore": 1884160,
+      "allocatedAfter": 753664
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-8/SOURCE.json",
+      "sha256": "949f188f51991ed18542921536a4bf4889b2f2fefcb959d3f78aec7cccd86b04",
+      "bytes": 1880947,
+      "allocatedBefore": 1884160,
+      "allocatedAfter": 753664
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-9/SOURCE.json",
+      "sha256": "949f188f51991ed18542921536a4bf4889b2f2fefcb959d3f78aec7cccd86b04",
+      "bytes": 1880947,
+      "allocatedBefore": 1884160,
+      "allocatedAfter": 753664
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-7/SOURCE.json",
+      "sha256": "949f188f51991ed18542921536a4bf4889b2f2fefcb959d3f78aec7cccd86b04",
+      "bytes": 1880947,
+      "allocatedBefore": 1884160,
+      "allocatedAfter": 753664
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-2/SOURCE.json",
+      "sha256": "949f188f51991ed18542921536a4bf4889b2f2fefcb959d3f78aec7cccd86b04",
+      "bytes": 1880947,
+      "allocatedBefore": 1884160,
+      "allocatedAfter": 753664
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-5/SOURCE.json",
+      "sha256": "949f188f51991ed18542921536a4bf4889b2f2fefcb959d3f78aec7cccd86b04",
+      "bytes": 1880947,
+      "allocatedBefore": 1884160,
+      "allocatedAfter": 753664
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-4/SOURCE.json",
+      "sha256": "949f188f51991ed18542921536a4bf4889b2f2fefcb959d3f78aec7cccd86b04",
+      "bytes": 1880947,
+      "allocatedBefore": 1884160,
+      "allocatedAfter": 753664
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-3/SOURCE.json",
+      "sha256": "949f188f51991ed18542921536a4bf4889b2f2fefcb959d3f78aec7cccd86b04",
+      "bytes": 1880947,
+      "allocatedBefore": 1884160,
+      "allocatedAfter": 753664
+    },
+    {
+      "path": "results/diagnostics/recovery-restoration-extended/SOURCE.json",
+      "sha256": "949f188f51991ed18542921536a4bf4889b2f2fefcb959d3f78aec7cccd86b04",
+      "bytes": 1880947,
+      "allocatedBefore": 1884160,
+      "allocatedAfter": 753664
+    },
+    {
+      "path": "results/diagnostics/recovery-restoration-smoke/SOURCE.json",
+      "sha256": "949f188f51991ed18542921536a4bf4889b2f2fefcb959d3f78aec7cccd86b04",
+      "bytes": 1880947,
+      "allocatedBefore": 1884160,
+      "allocatedAfter": 753664
+    },
+    {
+      "path": "results/diagnostics/electric-ack-latency/SOURCE.json",
+      "sha256": "44e2146bcbdd7e859c54adbf4ba7d68574d9582c3fc9e08e55dd0d3cca06fd0d",
+      "bytes": 1864455,
+      "allocatedBefore": 1867776,
+      "allocatedAfter": 749568
+    },
+    {
+      "path": "results/diagnostics/electric-ack-local/SOURCE.json",
+      "sha256": "44e2146bcbdd7e859c54adbf4ba7d68574d9582c3fc9e08e55dd0d3cca06fd0d",
+      "bytes": 1864455,
+      "allocatedBefore": 1867776,
+      "allocatedAfter": 749568
+    },
+    {
+      "path": "results/diagnostics/electric-ack-loss/SOURCE.json",
+      "sha256": "44e2146bcbdd7e859c54adbf4ba7d68574d9582c3fc9e08e55dd0d3cca06fd0d",
+      "bytes": 1864455,
+      "allocatedBefore": 1867776,
+      "allocatedAfter": 749568
+    },
+    {
+      "path": "results/diagnostics/electric-ack-development/SOURCE.json",
+      "sha256": "bad6e612bdc455c8373a90ecb33da5c59bd61b2cf6222f49c9d05ee92b61f2ab",
+      "bytes": 1863179,
+      "allocatedBefore": 1863680,
+      "allocatedAfter": 749568
+    },
+    {
+      "path": "results/diagnostics/jazz-access-native/online/RESULT.json",
+      "sha256": "91d6d4672027047c1ab9fdca33708433023adbe3cbe94cdb9aa908cc6ae969db",
+      "bytes": 1856036,
+      "allocatedBefore": 1859584,
+      "allocatedAfter": 479232
+    },
+    {
+      "path": "results/diagnostics/network-collaboration-loss/SOURCE.json",
+      "sha256": "07d2b976244bd3b8df996409f10c429e65c5a83594d6293148b50b679f443fc5",
+      "bytes": 1849789,
+      "allocatedBefore": 1851392,
+      "allocatedAfter": 745472
+    },
+    {
+      "path": "results/diagnostics/network-collaboration-latency/SOURCE.json",
+      "sha256": "07d2b976244bd3b8df996409f10c429e65c5a83594d6293148b50b679f443fc5",
+      "bytes": 1849789,
+      "allocatedBefore": 1851392,
+      "allocatedAfter": 745472
+    },
+    {
+      "path": "results/diagnostics/network-trial-timeout/SOURCE.json",
+      "sha256": "07d2b976244bd3b8df996409f10c429e65c5a83594d6293148b50b679f443fc5",
+      "bytes": 1849789,
+      "allocatedBefore": 1851392,
+      "allocatedAfter": 745472
+    },
+    {
+      "path": "results/diagnostics/network-emulator-module/SOURCE.json",
+      "sha256": "a5989ca364e544998759e2a710c58b9936d5fc2e6f05843ca751cbb369ad5beb",
+      "bytes": 1825583,
+      "allocatedBefore": 1826816,
+      "allocatedAfter": 733184
+    },
+    {
+      "path": "results/diagnostics/network-emulator-calibration/SOURCE.json",
+      "sha256": "3396714fddcafcf8448d7197aaf6b69350fdc613b17e8e5765d7d71c670b79e1",
+      "bytes": 1803477,
+      "allocatedBefore": 1806336,
+      "allocatedAfter": 720896
+    },
+    {
+      "path": "results/diagnostics/jazz-access-screen-regression/SOURCE.json",
+      "sha256": "1941d43b0f17a8314782de75c9d9227c94dd830d0bb5adda74c0ab4c830eb63d",
+      "bytes": 1802941,
+      "allocatedBefore": 1806336,
+      "allocatedAfter": 720896
+    },
+    {
+      "path": "results/diagnostics/jazz-access-smoke/SOURCE.json",
+      "sha256": "1941d43b0f17a8314782de75c9d9227c94dd830d0bb5adda74c0ab4c830eb63d",
+      "bytes": 1802941,
+      "allocatedBefore": 1806336,
+      "allocatedAfter": 720896
+    },
+    {
+      "path": "results/diagnostics/jazz-access-development/SOURCE.json",
+      "sha256": "98be443895976451fe3da88f30e4c6e21b6bbeb720c1e982ba409d64c99f2407",
+      "bytes": 1798919,
+      "allocatedBefore": 1802240,
+      "allocatedAfter": 720896
+    },
+    {
+      "path": "results/diagnostics/zero-access-screen-regression/SOURCE.json",
+      "sha256": "b7baa655a701ecfc1f582d148b27e9089584a0342e41c6b13bb91a0af67dfba4",
+      "bytes": 1757495,
+      "allocatedBefore": 1761280,
+      "allocatedAfter": 704512
+    },
+    {
+      "path": "results/diagnostics/zero-access-smoke/SOURCE.json",
+      "sha256": "b7baa655a701ecfc1f582d148b27e9089584a0342e41c6b13bb91a0af67dfba4",
+      "bytes": 1757495,
+      "allocatedBefore": 1761280,
+      "allocatedAfter": 704512
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-count-frequency/reversed/trial-02.json",
+      "sha256": "9c20eab43268a811ba76266a3e366133aadf92e229a57fd4e5640c4b47e12529",
+      "bytes": 1753326,
+      "allocatedBefore": 1757184,
+      "allocatedAfter": 180224
+    },
+    {
+      "path": "results/diagnostics/powersync-access-smoke/SOURCE.json",
+      "sha256": "0879d7fd64bcbe1aad0f5141bd5e083d1f93a70e1bdfa9c2a255f1b26c82d22f",
+      "bytes": 1738123,
+      "allocatedBefore": 1740800,
+      "allocatedAfter": 696320
+    },
+    {
+      "path": "results/diagnostics/powersync-storage-regression/SOURCE.json",
+      "sha256": "06180f2e7e2a1f5cea31f3aef0b15b685ff79cae8d2128f8df0de56c723cf43d",
+      "bytes": 1731911,
+      "allocatedBefore": 1732608,
+      "allocatedAfter": 692224
+    },
+    {
+      "path": "results/diagnostics/server-storage-development/SOURCE.json",
+      "sha256": "6f5847585bdc9ef34940bef9dd6aff4d2f3dd93547aed9186491119617586dd9",
+      "bytes": 1730715,
+      "allocatedBefore": 1732608,
+      "allocatedAfter": 692224
+    },
+    {
+      "path": "results/diagnostics/server-storage-smoke/SOURCE.json",
+      "sha256": "6f75d3cb8f16904e01923f75247dd3f44b2ae552a49d2f9957d7cb0352ac9b09",
+      "bytes": 1730451,
+      "allocatedBefore": 1732608,
+      "allocatedAfter": 692224
+    },
+    {
+      "path": "results/diagnostics/powersync-storage-development/SOURCE.json",
+      "sha256": "6f75d3cb8f16904e01923f75247dd3f44b2ae552a49d2f9957d7cb0352ac9b09",
+      "bytes": 1730451,
+      "allocatedBefore": 1732608,
+      "allocatedAfter": 692224
+    },
+    {
+      "path": "results/diagnostics/turso-reset-native/SOURCE.json",
+      "sha256": "dc46cbbcd74578c21e66b92ad030252628731d98136dc35a7c00dcb071abdd9d",
+      "bytes": 1730103,
+      "allocatedBefore": 1732608,
+      "allocatedAfter": 692224
+    },
+    {
+      "path": "results/diagnostics/turso-physical-development/SOURCE.json",
+      "sha256": "4e8ae25d6869de4c8172bfb4544bad3102e21ecd78ce9297c655f43b0089365e",
+      "bytes": 1704003,
+      "allocatedBefore": 1708032,
+      "allocatedAfter": 684032
+    },
+    {
+      "path": "results/diagnostics/startup-extended-smoke/SOURCE.json",
+      "sha256": "4e8ae25d6869de4c8172bfb4544bad3102e21ecd78ce9297c655f43b0089365e",
+      "bytes": 1704003,
+      "allocatedBefore": 1708032,
+      "allocatedAfter": 684032
+    },
+    {
+      "path": "results/diagnostics/turso-physical-pairs/SOURCE.json",
+      "sha256": "4e8ae25d6869de4c8172bfb4544bad3102e21ecd78ce9297c655f43b0089365e",
+      "bytes": 1704003,
+      "allocatedBefore": 1708032,
+      "allocatedAfter": 684032
+    },
+    {
+      "path": "results/diagnostics/electric-conflicts-smoke/SOURCE.json",
+      "sha256": "8c357284652806887cf20b86cc2cca9c683eed71411fbb6b8fc181e8bf9086d6",
+      "bytes": 1687875,
+      "allocatedBefore": 1691648,
+      "allocatedAfter": 679936
+    },
+    {
+      "path": "results/diagnostics/jazz-access-screen-regression/CAMPAIGN.json",
+      "sha256": "8442efd05e26eddf65cb8f961a7114c9e5f3c07efcc52ce646cf4a765d32af72",
+      "bytes": 1680536,
+      "allocatedBefore": 1683456,
+      "allocatedAfter": 151552
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-count-frequency/original/trial-05.json",
+      "sha256": "3dd2afc307ba49448142fcb3220d3de4326412c91385a00bcd9f1be6d4f7ab4f",
+      "bytes": 1668504,
+      "allocatedBefore": 1671168,
+      "allocatedAfter": 172032
+    },
+    {
+      "path": "results/diagnostics/jazz-conflicts-smoke/SOURCE.json",
+      "sha256": "cf2e38c136552f8bc8cc081fc8314552f75ac2bd3cfbfa2889231180e211af23",
+      "bytes": 1662307,
+      "allocatedBefore": 1662976,
+      "allocatedAfter": 667648
+    },
+    {
+      "path": "results/diagnostics/recovery-restoration-extended/0010-syncular-rust-large-offline-queue.json",
+      "sha256": "185311e4f79377fd33dd7e53ac9f82c75425066b42c6e14d751f5894bd35dfdc",
+      "bytes": 1660784,
+      "allocatedBefore": 1662976,
+      "allocatedAfter": 65536
+    },
+    {
+      "path": "results/diagnostics/jazz-conflict-receipt-development/SOURCE.json",
+      "sha256": "b96e233cc622b660f7a7645c524ccd4bc59804fcd320a5ffa8d2ac6b5825ff45",
+      "bytes": 1642733,
+      "allocatedBefore": 1646592,
+      "allocatedAfter": 659456
+    },
+    {
+      "path": "results/diagnostics/jazz-conflict-settlement/SOURCE.json",
+      "sha256": "b96e233cc622b660f7a7645c524ccd4bc59804fcd320a5ffa8d2ac6b5825ff45",
+      "bytes": 1642733,
+      "allocatedBefore": 1646592,
+      "allocatedAfter": 659456
+    },
+    {
+      "path": "results/diagnostics/zero-conflicts-smoke/SOURCE.json",
+      "sha256": "b96e233cc622b660f7a7645c524ccd4bc59804fcd320a5ffa8d2ac6b5825ff45",
+      "bytes": 1642733,
+      "allocatedBefore": 1646592,
+      "allocatedAfter": 659456
+    },
+    {
+      "path": "results/diagnostics/jazz-conflict-retained-subscription/SOURCE.json",
+      "sha256": "b96e233cc622b660f7a7645c524ccd4bc59804fcd320a5ffa8d2ac6b5825ff45",
+      "bytes": 1642733,
+      "allocatedBefore": 1646592,
+      "allocatedAfter": 659456
+    },
+    {
+      "path": "results/diagnostics/jazz-conflict-retained-transport/SOURCE.json",
+      "sha256": "b96e233cc622b660f7a7645c524ccd4bc59804fcd320a5ffa8d2ac6b5825ff45",
+      "bytes": 1642733,
+      "allocatedBefore": 1646592,
+      "allocatedAfter": 659456
+    },
+    {
+      "path": "results/diagnostics/extended-fanout-development/SOURCE.json",
+      "sha256": "15e0f7370f8d34dd5f795eea7d6fca8cb826486bfc234169a57fe41f60ab6c50",
+      "bytes": 1634347,
+      "allocatedBefore": 1638400,
+      "allocatedAfter": 655360
+    },
+    {
+      "path": "results/diagnostics/network-emulator-calibration/private-link/RESULT.json",
+      "sha256": "d0599518a51f7a9a016b12e01b2ed9b72dd12147bd1bf5ee43c85ed9f4cb0145",
+      "bytes": 1633993,
+      "allocatedBefore": 1634304,
+      "allocatedAfter": 172032
+    },
+    {
+      "path": "results/diagnostics/tanstack-fanout-recovery-regression/SOURCE.json",
+      "sha256": "27fcafdd1a202e0dceb9176da15761c397f06b5975abbb053aa1c4815f5452aa",
+      "bytes": 1629227,
+      "allocatedBefore": 1630208,
+      "allocatedAfter": 655360
+    },
+    {
+      "path": "results/diagnostics/extended-fanout-smoke/SOURCE.json",
+      "sha256": "27fcafdd1a202e0dceb9176da15761c397f06b5975abbb053aa1c4815f5452aa",
+      "bytes": 1629227,
+      "allocatedBefore": 1630208,
+      "allocatedAfter": 655360
+    },
+    {
+      "path": "results/diagnostics/browser-readiness-regression/CAMPAIGN.json",
+      "sha256": "54878b900248b8a660f075e30bce7f394df2dadb5879e8cec6a40c34a7eb64b9",
+      "bytes": 1627001,
+      "allocatedBefore": 1630208,
+      "allocatedAfter": 139264
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-count-frequency/original/trial-01.json",
+      "sha256": "aabea5df16da5c2342b97d68f3b48b35faa59824adfb2734928950eb8598af58",
+      "bytes": 1614279,
+      "allocatedBefore": 1617920,
+      "allocatedAfter": 167936
+    },
+    {
+      "path": "results/diagnostics/server-storage-development/CAMPAIGN.json",
+      "sha256": "eede4e71024bc8cb5b046db3f4ec4e288fd4f98a03e0c84eb541b2e9c9b6df93",
+      "bytes": 1609069,
+      "allocatedBefore": 1609728,
+      "allocatedAfter": 200704
+    },
+    {
+      "path": "results/diagnostics/browser-collaboration-smoke/CAMPAIGN.json",
+      "sha256": "f497cf16ce5d52ca9d1aea940d4fb50bd75eeb286ad165a7ca67aa2aa8ed8eeb",
+      "bytes": 1608615,
+      "allocatedBefore": 1609728,
+      "allocatedAfter": 135168
+    },
+    {
+      "path": "results/diagnostics/tanstack-recovery-runner-regression/SOURCE.json",
+      "sha256": "44109f3fe46de93fb3b05731b5f67f635b4d2d651aa17d7708805f429d0f2e8e",
+      "bytes": 1607265,
+      "allocatedBefore": 1609728,
+      "allocatedAfter": 643072
+    },
+    {
+      "path": "results/diagnostics/electric-recovery-smoke/SOURCE.json",
+      "sha256": "22b014ca337b1801d15cbab788766cf8f3fdc0534ad19e7529f8776641dd91ea",
+      "bytes": 1603865,
+      "allocatedBefore": 1605632,
+      "allocatedAfter": 643072
+    },
+    {
+      "path": "results/diagnostics/electric-recovery-development/SOURCE.json",
+      "sha256": "4586daa6583468766acbd70c9015357e0268f69673dd317821f247a1205fa1f2",
+      "bytes": 1603597,
+      "allocatedBefore": 1605632,
+      "allocatedAfter": 643072
+    },
+    {
+      "path": "results/diagnostics/zero-recovery-smoke/SOURCE.json",
+      "sha256": "dd177c2575e4469e8b5035fdff04f63e5e148bc19521aa632e946858fb7d1cbd",
+      "bytes": 1591563,
+      "allocatedBefore": 1593344,
+      "allocatedAfter": 638976
+    },
+    {
+      "path": "results/diagnostics/jazz-subscription-startup-reopen-smoke/SOURCE.json",
+      "sha256": "f1a0d83adbea93c0f4ab7256cd09c0852a433af1fbab240b6e43ddefd0be70e7",
+      "bytes": 1564385,
+      "allocatedBefore": 1564672,
+      "allocatedAfter": 630784
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-subscription-development/SOURCE.json",
+      "sha256": "c0396dc7c3eb0ec9b28c09e2230ac8164a93262e5e089c3109284a79706954a3",
+      "bytes": 1557421,
+      "allocatedBefore": 1560576,
+      "allocatedAfter": 626688
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-screen-strategy/SOURCE.json",
+      "sha256": "c0396dc7c3eb0ec9b28c09e2230ac8164a93262e5e089c3109284a79706954a3",
+      "bytes": 1557421,
+      "allocatedBefore": 1560576,
+      "allocatedAfter": 626688
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-subscription-extended/SOURCE.json",
+      "sha256": "c0396dc7c3eb0ec9b28c09e2230ac8164a93262e5e089c3109284a79706954a3",
+      "bytes": 1557421,
+      "allocatedBefore": 1560576,
+      "allocatedAfter": 626688
+    },
+    {
+      "path": "results/diagnostics/startup-observer-v3-smoke/SOURCE.json",
+      "sha256": "c0396dc7c3eb0ec9b28c09e2230ac8164a93262e5e089c3109284a79706954a3",
+      "bytes": 1557421,
+      "allocatedBefore": 1560576,
+      "allocatedAfter": 626688
+    },
+    {
+      "path": "results/diagnostics/zero-conflicts-smoke/CAMPAIGN.json",
+      "sha256": "ea20c4499a3ce926959e4202cc9437d752e29a5290b2331cd95247989b5f020e",
+      "bytes": 1552896,
+      "allocatedBefore": 1556480,
+      "allocatedAfter": 155648
+    },
+    {
+      "path": "results/diagnostics/startup-observer-first-smoke/SOURCE.json",
+      "sha256": "d3bd0729afbbca9e0f032414b90e8757930a91dd7de29037287624aa3489770d",
+      "bytes": 1548613,
+      "allocatedBefore": 1552384,
+      "allocatedAfter": 626688
+    },
+    {
+      "path": "results/diagnostics/startup-observer-development/SOURCE.json",
+      "sha256": "98e0782f26ca7ce7201efd91f4aa9d5e4a344f7d238e8d2dbe7e5a3c42f8a596",
+      "bytes": 1546197,
+      "allocatedBefore": 1548288,
+      "allocatedAfter": 626688
+    },
+    {
+      "path": "results/diagnostics/jazz-recovery-smoke/SOURCE.json",
+      "sha256": "646775fbfc617d20019a979f1770bcd24cdc87c023dddc6e60d45ed4202f96cb",
+      "bytes": 1534537,
+      "allocatedBefore": 1536000,
+      "allocatedAfter": 618496
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-count-frequency/reversed/SOURCE.json",
+      "sha256": "646775fbfc617d20019a979f1770bcd24cdc87c023dddc6e60d45ed4202f96cb",
+      "bytes": 1534537,
+      "allocatedBefore": 1536000,
+      "allocatedAfter": 618496
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-count-frequency/original/SOURCE.json",
+      "sha256": "646775fbfc617d20019a979f1770bcd24cdc87c023dddc6e60d45ed4202f96cb",
+      "bytes": 1534537,
+      "allocatedBefore": 1536000,
+      "allocatedAfter": 618496
+    },
+    {
+      "path": "results/diagnostics/jazz-recovery-development/SOURCE.json",
+      "sha256": "833511a8e8222caf6bb817b73672f451cb106265b34cc3297d360782c9be5ce9",
+      "bytes": 1528369,
+      "allocatedBefore": 1531904,
+      "allocatedAfter": 618496
+    },
+    {
+      "path": "results/diagnostics/jazz-recovery-receipt-probe/SOURCE.json",
+      "sha256": "e7b7d7f18e89ca8fe4177dc7f0f37b2e574cbfa6ac6465e12d1155d75cf29bd3",
+      "bytes": 1510915,
+      "allocatedBefore": 1511424,
+      "allocatedAfter": 610304
+    },
+    {
+      "path": "results/diagnostics/extended-reopen-smoke/SOURCE.json",
+      "sha256": "e7b7d7f18e89ca8fe4177dc7f0f37b2e574cbfa6ac6465e12d1155d75cf29bd3",
+      "bytes": 1510915,
+      "allocatedBefore": 1511424,
+      "allocatedAfter": 610304
+    },
+    {
+      "path": "results/diagnostics/tanstack-reopen-startup-regression/SOURCE.json",
+      "sha256": "e7b7d7f18e89ca8fe4177dc7f0f37b2e574cbfa6ac6465e12d1155d75cf29bd3",
+      "bytes": 1510915,
+      "allocatedBefore": 1511424,
+      "allocatedAfter": 610304
+    },
+    {
+      "path": "results/diagnostics/cargo-configuration-change-guard/SOURCE.json",
+      "sha256": "9763a56974208b3fd696cc1a964943e4754459ecaf727e8347c8c7e0ca1e63d1",
+      "bytes": 1496987,
+      "allocatedBefore": 1499136,
+      "allocatedAfter": 606208
+    },
+    {
+      "path": "results/diagnostics/cargo-configuration-smoke/SOURCE.json",
+      "sha256": "9763a56974208b3fd696cc1a964943e4754459ecaf727e8347c8c7e0ca1e63d1",
+      "bytes": 1496987,
+      "allocatedBefore": 1499136,
+      "allocatedAfter": 606208
+    },
+    {
+      "path": "results/diagnostics/configuration-change-guard/SOURCE.json",
+      "sha256": "7fb353fc87e86f2b2130cdf3e24af04c3fadd8e8c5057ff9bdf4c38e03ee8276",
+      "bytes": 1479257,
+      "allocatedBefore": 1482752,
+      "allocatedAfter": 598016
+    },
+    {
+      "path": "results/diagnostics/configuration-provenance-smoke/SOURCE.json",
+      "sha256": "7fb353fc87e86f2b2130cdf3e24af04c3fadd8e8c5057ff9bdf4c38e03ee8276",
+      "bytes": 1479257,
+      "allocatedBefore": 1482752,
+      "allocatedAfter": 598016
+    },
+    {
+      "path": "results/diagnostics/configuration-restoration-smoke/SOURCE.json",
+      "sha256": "7fb353fc87e86f2b2130cdf3e24af04c3fadd8e8c5057ff9bdf4c38e03ee8276",
+      "bytes": 1479257,
+      "allocatedBefore": 1482752,
+      "allocatedAfter": 598016
+    },
+    {
+      "path": "results/diagnostics/dependency-change-guard/SOURCE.json",
+      "sha256": "22a5083bc38eef04a53a6d613596a39fc3269dadce48347daf87dfe146bfc2db",
+      "bytes": 1447239,
+      "allocatedBefore": 1449984,
+      "allocatedAfter": 585728
+    },
+    {
+      "path": "results/diagnostics/dependency-provenance-smoke/SOURCE.json",
+      "sha256": "22a5083bc38eef04a53a6d613596a39fc3269dadce48347daf87dfe146bfc2db",
+      "bytes": 1447239,
+      "allocatedBefore": 1449984,
+      "allocatedAfter": 585728
+    },
+    {
+      "path": "results/diagnostics/jazz-shared-runtime-smoke/SOURCE.json",
+      "sha256": "2ba1618dc5cfbce445833782a89b961c50ead6252f334590f4a7e174c3be99e6",
+      "bytes": 1424513,
+      "allocatedBefore": 1425408,
+      "allocatedAfter": 573440
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-timeout-evidence/SOURCE.json",
+      "sha256": "2ba1618dc5cfbce445833782a89b961c50ead6252f334590f4a7e174c3be99e6",
+      "bytes": 1424513,
+      "allocatedBefore": 1425408,
+      "allocatedAfter": 573440
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-development/SOURCE.json",
+      "sha256": "1561ef9ab2d9664049475dd1028405db8484d61ff57c92d44829e1216a413a55",
+      "bytes": 1419481,
+      "allocatedBefore": 1421312,
+      "allocatedAfter": 573440
+    },
+    {
+      "path": "results/diagnostics/zero-shared-schema-smoke/SOURCE.json",
+      "sha256": "7e3ccfbcd81ab9b012009919e22a6c202306fdb18a1f4dc1c5b5bbcf5d99f402",
+      "bytes": 1405343,
+      "allocatedBefore": 1409024,
+      "allocatedAfter": 569344
+    },
+    {
+      "path": "results/diagnostics/memory-startup-smoke/SOURCE.json",
+      "sha256": "7e3ccfbcd81ab9b012009919e22a6c202306fdb18a1f4dc1c5b5bbcf5d99f402",
+      "bytes": 1405343,
+      "allocatedBefore": 1409024,
+      "allocatedAfter": 569344
+    },
+    {
+      "path": "results/diagnostics/zero-startup-development/SOURCE.json",
+      "sha256": "fa9e69f69d7a73bfc0674cc73831ee613f6795e48d5954680abd0a16ba7193f4",
+      "bytes": 1405159,
+      "allocatedBefore": 1409024,
+      "allocatedAfter": 569344
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-screen-strategy/trial-03.json",
+      "sha256": "9228f58f259617147bfa51d4e1f21601ef4a80f25ac8b61dcb6fe8c6e19c7c4c",
+      "bytes": 1403161,
+      "allocatedBefore": 1404928,
+      "allocatedAfter": 135168
+    },
+    {
+      "path": "results/diagnostics/tanstack-startup-smoke/SOURCE.json",
+      "sha256": "31ac83b3111187a67e4759d76d4cf077b02b09fa1f42525c56a6952c449cea55",
+      "bytes": 1400413,
+      "allocatedBefore": 1400832,
+      "allocatedAfter": 565248
+    },
+    {
+      "path": "results/diagnostics/jazz-recovery-smoke/CAMPAIGN.json",
+      "sha256": "180bd45a8837c5155122d81c45e47cb3a17aa46aa3c34a24477b82cc9b71db6a",
+      "bytes": 1399434,
+      "allocatedBefore": 1400832,
+      "allocatedAfter": 114688
+    },
+    {
+      "path": "results/diagnostics/server-storage-smoke/CAMPAIGN.json",
+      "sha256": "97d1ee8d9a1f3d8b1520d5f5454be2db879595fe107f520437f99e7a3b7c9c92",
+      "bytes": 1395372,
+      "allocatedBefore": 1396736,
+      "allocatedAfter": 196608
+    },
+    {
+      "path": "results/diagnostics/jazz-subscription-startup-reopen-smoke/CAMPAIGN.json",
+      "sha256": "debaab5213ede59bac6062bbbe270bd6905fef08830371f00439233273f7e930",
+      "bytes": 1393679,
+      "allocatedBefore": 1396736,
+      "allocatedAfter": 135168
+    },
+    {
+      "path": "results/diagnostics/recovery-restoration-extended/0011-jazz-v2-large-offline-queue.json",
+      "sha256": "1350d8be9cee3884533d118a49bbf6b7fbdd301634238079a8438a1bc28d9ac6",
+      "bytes": 1392125,
+      "allocatedBefore": 1392640,
+      "allocatedAfter": 73728
+    },
+    {
+      "path": "results/diagnostics/electric-startup-smoke/SOURCE.json",
+      "sha256": "956bc5a94a0e8b89a706496814802b40acdc0cf9dfaab09ba6119dea606a7c58",
+      "bytes": 1390291,
+      "allocatedBefore": 1392640,
+      "allocatedAfter": 565248
+    },
+    {
+      "path": "results/diagnostics/electric-startup-development/sorted-snapshot-check/SOURCE.json",
+      "sha256": "88806565d4210ca7a7d5e337d1bac5a255231685ca742b42c5927545fe788084",
+      "bytes": 1390131,
+      "allocatedBefore": 1392640,
+      "allocatedAfter": 565248
+    },
+    {
+      "path": "results/diagnostics/electric-startup-development/initial-ordering-check/SOURCE.json",
+      "sha256": "bde74a970971a84585a9eceb44175ff12b865ada68a0e6c67c7278c0735920bf",
+      "bytes": 1388167,
+      "allocatedBefore": 1388544,
+      "allocatedAfter": 565248
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-timeout-evidence/CAMPAIGN.json",
+      "sha256": "28e30e5393d64646a47e2adb811987690c808bd713fcdf31b6eb8b7ac3f3bf0b",
+      "bytes": 1358120,
+      "allocatedBefore": 1359872,
+      "allocatedAfter": 118784
+    },
+    {
+      "path": "results/diagnostics/jazz-screen-isolation-smoke/SOURCE.json",
+      "sha256": "8b1a02b1da8066b27bce64839337fe13baf826d8b0440c1a07a54ebe42a3ed3a",
+      "bytes": 1355081,
+      "allocatedBefore": 1355776,
+      "allocatedAfter": 548864
+    },
+    {
+      "path": "results/diagnostics/attachments-smoke/SOURCE.json",
+      "sha256": "287a3bf6100cadea25125bcfa56f64a1090128faa4010ef7659eefb08d29c8ee",
+      "bytes": 1342063,
+      "allocatedBefore": 1343488,
+      "allocatedAfter": 544768
+    },
+    {
+      "path": "results/diagnostics/attachment-interruption-development/initial-shared-contract/SOURCE.json",
+      "sha256": "cc1c7a21831fe7c7cefc3e51d9f820d0157f120b3504a59e1962bba0624227a1",
+      "bytes": 1341555,
+      "allocatedBefore": 1343488,
+      "allocatedAfter": 544768
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-screen-strategy/trial-02.json",
+      "sha256": "8dec241ca070d0376ce075b59316e0681cdbc91dcb25f755659611d143d45970",
+      "bytes": 1337755,
+      "allocatedBefore": 1339392,
+      "allocatedAfter": 131072
+    },
+    {
+      "path": "results/diagnostics/extended-fanout-smoke/0007-electric-tanstack-reconnect-storm.json",
+      "sha256": "32d19fc11215d27a8352cb0c9ce0e586e1576f77214f0f8434563bec3cc7ca57",
+      "bytes": 1334586,
+      "allocatedBefore": 1335296,
+      "allocatedAfter": 86016
+    },
+    {
+      "path": "results/diagnostics/attachment-interruption-smoke/SOURCE.json",
+      "sha256": "c233170bc050ba0df5373a8c7316335d31e7695476c0ebdd283310ea98acebc8",
+      "bytes": 1311799,
+      "allocatedBefore": 1314816,
+      "allocatedAfter": 532480
+    },
+    {
+      "path": "results/diagnostics/electric-conflicts-smoke/RETRY-PROBE.json",
+      "sha256": "ca0a3fe0526a750c3d6fb787d97a3cb47086ad34689038536b13d7e9499bab11",
+      "bytes": 1311367,
+      "allocatedBefore": 1314816,
+      "allocatedAfter": 49152
+    },
+    {
+      "path": "results/diagnostics/attachment-interruption-development/initial-campaign/SOURCE.json",
+      "sha256": "d2cb328dca9d5a1af9cceb8fc08ce4f7c1e131800f406b6d90b77902bfe175f9",
+      "bytes": 1309331,
+      "allocatedBefore": 1310720,
+      "allocatedAfter": 528384
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-screen-strategy/trial-05.json",
+      "sha256": "c96363809ab6f81654302e94e5d4869dad4b5eb1e44309f9d1a79ffe91ec4211",
+      "bytes": 1297319,
+      "allocatedBefore": 1298432,
+      "allocatedAfter": 126976
+    },
+    {
+      "path": "results/diagnostics/access-refresh-smoke/SOURCE.json",
+      "sha256": "b5c980269a2987ce614666929617b874b88a930010ac4f7b1d2fd24189c59e36",
+      "bytes": 1276191,
+      "allocatedBefore": 1277952,
+      "allocatedAfter": 516096
+    },
+    {
+      "path": "results/diagnostics/access-smoke/SOURCE.json",
+      "sha256": "9f9c83d4a0b75513e21862f7878081796f2d7d912e86515a67ad448b351126ca",
+      "bytes": 1274307,
+      "allocatedBefore": 1277952,
+      "allocatedAfter": 516096
+    },
+    {
+      "path": "results/diagnostics/electric-recovery-development/0008-electric-large-offline-queue.json",
+      "sha256": "932a1b56a2e773e5171c42b535b8f5aaf56f429ec814a6ed27c96045a44c8931",
+      "bytes": 1273477,
+      "allocatedBefore": 1273856,
+      "allocatedAfter": 241664
+    },
+    {
+      "path": "results/diagnostics/electric-recovery-smoke/0008-electric-large-offline-queue.json",
+      "sha256": "80728b4e1575738a83e890484f0616551f65cfcb0883e4a0f73d5f39bb07c735",
+      "bytes": 1267825,
+      "allocatedBefore": 1269760,
+      "allocatedAfter": 237568
+    },
+    {
+      "path": "results/diagnostics/rust-toolchain-smoke/SOURCE.json",
+      "sha256": "12207c883578020b1f23bc1e657eb22e837b5f4e22809dff9759ca28fff43dbe",
+      "bytes": 1266435,
+      "allocatedBefore": 1269760,
+      "allocatedAfter": 512000
+    },
+    {
+      "path": "results/diagnostics/executable-smoke/SOURCE.json",
+      "sha256": "f9b6f7315facd4c32f430d8f51ceee5bd1439a0476e79077a289348ca21e008d",
+      "bytes": 1265911,
+      "allocatedBefore": 1269760,
+      "allocatedAfter": 512000
+    },
+    {
+      "path": "results/diagnostics/jazz-shared-runtime-smoke/CAMPAIGN.json",
+      "sha256": "2cf1516fc787b620ef70c24f2c05c25f812ef1e4bcf8afc960616384fcd3ed10",
+      "bytes": 1248083,
+      "allocatedBefore": 1249280,
+      "allocatedAfter": 106496
+    },
+    {
+      "path": "results/diagnostics/jazz-access-screen-regression/0002-jazz-v2-local-query.json",
+      "sha256": "b8b5868e614e46a9efff89b65f68590b4fe9f7a9ada6547a9460cbcdd5afb26f",
+      "bytes": 1243408,
+      "allocatedBefore": 1245184,
+      "allocatedAfter": 122880
+    },
+    {
+      "path": "results/diagnostics/fanout-smoke/SOURCE.json",
+      "sha256": "7f33773322782ad00674b5e428b6166ed36807ad829d43c3ab753982af866a3b",
+      "bytes": 1242109,
+      "allocatedBefore": 1245184,
+      "allocatedAfter": 499712
+    },
+    {
+      "path": "results/diagnostics/publication-powersync-queue-accounting-1/0069-powersync-large-offline-queue.json",
+      "sha256": "257f35684fc3fd46d162fc9319bf29c4b4280a18148fad8b7ac76b8b9f3fd9a1",
+      "bytes": 1223359,
+      "allocatedBefore": 1224704,
+      "allocatedAfter": 61440
+    },
+    {
+      "path": "results/diagnostics/fanout-smoke/CAMPAIGN.json",
+      "sha256": "722b31e2fb28522958888817a1085e65e56ee5682291f315b92dcc5791419e8c",
+      "bytes": 1215681,
+      "allocatedBefore": 1216512,
+      "allocatedAfter": 122880
+    },
+    {
+      "path": "results/diagnostics/provenance-smoke/SOURCE.json",
+      "sha256": "4af39b9a1199cc87bad72946358e8fee6a41b31a9a645f5713d60f29bb1ec041",
+      "bytes": 1211315,
+      "allocatedBefore": 1212416,
+      "allocatedAfter": 487424
+    },
+    {
+      "path": "results/diagnostics/variability-pilot-jazz-screens-1/0027-jazz-v2-local-query.json",
+      "sha256": "f879d01dfb87430f62f458084d1ee10a13d21a269df7a3f8e40654fa81a0790b",
+      "bytes": 1200495,
+      "allocatedBefore": 1204224,
+      "allocatedAfter": 118784
+    },
+    {
+      "path": "results/diagnostics/variability-pilot/0027-jazz-v2-local-query.json",
+      "sha256": "f879d01dfb87430f62f458084d1ee10a13d21a269df7a3f8e40654fa81a0790b",
+      "bytes": 1200495,
+      "allocatedBefore": 1204224,
+      "allocatedAfter": 118784
+    },
+    {
+      "path": "results/diagnostics/variability-pilot/0059-jazz-v2-local-query.json",
+      "sha256": "6ef324381d1f1ca35d7e425379d5607b6dd43dfa8e0afa1e6e9cf1688ec2558e",
+      "bytes": 1183365,
+      "allocatedBefore": 1183744,
+      "allocatedAfter": 110592
+    },
+    {
+      "path": "results/diagnostics/variability-pilot/0101-jazz-v2-local-query.json",
+      "sha256": "8719b0107e0b677202cd4212ded0ea6907360386be4e116a2de715c618a13974",
+      "bytes": 1170529,
+      "allocatedBefore": 1171456,
+      "allocatedAfter": 110592
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-4/CAMPAIGN.json",
+      "sha256": "3d3a8bc89a77a36a37c4b937374b38c1fd0ed704bfcdeeabd52919c6322bc56f",
+      "bytes": 1149914,
+      "allocatedBefore": 1150976,
+      "allocatedAfter": 102400
+    },
+    {
+      "path": "results/diagnostics/recovery-restoration-extended/0001-syncular-large-offline-queue.json",
+      "sha256": "a21bea7bf8af6c39a4a3de70a8e833b072154356cb79f152c0dff0642b96f669",
+      "bytes": 1144340,
+      "allocatedBefore": 1146880,
+      "allocatedAfter": 57344
+    },
+    {
+      "path": "results/diagnostics/recovery-restoration-extended/0002-powersync-large-offline-queue.json",
+      "sha256": "80cb865f2eb0f6dbc4ca6cf3b5459ab11001795d0f71c309bbd013539f2714e7",
+      "bytes": 1143309,
+      "allocatedBefore": 1146880,
+      "allocatedAfter": 57344
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-9/CAMPAIGN.json",
+      "sha256": "8390c556a2ffe5e4f294e7c4fe374b46769b8194f286d258acb1105c082dba61",
+      "bytes": 1137938,
+      "allocatedBefore": 1138688,
+      "allocatedAfter": 102400
+    },
+    {
+      "path": "results/diagnostics/variability-pilot/0098-powersync-bootstrap.json",
+      "sha256": "f5d20328670c514aa17d02cb7dada5ef008c4acab7f9eca997be5135994a6abc",
+      "bytes": 1129443,
+      "allocatedBefore": 1130496,
+      "allocatedAfter": 118784
+    },
+    {
+      "path": "results/diagnostics/zero-restoration-phase-3/CAMPAIGN.json",
+      "sha256": "c8c9bab13c3d3689484d8ce0ed527d51e7e7fd8bd0c02e95fbdd499dccd17b92",
+      "bytes": 1127488,
+      "allocatedBefore": 1130496,
+      "allocatedAfter": 102400
+    },
+    {
+      "path": "results/diagnostics/electric-conflicts-smoke/0006-electric-offline-restart.json",
+      "sha256": "5cb8bb128ead2f2f4544de334a3b2bc9e4a495f253819e9f744cb27dc393a89b",
+      "bytes": 1116193,
+      "allocatedBefore": 1118208,
+      "allocatedAfter": 200704
+    },
+    {
+      "path": "results/diagnostics/extended-fanout-smoke/0005-zero-reconnect-storm.json",
+      "sha256": "2649ded3601857f46677fe78f66ff747bf113ad528c10150a7577325d3280220",
+      "bytes": 1101716,
+      "allocatedBefore": 1101824,
+      "allocatedAfter": 65536
+    },
+    {
+      "path": "results/diagnostics/jazz-screen-isolation-smoke/CAMPAIGN.json",
+      "sha256": "21325941499f05eb66114e262b5a7a55b43ab36e1113c8ee91b4343b5e0a2294",
+      "bytes": 1096883,
+      "allocatedBefore": 1097728,
+      "allocatedAfter": 98304
+    },
+    {
+      "path": "results/diagnostics/extended-fanout-smoke/0010-electric-reconnect-storm.json",
+      "sha256": "ffbf8e4fabbca51bbe58e827ca2f8cccff8afc4073ba498a3205a4ba18aea1ec",
+      "bytes": 1087821,
+      "allocatedBefore": 1089536,
+      "allocatedAfter": 69632
+    },
+    {
+      "path": "results/diagnostics/publication-failure-captures/0257/0257-jazz-v2-bootstrap.json",
+      "sha256": "3dafe3b775b8c823ed71463b3b3a7a36db7388c663e1020bba3747e4e82da0c6",
+      "bytes": 1081129,
+      "allocatedBefore": 1081344,
+      "allocatedAfter": 102400
+    },
+    {
+      "path": "results/diagnostics/jazz-startup-timeout-evidence/0001-jazz-v2-bootstrap.json",
+      "sha256": "0655c4c501fc20f60a28c9830cd922e0aefb3c7a66fc8f2df066304a09ec87cd",
+      "bytes": 1070309,
+      "allocatedBefore": 1073152,
+      "allocatedAfter": 98304
+    },
+    {
+      "path": "results/diagnostics/publication-failure-captures/0364/0364-jazz-v2-bootstrap.json",
+      "sha256": "d4c13f0655d6dcfe04d4161610d9baeb07b4409f47b1a1ef10356066dbff2efc",
+      "bytes": 1051282,
+      "allocatedBefore": 1052672,
+      "allocatedAfter": 98304
+    }
+  ],
+  "freeBytesAfter": 7576801280,
+  "finishedAt": "2026-09-09T01:03:01.973214+00:00"
+}

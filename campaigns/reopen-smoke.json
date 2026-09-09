@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 180000,
+  "stacks": ["syncular", "syncular-rust", "powersync", "turso"],
+  "scenarios": ["replica-reopen"],
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run four offline replica reopen checks in fresh processes. Retain every failure. Do not publish these single-trial checks as performance comparisons."
+}

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 300000,
+  "stacks": ["syncular", "syncular-rust"],
+  "scenarios": ["blob-flow"],
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run both native blob paths once, including the existing upload queue retry and a separate fresh-process download interrupted after 65536 response body bytes. Verify native failure, empty partial cache, full-object retry, exact content and client-only resources. Preserve every failure. Attachments still require the full shared workload and timing migration; this diagnostic cannot be published as a performance comparison."
+}

@@ -1,0 +1,31 @@
+/** Continue the audited 88-attempt inspection failure, then run the already-declared six Zero attempts. */
+import assert from 'node:assert/strict';
+import { openSync, closeSync, unlinkSync } from 'node:fs';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
+const root=resolve(import.meta.dir,'..'), run=join(root,'.tmp/tuned-v017-run');
+const evidence=join(root,'results/diagnostics/tuned-v017-recovery/gap-0088');
+await mkdir(evidence,{recursive:true});
+await writeFile(join(evidence,'PRE-RECOVERY-STATUS.json'),await readFile(join(run,'STATUS.json')),{flag:'wx'});
+await writeFile(join(evidence,'continuation-source.ts.txt'),await readFile(import.meta.path),{flag:'wx'});
+const lock=join(run,'continuation.lock');closeSync(openSync(lock,'wx'));await writeFile(lock,JSON.stringify({pid:process.pid})+'\n');
+const state:any={pid:process.pid,startedAt:new Date().toISOString(),requestedVersion:'0.17.0',trials:3,priorRunnerPid:5835};
+async function save(status:string,extra:any={}){Object.assign(state,{status,updatedAt:new Date().toISOString()},extra);await writeFile(join(run,'STATUS.json'),JSON.stringify(state,null,2)+'\n');console.log(status);}
+async function campaign(stage:string,config:string,recovery:boolean){
+ const log=join(run,stage+'.log');const fd=openSync(log,recovery?'a':'wx');
+ const args=[process.execPath,recovery?'scripts/recover-tuned-campaign.ts':'src/campaign.ts','--config',config];
+ let child;try{child=Bun.spawn(args,{cwd:root,stdout:fd,stderr:fd});}finally{closeSync(fd);}
+ await save(stage,{childPid:child.pid,command:args});
+ let manifestPath=recovery?join(root,'.results/campaign-2026-09-08T22-58-56-419Z/CAMPAIGN.json'):'';
+ while(!manifestPath&&child.exitCode===null){const text=await readFile(log,'utf8');manifestPath=text.match(/^campaign=(.+)$/m)?.[1]??'';if(!manifestPath)await Bun.sleep(1000);}
+ let collector:any;
+ if(manifestPath){const id=JSON.parse(await readFile(manifestPath,'utf8')).id;const archive=join(root,'results/diagnostics/tuned-v017-publication-failures',id);const fd=openSync(join(run,stage+'-recovery-0088-collector.log'),'wx');try{collector=Bun.spawn([process.execPath,'scripts/capture-campaign-failures.ts',manifestPath,log,String(child.pid),archive],{cwd:root,stdout:fd,stderr:fd});}finally{closeSync(fd);}}
+ const code=await child.exited;await save(stage+'-finished',{childPid:null,exitCode:code});
+ assert(manifestPath,'Campaign did not create a manifest');const m=JSON.parse(await readFile(manifestPath,'utf8'));const c=JSON.parse(await readFile(join(root,config),'utf8'));const expected=c.stacks.length*c.scenarios.length*c.trials;
+ assert.equal(c.trials,3);assert.equal(m.status,'complete');assert.equal(m.attempts.length,expected);
+ if(collector)assert.equal(await collector.exited,0,'Failure capture needs review');
+ await save(stage+'-verified',{[stage]:{manifestPath,attempts:expected,exitCode:code}});
+}
+try{await campaign('publication-sql','campaigns/publication-tuned-sql.json',true);await campaign('publication-zero','campaigns/publication-tuned-zero.json',false);await save('collection-complete-review-required');}
+catch(error){await save('stopped-needs-attention',{error:String(error)});process.exitCode=1;}
+finally{unlinkSync(lock);}

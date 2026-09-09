@@ -1,0 +1,17 @@
+import { FetchStrategy } from '@powersync/common';
+/**
+ * @internal
+ */
+export function resolveSyncOptions(options, defaultConnectionMethod) {
+    return {
+        appMetadata: options.appMetadata ?? {},
+        connectionMethod: options.connectionMethod ?? defaultConnectionMethod,
+        fetchStrategy: options.fetchStrategy ?? FetchStrategy.Buffered,
+        params: options.params ?? {},
+        includeDefaultStreams: options.includeDefaultStreams ?? true,
+        retryDelayMs: options.retryDelayMs ?? 5000,
+        crudUploadThrottleMs: options.crudUploadThrottleMs ?? 1000,
+        checkpointMode: options.checkpointMode ?? 'legacy'
+    };
+}
+//# sourceMappingURL=options.js.map

@@ -9,8 +9,8 @@
         "@powersync/node": "1.0.0",
         "@powersync/web": "2.3.0",
         "@rocicorp/zero": "1.9.0",
-        "@syncular/client": "0.16.1",
-        "@syncular/core": "0.16.1",
+        "@syncular/client": "0.17.0",
+        "@syncular/core": "0.17.0",
         "@tanstack/db": "0.8.7",
         "@tanstack/electric-db-collection": "0.4.7",
         "@tanstack/node-db-sqlite-persistence": "0.2.20",
@@ -27,8 +27,8 @@
       },
       "devDependencies": {
         "@journeyapps/wa-sqlite": "2.0.4",
-        "@syncular/server": "0.16.1",
-        "@syncular/server-hono": "0.16.1",
+        "@syncular/server": "0.17.0",
+        "@syncular/server-hono": "0.17.0",
         "@types/bun": "1.4.1",
         "typescript": "7.0.2",
       },
@@ -397,13 +397,13 @@
 
     "@standard-schema/spec": ["@standard-schema/spec@1.1.0", "", {}, "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="],
 
-    "@syncular/client": ["@syncular/client@0.16.1", "", { "dependencies": { "@sqlite.org/sqlite-wasm": "^3.53.0-build1", "@syncular/core": "0.16.1" } }, "sha512-XJLkHtPArlHMHYWFtr9owIfXkd7Ve37LRwEqSr1lPeS+LiMrHAksDgqgVmgKvkRtz7/Wvh5+/ZpLddsxheUVjQ=="],
+    "@syncular/client": ["@syncular/client@0.17.0", "", { "dependencies": { "@sqlite.org/sqlite-wasm": "^3.53.0-build1", "@syncular/core": "0.17.0" } }, "sha512-dAeh3UDmUnyr0zF5dR8LQzGptbmh8mSmn1F8t5eyAzQXTrcru5SvTaTksdqTqHAaQRia+os4RRuCOst0qCNM2Q=="],
 
-    "@syncular/core": ["@syncular/core@0.16.1", "", {}, "sha512-TYJCWe7f1okWgBB0Dgpfntxu0oWhXiK8nFCsrCtLF7EqBMc5eIFaL/Q4D5HTtN96sHioY8N8ECTFQ5U39A6Fug=="],
+    "@syncular/core": ["@syncular/core@0.17.0", "", {}, "sha512-ev7NERPohsYvRmBfubjV/TeChkAr9/aThti+0PjrzhJyvCuq4q3zYAEA4hDyxtDkZaj3Cy4YRRKsDLSWBNCS1A=="],
 
-    "@syncular/server": ["@syncular/server@0.16.1", "", { "dependencies": { "@syncular/core": "0.16.1" } }, "sha512-cdfe4ouGLoHWod6PqEVIcwnD8sxovnEq+Zj3qj1+orpGxBUjm8Q0SHSDrcIUeice1/DhAKAZNhyMa9Y5KKJ0KA=="],
+    "@syncular/server": ["@syncular/server@0.17.0", "", { "dependencies": { "@syncular/core": "0.17.0" } }, "sha512-iypNBlYO2Qq/L62tsJrCUKKB/I4tIlmngYqZkRZxH2/WicYp+DNruRe+QReYdsFSanH4UlZOz8BaDAIlLxAAug=="],
 
-    "@syncular/server-hono": ["@syncular/server-hono@0.16.1", "", { "dependencies": { "@syncular/server": "0.16.1", "hono": "^4.12.34" } }, "sha512-a5NPGJHE6VYNiT168On6v2p1fJLxvSty0d0NT7IWBan+TRWn2OPC+wpsly1gg9ettvPo0BsxUe6jbzOTsH2/cw=="],
+    "@syncular/server-hono": ["@syncular/server-hono@0.17.0", "", { "dependencies": { "@syncular/server": "0.17.0", "hono": "^4.12.34" } }, "sha512-0S+4O1tYE8AEb0iVuEjFUCaC+4H4o2j6TSV496/FdEjnRZxvqsXjPmyFD7K83SNnaF8CAyv1jJ5rL5vxz4vy+w=="],
 
     "@tanstack/db": ["@tanstack/db@0.8.7", "", { "dependencies": { "@standard-schema/spec": "^1.1.0", "@tanstack/db-ivm": "0.1.19", "@tanstack/pacer-lite": "^0.2.1" }, "peerDependencies": { "typescript": ">=4.7" } }, "sha512-NIocfK737qPvkE1Ot2iM5PXN6CSBZY5cw1ovAwo0RvQDc/iinyr3x7v+kavoiWxClbkul98J/wRzr0KLanMxOA=="],
 

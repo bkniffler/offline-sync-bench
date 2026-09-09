@@ -1,0 +1,28 @@
+{
+  "reviewedAt": "2026-09-09T09:47:43.292959+00:00",
+  "campaignId": "campaign-2026-09-08T22-58-56-419Z",
+  "resultId": "63244249-6e2c-43e2-a78f-fdff44c62d7d",
+  "sourceHash": "8ecde51941dc281ad277fea9b6a28b7165e0c72cc9202d1fbb71c64201ca9a03",
+  "rawSha256": "322af83213b0665c0dccb739e9fd505b98609868e59dd0298204823b1a290bf1",
+  "status": "supported-hypothesis",
+  "observation": "Syncular Rust attachment trial 3 timed out during initial reader synchronization before any upload or download variant began.",
+  "confirmedFacts": {
+    "durationMs": 49211.966709,
+    "failure": "7c16d7de-66af-432e-a649-d84744c458b3 sync failed: sync.transport_failed realtime sync round timed out (\u00a78.7)",
+    "completedAttachmentVariants": 0,
+    "distinctClientPids": [
+      67594,
+      67596
+    ],
+    "serviceLog": "All five captures succeeded. Syncular listening, object bucket initialization and a PostgreSQL checkpoint start were logged. No failed WebSocket frame trace exists.",
+    "rawEqualsManifest": true,
+    "captureHashesVerified": true
+  },
+  "explanation": "The unchanged source profile retains the possible WebSocket readiness race identified in the first attempt: a server message can arrive before asynchronous session assignment, while native connect can return before the server hello. Three similar timeouts do not establish that this sequence occurred.",
+  "priorSourceInspection": "../0030/INSPECTION.json",
+  "limitations": [
+    "No attachment transfer latency was measured in any of the three attempts.",
+    "The failed frame/session timing was not captured, so the proposed race remains unconfirmed."
+  ],
+  "nextAction": "After collection, trace server session assignment, hello receipt and the first sync frame. Compare buffering until a session exists in a separately declared diagnostic; preserve all three original attempts."
+}

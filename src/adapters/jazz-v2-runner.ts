@@ -1,20 +1,18 @@
+import { recoverySeed } from '../contracts/recovery.ts';
+import { measureCollaboration, collaborationSeed, pollUntil } from '../contracts/collaboration.ts';
+import { measureScreens, screenProjectId, screenOwnerId, fixtureTasks, validateScreenData, type Row } from '../contracts/screens.ts';
+import { validateSeedIsolation } from '../contracts/seeding-isolation.ts';
 import { randomUUID } from 'node:crypto';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import {
-  JazzClient,
-  definePermissions,
-  schema as s,
-  toWriteRecord,
-  transformRows,
-  type QueryInput,
-  type QueryExecutionOptions,
-} from 'jazz-tools';
+import { type JazzClient, toWriteRecord, type QueryInput } from 'jazz-tools';
 import { deploy } from 'jazz-tools/dev';
-import { NapiRuntime } from 'jazz-napi';
+import { app, appId, adminSecret, backendSecret, permissions, productVersion, createJazzNativeClient, queryTasks, jazzMembershipMigration, type TaskRow } from './jazz-native.ts';
+import { validateJazzDeployment } from '../contracts/jazz-deployment.ts';
+import { startupScaleCatalog, validateStartupSnapshot } from '../contracts/startup.ts';
 import { average, CpuSampler, MemorySampler, percentile, round } from '../metrics.ts';
 import { tempRoot } from '../paths.ts';
-import { getStack } from '../stacks.ts';
+import { getClientStack as getStack, getStack as getAdministrativeStack } from '../stacks.ts';
 import type { BenchmarkStatus, JsonValue, OnlinePropagationSample } from '../types.ts';
 
 interface RunnerResult {
@@ -24,18 +22,6 @@ interface RunnerResult {
   metadata: { [key: string]: JsonValue };
 }
 
-interface TaskRow {
-  id: string;
-  dataset_id: string;
-  external_id: string;
-  org_id: string;
-  project_id: string;
-  owner_id: string;
-  title: string;
-  completed: boolean;
-  server_version: number;
-  updated_at: Date;
-}
 
 interface SeedResult {
   client: JazzClient;
@@ -56,57 +42,20 @@ interface ReplayResult {
 const stack = getStack('jazz-v2');
 const scenario = process.argv[2];
 const supportedScenarios = new Set([
-  'bootstrap',
+  'seed-local-query',
+  'seed-startup',
   'online-propagation',
   'offline-replay',
   'large-offline-queue',
   'local-query',
 ]);
-const appId = '782ccb53-dcba-56c0-acc8-d056d008eea3';
-const adminSecret = 'jazz-admin';
-const backendSecret = 'jazz-backend';
-const productVersion = '2.0.0-alpha.53';
-const scenarioRoot = join(tempRoot, `jazz-v2-${scenario}`);
+const scenarioRoot = process.argv[4] ?? join(tempRoot, `jazz-v2-${scenario}`);
+const stores = new WeakMap<JazzClient, string>();
 
-const schema = {
-  tasks: s
-    .table({
-      dataset_id: s.string(),
-      external_id: s.string(),
-      org_id: s.string(),
-      project_id: s.string(),
-      owner_id: s.string(),
-      title: s.string(),
-      completed: s.boolean(),
-      server_version: s.int(),
-      updated_at: s.timestamp(),
-    })
-    .indexOnly([
-      'dataset_id',
-      'external_id',
-      'org_id',
-      'project_id',
-      'owner_id',
-      'completed',
-      'updated_at',
-    ]),
-};
-const app = s.defineApp(schema);
-const permissions = definePermissions(app, ({ policy }) => {
-  policy.tasks.allowRead.always();
-  policy.tasks.allowInsert.always();
-  policy.tasks.allowUpdate.always();
-  policy.tasks.allowDelete.always();
-});
-const schemaJson = JSON.stringify({
-  __jazzRuntimeSchema: 1,
-  schema: app.wasmSchema,
-  loadedPolicyBundle: false,
-});
 
 if (!scenario || !supportedScenarios.has(scenario)) {
   throw new Error(
-    'Expected scenario argument: bootstrap | online-propagation | offline-replay | large-offline-queue | local-query'
+    'Expected scenario argument: seed-startup | online-propagation | offline-replay | large-offline-queue | local-query'
   );
 }
 
@@ -123,53 +72,63 @@ void main().then(
 
 async function main(): Promise<RunnerResult> {
   await mkdir(scenarioRoot, { recursive: true });
-  await deploy({
+  if (scenario === 'local-query') return runLocalQuery();
+  const deployment = await deploy({
     appId,
-    serverUrl: stack.syncBaseUrl,
+    serverUrl: getAdministrativeStack('jazz-v2').syncBaseUrl,
     adminSecret,
     schema: app.wasmSchema,
     permissions,
+    migration: jazzMembershipMigration,
   });
+  validateJazzDeployment(deployment);
 
-  if (scenario === 'bootstrap') return runBootstrap();
+  if (scenario === 'seed-startup') {
+    const datasetId = process.argv[3], count = Number(process.argv[5]);
+    if (!datasetId?.startsWith('startup-') || ![...startupScaleCatalog, recoverySeed.tasksPerProject].includes(count)) throw new Error('Invalid Jazz startup fixture');
+    const { client } = await seedTasks(datasetId, count, { screenFixture: true });
+    const rows = await queryTasks(client, app.tasks.where({ dataset_id: { eq: datasetId } }), { tier: 'local', propagation: 'local-only' });
+    const tasksDigest = validateStartupSnapshot(rows.map(row => ({ ...row, id: row.external_id })), count);
+    const receipt = { pid: process.pid, parentPid: process.ppid, store: stores.get(client)!, datasetId, taskCount: count,
+      tasksDigest, edgeDurable: true, productVersion, completedAt: new Date().toISOString() };
+    await client.shutdown();
+    return { status: 'completed', metrics: { seeded_tasks: count }, notes: ['Native edge-durable canonical startup fixture; seeder closes and exits before reader launch.'], metadata: { seedReceipt: receipt } };
+  }
+
+  if (scenario === 'seed-local-query') {
+    const datasetId = process.argv[3];
+    if (!datasetId?.startsWith('local-')) throw new Error('Jazz screen seeder requires its dataset identity');
+    const { client } = await seedTasks(datasetId, 100_000, { screenFixture: true });
+    const rows = await queryTasks(client, app.tasks.where({ dataset_id: { eq: datasetId } }), { tier: 'local', propagation: 'local-only' });
+    const validation = validateScreenData('local-query', { tasks: rows.map(row => ({ ...row, id: row.external_id })) });
+    return { status: 'completed', metrics: { seeded_tasks: 100_000 }, notes: ['Every seed batch received edge durability before this process exits.'],
+      metadata: { seedReceipt: { pid: process.pid, parentPid: process.ppid, store: stores.get(client)!, datasetId, taskCount: 100_000, tasksDigest: validation.tasksDigest,
+        edgeDurable: true, productVersion, completedAt: new Date().toISOString() } } };
+  }
+
   if (scenario === 'online-propagation') return runOnlinePropagation();
   if (scenario === 'offline-replay') return runOfflineReplay();
   if (scenario === 'large-offline-queue') return runLargeOfflineQueue();
-  return runLocalQuery();
+  throw new Error('Unhandled Jazz scenario');
 }
 
 function createClient(name: string): JazzClient {
-  const runtime = new NapiRuntime(
-    schemaJson,
-    appId,
-    'bench',
-    'main',
-    join(scenarioRoot, `${name}-${randomUUID()}.db`),
-    'local'
-  );
-  const client = JazzClient.connectWithRuntime(runtime, {
-    appId,
-    schema: app.wasmSchema,
-    serverUrl: stack.syncBaseUrl,
-    backendSecret,
-    env: 'bench',
-    userBranch: 'main',
-    tier: 'local',
-    defaultDurabilityTier: 'local',
-  }).asBackend();
-  client.connectTransport(stack.syncBaseUrl, { backend_secret: backendSecret });
+  const store = join(scenarioRoot, `${name}-${randomUUID()}.db`);
+  const client = createJazzNativeClient(store, stack.syncBaseUrl);
+  stores.set(client, store);
   return client;
 }
 
 async function seedTasks(
   datasetId: string,
   count: number,
-  options: { client?: JazzClient; retainIds?: number } = {}
+  options: { client?: JazzClient; retainIds?: number; screenFixture?: boolean } = {}
 ): Promise<SeedResult> {
   const client = options.client ?? createClient(`seed-${count}`);
   const taskIds: string[] = [];
   const retainIds = options.retainIds ?? 0;
   const chunkSize = 1_000;
+  const screenRows = options.screenFixture ? fixtureTasks({ resetFirst: true, orgCount: 1, projectsPerOrg: 1, usersPerOrg: 2, tasksPerProject: count, membershipsPerProject: 2 }) : null;
 
   for (let chunkStart = 0; chunkStart < count; chunkStart += chunkSize) {
     const batchId = client.beginBatch('direct');
@@ -190,6 +149,7 @@ async function seedTasks(
             completed: index % 3 === 0,
             server_version: 1,
             updated_at: new Date(1_700_000_000_000 + index),
+            ...(screenRows ? { ...screenRows[index], id: undefined, external_id: String(screenRows[index].id), completed: Boolean(screenRows[index].completed) } : {}),
           },
           app.wasmSchema,
           'tasks'
@@ -205,14 +165,6 @@ async function seedTasks(
   return { client, taskIds };
 }
 
-async function queryTasks(
-  client: JazzClient,
-  query: QueryInput,
-  options: QueryExecutionOptions
-): Promise<TaskRow[]> {
-  const rows = await client.query(query, options);
-  return transformRows<TaskRow>(rows, app.wasmSchema, 'tasks');
-}
 
 async function waitForRows(
   client: JazzClient,
@@ -238,142 +190,25 @@ function parseNumberList(value: string | undefined, fallback: number[]): number[
   return value.split(',').map((part) => Number(part.trim())).filter(Number.isFinite);
 }
 
-async function runBootstrap(): Promise<RunnerResult> {
-  const scales = parseNumberList(
-    process.env.JAZZ_BENCH_BOOTSTRAP_SCALES,
-    [1_000, 10_000, 100_000, 250_000, 500_000]
-  );
-  const scaleResults: Array<Record<string, number | null>> = [];
-
-  for (const rowsTarget of scales) {
-    const datasetId = `bootstrap-${rowsTarget}-${randomUUID()}`;
-    await seedTasks(datasetId, rowsTarget);
-    const memory = new MemorySampler();
-    const cpu = new CpuSampler();
-    memory.start();
-    cpu.start();
-    const startedAt = performance.now();
-    const reader = createClient(`bootstrap-reader-${rowsTarget}`);
-    const rows = await waitForRows(
-      reader,
-      app.tasks.where({ dataset_id: { eq: datasetId } }),
-      rowsTarget,
-      600_000
-    );
-    const memoryMetrics = memory.stop();
-    const cpuMetrics = cpu.stop();
-    scaleResults.push({
-      rowsTarget,
-      timeToFirstQueryMs: round(performance.now() - startedAt),
-      rowsLoaded: rows.length,
-      requestCount: null,
-      requestBytes: null,
-      responseBytes: null,
-      bytesTransferred: null,
-      ...memoryMetrics,
-      ...cpuMetrics,
-    });
-  }
-
-  return {
-    status: 'completed',
-    metrics: Object.fromEntries(
-      scaleResults.flatMap((entry) => {
-        const scale = entry.rowsTarget;
-        return [
-          [`bootstrap_${scale}_ms`, entry.timeToFirstQueryMs],
-          [`rows_loaded_${scale}`, entry.rowsLoaded],
-          [`request_count_${scale}`, null],
-          [`request_bytes_${scale}`, null],
-          [`response_bytes_${scale}`, null],
-          [`bytes_transferred_${scale}`, null],
-          [`avg_memory_mb_${scale}`, entry.avgMemoryMb],
-          [`peak_memory_mb_${scale}`, entry.peakMemoryMb],
-          [`avg_cpu_pct_${scale}`, entry.avgCpuPct],
-          [`peak_cpu_pct_${scale}`, entry.peakCpuPct],
-        ];
-      })
-    ),
-    notes: [
-      'A fresh persistent jazz-napi client performs a full edge-propagated query for each scale.',
-      'Jazz v2 does not expose transport byte counters, so request and byte metrics are null.',
-      'Jazz v2 is an alpha and these measurements belong to the experimental lane.',
-    ],
-    metadata: {
-      implementation: 'jazz-v2-alpha-native-bootstrap',
-      productVersion,
-      experimental: true,
-      scales: scaleResults as unknown as JsonValue,
-    },
-  };
-}
 
 async function runOnlinePropagation(): Promise<RunnerResult> {
   const datasetId = `online-${randomUUID()}`;
-  const { client: writer, taskIds } = await seedTasks(datasetId, 200, { retainIds: 1 });
+  const { client: writer, taskIds } = await seedTasks(datasetId, 200, { retainIds: 1, screenFixture: true });
   const taskId = taskIds[0];
-  if (!taskId) throw new Error('Jazz v2 online fixture is missing');
+  if (!taskId) throw new Error('Jazz task fixture missing');
   const reader = createClient('online-reader');
   await waitForRows(reader, app.tasks.where({ dataset_id: { eq: datasetId } }), 200);
-  const samples: OnlinePropagationSample[] = [];
-  const memory = new MemorySampler();
-  const cpu = new CpuSampler();
-  memory.start();
-  cpu.start();
-
-  for (let iteration = 0; iteration < 15; iteration += 1) {
-    const title = `jazz-online-${iteration}-${Date.now()}`;
-    const startedAt = performance.now();
-    const write = writer.update(
-      taskId,
-      toWriteRecord(
-        { title, server_version: iteration + 2, updated_at: new Date() },
-        app.wasmSchema,
-        'tasks'
-      )
-    );
-    await write.wait({ tier: 'local' });
-    const writeAckMs = performance.now() - startedAt;
-    await write.wait({ tier: 'edge' });
-    await waitForRows(reader, app.tasks.where({ id: { eq: taskId }, title: { eq: title } }), 1);
-    samples.push({
-      iteration,
-      writeAckMs: round(writeAckMs),
-      mirrorVisibleMs: round(performance.now() - startedAt),
-    });
-  }
-
-  const memoryMetrics = memory.stop();
-  const cpuMetrics = cpu.stop();
-  const visibility = samples.map((sample) => sample.mirrorVisibleMs);
-  return {
-    status: 'completed',
-    metrics: {
-      write_ack_ms: average(samples.map((sample) => sample.writeAckMs)),
-      mirror_visible_p50_ms: percentile(visibility, 50),
-      mirror_visible_p95_ms: percentile(visibility, 95),
-      mirror_visible_p99_ms: percentile(visibility, 99),
-      iterations: samples.length,
-      request_count: null,
-      request_bytes: null,
-      response_bytes: null,
-      bytes_transferred: null,
-      avg_memory_mb: memoryMetrics.avgMemoryMb,
-      peak_memory_mb: memoryMetrics.peakMemoryMb,
-      avg_cpu_pct: cpuMetrics.avgCpuPct,
-      peak_cpu_pct: cpuMetrics.peakCpuPct,
+  const result = await measureCollaboration({
+      readData: async () => (await queryTasks(reader, app.tasks.where({ dataset_id: { eq: datasetId } }), { tier: 'local', propagation: 'local-only' })).map(row => ({ ...row, id: row.external_id })),
+    localCommit: true,
+    write: async (title, milestones) => {
+      const write = writer.update(taskId, toWriteRecord({ title }, app.wasmSchema, 'tasks'));
+      await Promise.all([write.wait({ tier: 'local' }).then(() => milestones.localCommitted()), write.wait({ tier: 'edge' }).then(() => milestones.serverAccepted())]);
     },
-    notes: [
-      'write_ack_ms is Jazz local durability; mirror visibility includes edge durability and an independent client query.',
-      'Jazz v2 is an alpha and these measurements belong to the experimental lane.',
-    ],
-    metadata: {
-      implementation: 'jazz-v2-alpha-native-propagation',
-      productVersion,
-      experimental: true,
-      samples: samples as unknown as JsonValue,
-    },
-  };
+    observe: (title, signal) => pollUntil(async () => (await queryTasks(reader, app.tasks.where({ id: { eq: taskId } }), { tier: 'local', propagation: 'local-only' }))[0]?.title === title, signal),
+    diagnostics: { localCommit: 'local durability receipt', serverAccepted: 'edge durability receipt', reader: 'native transport with 1ms local-only query polling', localStorage: 'jazz-napi-sqlite-file' },
+  });
+  return { status: 'completed', ...result, metadata: { ...result.metadata, implementation: 'jazz-v2-collaboration-v2', productVersion, experimental: true } };
 }
 
 async function runOfflineReplay(): Promise<RunnerResult> {
@@ -492,99 +327,38 @@ async function runReplayCase(queueSize: number, label: string): Promise<ReplayRe
 }
 
 async function runLocalQuery(): Promise<RunnerResult> {
-  const rowCount = Number(process.env.JAZZ_BENCH_LOCAL_ROWS ?? 100_000);
-  const datasetId = `local-${randomUUID()}`;
-  await seedTasks(datasetId, rowCount);
+  const datasetId = process.argv[3], seeding = JSON.parse(process.argv[5] ?? 'null') as Record<string, JsonValue> | null;
+  if (!datasetId?.startsWith('local-') || !seeding || seeding.datasetId !== datasetId || seeding.exitCode !== 0 || seeding.exitSignal !== null || seeding.pid === process.pid || seeding.exitObservedBeforeReaderSpawn !== true) throw new Error('Jazz screens require a completed separate seed process');
+  const readerStartedAt = new Date().toISOString();
   const client = createClient('local-reader');
-  await waitForRows(client, app.tasks.where({ dataset_id: { eq: datasetId } }), rowCount, 600_000);
-  const listSamples: number[] = [];
-  const searchSamples: number[] = [];
-  const aggregateSamples: number[] = [];
-  let listResultCount = 0;
-  let searchResultCount = 0;
-  let aggregateResultCount = 0;
-  const memory = new MemorySampler();
-  const cpu = new CpuSampler();
-  memory.start();
-  cpu.start();
-
-  for (let iteration = 0; iteration < 25; iteration += 1) {
-    let startedAt = performance.now();
-    const list = await queryTasks(
-      client,
-      app.tasks
-        .where({
-          dataset_id: { eq: datasetId },
-          project_id: { eq: `${datasetId}-project-1` },
-          owner_id: { eq: `${datasetId}-owner-0` },
-          completed: { eq: false },
-        })
-        .orderBy('updated_at', 'desc')
-        .limit(50),
-      { tier: 'local', propagation: 'local-only' }
-    );
-    listSamples.push(round(performance.now() - startedAt));
-    listResultCount = list.length;
-
-    startedAt = performance.now();
-    const search = await queryTasks(
-      client,
-      app.tasks
-        .where({
-          dataset_id: { eq: datasetId },
-          external_id: { contains: '-task-00' },
-        })
-        .orderBy('external_id')
-        .limit(100),
-      { tier: 'local', propagation: 'local-only' }
-    );
-    searchSamples.push(round(performance.now() - startedAt));
-    searchResultCount = search.length;
-
-    startedAt = performance.now();
-    const aggregateRows = await queryTasks(
-      client,
-      app.tasks.where({ dataset_id: { eq: datasetId } }),
-      { tier: 'local', propagation: 'local-only' }
-    );
-    aggregateResultCount = new Set(
-      aggregateRows.map((row) => `${row.owner_id}:${row.completed}`)
-    ).size;
-    aggregateSamples.push(round(performance.now() - startedAt));
-  }
-
-  const memoryMetrics = memory.stop();
-  const cpuMetrics = cpu.stop();
-  return {
-    status: 'completed',
-    metrics: {
-      row_count: rowCount,
-      iterations: 25,
-      list_query_p50_ms: percentile(listSamples, 50),
-      list_query_p95_ms: percentile(listSamples, 95),
-      search_query_p50_ms: percentile(searchSamples, 50),
-      search_query_p95_ms: percentile(searchSamples, 95),
-      aggregate_query_p50_ms: percentile(aggregateSamples, 50),
-      aggregate_query_p95_ms: percentile(aggregateSamples, 95),
-      list_result_count: listResultCount,
-      search_result_count: searchResultCount,
-      aggregate_result_count: aggregateResultCount,
-      avg_memory_mb: memoryMetrics.avgMemoryMb,
-      peak_memory_mb: memoryMetrics.peakMemoryMb,
-      avg_cpu_pct: cpuMetrics.avgCpuPct,
-      peak_cpu_pct: cpuMetrics.peakCpuPct,
+  await waitForRows(client, app.tasks.where({ dataset_id: { eq: datasetId } }), 100_000, 600_000);
+  const localOnly = { tier: 'local', propagation: 'local-only' } as const;
+  const result = await measureScreens('local-query', {
+    execution: 'mixed-native-and-application',
+    readData: async () => ({ tasks: (await queryTasks(client, app.tasks.where({ dataset_id: { eq: datasetId } }), localOnly))
+      .map(row => ({ ...row, id: row.external_id })) as unknown as Row[] }),
+    query: async name => {
+      if (name === 'list') return (await queryTasks(client, app.tasks.where({ dataset_id: { eq: datasetId }, project_id: { eq: screenProjectId }, owner_id: { eq: screenOwnerId }, completed: { eq: false } })
+        .orderBy('external_id', 'desc').limit(50), localOnly))
+        .map(row => ({ id: row.external_id, title: row.title, completed: Number(row.completed) }));
+      if (name === 'search') return (await queryTasks(client, app.tasks.where({ dataset_id: { eq: datasetId }, project_id: { eq: screenProjectId }, external_id: { contains: `${screenProjectId}-task-00` } })
+        .orderBy('external_id').limit(100), localOnly))
+        .map(row => ({ id: row.external_id, title: row.title }));
+      const rows = await queryTasks(client, app.tasks.where({ dataset_id: { eq: datasetId }, project_id: { eq: screenProjectId } }), localOnly);
+      const groups = new Map<string, { owner_id: string; completed: number; task_count: number }>();
+      for (const row of rows) {
+        const key = `${row.owner_id}:${Number(row.completed)}`;
+        const group = groups.get(key) ?? { owner_id: row.owner_id, completed: Number(row.completed), task_count: 0 };
+        group.task_count++; groups.set(key, group);
+      }
+      return [...groups.values()].sort((a, b) => a.owner_id < b.owner_id ? -1 : a.owner_id > b.owner_id ? 1 : a.completed - b.completed);
     },
-    notes: [
-      'List and search use native Jazz local queries over the persistent local runtime.',
-      'The aggregate scenario is emulated by materializing the native local result and grouping in JavaScript because Jazz v2 alpha exposes no local aggregate operator.',
-      'Jazz v2 is an alpha and these measurements belong to the experimental lane.',
-    ],
-    metadata: {
-      implementation: 'jazz-v2-alpha-local-query-partial-emulation',
-      productVersion,
-      experimental: true,
-    },
-  };
+    diagnostics: { localStorage: 'jazz-napi-sqlite-file', listAndSearch: 'native-local-query', aggregate: 'native-materialization-plus-javascript-grouping', idMapping: 'canonical task ID stored in external_id; product ID remains random', seeding: 'separate process; observed exit before reader creation' },
+  });
+  const metadata = { ...result.metadata, implementation: 'jazz-v2-screens-v2', productVersion, experimental: true,
+    seedingIsolation: { method: 'separate-seed-process-v1', seeding, reader: { pid: process.pid, parentPid: process.ppid, store: stores.get(client)!, datasetId, startedAt: readerStartedAt } } };
+  validateSeedIsolation(metadata);
+  return { status: 'completed', ...result, metadata };
 }
 
 function pickResourceMetrics(result: ReplayResult): Record<string, number> {

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 1800000,
+  "stacks": ["jazz-v2", "syncular"],
+  "scenarios": ["bootstrap", "replica-reopen"],
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run each declared startup and offline-reopen case once, preserving failures without replacement. Jazz uses the migrated native screen subscription with explicit initial-query, subscription-update and materialized-screen evidence. Startup retains canonical 1k/10k/100k restarted/warm cases, observer v3 and its unchanged 90-second deadline. Reopen requires complete native data and a correct screen in a new process with networking blocked. Syncular verifies shared-controller regression. This correctness smoke cannot replace the controlled screen-strategy experiment or establish a performance ranking."
+}

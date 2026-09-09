@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 600000,
+  "stacks": [
+    "jazz-v2",
+    "syncular"
+  ],
+  "scenarios": [
+    "offline-replay",
+    "large-offline-queue",
+    "offline-restart"
+  ],
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Run one native recovery trial per case and adapter. Require complete 2,000-task snapshots, writer-only TCP outage, independent reader convergence and genuine SIGKILL recovery for 1,000 writes. Jazz must preserve full local state across restart while its native deferred edge-durable snapshot still contains the original values; after reconnect, complete local, edge-durable and independent reader snapshots must match. Reopen receives only the original configuration/store. Missing global queue telemetry stays unavailable. Syncular checks the shared-controller regression. This smoke makes no performance comparison."
+}

@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 600000,
+  "stacks": [
+    "syncular"
+  ],
+  "scenarios": [
+    "replica-reopen"
+  ],
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Run one native persisted-replica reopen while recording all installed host dependency bytes and rechecking the installation between trials. Validate the canonical offline dataset, dependency inventory/source/profile bindings and publication rejection. This is a provenance smoke, not a performance comparison."
+}

@@ -1,5 +1,6 @@
 import { benchmarkRoot } from './paths.ts';
 import type { StackId, StackSpec } from './types';
+import { applyClientRouting, routingVariable } from './network/routing.ts';
 
 export const stacks: StackSpec[] = [
   {
@@ -25,6 +26,7 @@ export const stacks: StackSpec[] = [
       bootstrap: 'native',
       onlinePropagation: 'native',
       offlineReplay: 'native',
+      offlineRestart: 'native',
       reconnectStorm: 'native',
       largeOfflineQueue: 'native',
       localQuery: 'native',
@@ -33,7 +35,7 @@ export const stacks: StackSpec[] = [
       blobFlow: 'native',
     },
     notes: [
-      'Syncular v2 from the published npm packages (@syncular/*@0.16.1, exact-pinned): the real @syncular/client SyncClient (bun:sqlite local database) against the v2 server with relational Postgres server storage (real per-app tables).',
+      'Syncular v2 from the published npm packages (@syncular/*@0.17.0, exact-pinned): the real @syncular/client SyncClient (bun:sqlite local database) against the v2 server with relational Postgres server storage (real per-app tables).',
       'Admin writes are engine-mediated — there is no CDC because the server tables are engine-owned; the bench-admin equivalents commit through the storage API and wake clients via the engine Postgres LISTEN/NOTIFY fanout.',
       'Blobs are delivered through presigned MinIO upload grants and download URLs via the product blob transport.',
       'Subscriptions are per-project scope subscriptions, so membership revocation empties one subscription scope and triggers the native client-side purge.',
@@ -62,6 +64,7 @@ export const stacks: StackSpec[] = [
       bootstrap: 'native',
       onlinePropagation: 'native',
       offlineReplay: 'native',
+      offlineRestart: 'native',
       reconnectStorm: 'native',
       largeOfflineQueue: 'native',
       localQuery: 'native',
@@ -71,7 +74,7 @@ export const stacks: StackSpec[] = [
     },
     notes: [
       'Same Syncular v2 server stack (relational Postgres server storage, engine-mediated admin writes with Postgres LISTEN/NOTIFY fanout, presigned MinIO blobs) driven by the native Rust client.',
-      'The Rust client (rusqlite core) runs as a harness-owned standalone bench binary built against the published crates (crates.io syncular-client/syncular-command/syncular-ffi 0.16.1, exact-pinned), speaking real HTTP+WebSocket to the Dockerized server — no browser, no WASM.',
+      'The Rust client (rusqlite core) runs as a harness-owned standalone bench binary built against the published crates (crates.io syncular-client/syncular-command/syncular-ffi 0.17.0, exact-pinned), speaking real HTTP+WebSocket to the Dockerized server — no browser, no WASM.',
       'Subscriptions are per-project scope subscriptions, matching the JS client workload shape.',
     ],
   },
@@ -86,6 +89,7 @@ export const stacks: StackSpec[] = [
     ],
     databaseUrl: 'postgresql://bench:bench@localhost:55433/bench?sslmode=disable',
     adminBaseUrl: 'http://localhost:3212',
+    mutationBaseUrl: 'http://localhost:3212',
     syncBaseUrl: 'http://localhost:3213',
     appBaseUrl: 'http://localhost:3224',
     services: {
@@ -98,6 +102,7 @@ export const stacks: StackSpec[] = [
       bootstrap: 'native',
       onlinePropagation: 'native',
       offlineReplay: 'emulated',
+      offlineRestart: 'emulated',
       reconnectStorm: 'native',
       largeOfflineQueue: 'emulated',
       localQuery: 'native',
@@ -134,7 +139,7 @@ export const stacks: StackSpec[] = [
       bootstrap: 'native',
       onlinePropagation: 'native',
       offlineReplay: 'native',
-      reconnectStorm: 'unsupported',
+      reconnectStorm: 'native',
       largeOfflineQueue: 'native',
       localQuery: 'native',
       deepRelationshipQuery: 'native',
@@ -142,7 +147,7 @@ export const stacks: StackSpec[] = [
       blobFlow: 'unsupported',
     },
     notes: [
-      'Uses the official Electric collection adapter with TanStack DB 0.6 SQLite persistence and the official TanStack offline-transactions outbox.',
+      'Uses the official Electric collection adapter with TanStack DB SQLite persistence and the official TanStack offline-transactions outbox.',
       'Writes go through an idempotent benchmark backend and return the Postgres transaction ID from the same transaction so TanStack can await the matching Electric event.',
       'Local and relationship queries run through the TanStack DB query engine over Electric-materialized, SQLite-persisted collections.',
     ],
@@ -170,9 +175,9 @@ export const stacks: StackSpec[] = [
     capabilities: {
       bootstrap: 'native',
       onlinePropagation: 'native',
-      offlineReplay: 'unsupported',
-      reconnectStorm: 'unsupported',
-      largeOfflineQueue: 'unsupported',
+      offlineReplay: 'native',
+      reconnectStorm: 'native',
+      largeOfflineQueue: 'native',
       localQuery: 'native',
       deepRelationshipQuery: 'native',
       permissionChange: 'unsupported',
@@ -180,7 +185,7 @@ export const stacks: StackSpec[] = [
     },
     notes: [
       'Uses a real zero-cache service plus a minimal benchmark app implementing query and mutate endpoints.',
-      'Offline replay is marked unsupported because Zero does not target durable offline write queues in this deployment model.',
+      'Live offline replay uses native mutation receipts and the SDK reconnect path. This memory-backed configuration cannot preserve its queue across process termination.',
       'Local-query coverage uses the native Zero local cache and query materialization path.',
     ],
   },
@@ -209,7 +214,8 @@ export const stacks: StackSpec[] = [
       bootstrap: 'native',
       onlinePropagation: 'native',
       offlineReplay: 'native',
-      reconnectStorm: 'unsupported',
+      offlineRestart: 'native',
+      reconnectStorm: 'native',
       largeOfflineQueue: 'native',
       localQuery: 'native',
       deepRelationshipQuery: 'native',
@@ -242,7 +248,8 @@ export const stacks: StackSpec[] = [
       bootstrap: 'native',
       onlinePropagation: 'native',
       offlineReplay: 'native',
-      reconnectStorm: 'unsupported',
+      offlineRestart: 'native',
+      reconnectStorm: 'native',
       largeOfflineQueue: 'native',
       localQuery: 'native',
       deepRelationshipQuery: 'native',
@@ -271,11 +278,11 @@ export const stacks: StackSpec[] = [
       bootstrap: 'native',
       onlinePropagation: 'native',
       offlineReplay: 'native',
-      reconnectStorm: 'unsupported',
+      reconnectStorm: 'native',
       largeOfflineQueue: 'native',
       localQuery: 'emulated',
       deepRelationshipQuery: 'unsupported',
-      permissionChange: 'unsupported',
+      permissionChange: 'native',
       blobFlow: 'unsupported',
     },
     notes: [
@@ -292,4 +299,9 @@ export function getStack(stackId: StackId): StackSpec {
     throw new Error(`Unknown stack: ${stackId}`);
   }
   return stack;
+}
+
+/** Client routes are separate from provisioning and administrative addresses. */
+export function getClientStack(stackId: StackId): StackSpec {
+  return applyClientRouting(getStack(stackId), process.env[routingVariable] ?? '');
 }

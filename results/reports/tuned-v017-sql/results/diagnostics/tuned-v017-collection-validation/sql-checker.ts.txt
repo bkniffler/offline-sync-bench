@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {readFile,writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {dirname,resolve} from 'node:path';
+import {validateManifest,groupAttempts} from '../src/campaign-report.ts';
+const path='.results/campaign-2026-09-08T22-58-56-419Z/CAMPAIGN.json',bytes=await readFile(path),m=JSON.parse(bytes.toString());
+const sha=(b:Uint8Array)=>createHash('sha256').update(b).digest('hex');
+validateManifest(m);groupAttempts(m.attempts);assert.equal(m.attempts.length,168);
+const bindings=[];
+for(const a of m.attempts){const raw=await readFile(resolve(dirname(path),a.resultFile));assert.deepEqual(JSON.parse(raw.toString()),a.result);const log=await readFile(resolve(dirname(path),a.resultFile)+'.log');bindings.push({resultId:a.result.resultId,trial:a.trial,stack:a.stackId,scenario:a.scenarioId,outcome:a.result.status,rawSha256:sha(raw),logSha256:sha(log),logBytes:log.length});}
+const reviewRoot='results/diagnostics/tuned-v017-publication-failures/'+m.id,indexBytes=await readFile(reviewRoot+'/CASE-REVIEWS.json'),index=JSON.parse(indexBytes.toString());
+const failures=m.attempts.filter((a:any)=>['failed','invalid','timed-out'].includes(a.result.status));assert.deepEqual(index.entries.map((e:any)=>e.resultId).sort(),failures.map((a:any)=>a.result.resultId).sort());
+for(const e of index.entries){assert.equal(sha(await readFile(reviewRoot+'/'+e.review)),e.reviewSha256);const a=bindings.find(a=>a.resultId===e.resultId);assert.equal(a?.rawSha256,e.rawSha256);}
+const output={checkedAt:new Date().toISOString(),status:'complete-sql-manifest-and-raw-files-verified',scope:'Validates all declared attempts, result contracts, profiles, storage windows and provenance identities, plus exact raw-file equality and log availability. This does not replace source/dependency/configuration archive verification, recovery audit, final annotations, charts, or publication restoration.',campaignId:m.id,manifestSha256:sha(bytes),sourceHash:m.source.sourceHash,attempts:m.attempts.length,outcomes:m.attempts.reduce((s:any,a:any)=>(s[a.result.status]=(s[a.result.status]??0)+1,s),{}),failureReviews:index.entries.length,failureIndexSha256:sha(indexBytes),validatorSourceSha256:sha(await readFile('src/campaign-report.ts')),checkerSha256:sha(await readFile(import.meta.path)),bindings};
+await writeFile('results/diagnostics/tuned-v017-collection-validation/SQL.json',JSON.stringify(output,null,2)+'\n',{flag:'wx'});
+console.log(JSON.stringify({status:output.status,attempts:output.attempts,outcomes:output.outcomes,failureReviews:output.failureReviews}));

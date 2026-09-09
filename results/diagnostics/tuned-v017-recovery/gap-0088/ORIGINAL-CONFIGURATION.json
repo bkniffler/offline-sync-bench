@@ -1,0 +1,2101 @@
+{
+  "version": 1,
+  "sourceHash": "8ecde51941dc281ad277fea9b6a28b7165e0c72cc9202d1fbb71c64201ca9a03",
+  "runtime": {
+    "environment": {
+      "sha256": "ce8710398407f195734744e2bd769c9f28793b0f27651416a14124e6c7e67e5a",
+      "values": {
+        "ALL_PROXY": {
+          "present": false
+        },
+        "AR": {
+          "present": false
+        },
+        "BENCH_BROWSER_BUNDLE": {
+          "present": true,
+          "value": ""
+        },
+        "BENCH_BROWSER_IDENTITY": {
+          "present": true,
+          "value": ""
+        },
+        "BENCH_CAMPAIGN_RUNTIME": {
+          "present": true,
+          "redacted": true
+        },
+        "BENCH_CLIENT_COUNTS": {
+          "present": true,
+          "value": ""
+        },
+        "BENCH_CLIENT_ENDPOINTS": {
+          "present": true,
+          "value": ""
+        },
+        "BENCH_RECOVERY_OUTAGE_MS": {
+          "present": true,
+          "value": "20000"
+        },
+        "BENCH_STARTUP_SIZES": {
+          "present": true,
+          "value": ""
+        },
+        "CC": {
+          "present": false
+        },
+        "CFLAGS": {
+          "present": false
+        },
+        "CI": {
+          "present": false
+        },
+        "CPPFLAGS": {
+          "present": false
+        },
+        "CXX": {
+          "present": false
+        },
+        "CXXFLAGS": {
+          "present": false
+        },
+        "DEBUG": {
+          "present": false
+        },
+        "FORCE_COLOR": {
+          "present": false
+        },
+        "HOME": {
+          "present": true,
+          "redacted": true
+        },
+        "HTTPS_PROXY": {
+          "present": false
+        },
+        "HTTP_PROXY": {
+          "present": false
+        },
+        "LANG": {
+          "present": true,
+          "value": "C.UTF-8"
+        },
+        "LC_ALL": {
+          "present": true,
+          "value": "C.UTF-8"
+        },
+        "LC_CTYPE": {
+          "present": true,
+          "value": "C.UTF-8"
+        },
+        "LDFLAGS": {
+          "present": false
+        },
+        "LIBRARY_PATH": {
+          "present": false
+        },
+        "NODE_PATH": {
+          "present": true,
+          "redacted": true
+        },
+        "NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S": {
+          "present": true,
+          "redacted": true
+        },
+        "NO_COLOR": {
+          "present": true,
+          "value": "1"
+        },
+        "NO_PROXY": {
+          "present": false
+        },
+        "PATH": {
+          "present": true,
+          "redacted": true
+        },
+        "PKG_CONFIG_PATH": {
+          "present": false
+        },
+        "RUST_LOG": {
+          "present": true,
+          "value": "warn"
+        },
+        "SQLITE_TMPDIR": {
+          "present": false
+        },
+        "SSL_CERT_DIR": {
+          "present": false
+        },
+        "SSL_CERT_FILE": {
+          "present": false
+        },
+        "SYNCULAR_RUST_BENCH_BIN": {
+          "present": true,
+          "redacted": true
+        },
+        "TEMP": {
+          "present": false
+        },
+        "TERM": {
+          "present": true,
+          "redacted": true
+        },
+        "TMP": {
+          "present": false
+        },
+        "TMPDIR": {
+          "present": true,
+          "redacted": true
+        },
+        "TZ": {
+          "present": false
+        },
+        "all_proxy": {
+          "present": false
+        },
+        "http_proxy": {
+          "present": false
+        },
+        "https_proxy": {
+          "present": false
+        },
+        "no_proxy": {
+          "present": false
+        }
+      }
+    },
+    "dotenv": {},
+    "dockerContext": "orbstack",
+    "dockerContextEndpointSha256": "8133fa0b4a8530215b0675f8e5e34851dc3e0fb80e748a95b1e9faf77bb00e64",
+    "scope": "Benchmark/product/runtime/build-tool environment families, common locale/proxy/temp/library inputs, root dotenv files and selected Docker context endpoint. Generated process IDs and executable guard receipts are excluded."
+  },
+  "services": {
+    "powersync": {
+      "composeFile": "stacks/powersync/docker-compose.yml",
+      "composeSha256": "ac1acdd9363a84680f9bbc61346cd6e68533f8130921b53ebd57a7c016549727",
+      "resolvedComposeSha256": "1a3cf32f397003944b425bf6bad62ae42b6ae91d722dbdc8e02d5f29e3b97577",
+      "declaredServices": {
+        "admin": {
+          "environment": {
+            "sha256": "ce0dab74135e608fd443c8bbbce122803aabbf35f89bfe3209febb406bb4801c",
+            "values": {
+              "DATABASE_URL": {
+                "present": true,
+                "redacted": true
+              },
+              "PORT": {
+                "present": true,
+                "value": "3000"
+              },
+              "STACK_ID": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          },
+          "entrypoint": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          }
+        },
+        "app": {
+          "environment": {
+            "sha256": "96034345c3cc0b169aa9138ef0bc729c32f98c84ea6325ce332b715724bd7aad",
+            "values": {
+              "DATABASE_URL": {
+                "present": true,
+                "redacted": true
+              },
+              "PORT": {
+                "present": true,
+                "value": "3000"
+              },
+              "POWERSYNC_AUDIENCE": {
+                "present": true,
+                "redacted": true
+              },
+              "POWERSYNC_ISSUER": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          },
+          "entrypoint": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          }
+        },
+        "postgres": {
+          "environment": {
+            "sha256": "ccc5cfed08d348bef5699110e5445c616a4573bec09235a4feff36ce8f7f2856",
+            "values": {
+              "POSTGRES_DB": {
+                "present": true,
+                "redacted": true
+              },
+              "POSTGRES_PASSWORD": {
+                "present": true,
+                "redacted": true
+              },
+              "POSTGRES_USER": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "11d90aab273f646afc59e8ed1d2baccc4c62d599c85b972078a96d5030d22e36",
+            "argumentCount": 3
+          },
+          "entrypoint": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          }
+        },
+        "powersync": {
+          "environment": {
+            "sha256": "8dcb060ef8dcfbe1c1a79c7cab11afc5543cce4914b2f00412281eec8cdc58bd",
+            "values": {
+              "POWERSYNC_CONFIG_PATH": {
+                "present": true,
+                "redacted": true
+              },
+              "PS_DATA_SOURCE_URI": {
+                "present": true,
+                "redacted": true
+              },
+              "PS_JWKS_URL": {
+                "present": true,
+                "redacted": true
+              },
+              "PS_PORT": {
+                "present": true,
+                "value": "8080"
+              },
+              "PS_STORAGE_SOURCE_URI": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "b8bf6f5c009d3a5aa9123cc14569c417255517f971db1e8615de556e98fcacf7",
+            "argumentCount": 3
+          },
+          "entrypoint": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          }
+        },
+        "storage-postgres": {
+          "environment": {
+            "sha256": "853e463b5b1f62a125cacaf448bc1476d539c7a225371ec0a352f02d38c79c40",
+            "values": {
+              "POSTGRES_DB": {
+                "present": true,
+                "redacted": true
+              },
+              "POSTGRES_PASSWORD": {
+                "present": true,
+                "redacted": true
+              },
+              "POSTGRES_USER": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          },
+          "entrypoint": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          }
+        }
+      },
+      "containers": [
+        {
+          "name": "/offline-sync-bench-powersync-admin-1",
+          "service": "admin",
+          "imageId": "sha256:5c79a7d45e2895d364690854d6a3a9462dca93265a2dfe0654f5cf25efadf1a6",
+          "configurationSha256": "b9aabe8a5f74a9b3052e14ea1948541e7d61dba7230e4314fe746106a8a54ec1",
+          "hostConfigurationSha256": "b543af6aff6f873d0e82ac2c76adc4f1f346d252a653443e501a300790e0de3a",
+          "environment": {
+            "sha256": "12ff9074543a8393579ae4242352a764e697217cd50ad747bc7dad1a2e11fe57",
+            "values": {
+              "BUN_INSTALL_BIN": {
+                "present": true,
+                "redacted": true
+              },
+              "BUN_RUNTIME_TRANSPILER_CACHE_PATH": {
+                "present": true,
+                "value": "0"
+              },
+              "DATABASE_URL": {
+                "present": true,
+                "redacted": true
+              },
+              "PATH": {
+                "present": true,
+                "redacted": true
+              },
+              "PORT": {
+                "present": true,
+                "value": "3000"
+              },
+              "STACK_ID": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "5e5bb782098981999540cb3b7e8cc039885e88f3af909a0492e64e0ae11f3e5b",
+            "argumentCount": 2
+          },
+          "entrypoint": {
+            "sha256": "19d8807fdab2431c85033d5f7dd076461a0b9aa72fe0306983a16f7c5a210be9",
+            "argumentCount": 1
+          },
+          "user": "",
+          "workingDirectory": "/app",
+          "resources": {
+            "nanoCpus": 0,
+            "cpuQuota": 0,
+            "cpuPeriod": 0,
+            "cpuShares": 0,
+            "cpusetCpus": "",
+            "memory": 0,
+            "memorySwap": 0,
+            "memoryReservation": 0,
+            "pidsLimit": null,
+            "shmSize": 6299844608
+          },
+          "networkMode": "offline-sync-bench-powersync_default",
+          "portBindings": {
+            "3000/tcp": [
+              {
+                "HostIp": "",
+                "HostPort": "3219"
+              }
+            ]
+          },
+          "mounts": []
+        },
+        {
+          "name": "/offline-sync-bench-powersync-app-1",
+          "service": "app",
+          "imageId": "sha256:481d5eb8dd595876f0609589736e251f65718c03e374d6e42e22ba9375259e59",
+          "configurationSha256": "857008ff7706ed2274db60838b68139e11b11be8efb3d964e4fe3bb1cf507c52",
+          "hostConfigurationSha256": "6050e1143bc135f4b69bc2538bbc533184a7f746a5b9a1809133a08c07c4d697",
+          "environment": {
+            "sha256": "2de2324298e7d0983f096f7c56e6ffa5b502737211c2b6e22860ba59b9657aea",
+            "values": {
+              "BUN_INSTALL_BIN": {
+                "present": true,
+                "redacted": true
+              },
+              "BUN_RUNTIME_TRANSPILER_CACHE_PATH": {
+                "present": true,
+                "value": "0"
+              },
+              "DATABASE_URL": {
+                "present": true,
+                "redacted": true
+              },
+              "PATH": {
+                "present": true,
+                "redacted": true
+              },
+              "PORT": {
+                "present": true,
+                "value": "3000"
+              },
+              "POWERSYNC_AUDIENCE": {
+                "present": true,
+                "redacted": true
+              },
+              "POWERSYNC_ISSUER": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "a216e97bcb00defbf8cd4294e69a79b522821845338a703aed5008e234d16733",
+            "argumentCount": 2
+          },
+          "entrypoint": {
+            "sha256": "19d8807fdab2431c85033d5f7dd076461a0b9aa72fe0306983a16f7c5a210be9",
+            "argumentCount": 1
+          },
+          "user": "",
+          "workingDirectory": "/app",
+          "resources": {
+            "nanoCpus": 0,
+            "cpuQuota": 0,
+            "cpuPeriod": 0,
+            "cpuShares": 0,
+            "cpusetCpus": "",
+            "memory": 0,
+            "memorySwap": 0,
+            "memoryReservation": 0,
+            "pidsLimit": null,
+            "shmSize": 6299844608
+          },
+          "networkMode": "offline-sync-bench-powersync_default",
+          "portBindings": {
+            "3000/tcp": [
+              {
+                "HostIp": "",
+                "HostPort": "3218"
+              }
+            ]
+          },
+          "mounts": []
+        },
+        {
+          "name": "/offline-sync-bench-powersync-postgres-1",
+          "service": "postgres",
+          "imageId": "sha256:cf78e76683b9ca8c5733cbbdce6c9262b45b6767934dd0a95e671f9a0fc20685",
+          "configurationSha256": "a32e3bf4e3e803943a96fd6e61ca8b9729fa302db2fd0b1588a5e7d371a6684f",
+          "hostConfigurationSha256": "3e8f90c7196c7ea73b13bae02fa62ba287a3cd17d50d8ca9d35d90fb1ed05e63",
+          "environment": {
+            "sha256": "f1da7c78297be9676e3e2ccbf6ddf780d758919dac9093a906d2066002c7a06e",
+            "values": {
+              "DOCKER_PG_LLVM_DEPS": {
+                "present": true,
+                "redacted": true
+              },
+              "GOSU_VERSION": {
+                "present": true,
+                "value": "1.19"
+              },
+              "LANG": {
+                "present": true,
+                "value": "en_US.utf8"
+              },
+              "PATH": {
+                "present": true,
+                "redacted": true
+              },
+              "PGDATA": {
+                "present": true,
+                "redacted": true
+              },
+              "PG_MAJOR": {
+                "present": true,
+                "value": "16"
+              },
+              "PG_SHA256": {
+                "present": true,
+                "redacted": true
+              },
+              "PG_VERSION": {
+                "present": true,
+                "value": "16.15"
+              },
+              "POSTGRES_DB": {
+                "present": true,
+                "redacted": true
+              },
+              "POSTGRES_PASSWORD": {
+                "present": true,
+                "redacted": true
+              },
+              "POSTGRES_USER": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "11d90aab273f646afc59e8ed1d2baccc4c62d599c85b972078a96d5030d22e36",
+            "argumentCount": 3
+          },
+          "entrypoint": {
+            "sha256": "85af29400a81c02bc4951fe208c3bf04fdd05b6634a095a5c60ef196bda4c6e8",
+            "argumentCount": 1
+          },
+          "user": "",
+          "workingDirectory": "/",
+          "resources": {
+            "nanoCpus": 0,
+            "cpuQuota": 0,
+            "cpuPeriod": 0,
+            "cpuShares": 0,
+            "cpusetCpus": "",
+            "memory": 0,
+            "memorySwap": 0,
+            "memoryReservation": 0,
+            "pidsLimit": null,
+            "shmSize": 6299844608
+          },
+          "networkMode": "offline-sync-bench-powersync_default",
+          "portBindings": {
+            "5432/tcp": [
+              {
+                "HostIp": "",
+                "HostPort": "55435"
+              }
+            ]
+          },
+          "mounts": [
+            {
+              "type": "bind",
+              "source": "/Users/bkniffler/GitHub/sync/offline-sync-bench/stacks/powersync/init-scripts",
+              "destination": "/docker-entrypoint-initdb.d",
+              "readWrite": false,
+              "name": null,
+              "mode": "ro",
+              "propagation": "rprivate",
+              "input": {
+                "sha256": "a0e8d89e4b021827d01968a6d9c65a2bd8a4ed91595321e48d01254f76cfcecb",
+                "files": {
+                  ".": {
+                    "kind": "directory",
+                    "mode": 493
+                  },
+                  "setup.sql": {
+                    "kind": "file",
+                    "mode": 420,
+                    "bytes": 1566,
+                    "sha256": "9350f830bad554d0a0c23410da0010102ecc4647c3c235db33f6391888c5debf"
+                  }
+                }
+              }
+            },
+            {
+              "type": "volume",
+              "source": "/var/lib/docker/volumes/offline-sync-bench-powersync_powersync-bench-pgdata/_data",
+              "destination": "/var/lib/postgresql/data",
+              "readWrite": true,
+              "name": "offline-sync-bench-powersync_powersync-bench-pgdata",
+              "mode": "rw",
+              "propagation": "",
+              "input": {
+                "scope": "mutable volume contents are not configuration inputs"
+              }
+            }
+          ]
+        },
+        {
+          "name": "/offline-sync-bench-powersync-powersync-1",
+          "service": "powersync",
+          "imageId": "sha256:bf46f66e5dcc8f6a084de02ab51155dfa655bc610aa95009fff1c36f949c0acf",
+          "configurationSha256": "c141cbf53cb54f5b917af7e600f4b48944eb3d22a31577e90dbd9cf8b154a6d7",
+          "hostConfigurationSha256": "425e60c5147e909b314b55d464972f735b23744c6f385a9b8e08836ebb290182",
+          "environment": {
+            "sha256": "0c128f65e0bac8a2a2ff7c592be3c562d446d5bd905cad80538b3183f6a945ce",
+            "values": {
+              "NODE_ENV": {
+                "present": true,
+                "value": "production"
+              },
+              "NODE_VERSION": {
+                "present": true,
+                "value": "24.18.1"
+              },
+              "PATH": {
+                "present": true,
+                "redacted": true
+              },
+              "POWERSYNC_CONFIG_PATH": {
+                "present": true,
+                "redacted": true
+              },
+              "PS_DATA_SOURCE_URI": {
+                "present": true,
+                "redacted": true
+              },
+              "PS_JWKS_URL": {
+                "present": true,
+                "redacted": true
+              },
+              "PS_PORT": {
+                "present": true,
+                "value": "8080"
+              },
+              "PS_STORAGE_SOURCE_URI": {
+                "present": true,
+                "redacted": true
+              },
+              "SHA": {
+                "present": true,
+                "value": ""
+              },
+              "YARN_VERSION": {
+                "present": true,
+                "value": "1.22.22"
+              }
+            }
+          },
+          "command": {
+            "sha256": "b8bf6f5c009d3a5aa9123cc14569c417255517f971db1e8615de556e98fcacf7",
+            "argumentCount": 3
+          },
+          "entrypoint": {
+            "sha256": "d110dc1c7e2dc0bc155093231b061d28fa99da99118f3c7d09882e7d96d06bee",
+            "argumentCount": 2
+          },
+          "user": "901",
+          "workingDirectory": "/app",
+          "resources": {
+            "nanoCpus": 0,
+            "cpuQuota": 0,
+            "cpuPeriod": 0,
+            "cpuShares": 0,
+            "cpusetCpus": "",
+            "memory": 0,
+            "memorySwap": 0,
+            "memoryReservation": 0,
+            "pidsLimit": null,
+            "shmSize": 6299844608
+          },
+          "networkMode": "offline-sync-bench-powersync_default",
+          "portBindings": {
+            "8080/tcp": [
+              {
+                "HostIp": "",
+                "HostPort": "3217"
+              }
+            ]
+          },
+          "mounts": [
+            {
+              "type": "bind",
+              "source": "/Users/bkniffler/GitHub/sync/offline-sync-bench/stacks/powersync/config",
+              "destination": "/config",
+              "readWrite": false,
+              "name": null,
+              "mode": "ro",
+              "propagation": "rprivate",
+              "input": {
+                "sha256": "b8d3893f1e27293a2744dd682319e55590c40e5167930d716cc7a8395ee3b7a2",
+                "files": {
+                  ".": {
+                    "kind": "directory",
+                    "mode": 493
+                  },
+                  "service.yaml": {
+                    "kind": "file",
+                    "mode": 420,
+                    "bytes": 587,
+                    "sha256": "2e6dd7c89c7416cfa760db20a95185ddeed29a2c3392e37115f8199627767ad9"
+                  },
+                  "sync-config.yaml": {
+                    "kind": "file",
+                    "mode": 420,
+                    "bytes": 709,
+                    "sha256": "ad213d3dfac6d8e5b30a33143e8996b2f051af0ea5473f38fb75573820991705"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "/offline-sync-bench-powersync-storage-postgres-1",
+          "service": "storage-postgres",
+          "imageId": "sha256:cf78e76683b9ca8c5733cbbdce6c9262b45b6767934dd0a95e671f9a0fc20685",
+          "configurationSha256": "1ee2bdde3f1ba3040454d466e411d7f440a6c70b2d414b793702ba11e7aa7787",
+          "hostConfigurationSha256": "4caaacad14aeaf4cfa09072dd597b775165f258f6e1cbc8cae2cd45acb366ea4",
+          "environment": {
+            "sha256": "2a8734f94780fd7846ad6e6d0c2720c17c7855a207f1b3360b584827cae2214a",
+            "values": {
+              "DOCKER_PG_LLVM_DEPS": {
+                "present": true,
+                "redacted": true
+              },
+              "GOSU_VERSION": {
+                "present": true,
+                "value": "1.19"
+              },
+              "LANG": {
+                "present": true,
+                "value": "en_US.utf8"
+              },
+              "PATH": {
+                "present": true,
+                "redacted": true
+              },
+              "PGDATA": {
+                "present": true,
+                "redacted": true
+              },
+              "PG_MAJOR": {
+                "present": true,
+                "value": "16"
+              },
+              "PG_SHA256": {
+                "present": true,
+                "redacted": true
+              },
+              "PG_VERSION": {
+                "present": true,
+                "value": "16.15"
+              },
+              "POSTGRES_DB": {
+                "present": true,
+                "redacted": true
+              },
+              "POSTGRES_PASSWORD": {
+                "present": true,
+                "redacted": true
+              },
+              "POSTGRES_USER": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "66911f262dea5e809920fc370148343afb060103e3684c324d7b1365d4496740",
+            "argumentCount": 1
+          },
+          "entrypoint": {
+            "sha256": "85af29400a81c02bc4951fe208c3bf04fdd05b6634a095a5c60ef196bda4c6e8",
+            "argumentCount": 1
+          },
+          "user": "",
+          "workingDirectory": "/",
+          "resources": {
+            "nanoCpus": 0,
+            "cpuQuota": 0,
+            "cpuPeriod": 0,
+            "cpuShares": 0,
+            "cpusetCpus": "",
+            "memory": 0,
+            "memorySwap": 0,
+            "memoryReservation": 0,
+            "pidsLimit": null,
+            "shmSize": 6299844608
+          },
+          "networkMode": "offline-sync-bench-powersync_default",
+          "portBindings": {
+            "5432/tcp": [
+              {
+                "HostIp": "",
+                "HostPort": "55436"
+              }
+            ]
+          },
+          "mounts": [
+            {
+              "type": "volume",
+              "source": "/var/lib/docker/volumes/offline-sync-bench-powersync_powersync-storage-pgdata/_data",
+              "destination": "/var/lib/postgresql/data",
+              "readWrite": true,
+              "name": "offline-sync-bench-powersync_powersync-storage-pgdata",
+              "mode": "rw",
+              "propagation": "",
+              "input": {
+                "scope": "mutable volume contents are not configuration inputs"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "syncular": {
+      "composeFile": "stacks/syncular/docker-compose.yml",
+      "composeSha256": "c4fcb328e1e40161222b7e3412193fd437b2951cee956a143e7c33990bbfb933",
+      "resolvedComposeSha256": "0a1509b4ed5468bb2be51a0bd62c78f84f4004f21b9039966912d67e3474ab08",
+      "declaredServices": {
+        "admin": {
+          "environment": {
+            "sha256": "ed6db7c4146328906a60819b6a3198ed3db7da38668e1f78270ce1d77f96195e",
+            "values": {
+              "DATABASE_URL": {
+                "present": true,
+                "redacted": true
+              },
+              "PORT": {
+                "present": true,
+                "value": "3000"
+              },
+              "STACK_ID": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "6ce368129e08f2cc4be8051975b412c78ba849d21b450f3375e6ba0674f6c7fb",
+            "argumentCount": 2
+          },
+          "entrypoint": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          }
+        },
+        "minio": {
+          "environment": {
+            "sha256": "b55fee99b7ce43c2e7c4416d0c480edecd4c417cc14026fe6e5a125d1c29294e",
+            "values": {
+              "MINIO_ROOT_PASSWORD": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_ROOT_USER": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "882dde9fbff7688cef5bb1a2349dc92f6405c495071502022ff56ad791296d4c",
+            "argumentCount": 2
+          },
+          "entrypoint": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          }
+        },
+        "minio-init": {
+          "environment": {
+            "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+            "values": {}
+          },
+          "command": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          },
+          "entrypoint": {
+            "sha256": "95b36792c003b422b65006d460a412c34e2f0076711297256a65a3a4c9589de3",
+            "argumentCount": 3
+          }
+        },
+        "postgres": {
+          "environment": {
+            "sha256": "ccc5cfed08d348bef5699110e5445c616a4573bec09235a4feff36ce8f7f2856",
+            "values": {
+              "POSTGRES_DB": {
+                "present": true,
+                "redacted": true
+              },
+              "POSTGRES_PASSWORD": {
+                "present": true,
+                "redacted": true
+              },
+              "POSTGRES_USER": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          },
+          "entrypoint": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          }
+        },
+        "syncular": {
+          "environment": {
+            "sha256": "0b2a0cb91033df4950a84e17793ad129f7d2719d5eff403aaa9354d8018f6cf1",
+            "values": {
+              "DATABASE_URL": {
+                "present": true,
+                "redacted": true
+              },
+              "PORT": {
+                "present": true,
+                "value": "3000"
+              },
+              "S3_ACCESS_KEY_ID": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_BUCKET": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_ENDPOINT": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_PUBLIC_ENDPOINT": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_REGION": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_SECRET_ACCESS_KEY": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "34c6488ad58ea38a1a087702bf4ea31e9a9cca3646f6337e61c86ce4aa4a9f19",
+            "argumentCount": 2
+          },
+          "entrypoint": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          }
+        }
+      },
+      "containers": [
+        {
+          "name": "/offline-sync-bench-syncular-admin-1",
+          "service": "admin",
+          "imageId": "sha256:244e986af590b3b3324b7715afd7809c272eaf4df909efc30b6de58e73c9b130",
+          "configurationSha256": "3f085186f22979926adc54b827b9e08fdddf62a49de6d87196e6b7b8b9299420",
+          "hostConfigurationSha256": "24f669dc429b701b45d5afe8ba859b6f73b65d0f8301064b858d3da12288413c",
+          "environment": {
+            "sha256": "04a09d5e87a75457c8e1106ec62d140318b99cef5e47a8fc293cfe4a57518101",
+            "values": {
+              "BUN_INSTALL_BIN": {
+                "present": true,
+                "redacted": true
+              },
+              "BUN_RUNTIME_TRANSPILER_CACHE_PATH": {
+                "present": true,
+                "value": "0"
+              },
+              "DATABASE_URL": {
+                "present": true,
+                "redacted": true
+              },
+              "PATH": {
+                "present": true,
+                "redacted": true
+              },
+              "PORT": {
+                "present": true,
+                "value": "3000"
+              },
+              "STACK_ID": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "6ce368129e08f2cc4be8051975b412c78ba849d21b450f3375e6ba0674f6c7fb",
+            "argumentCount": 2
+          },
+          "entrypoint": {
+            "sha256": "19d8807fdab2431c85033d5f7dd076461a0b9aa72fe0306983a16f7c5a210be9",
+            "argumentCount": 1
+          },
+          "user": "",
+          "workingDirectory": "/workspace",
+          "resources": {
+            "nanoCpus": 0,
+            "cpuQuota": 0,
+            "cpuPeriod": 0,
+            "cpuShares": 0,
+            "cpusetCpus": "",
+            "memory": 0,
+            "memorySwap": 0,
+            "memoryReservation": 0,
+            "pidsLimit": null,
+            "shmSize": 6299844608
+          },
+          "networkMode": "offline-sync-bench-syncular_default",
+          "portBindings": {
+            "3000/tcp": [
+              {
+                "HostIp": "",
+                "HostPort": "3211"
+              }
+            ]
+          },
+          "mounts": []
+        },
+        {
+          "name": "/offline-sync-bench-syncular-minio-1",
+          "service": "minio",
+          "imageId": "sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e",
+          "configurationSha256": "0f3722d80481519452099196b056b5c62a299f48dfec5b33d6223d042f4d599c",
+          "hostConfigurationSha256": "d4f5221ec1aafc036376c9715954ad744924b3e74ca7a038999baf54e02acdfd",
+          "environment": {
+            "sha256": "7325fe4209e9d01dc0c8e5e19ccaee194b55d1539066bbd60b603bb1fe4863b3",
+            "values": {
+              "MC_CONFIG_DIR": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_ACCESS_KEY_FILE": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_CONFIG_ENV_FILE": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_KMS_SECRET_KEY_FILE": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_ROOT_PASSWORD": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_ROOT_PASSWORD_FILE": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_ROOT_USER": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_ROOT_USER_FILE": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_SECRET_KEY_FILE": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_UPDATE_MINISIGN_PUBKEY": {
+                "present": true,
+                "redacted": true
+              },
+              "PATH": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "882dde9fbff7688cef5bb1a2349dc92f6405c495071502022ff56ad791296d4c",
+            "argumentCount": 2
+          },
+          "entrypoint": {
+            "sha256": "9a9fb7d4cbde93525a14a566a2b221e47fc36acfb151e4523ccf2a2d93fa3951",
+            "argumentCount": 1
+          },
+          "user": "",
+          "workingDirectory": "/",
+          "resources": {
+            "nanoCpus": 0,
+            "cpuQuota": 0,
+            "cpuPeriod": 0,
+            "cpuShares": 0,
+            "cpusetCpus": "",
+            "memory": 0,
+            "memorySwap": 0,
+            "memoryReservation": 0,
+            "pidsLimit": null,
+            "shmSize": 6299844608
+          },
+          "networkMode": "offline-sync-bench-syncular_default",
+          "portBindings": {
+            "9000/tcp": [
+              {
+                "HostIp": "",
+                "HostPort": "3230"
+              }
+            ]
+          },
+          "mounts": [
+            {
+              "type": "volume",
+              "source": "/var/lib/docker/volumes/offline-sync-bench-syncular_syncular-bench-minio/_data",
+              "destination": "/data",
+              "readWrite": true,
+              "name": "offline-sync-bench-syncular_syncular-bench-minio",
+              "mode": "rw",
+              "propagation": "",
+              "input": {
+                "scope": "mutable volume contents are not configuration inputs"
+              }
+            }
+          ]
+        },
+        {
+          "name": "/offline-sync-bench-syncular-minio-init-1",
+          "service": "minio-init",
+          "imageId": "sha256:a7fe349ef4bd8521fb8497f55c6042871b2ae640607cf99d9bede5e9bdf11727",
+          "configurationSha256": "75657a941f82450efe76b9dcb86e534408ec0f244e3e932c8d26861c563e218c",
+          "hostConfigurationSha256": "edac4815e7aa1b8aab51924a41cf6b27738e01e9dd07e123255f2442bd748fd2",
+          "environment": {
+            "sha256": "b524f812200478590fd6804f4d2b13bc01a163c20db48e68bbc1f9184a7c93bd",
+            "values": {
+              "PATH": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          },
+          "entrypoint": {
+            "sha256": "95b36792c003b422b65006d460a412c34e2f0076711297256a65a3a4c9589de3",
+            "argumentCount": 3
+          },
+          "user": "",
+          "workingDirectory": "/",
+          "resources": {
+            "nanoCpus": 0,
+            "cpuQuota": 0,
+            "cpuPeriod": 0,
+            "cpuShares": 0,
+            "cpusetCpus": "",
+            "memory": 0,
+            "memorySwap": 0,
+            "memoryReservation": 0,
+            "pidsLimit": null,
+            "shmSize": 6299844608
+          },
+          "networkMode": "offline-sync-bench-syncular_default",
+          "portBindings": {},
+          "mounts": []
+        },
+        {
+          "name": "/offline-sync-bench-syncular-postgres-1",
+          "service": "postgres",
+          "imageId": "sha256:cf78e76683b9ca8c5733cbbdce6c9262b45b6767934dd0a95e671f9a0fc20685",
+          "configurationSha256": "b7b19b6c26d654783057a70130e2fcae86b5c4e52f4e278b5e78846efce565a1",
+          "hostConfigurationSha256": "9ef6b562f8fd4418da4596f5e11e481eecdf2ae02a4fefc7634672094713f206",
+          "environment": {
+            "sha256": "f1da7c78297be9676e3e2ccbf6ddf780d758919dac9093a906d2066002c7a06e",
+            "values": {
+              "DOCKER_PG_LLVM_DEPS": {
+                "present": true,
+                "redacted": true
+              },
+              "GOSU_VERSION": {
+                "present": true,
+                "value": "1.19"
+              },
+              "LANG": {
+                "present": true,
+                "value": "en_US.utf8"
+              },
+              "PATH": {
+                "present": true,
+                "redacted": true
+              },
+              "PGDATA": {
+                "present": true,
+                "redacted": true
+              },
+              "PG_MAJOR": {
+                "present": true,
+                "value": "16"
+              },
+              "PG_SHA256": {
+                "present": true,
+                "redacted": true
+              },
+              "PG_VERSION": {
+                "present": true,
+                "value": "16.15"
+              },
+              "POSTGRES_DB": {
+                "present": true,
+                "redacted": true
+              },
+              "POSTGRES_PASSWORD": {
+                "present": true,
+                "redacted": true
+              },
+              "POSTGRES_USER": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "66911f262dea5e809920fc370148343afb060103e3684c324d7b1365d4496740",
+            "argumentCount": 1
+          },
+          "entrypoint": {
+            "sha256": "85af29400a81c02bc4951fe208c3bf04fdd05b6634a095a5c60ef196bda4c6e8",
+            "argumentCount": 1
+          },
+          "user": "",
+          "workingDirectory": "/",
+          "resources": {
+            "nanoCpus": 0,
+            "cpuQuota": 0,
+            "cpuPeriod": 0,
+            "cpuShares": 0,
+            "cpusetCpus": "",
+            "memory": 0,
+            "memorySwap": 0,
+            "memoryReservation": 0,
+            "pidsLimit": null,
+            "shmSize": 6299844608
+          },
+          "networkMode": "offline-sync-bench-syncular_default",
+          "portBindings": {
+            "5432/tcp": [
+              {
+                "HostIp": "",
+                "HostPort": "55432"
+              }
+            ]
+          },
+          "mounts": [
+            {
+              "type": "volume",
+              "source": "/var/lib/docker/volumes/offline-sync-bench-syncular_syncular-bench-pgdata/_data",
+              "destination": "/var/lib/postgresql/data",
+              "readWrite": true,
+              "name": "offline-sync-bench-syncular_syncular-bench-pgdata",
+              "mode": "rw",
+              "propagation": "",
+              "input": {
+                "scope": "mutable volume contents are not configuration inputs"
+              }
+            }
+          ]
+        },
+        {
+          "name": "/offline-sync-bench-syncular-syncular-1",
+          "service": "syncular",
+          "imageId": "sha256:9bfa8faccefe857f41ae9ad79115d001b797f28b5be8bfa4866d9cda553e9af6",
+          "configurationSha256": "1de63af6e669d1e6b035469aa48bf5963a9a32ab13e127aa2f27754e960d81aa",
+          "hostConfigurationSha256": "0e6464a74ef85b3a316ddd6161f9ea30db3e7deb840af82e3d68e63dc1c38136",
+          "environment": {
+            "sha256": "aa082088c0ba108a58d01e7c2b0983c2aad38b3fccf24434523d072f00f97008",
+            "values": {
+              "BUN_INSTALL_BIN": {
+                "present": true,
+                "redacted": true
+              },
+              "BUN_RUNTIME_TRANSPILER_CACHE_PATH": {
+                "present": true,
+                "value": "0"
+              },
+              "DATABASE_URL": {
+                "present": true,
+                "redacted": true
+              },
+              "PATH": {
+                "present": true,
+                "redacted": true
+              },
+              "PORT": {
+                "present": true,
+                "value": "3000"
+              },
+              "S3_ACCESS_KEY_ID": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_BUCKET": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_ENDPOINT": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_PUBLIC_ENDPOINT": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_REGION": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_SECRET_ACCESS_KEY": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "34c6488ad58ea38a1a087702bf4ea31e9a9cca3646f6337e61c86ce4aa4a9f19",
+            "argumentCount": 2
+          },
+          "entrypoint": {
+            "sha256": "19d8807fdab2431c85033d5f7dd076461a0b9aa72fe0306983a16f7c5a210be9",
+            "argumentCount": 1
+          },
+          "user": "",
+          "workingDirectory": "/workspace",
+          "resources": {
+            "nanoCpus": 0,
+            "cpuQuota": 0,
+            "cpuPeriod": 0,
+            "cpuShares": 0,
+            "cpusetCpus": "",
+            "memory": 0,
+            "memorySwap": 0,
+            "memoryReservation": 0,
+            "pidsLimit": null,
+            "shmSize": 6299844608
+          },
+          "networkMode": "offline-sync-bench-syncular_default",
+          "portBindings": {
+            "3000/tcp": [
+              {
+                "HostIp": "",
+                "HostPort": "3210"
+              }
+            ]
+          },
+          "mounts": []
+        }
+      ]
+    },
+    "syncular-rust": {
+      "composeFile": "stacks/syncular/docker-compose.yml",
+      "composeSha256": "c4fcb328e1e40161222b7e3412193fd437b2951cee956a143e7c33990bbfb933",
+      "resolvedComposeSha256": "0a1509b4ed5468bb2be51a0bd62c78f84f4004f21b9039966912d67e3474ab08",
+      "declaredServices": {
+        "admin": {
+          "environment": {
+            "sha256": "ed6db7c4146328906a60819b6a3198ed3db7da38668e1f78270ce1d77f96195e",
+            "values": {
+              "DATABASE_URL": {
+                "present": true,
+                "redacted": true
+              },
+              "PORT": {
+                "present": true,
+                "value": "3000"
+              },
+              "STACK_ID": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "6ce368129e08f2cc4be8051975b412c78ba849d21b450f3375e6ba0674f6c7fb",
+            "argumentCount": 2
+          },
+          "entrypoint": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          }
+        },
+        "minio": {
+          "environment": {
+            "sha256": "b55fee99b7ce43c2e7c4416d0c480edecd4c417cc14026fe6e5a125d1c29294e",
+            "values": {
+              "MINIO_ROOT_PASSWORD": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_ROOT_USER": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "882dde9fbff7688cef5bb1a2349dc92f6405c495071502022ff56ad791296d4c",
+            "argumentCount": 2
+          },
+          "entrypoint": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          }
+        },
+        "minio-init": {
+          "environment": {
+            "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+            "values": {}
+          },
+          "command": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          },
+          "entrypoint": {
+            "sha256": "95b36792c003b422b65006d460a412c34e2f0076711297256a65a3a4c9589de3",
+            "argumentCount": 3
+          }
+        },
+        "postgres": {
+          "environment": {
+            "sha256": "ccc5cfed08d348bef5699110e5445c616a4573bec09235a4feff36ce8f7f2856",
+            "values": {
+              "POSTGRES_DB": {
+                "present": true,
+                "redacted": true
+              },
+              "POSTGRES_PASSWORD": {
+                "present": true,
+                "redacted": true
+              },
+              "POSTGRES_USER": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          },
+          "entrypoint": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          }
+        },
+        "syncular": {
+          "environment": {
+            "sha256": "0b2a0cb91033df4950a84e17793ad129f7d2719d5eff403aaa9354d8018f6cf1",
+            "values": {
+              "DATABASE_URL": {
+                "present": true,
+                "redacted": true
+              },
+              "PORT": {
+                "present": true,
+                "value": "3000"
+              },
+              "S3_ACCESS_KEY_ID": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_BUCKET": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_ENDPOINT": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_PUBLIC_ENDPOINT": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_REGION": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_SECRET_ACCESS_KEY": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "34c6488ad58ea38a1a087702bf4ea31e9a9cca3646f6337e61c86ce4aa4a9f19",
+            "argumentCount": 2
+          },
+          "entrypoint": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          }
+        }
+      },
+      "containers": [
+        {
+          "name": "/offline-sync-bench-syncular-admin-1",
+          "service": "admin",
+          "imageId": "sha256:244e986af590b3b3324b7715afd7809c272eaf4df909efc30b6de58e73c9b130",
+          "configurationSha256": "3f085186f22979926adc54b827b9e08fdddf62a49de6d87196e6b7b8b9299420",
+          "hostConfigurationSha256": "24f669dc429b701b45d5afe8ba859b6f73b65d0f8301064b858d3da12288413c",
+          "environment": {
+            "sha256": "04a09d5e87a75457c8e1106ec62d140318b99cef5e47a8fc293cfe4a57518101",
+            "values": {
+              "BUN_INSTALL_BIN": {
+                "present": true,
+                "redacted": true
+              },
+              "BUN_RUNTIME_TRANSPILER_CACHE_PATH": {
+                "present": true,
+                "value": "0"
+              },
+              "DATABASE_URL": {
+                "present": true,
+                "redacted": true
+              },
+              "PATH": {
+                "present": true,
+                "redacted": true
+              },
+              "PORT": {
+                "present": true,
+                "value": "3000"
+              },
+              "STACK_ID": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "6ce368129e08f2cc4be8051975b412c78ba849d21b450f3375e6ba0674f6c7fb",
+            "argumentCount": 2
+          },
+          "entrypoint": {
+            "sha256": "19d8807fdab2431c85033d5f7dd076461a0b9aa72fe0306983a16f7c5a210be9",
+            "argumentCount": 1
+          },
+          "user": "",
+          "workingDirectory": "/workspace",
+          "resources": {
+            "nanoCpus": 0,
+            "cpuQuota": 0,
+            "cpuPeriod": 0,
+            "cpuShares": 0,
+            "cpusetCpus": "",
+            "memory": 0,
+            "memorySwap": 0,
+            "memoryReservation": 0,
+            "pidsLimit": null,
+            "shmSize": 6299844608
+          },
+          "networkMode": "offline-sync-bench-syncular_default",
+          "portBindings": {
+            "3000/tcp": [
+              {
+                "HostIp": "",
+                "HostPort": "3211"
+              }
+            ]
+          },
+          "mounts": []
+        },
+        {
+          "name": "/offline-sync-bench-syncular-minio-1",
+          "service": "minio",
+          "imageId": "sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e",
+          "configurationSha256": "0f3722d80481519452099196b056b5c62a299f48dfec5b33d6223d042f4d599c",
+          "hostConfigurationSha256": "d4f5221ec1aafc036376c9715954ad744924b3e74ca7a038999baf54e02acdfd",
+          "environment": {
+            "sha256": "7325fe4209e9d01dc0c8e5e19ccaee194b55d1539066bbd60b603bb1fe4863b3",
+            "values": {
+              "MC_CONFIG_DIR": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_ACCESS_KEY_FILE": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_CONFIG_ENV_FILE": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_KMS_SECRET_KEY_FILE": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_ROOT_PASSWORD": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_ROOT_PASSWORD_FILE": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_ROOT_USER": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_ROOT_USER_FILE": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_SECRET_KEY_FILE": {
+                "present": true,
+                "redacted": true
+              },
+              "MINIO_UPDATE_MINISIGN_PUBKEY": {
+                "present": true,
+                "redacted": true
+              },
+              "PATH": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "882dde9fbff7688cef5bb1a2349dc92f6405c495071502022ff56ad791296d4c",
+            "argumentCount": 2
+          },
+          "entrypoint": {
+            "sha256": "9a9fb7d4cbde93525a14a566a2b221e47fc36acfb151e4523ccf2a2d93fa3951",
+            "argumentCount": 1
+          },
+          "user": "",
+          "workingDirectory": "/",
+          "resources": {
+            "nanoCpus": 0,
+            "cpuQuota": 0,
+            "cpuPeriod": 0,
+            "cpuShares": 0,
+            "cpusetCpus": "",
+            "memory": 0,
+            "memorySwap": 0,
+            "memoryReservation": 0,
+            "pidsLimit": null,
+            "shmSize": 6299844608
+          },
+          "networkMode": "offline-sync-bench-syncular_default",
+          "portBindings": {
+            "9000/tcp": [
+              {
+                "HostIp": "",
+                "HostPort": "3230"
+              }
+            ]
+          },
+          "mounts": [
+            {
+              "type": "volume",
+              "source": "/var/lib/docker/volumes/offline-sync-bench-syncular_syncular-bench-minio/_data",
+              "destination": "/data",
+              "readWrite": true,
+              "name": "offline-sync-bench-syncular_syncular-bench-minio",
+              "mode": "rw",
+              "propagation": "",
+              "input": {
+                "scope": "mutable volume contents are not configuration inputs"
+              }
+            }
+          ]
+        },
+        {
+          "name": "/offline-sync-bench-syncular-minio-init-1",
+          "service": "minio-init",
+          "imageId": "sha256:a7fe349ef4bd8521fb8497f55c6042871b2ae640607cf99d9bede5e9bdf11727",
+          "configurationSha256": "75657a941f82450efe76b9dcb86e534408ec0f244e3e932c8d26861c563e218c",
+          "hostConfigurationSha256": "edac4815e7aa1b8aab51924a41cf6b27738e01e9dd07e123255f2442bd748fd2",
+          "environment": {
+            "sha256": "b524f812200478590fd6804f4d2b13bc01a163c20db48e68bbc1f9184a7c93bd",
+            "values": {
+              "PATH": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          },
+          "entrypoint": {
+            "sha256": "95b36792c003b422b65006d460a412c34e2f0076711297256a65a3a4c9589de3",
+            "argumentCount": 3
+          },
+          "user": "",
+          "workingDirectory": "/",
+          "resources": {
+            "nanoCpus": 0,
+            "cpuQuota": 0,
+            "cpuPeriod": 0,
+            "cpuShares": 0,
+            "cpusetCpus": "",
+            "memory": 0,
+            "memorySwap": 0,
+            "memoryReservation": 0,
+            "pidsLimit": null,
+            "shmSize": 6299844608
+          },
+          "networkMode": "offline-sync-bench-syncular_default",
+          "portBindings": {},
+          "mounts": []
+        },
+        {
+          "name": "/offline-sync-bench-syncular-postgres-1",
+          "service": "postgres",
+          "imageId": "sha256:cf78e76683b9ca8c5733cbbdce6c9262b45b6767934dd0a95e671f9a0fc20685",
+          "configurationSha256": "b7b19b6c26d654783057a70130e2fcae86b5c4e52f4e278b5e78846efce565a1",
+          "hostConfigurationSha256": "9ef6b562f8fd4418da4596f5e11e481eecdf2ae02a4fefc7634672094713f206",
+          "environment": {
+            "sha256": "f1da7c78297be9676e3e2ccbf6ddf780d758919dac9093a906d2066002c7a06e",
+            "values": {
+              "DOCKER_PG_LLVM_DEPS": {
+                "present": true,
+                "redacted": true
+              },
+              "GOSU_VERSION": {
+                "present": true,
+                "value": "1.19"
+              },
+              "LANG": {
+                "present": true,
+                "value": "en_US.utf8"
+              },
+              "PATH": {
+                "present": true,
+                "redacted": true
+              },
+              "PGDATA": {
+                "present": true,
+                "redacted": true
+              },
+              "PG_MAJOR": {
+                "present": true,
+                "value": "16"
+              },
+              "PG_SHA256": {
+                "present": true,
+                "redacted": true
+              },
+              "PG_VERSION": {
+                "present": true,
+                "value": "16.15"
+              },
+              "POSTGRES_DB": {
+                "present": true,
+                "redacted": true
+              },
+              "POSTGRES_PASSWORD": {
+                "present": true,
+                "redacted": true
+              },
+              "POSTGRES_USER": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "66911f262dea5e809920fc370148343afb060103e3684c324d7b1365d4496740",
+            "argumentCount": 1
+          },
+          "entrypoint": {
+            "sha256": "85af29400a81c02bc4951fe208c3bf04fdd05b6634a095a5c60ef196bda4c6e8",
+            "argumentCount": 1
+          },
+          "user": "",
+          "workingDirectory": "/",
+          "resources": {
+            "nanoCpus": 0,
+            "cpuQuota": 0,
+            "cpuPeriod": 0,
+            "cpuShares": 0,
+            "cpusetCpus": "",
+            "memory": 0,
+            "memorySwap": 0,
+            "memoryReservation": 0,
+            "pidsLimit": null,
+            "shmSize": 6299844608
+          },
+          "networkMode": "offline-sync-bench-syncular_default",
+          "portBindings": {
+            "5432/tcp": [
+              {
+                "HostIp": "",
+                "HostPort": "55432"
+              }
+            ]
+          },
+          "mounts": [
+            {
+              "type": "volume",
+              "source": "/var/lib/docker/volumes/offline-sync-bench-syncular_syncular-bench-pgdata/_data",
+              "destination": "/var/lib/postgresql/data",
+              "readWrite": true,
+              "name": "offline-sync-bench-syncular_syncular-bench-pgdata",
+              "mode": "rw",
+              "propagation": "",
+              "input": {
+                "scope": "mutable volume contents are not configuration inputs"
+              }
+            }
+          ]
+        },
+        {
+          "name": "/offline-sync-bench-syncular-syncular-1",
+          "service": "syncular",
+          "imageId": "sha256:9bfa8faccefe857f41ae9ad79115d001b797f28b5be8bfa4866d9cda553e9af6",
+          "configurationSha256": "1de63af6e669d1e6b035469aa48bf5963a9a32ab13e127aa2f27754e960d81aa",
+          "hostConfigurationSha256": "0e6464a74ef85b3a316ddd6161f9ea30db3e7deb840af82e3d68e63dc1c38136",
+          "environment": {
+            "sha256": "aa082088c0ba108a58d01e7c2b0983c2aad38b3fccf24434523d072f00f97008",
+            "values": {
+              "BUN_INSTALL_BIN": {
+                "present": true,
+                "redacted": true
+              },
+              "BUN_RUNTIME_TRANSPILER_CACHE_PATH": {
+                "present": true,
+                "value": "0"
+              },
+              "DATABASE_URL": {
+                "present": true,
+                "redacted": true
+              },
+              "PATH": {
+                "present": true,
+                "redacted": true
+              },
+              "PORT": {
+                "present": true,
+                "value": "3000"
+              },
+              "S3_ACCESS_KEY_ID": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_BUCKET": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_ENDPOINT": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_PUBLIC_ENDPOINT": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_REGION": {
+                "present": true,
+                "redacted": true
+              },
+              "S3_SECRET_ACCESS_KEY": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "34c6488ad58ea38a1a087702bf4ea31e9a9cca3646f6337e61c86ce4aa4a9f19",
+            "argumentCount": 2
+          },
+          "entrypoint": {
+            "sha256": "19d8807fdab2431c85033d5f7dd076461a0b9aa72fe0306983a16f7c5a210be9",
+            "argumentCount": 1
+          },
+          "user": "",
+          "workingDirectory": "/workspace",
+          "resources": {
+            "nanoCpus": 0,
+            "cpuQuota": 0,
+            "cpuPeriod": 0,
+            "cpuShares": 0,
+            "cpusetCpus": "",
+            "memory": 0,
+            "memorySwap": 0,
+            "memoryReservation": 0,
+            "pidsLimit": null,
+            "shmSize": 6299844608
+          },
+          "networkMode": "offline-sync-bench-syncular_default",
+          "portBindings": {
+            "3000/tcp": [
+              {
+                "HostIp": "",
+                "HostPort": "3210"
+              }
+            ]
+          },
+          "mounts": []
+        }
+      ]
+    },
+    "turso": {
+      "composeFile": "stacks/turso/docker-compose.yml",
+      "composeSha256": "297136fc3d4e53f66253e47aa134efbbe66dfcd87a4b775841213798610de275",
+      "resolvedComposeSha256": "ecebad9c66d20596d3f58d301ce974b52bf51afafc02cf2cf8cf02d4b0cf5b7c",
+      "declaredServices": {
+        "admin": {
+          "environment": {
+            "sha256": "4b20235843bc9ea03b1a52bfb9e430b9e7456f2a77f0ffe3521282efb142f2ce",
+            "values": {
+              "PORT": {
+                "present": true,
+                "value": "3000"
+              },
+              "STACK_ID": {
+                "present": true,
+                "redacted": true
+              },
+              "TURSO_LOCAL_PATH": {
+                "present": true,
+                "redacted": true
+              },
+              "TURSO_SYNC_URL": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          },
+          "entrypoint": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          }
+        },
+        "turso": {
+          "environment": {
+            "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+            "values": {}
+          },
+          "command": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          },
+          "entrypoint": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          }
+        }
+      },
+      "containers": [
+        {
+          "name": "/offline-sync-bench-turso-admin-1",
+          "service": "admin",
+          "imageId": "sha256:4dd5fe6689328bf522aaeb342ebe6db05607db554c954eaff7227bf522633bbc",
+          "configurationSha256": "044e12e05fdced7fff784863dd3bff01f3663b0bf80faeb4d975e118541cf886",
+          "hostConfigurationSha256": "abcaae5492643db248b40a589db09120ee14e63148ff376ed5070f0843a32841",
+          "environment": {
+            "sha256": "97d564c355beec2775448434e4e2680232e0de9c3315f1a4d54d8fa207006ac5",
+            "values": {
+              "NODE_VERSION": {
+                "present": true,
+                "value": "22.23.2"
+              },
+              "PATH": {
+                "present": true,
+                "redacted": true
+              },
+              "PORT": {
+                "present": true,
+                "value": "3000"
+              },
+              "STACK_ID": {
+                "present": true,
+                "redacted": true
+              },
+              "TURSO_LOCAL_PATH": {
+                "present": true,
+                "redacted": true
+              },
+              "TURSO_SYNC_URL": {
+                "present": true,
+                "redacted": true
+              },
+              "YARN_VERSION": {
+                "present": true,
+                "value": "1.22.22"
+              }
+            }
+          },
+          "command": {
+            "sha256": "7aee710ffe4eff6f5bcc94e2aac5e6c045e59e9510bf19b70a6fc176224cbe09",
+            "argumentCount": 3
+          },
+          "entrypoint": {
+            "sha256": "85af29400a81c02bc4951fe208c3bf04fdd05b6634a095a5c60ef196bda4c6e8",
+            "argumentCount": 1
+          },
+          "user": "",
+          "workingDirectory": "/app",
+          "resources": {
+            "nanoCpus": 0,
+            "cpuQuota": 0,
+            "cpuPeriod": 0,
+            "cpuShares": 0,
+            "cpusetCpus": "",
+            "memory": 0,
+            "memorySwap": 0,
+            "memoryReservation": 0,
+            "pidsLimit": null,
+            "shmSize": 6299844608
+          },
+          "networkMode": "offline-sync-bench-turso_default",
+          "portBindings": {
+            "3000/tcp": [
+              {
+                "HostIp": "",
+                "HostPort": "3226"
+              }
+            ]
+          },
+          "mounts": [
+            {
+              "type": "volume",
+              "source": "/var/lib/docker/volumes/offline-sync-bench-turso_turso-admin-data/_data",
+              "destination": "/data",
+              "readWrite": true,
+              "name": "offline-sync-bench-turso_turso-admin-data",
+              "mode": "rw",
+              "propagation": "",
+              "input": {
+                "scope": "mutable volume contents are not configuration inputs"
+              }
+            }
+          ]
+        },
+        {
+          "name": "/offline-sync-bench-turso-turso-1",
+          "service": "turso",
+          "imageId": "sha256:3bd3160b4f0b25266ba0d49e571af2f79b4e6c61b9b67555ce2a0ebb99f3b852",
+          "configurationSha256": "cbe150c81f32653259d2aa7115f334994fb43650581a1eaeaf4845dc19c1eb9a",
+          "hostConfigurationSha256": "4df91a3d653f8c41d2d1852fb65ae9637f7efba475d0897ffa29ffee3152058d",
+          "environment": {
+            "sha256": "b524f812200478590fd6804f4d2b13bc01a163c20db48e68bbc1f9184a7c93bd",
+            "values": {
+              "PATH": {
+                "present": true,
+                "redacted": true
+              }
+            }
+          },
+          "command": {
+            "sha256": "27c4c4045623d9bb3d6f985bb3f19d7e853119a8451896d46f4ad39949fafcdd",
+            "argumentCount": 4
+          },
+          "entrypoint": {
+            "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "argumentCount": 0
+          },
+          "user": "",
+          "workingDirectory": "",
+          "resources": {
+            "nanoCpus": 0,
+            "cpuQuota": 0,
+            "cpuPeriod": 0,
+            "cpuShares": 0,
+            "cpusetCpus": "",
+            "memory": 0,
+            "memorySwap": 0,
+            "memoryReservation": 0,
+            "pidsLimit": null,
+            "shmSize": 6299844608
+          },
+          "networkMode": "offline-sync-bench-turso_default",
+          "portBindings": {
+            "8080/tcp": [
+              {
+                "HostIp": "",
+                "HostPort": "3225"
+              }
+            ]
+          },
+          "mounts": [
+            {
+              "type": "volume",
+              "source": "/var/lib/docker/volumes/offline-sync-bench-turso_turso-server-data/_data",
+              "destination": "/data",
+              "readWrite": true,
+              "name": "offline-sync-bench-turso_turso-server-data",
+              "mode": "rw",
+              "propagation": "",
+              "input": {
+                "scope": "mutable volume contents are not configuration inputs"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "fingerprint": "aa09f9acd1ca8277b4d43ac366ebc3baaad4b020725b83491d58e119f871271f"
+}

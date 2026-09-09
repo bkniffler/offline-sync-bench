@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 600000,
+  "stacks": [
+    "electric",
+    "electric-tanstack",
+    "syncular"
+  ],
+  "scenarios": [
+    "offline-replay",
+    "large-offline-queue",
+    "offline-restart"
+  ],
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Run one trial for live replay, queue scaling and offline restart per adapter. Require complete 2,000-task validation, actual writer-only TCP outage and independent reader convergence at 10 / 100 / 500 / 1,000 writes. Electric must retain its explicitly benchmark-owned SQLite cache/outbox and idempotency identities across SIGKILL. TanStack must retain every native serialized transaction and commit receipt in its live Node executor; the fake-indexeddb queue remains memory-only and restart must be unsupported for that configuration. Verify TanStack confirmed SQLite rows separately from active optimistic data. Keep native retry/upload/shape receipts, distinct processes and separate guarantee profiles. Syncular provides the shared-controller regression. Preserve failures and do not publish timing comparisons."
+}

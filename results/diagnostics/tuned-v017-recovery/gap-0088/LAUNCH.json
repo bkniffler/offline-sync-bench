@@ -1,0 +1,18 @@
+{
+  "launchedAt": "2026-09-09T08:46:59.155135+00:00",
+  "pid": 49591,
+  "retainedAttempts": 88,
+  "nextAttempt": 89,
+  "previousProcessesVerifiedAbsent": [
+    5835,
+    5836,
+    5837
+  ],
+  "priorRecovery": "../gap-0079/RECOVERY.json",
+  "controllerFailure": "Cannot inspect Docker configuration (compose)",
+  "recovery": "Started the stopped OrbStack daemon and the existing benchmark containers, preserving volumes and images. Restored the prior runtime environment. The only configuration exception is the recorded empty-DNS serialization equivalence.",
+  "dnsSource": "https://github.com/moby/moby/blob/daa0cb7f/daemon/container_operations.go#L60-L74",
+  "dnsSourceSha256": "99e04d643d63ea812989924361a1d21c4351ddda9e558d209b322b9688fe49d3",
+  "processLifetime": "Detached session with file-backed output.",
+  "limitation": "The controller inspection failed after attempt 88 was saved; its original invalid manifest is preserved. Restarted services and the daemon do not recreate uninterrupted cache conditions. No measurement is repeated; the exact cause of OrbStack stopping is unknown."
+}

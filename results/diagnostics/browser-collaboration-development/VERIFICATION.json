@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "status": "verified-development-evidence",
+  "entries": [
+    [
+      "electric-serialization-failure",
+      ".tmp/browser-probe-LN0WHC"
+    ],
+    [
+      "electric-first-success",
+      ".tmp/browser-probe-MkjiWC"
+    ],
+    [
+      "zero-first-success",
+      ".tmp/browser-probe-7F6wEL"
+    ],
+    [
+      "electric-verified",
+      ".tmp/browser-probe-qsJXj0"
+    ],
+    [
+      "zero-verified",
+      ".tmp/browser-probe-jB0HjE"
+    ],
+    [
+      "lifecycle",
+      ".tmp/browser-lifecycle-sGM9Tm"
+    ]
+  ],
+  "artifacts": {
+    "electric-serialization-failure/RESULT.json": "a699d4c4840abfe2612fed09ff45d16c8e9729ebacc190ef4ce7385bea4137af",
+    "electric-serialization-failure/process.ts": "b76e44e5e004f67b335934cddee3dfa4d37cdb3554b1b76132229179b006ffb1",
+    "electric-serialization-failure/client-entry.ts": "839b531bf0433b15c119b6d27d2b06a333f5cefc20e951226660795552667b5c",
+    "electric-serialization-failure/probe.ts": "21550e4511aa29dc595f5ef6799e6e4b82d71571ede59c52c38c0c22fd59ff59",
+    "electric-serialization-failure/client.bundle.js": "1b0c4e8ae742d1aec1753105f45b7f4f0ee24606f795ec11277bec46e81445d9",
+    "electric-serialization-failure/bundle-meta.json": "5513c3b6d8ad14b0338b61cac8601f8dd59f348f361c0a7acf9d1411e76883ff",
+    "electric-first-success/RESULT.json": "69d3e8fd27f04de9445c862498ad96cf3a368f68d913c06b491b93af22e26f8d",
+    "electric-first-success/process.ts": "2bcb614b45925a5d1a45dca180eac402f3b0e075c3a094547dcbed02a007a9e3",
+    "electric-first-success/client-entry.ts": "7efa86cc6883193f31cbd3f0bc6681017fb65a64faa13768a147216835ccf7d1",
+    "electric-first-success/probe.ts": "26c2ca486f41d4026f8bd2e32e60cf5e8264b82223b776b51d3bfa8443d027e4",
+    "electric-first-success/client.bundle.js": "529e1c96535fd68eed539506e31c16b41d9b283aec9b68151a68d49c51b9eddc",
+    "electric-first-success/bundle-meta.json": "9137671d81a866fc3a3de87e12774606787335c0dcb9155c70f32ce39c10dbc5",
+    "zero-first-success/RESULT.json": "da363461b475d17a38021d7d03fe8f577757783520eb52052abd785fc2cc6272",
+    "zero-first-success/process.ts": "2bcb614b45925a5d1a45dca180eac402f3b0e075c3a094547dcbed02a007a9e3",
+    "zero-first-success/client-entry.ts": "7efa86cc6883193f31cbd3f0bc6681017fb65a64faa13768a147216835ccf7d1",
+    "zero-first-success/probe.ts": "26c2ca486f41d4026f8bd2e32e60cf5e8264b82223b776b51d3bfa8443d027e4",
+    "zero-first-success/client.bundle.js": "529e1c96535fd68eed539506e31c16b41d9b283aec9b68151a68d49c51b9eddc",
+    "zero-first-success/bundle-meta.json": "9137671d81a866fc3a3de87e12774606787335c0dcb9155c70f32ce39c10dbc5",
+    "electric-verified/calibration.ts": "5972c67677369873f1aa5ab8d9a0760443529e3f642e10513af2a1db150c7e00",
+    "electric-verified/RESULT.json": "82c06c18ac588a106e17c4df18a24a74647fbe2253ca0f33bbc30f41ce58dfeb",
+    "electric-verified/process.ts": "7679c3616ee8939e298361b12d7dcaf9eff30737842121c7d8dce2e13e32f0ea",
+    "electric-verified/client-entry.ts": "3e87841fdaae5fd432cd72ee5fab1a4f8d16f5edd8ca75391d284a88e499c4e4",
+    "electric-verified/probe.ts": "cadb2f5b6b404c52009fa8914a14fa07c5fb3582d320b567c8f99f72dcae73f5",
+    "electric-verified/client.bundle.js": "2b84e54b97138b2a5dced31a7c77095572d69ca611a1b0cce5325b389827a451",
+    "electric-verified/bundle-meta.json": "807593d085868ba12fc83605e5d71e167494fb0ebe252a5a984ec7da72342a12",
+    "zero-verified/calibration.ts": "ea6f2be8b68b8ffc9965f1b9c3b9fceebc1bc2faa034ee2ce694aecb66646f3c",
+    "zero-verified/RESULT.json": "11c5e905c8bd087aacda630f69cedb79c904f82e74e7aaf102a3eacbe1c1ba7c",
+    "zero-verified/process.ts": "7679c3616ee8939e298361b12d7dcaf9eff30737842121c7d8dce2e13e32f0ea",
+    "zero-verified/client-entry.ts": "3e87841fdaae5fd432cd72ee5fab1a4f8d16f5edd8ca75391d284a88e499c4e4",
+    "zero-verified/probe.ts": "f720e8ca705a6a8cd3b91fcdcaa57b280fe82c768fcd70d72826941ca154a2cd",
+    "zero-verified/client.bundle.js": "2b84e54b97138b2a5dced31a7c77095572d69ca611a1b0cce5325b389827a451",
+    "zero-verified/bundle-meta.json": "807593d085868ba12fc83605e5d71e167494fb0ebe252a5a984ec7da72342a12",
+    "lifecycle/RESULT.json": "dbed2a66154ade2cace45c09705b5082859d47a44e431804bb17843b5cb0e8d4",
+    "lifecycle/process.ts": "7679c3616ee8939e298361b12d7dcaf9eff30737842121c7d8dce2e13e32f0ea",
+    "lifecycle/lifecycle.ts": "c8b2a7d3ae0e9890d896f309686e45dc61e149a35947f5d9567038cbd6704458",
+    "verification-validation.ts": "dcf44006fd39d3373e05587289a3aa6e65ea5decf3eb804f3d73a86e424cc3ec",
+    "verification-process.ts": "7679c3616ee8939e298361b12d7dcaf9eff30737842121c7d8dce2e13e32f0ea",
+    "verification-calibration.ts": "a8dceb8a3f3ab7c7e7388c3f44803a1a3384e25cf7a3091d3e502e196f8e49f7",
+    "verification-client-entry.ts": "3e87841fdaae5fd432cd72ee5fab1a4f8d16f5edd8ca75391d284a88e499c4e4",
+    "verification-archive-browser-development.ts": "d55d91edc11a30038ad0068343e1d6703bd0cfaa86bc3568bd17563a5e12f946",
+    "validation-v2.ts": "e250575a4779e6895d750e59c2e062b4c6c4fddba1054a0144d127debebcfbae",
+    "shared-result-validation.ts": "ca275b3f66e5d566820af6e31e483d9b9ef285313177a3c6149bbd177d10639d",
+    "electric-collaboration-validation.ts": "353d6422d00e6606a664e613621046456fbc3d8d79d1ff433cbb33a1e0053f99",
+    "FULL-TESTS.log": "9c47a02900508d088d0176b4b9b946ef0a226c59c255da1de468236d571f17f1",
+    "FOCUSED-TESTS.log": "6f8f9acb30f81480f613b033cac75a6eccf69beb5608c860586e543acd4c12d4",
+    "finalize.ts": "ad7a9872b362333551def22c20dd59f52c062d98f0df1bdaeafd51c2336fc687",
+    "validation-test-source.txt": "648ba49760d6f9851307a36ef91bbe269d2fdcd2ed8072fdf949ef4a71a6cbea"
+  },
+  "checks": [
+    "Complete canonical 200-task writer/reader initial and final native records",
+    "55 unique ordered mutation receipts bound to 50 measured titles and 5 warmups",
+    "Independent client IDs, browser processes, profile directories and Zero IndexedDB names",
+    "CDP and OS process identities agree; all observed helpers absent after cleanup",
+    "100 idle two-call/binding samples before and after each measured workload",
+    "Operation-error cleanup and forced controller-group SIGKILL preserve zero surviving observed browser helpers"
+  ],
+  "limitations": [
+    "These are development probes, not campaigns or performance comparisons. No source/configuration/dependency/runtime-package campaign binding was captured before the probes.",
+    "Archived scripts and SDK bundles identify executed probe code; helper validation was added after earlier probes. Only electric-verified and zero-verified satisfy the complete current probe checks.",
+    "Fresh profiles remain in original .tmp paths; their storage contents are not archived and no process durability claim is made.",
+    "Idle CDP calibration does not isolate loaded observation overhead and is never subtracted. Browser resource RSS sums may double-count shared pages.",
+    "The first Electric failure and earlier success evidence are preserved with their original scope."
+  ],
+  "currentValidation": "validation-v2.ts",
+  "tests": {
+    "full": {
+      "passed": 223,
+      "failed": 0,
+      "assertions": 1060,
+      "files": 48
+    },
+    "focused": {
+      "passed": 68,
+      "failed": 0,
+      "assertions": 109,
+      "files": 3
+    },
+    "browser": {
+      "tests": 62,
+      "deliberateCorruptionsRejected": 60
+    },
+    "typescript": "passed",
+    "whitespace": "passed"
+  },
+  "verifiedAt": "2026-09-07T01:00:27.263Z",
+  "archiveNamingNote": "The test source was renamed from validation.test.ts to validation-test-source.txt without changing its bytes, so Bun does not execute an archived copy as a second test suite. Original archive helper scripts retain the original filename."
+}

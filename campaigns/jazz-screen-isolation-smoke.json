@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 1200000,
+  "stacks": ["jazz-v2"],
+  "scenarios": ["local-query"],
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Seed and validate 100000 canonical tasks in an independent Jazz process, require edge durability and observed process exit before starting the measured reader, then validate the complete reader dataset and all shared screen outputs. Confirm resource samples include the reader and exclude the exited seeder and controller. Keep all failures. This single-trial experimental-lane smoke cannot establish a performance comparison."
+}

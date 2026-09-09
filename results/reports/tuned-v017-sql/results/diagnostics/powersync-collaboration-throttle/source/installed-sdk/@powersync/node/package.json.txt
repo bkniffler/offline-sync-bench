@@ -1,0 +1,83 @@
+{
+  "name": "@powersync/node",
+  "version": "1.0.0",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "description": "PowerSync Node.js SDK",
+  "main": "lib/index.js",
+  "files": [
+    "lib",
+    "dist",
+    "download_core.js",
+    "src"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js",
+      "module-sync": "./lib/index.js"
+    },
+    "./worker.js": {
+      "types": "./lib/worker.d.ts",
+      "import": "./lib/worker.js",
+      "module-sync": "./lib/worker.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/powersync-ja/powersync-js.git"
+  },
+  "author": "PowerSync",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/powersync-ja/powersync-js/issues"
+  },
+  "homepage": "https://docs.powersync.com/",
+  "peerDependencies": {
+    "@powersync/common": "^2.2.0",
+    "better-sqlite3": "12.x"
+  },
+  "peerDependenciesMeta": {
+    "better-sqlite3": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "comlink": "^4.4.2",
+    "undici": "^7.11.0",
+    "@powersync/common": "2.2.0",
+    "@powersync/shared-internals": "1.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "better-sqlite3": "^12.10.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "bson": "^6.10.4",
+    "drizzle-orm": "^0.44.7",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10",
+    "@microsoft/api-extractor": "^7.59.0",
+    "@powersync/drizzle-driver": "0.8.0"
+  },
+  "keywords": [
+    "data sync",
+    "offline-first",
+    "sqlite",
+    "real-time data stream",
+    "live data"
+  ],
+  "scripts": {
+    "prepare:core": "node download_core.js",
+    "build": " pnpm prepare:core && tsc -b",
+    "build:prod": "pnpm prepare:core && tsc -b",
+    "clean": "rm -rf lib dist tsconfig.tsbuildinfo",
+    "watch": "tsc -b -w",
+    "test": " pnpm prepare:core && vitest",
+    "test:exports": "attw --pack . --ignore-rules no-resolution cjs-resolves-to-esm",
+    "api-diff": "api-extractor run --verbose"
+  }
+}

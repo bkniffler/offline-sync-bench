@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 600000,
+  "stacks": [
+    "zero"
+  ],
+  "scenarios": [
+    "online-propagation",
+    "local-query",
+    "deep-relationship-query"
+  ],
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Verify the shared Zero schema/query registry through the existing native collaboration path and both canonical screen workloads after startup migration. Run each case once; preserve failures. This is a regression smoke, not a performance publication."
+}

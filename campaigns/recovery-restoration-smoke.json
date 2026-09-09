@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260917,
+  "trials": 1,
+  "trialTimeoutMs": 900000,
+  "stacks": [
+    "syncular",
+    "syncular-rust",
+    "electric",
+    "electric-tanstack",
+    "powersync",
+    "turso",
+    "zero",
+    "jazz-v2"
+  ],
+  "scenarios": [
+    "offline-replay"
+  ],
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "parameters": {
+    "recoveryOutageMs": 20000
+  },
+  "stoppingRule": "Run all eight live recovery cases once. Block for exactly 20000 ms from the controller monotonic anchor; require offline queue, native probe and independent-reader checks before the deadline. Allow at most 250 ms scheduling lateness. Preserve missed deadlines and all failures. Validate full 2000-task states, pending writes, per-endpoint connection timelines, source/configuration/dependency/executable/storage bindings and cleanup. This is a correctness smoke, not a performance comparison."
+}

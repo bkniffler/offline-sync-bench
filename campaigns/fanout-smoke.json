@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 600000,
+  "stacks": ["syncular", "syncular-rust", "powersync", "turso"],
+  "scenarios": ["connected-fanout", "reconnect-storm"],
+  "parameters": { "clientCounts": [5, 25] },
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run eight cases with 5 and 25 independent reader processes. Verify one-update connected fanout and a 100-update backlog behind blocked reader routes. Preserve every failure and source snapshot. These single-trial correctness checks cannot establish performance comparisons."
+}

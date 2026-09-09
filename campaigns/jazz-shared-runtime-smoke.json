@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 1800000,
+  "stacks": [
+    "jazz-v2"
+  ],
+  "scenarios": [
+    "local-query",
+    "online-propagation"
+  ],
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Run the existing Jazz screen and collaboration workloads after extracting its shared native schema/runtime setup for startup. Require exact canonical outputs, independent screen seeding and shared collaboration receipts. One experimental regression trial per case; preserve failures. No performance publication."
+}

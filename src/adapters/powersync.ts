@@ -1,6 +1,13 @@
+import { ensureStackUp } from '../stack-manager.ts';
+import { runAccess } from '../access/run.ts';
+import { runFanout } from '../fanout/run.ts';
+import { runStartup } from '../startup/run.ts';
+import { runReopen } from '../recovery/reopen.ts';
+import { runConflicts } from '../recovery/conflicts.ts';
+import { runRecovery } from '../recovery/run.ts';
 import { spawnSync } from 'node:child_process';
 import { benchmarkRoot } from '../paths';
-import { getStack } from '../stacks';
+import { getClientStack as getStack } from '../stacks';
 import type { BenchmarkAdapter, BenchmarkStatus, JsonValue } from '../types';
 import { createUnsupportedScenarioResult } from '../unsupported';
 
@@ -11,15 +18,13 @@ interface RunnerResult {
   metadata: { [key: string]: JsonValue };
 }
 
-function runPowerSyncScenario(
+async function runPowerSyncScenario(
   scenario:
-    | 'bootstrap'
     | 'online-propagation'
-    | 'offline-replay'
     | 'local-query'
     | 'deep-relationship-query'
-    | 'large-offline-queue'
 ) {
+  await ensureStackUp('powersync');
   const result = spawnSync(
     'node',
     ['--experimental-strip-types', 'src/adapters/powersync-runner.ts', scenario],
@@ -57,27 +62,29 @@ function runPowerSyncScenario(
 export class PowerSyncBenchmarkAdapter implements BenchmarkAdapter {
   readonly stack = getStack('powersync');
 
-  async runBootstrap() {
-    return runPowerSyncScenario('bootstrap');
-  }
+  async runBootstrap() { return runStartup('powersync'); }
 
   async runOnlinePropagation() {
     return runPowerSyncScenario('online-propagation');
   }
 
+  async runReplicaReopen() { return runReopen('powersync'); }
+
+  async runConflictUpdateUpdate() { return runConflicts('powersync', 'conflict-update-update'); }
+  async runConflictUpdateDelete() { return runConflicts('powersync', 'conflict-update-delete'); }
+
+  async runOfflineRestart() { return runRecovery('powersync', 'offline-restart'); }
+
   async runOfflineReplay() {
-    return runPowerSyncScenario('offline-replay');
+    return runRecovery('powersync', 'offline-replay');
   }
 
-  async runReconnectStorm() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Reconnect storm is not implemented for PowerSync in this harness yet.'],
-    });
-  }
+  async runConnectedFanout() { return runFanout('powersync', 'connected-fanout'); }
+
+  async runReconnectStorm() { return runFanout('powersync', 'reconnect-storm'); }
 
   async runLargeOfflineQueue() {
-    return runPowerSyncScenario('large-offline-queue');
+    return runRecovery('powersync', 'large-offline-queue');
   }
 
   async runLocalQuery() {
@@ -89,10 +96,7 @@ export class PowerSyncBenchmarkAdapter implements BenchmarkAdapter {
   }
 
   async runPermissionChange() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Permission-change convergence is not implemented for PowerSync in this harness yet.'],
-    });
+    return runAccess('powersync');
   }
 
   async runBlobFlow() {

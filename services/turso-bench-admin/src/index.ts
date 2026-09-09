@@ -147,6 +147,9 @@ app.post('/admin/seed', async (c) => {
   }
   await seedData(options);
   await db.push();
+  // Fixture maintenance is outside client timing. Checkpoint this long-lived
+  // admin replica after pushing so successive fixtures do not accumulate WAL.
+  await db.checkpoint();
 
   return c.json({
     ok: true,
@@ -249,8 +252,11 @@ async function ensureBenchmarkSchema(): Promise<void> {
     'create index if not exists idx_projects_org_id on projects (org_id)',
     'create index if not exists idx_users_org_id on app_users (org_id)',
     'create index if not exists idx_memberships_user_id on project_memberships (user_id)',
-    'create index if not exists idx_tasks_project_id on tasks (project_id)',
+    // Replaced by the project/ID composite: avoid the redundant shorter index.
+    'drop index if exists idx_tasks_project_id',
     'create index if not exists idx_tasks_owner_id on tasks (owner_id)',
+    'create index if not exists bench_tasks_list on tasks (project_id, owner_id, completed, id)',
+    'create index if not exists bench_tasks_project_id on tasks (project_id, id)',
   ];
   for (const statement of statements) {
     await db.exec(statement);
@@ -260,19 +266,17 @@ async function ensureBenchmarkSchema(): Promise<void> {
 
 async function resetData(): Promise<void> {
   await db.pull();
-  const reset = db.transaction(async () => {
-    for (const table of [
-      'tasks',
-      'project_memberships',
-      'app_users',
-      'projects',
-      'organizations',
-    ]) {
-      await db.exec(`delete from ${table}`);
+  // The native push threshold only splits at transaction boundaries. Keep
+  // fixture deletions bounded so a large reset cannot become one giant upload.
+  for (const table of ['tasks', 'project_memberships', 'app_users', 'projects', 'organizations']) {
+    while (true) {
+      const count = await (await db.prepare(`SELECT count(*) AS n FROM ${table}`)).get();
+      if (Number(count.n) === 0) break;
+      await db.exec(`DELETE FROM ${table} WHERE rowid IN (SELECT rowid FROM ${table} LIMIT 2000)`);
+      await db.push();
     }
-  });
-  await reset();
-  await db.push();
+  }
+  await db.checkpoint();
 }
 
 async function seedData(options: Required<SeedRequest>): Promise<void> {

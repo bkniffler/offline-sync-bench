@@ -11,7 +11,7 @@ test('stream metering returns before EOF and forwards cancellation', async () =>
     cancel() { finishCancellation(); },
   }), { headers: { 'content-type': 'application/octet-stream' } });
   Object.defineProperty(source, 'url', { value: 'http://localhost/sync' });
-  const meter = createHttpMeter((async () => source) as unknown as typeof fetch, { streamResponses: true });
+  const meter = createHttpMeter((async (request: Request) => { await request.text(); return source; }) as unknown as typeof fetch);
 
   const response = await Promise.race([
     meter.fetch('http://localhost/sync', { method: 'POST', body: 'ping' }),
@@ -26,11 +26,11 @@ test('stream metering returns before EOF and forwards cancellation', async () =>
   await cancelled;
 });
 
-test('default metering retains complete finite response byte counts', async () => {
+test('default metering counts finite responses as the client consumes them', async () => {
   const meter = createHttpMeter((async () => new Response('héllo')) as unknown as typeof fetch);
   const response = await meter.fetch('http://localhost/data');
-  expect(meter.snapshot()).toEqual({ requestCount: 1, requestBytes: 0, responseBytes: 6 });
   expect(await response.text()).toBe('héllo');
+  expect(meter.snapshot()).toEqual({ requestCount: 1, requestBytes: 0, responseBytes: 6 });
 });
 
 test('stream metering preserves bodyless responses', async () => {
@@ -74,4 +74,12 @@ test('fixed-length metering preserves binary bytes and Content-Length over HTTP'
   } finally {
     await server.stop(true);
   }
+});
+
+
+test('Request inputs respect method, header and body overrides', async () => {
+  const meter = createHttpMeter((async (request: Request) => Response.json({ method: request.method, header: request.headers.get('x-test'), body: await request.text() })) as unknown as typeof fetch);
+  const response = await meter.fetch(new Request('http://localhost/test', { method: 'POST', body: 'old' }), { method: 'PUT', headers: { 'x-test': 'new' }, body: 'new-body' });
+  expect(await response.json()).toEqual({ method: 'PUT', header: 'new', body: 'new-body' });
+  expect(meter.snapshot().requestBytes).toBe(8);
 });

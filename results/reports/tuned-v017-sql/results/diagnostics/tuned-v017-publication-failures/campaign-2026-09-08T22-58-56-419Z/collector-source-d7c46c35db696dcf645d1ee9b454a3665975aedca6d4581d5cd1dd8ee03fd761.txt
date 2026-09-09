@@ -1,0 +1,120 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { mkdir, readFile, writeFile, rename } from 'node:fs/promises';
+import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
+
+const [manifestPath, logPath, pidArgument, archive] = process.argv.slice(2);
+assert(manifestPath && logPath && /^\d+$/.test(pidArgument ?? '') && archive, 'Usage: bun scripts/capture-campaign-failures.ts CAMPAIGN.json LOG PID ARCHIVE');
+const origin = join(manifestPath, '..');
+const initialManifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+const campaignId = initialManifest.id;
+const plan = initialManifest.plan;
+const declaration = { sourceHash: initialManifest.source.sourceHash };
+const sha = (value: Uint8Array | string) => createHash('sha256').update(value).digest('hex');
+const helperBytes = await readFile(import.meta.path);
+await mkdir(archive, { recursive: true });
+async function preserve(path: string, bytes: Uint8Array) {
+  try { await writeFile(path, bytes, { flag: 'wx' }); }
+  catch (error: any) { if (error.code !== 'EEXIST') throw error; }
+  assert.equal(sha(await readFile(path)), sha(bytes), `Existing archive differs: ${path}`);
+}
+const collectorSourcePath = `collector-source-${sha(helperBytes)}.txt`;
+await preserve(join(archive, collectorSourcePath), helperBytes);
+const knownCollectorHashes = new Set([sha(helperBytes)]);
+try { knownCollectorHashes.add(sha(await readFile(join(archive, 'collector-source.txt')))); }
+catch (error: any) { if (error.code !== 'ENOENT') throw error; }
+await preserve(join(archive, 'PLAN.json'), Buffer.from(JSON.stringify(plan, null, 2) + '\n'));
+await preserve(join(archive, 'SOURCE.json'), await readFile(join(origin, 'SOURCE.json')));
+const captured = new Set<number>();
+const failedStatuses = new Set(['failed', 'invalid', 'timed-out']);
+
+async function collect() {
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  assert.equal(manifest.id, campaignId);
+  assert.equal(manifest.source.sourceHash, declaration.sourceHash);
+  assert.deepEqual(manifest.plan, plan);
+  const log = await readFile(logPath, 'utf8');
+  let current: number | undefined;
+  const finished: { index: number; status: string }[] = [];
+  for (const line of log.split('\n')) {
+    const match = /^\[(\d+)\/(\d+)\] ([a-z0-9-]+)\/([a-z0-9-]+) trial=(\d+)$/.exec(line);
+    if (match) {
+      current = Number(match[1]); const expected = plan[current - 1];
+      assert(expected && Number(match[2]) === plan.length);
+      assert.equal(match[3], expected.stackId); assert.equal(match[4], expected.scenarioId);
+      assert.equal(Number(match[5]), expected.trial);
+    } else if (line.startsWith('status=')) {
+      assert(current !== undefined); finished.push({ index: current, status: line.slice(7) }); current = undefined;
+    }
+  }
+  assert.equal(new Set(finished.map(item => item.index)).size, finished.length);
+  for (const { index, status } of finished) {
+    if (!failedStatuses.has(status) || captured.has(index)) continue;
+    const entry = plan[index - 1], prefix = String(index).padStart(4, '0');
+    const file = `${prefix}-${entry.stackId}-${entry.scenarioId}.json`;
+    const raw = await readFile(join(origin, file)), result = JSON.parse(raw.toString());
+    assert.deepEqual(manifest.attempts[index - 1]?.result, result, 'Raw result differs from current manifest');
+    assert.equal(result.runId, campaignId); assert.equal(result.stackId, entry.stackId);
+    assert.equal(result.scenarioId, entry.scenarioId); assert.equal(result.status, status);
+    assert.equal(result.metadata.profile.sourceHash, declaration.sourceHash);
+    assert(Number.isFinite(Date.parse(result.startedAt)) && Number.isFinite(Date.parse(result.finishedAt)));
+    const target = join(archive, prefix), receiptPath = join(target, 'CAPTURE.json');
+    let existing: any;
+    try { existing = JSON.parse(await readFile(receiptPath, 'utf8')); }
+    catch (error: any) { if (error.code !== 'ENOENT') throw error; }
+    if (existing) {
+      assert.equal(existing.rawSha256, sha(raw)); assert(knownCollectorHashes.has(existing.collectorSha256), 'Unknown existing collector source');
+      for (const [name, expected] of Object.entries<any>(existing.files)) {
+        const bytes = await readFile(join(target, name));
+        assert.equal(bytes.length, expected.bytes); assert.equal(sha(bytes), expected.sha256);
+      }
+      captured.add(index); continue;
+    }
+    await mkdir(target, { recursive: true });
+    const files = new Map<string, Uint8Array>([[file, raw], [`${file}.log`, await readFile(join(origin, `${file}.log`))]]);
+    const containers = result.metadata.serverStorage?.before?.containers;
+    assert(Array.isArray(containers) && containers.length > 0, 'Missing service inventory');
+    const logs = [];
+    for (const container of containers) {
+      assert(/^[a-z0-9-]+$/.test(container.service) && /^[a-f0-9]{64}$/.test(container.containerId));
+      const args = ['logs', '--timestamps', '--since', result.startedAt, '--until', result.finishedAt, container.containerId];
+      const output = spawnSync('docker', args, { encoding: 'buffer', timeout: 15_000, maxBuffer: 32 * 1024 * 1024 });
+      const stdout = `${container.service}.stdout.log`, stderr = `${container.service}.stderr.log`;
+      files.set(stdout, output.stdout ?? Buffer.alloc(0)); files.set(stderr, output.stderr ?? Buffer.alloc(0));
+      logs.push({ service: container.service, containerId: container.containerId, command: ['docker', ...args],
+        exitCode: output.status, signal: output.signal, error: output.error ? String(output.error) : null, stdout, stderr });
+    }
+    for (const [name, bytes] of files) await preserve(join(target, name), bytes);
+    const receipt = { capturedAt: new Date().toISOString(), campaignId, index, ...entry, status, resultId: result.resultId,
+      sourceHash: declaration.sourceHash, rawSha256: sha(raw), resultDigest: sha(JSON.stringify(result)),
+      collectorSha256: sha(helperBytes), collectorSourcePath, window: { startedAt: result.startedAt, finishedAt: result.finishedAt }, logs,
+      files: Object.fromEntries([...files].map(([name, bytes]) => [name, { bytes: bytes.length, sha256: sha(bytes) }])),
+      scope: 'Automatic evidence preservation after the campaign logs an attempt outcome. Checks the fixed plan, raw result identity and source profile; copies raw result/log and captures the recorded services for the attempt window. Service capture errors remain explicit. This is not causal review, full campaign-manifest verification, or publication approval. Per-client SDK streams may be absent from the outer trial log.' };
+    await preserve(receiptPath, Buffer.from(JSON.stringify(receipt, null, 2) + '\n'));
+    captured.add(index);
+    console.log(JSON.stringify({ captured: index, status, resultId: result.resultId, serviceCaptureErrors: logs.filter(log => log.exitCode !== 0 || log.error).length }));
+  }
+  return { finished: finished.length, captured: [...captured].sort((a, b) => a - b), planned: plan.length };
+}
+
+const watch = true;
+const pid = pidArgument;
+function identity() {
+  assert(pid && /^\d+$/.test(pid));
+  const output = spawnSync('ps', ['-p', pid, '-o', 'lstart=', '-o', 'command='], { encoding: 'utf8', timeout: 5_000 });
+  return output.status === 0 ? output.stdout.trim() : null;
+}
+const expectedIdentity = watch ? identity() : null;
+if (watch) assert(expectedIdentity?.includes('src/campaign.ts --config ') || expectedIdentity?.includes('scripts/recover-tuned-campaign.ts --config '));
+do {
+  const state = await collect();
+  const running = watch && identity() === expectedIdentity;
+  const progress = { checkedAt: new Date().toISOString(), ...state, watcherPid: process.pid, campaignPid: pid,
+    campaignProcessIdentity: expectedIdentity, campaignProcessLive: watch ? running : null,
+    mode: watch ? 'watch' : 'once', terminal: !watch || !running || state.finished === plan.length };
+  await writeFile(join(archive, 'STATE.json.tmp'), JSON.stringify(progress, null, 2) + '\n');
+  await rename(join(archive, 'STATE.json.tmp'), join(archive, 'STATE.json'));
+  if (progress.terminal) { console.log(JSON.stringify(progress)); break; }
+  await Bun.sleep(30_000);
+} while (true);

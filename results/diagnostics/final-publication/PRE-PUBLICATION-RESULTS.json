@@ -1,0 +1,42 @@
+{
+  "schema": "benchmark-interim-index-v1",
+  "status": "collection-complete-review-pending",
+  "campaignId": "campaign-2026-09-08T22-58-56-419Z",
+  "sourceHash": "8ecde51941dc281ad277fea9b6a28b7165e0c72cc9202d1fbb71c64201ca9a03",
+  "attempts": 174,
+  "plannedSqlAttempts": 168,
+  "plannedReplacementAttempts": 174,
+  "outcomes": {
+    "completed": 132,
+    "invalid": 21,
+    "timed-out": 9,
+    "unsupported": 9,
+    "failed": 3
+  },
+  "report": "results/reports/tuned-v017-current/RESULTS.md",
+  "manifest": "results/reports/tuned-v017-current/CAMPAIGN.json.gz",
+  "manifestSha256": "2488096cad00268a21d00c28b8e1b99616620dee4494885fbe7ce1073fa21de2",
+  "checks": "results/reports/tuned-v017-current/CHECKS.json",
+  "capturedAt": "2026-09-09T11:37:41.939Z",
+  "scope": "Completed collection observations: 168 SQL and 6 Zero attempts. Final publication review remains pending. Each source campaign retains its own timing summaries; historical timings are not pooled.",
+  "withdrawnIndex": "results/history/2026-09-09-withdrawn-interim/PRE-CURRENT-INDEX.json",
+  "withdrawnIndexSha256": "4bc5e295d3366de7e56a02954c64cd764e8ba90385e0aec48e53af536c946e5b",
+  "sources": [
+    {
+      "campaignId": "campaign-2026-09-08T22-58-56-419Z",
+      "attempts": 168,
+      "report": "results/reports/tuned-v017-current/RESULTS.md",
+      "manifest": "results/reports/tuned-v017-current/CAMPAIGN.json.gz",
+      "manifestSha256": "2488096cad00268a21d00c28b8e1b99616620dee4494885fbe7ce1073fa21de2",
+      "checks": "results/reports/tuned-v017-current/CHECKS.json"
+    },
+    {
+      "campaignId": "campaign-2026-09-09T11-26-05-626Z",
+      "attempts": 6,
+      "report": "results/reports/tuned-v017-zero-current/RESULTS.md",
+      "manifest": "results/reports/tuned-v017-zero-current/CAMPAIGN.json.gz",
+      "manifestSha256": "bb9c5a836c43b75eda06f5021bd1e4f7f00ae8d1e4ed9a1dbc80364db80ea5ec",
+      "checks": "results/reports/tuned-v017-zero-current/CHECKS.json"
+    }
+  ]
+}

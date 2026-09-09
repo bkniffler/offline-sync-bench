@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 180000,
+  "stacks": ["syncular", "syncular-rust", "powersync", "turso"],
+  "scenarios": ["conflict-update-update", "conflict-update-delete"],
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run all eight configured conflict cases once. Record failed expectations without changing the declared policy. This is correctness evidence, not a performance publication."
+}

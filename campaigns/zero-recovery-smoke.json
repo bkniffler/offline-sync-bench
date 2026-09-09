@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 600000,
+  "stacks": [
+    "zero",
+    "syncular"
+  ],
+  "scenarios": [
+    "offline-replay",
+    "large-offline-queue",
+    "offline-restart",
+    "online-propagation"
+  ],
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Run one trial per configured case and adapter. Zero live replay must preserve every locally accepted native mutation through a writer-only TCP outage and deliver all 10 / 100 / 500 / 1,000 edits to an independent reader, with complete 2,000-task validation before and after recovery. Retain native client/server receipts, distinct fresh memory clients, SDK reconnect observations and unavailable aggregate native queue telemetry. Zero process restart must be explicitly unsupported for this memory configuration. Syncular verifies the shared setup/recovery controller including SIGKILL restart. Collaboration checks the extracted shared Zero mutator without changing its original title-only behavior. Keep failed attempts and do not publish performance comparisons from this smoke."
+}

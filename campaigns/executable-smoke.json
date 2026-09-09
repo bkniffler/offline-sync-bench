@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 300000,
+  "stacks": ["syncular", "syncular-rust", "powersync", "turso"],
+  "scenarios": ["replica-reopen"],
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run one persisted replica reopen for each migrated adapter. Verify all offline data, fresh process identity and resources excluding the controller. Record and verify the Rust executable and locked build toolchain. Preserve failures. This is a correctness smoke, not a performance comparison."
+}

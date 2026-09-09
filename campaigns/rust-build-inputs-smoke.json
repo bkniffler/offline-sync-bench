@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260922,
+  "trials": 1,
+  "trialTimeoutMs": 180000,
+  "stacks": ["syncular-rust", "syncular"],
+  "scenarios": ["online-propagation"],
+  "network": {"id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0},
+  "stoppingRule": "Run one native collaboration attempt for the freshly built Rust driver and the JavaScript control. Preserve failures and build preparation records. This validates build provenance and native correctness, not a language performance effect."
+}

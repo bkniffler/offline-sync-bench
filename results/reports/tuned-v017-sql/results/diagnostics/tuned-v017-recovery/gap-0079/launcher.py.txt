@@ -1,0 +1,21 @@
+import json, os, pathlib, subprocess, datetime, hashlib
+root=pathlib.Path.cwd(); evidence=root/'results/diagnostics/tuned-v017-recovery/gap-0079'; run=root/'.tmp/tuned-v017-run'
+assert 'recovery-check=passed; 79 retained attempts; next=80' in (root/'.tmp/tuned-recovery-0079-restored-check.log').read_text()
+m=json.loads((root/'.results/campaign-2026-09-08T22-58-56-419Z/CAMPAIGN.json').read_text()); assert m['status']=='running' and len(m['attempts'])==79
+for pid in [70774,70775,70776]:
+ try: os.kill(pid,0)
+ except ProcessLookupError: pass
+ else: raise RuntimeError(f'Previous process {pid} exists; inspect before recovery')
+evidence.mkdir(parents=True,exist_ok=True)
+for name in ['continuation.lock','recovery.lock']:
+ data=json.loads((run/name).read_text());assert data['pid'] in [70774,70775]
+ (run/name).rename(evidence/('STALE-'+name+'.json'))
+env=os.environ.copy();env.update(json.loads((root/'.tmp/recovery-environment-0079.json').read_text()))
+for name in ['tuned-recovery-0079-check.log','tuned-recovery-0079-restored-check.log']:
+ with (evidence/name).open('xb') as f:f.write((root/'.tmp'/name).read_bytes())
+with (evidence/'launcher.py.txt').open('xb') as f:f.write(pathlib.Path(__file__).read_bytes())
+with (run/'continuation-0079.log').open('xb') as log:
+ child=subprocess.Popen(['/Users/bkniffler/.volta/tools/image/packages/bun/lib/node_modules/bun/bin/bun.exe', 'scripts/continue-tuned-publication.ts'],cwd=root,env=env,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
+receipt={'launchedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'pid':child.pid,'retainedAttempts':79,'nextAttempt':80,'previousProcessesVerifiedAbsent':[70774,70775,70776],'priorRecovery':'../RECOVERY.json','environmentRestoration':'Restored PATH from this task shell snapshot. Runtime environment fingerprint exactly matches the original configuration; all other input checks passed.','pathSha256':hashlib.sha256(env['PATH'].encode()).hexdigest(),'processLifetime':'Detached session with file-backed output so the app shell can exit without owning the campaign process group.','limitation':'Previous controller exit cause is not established; no new trial was running or has unrecorded files at this gap.'}
+with (evidence/'LAUNCH.json').open('x') as f:json.dump(receipt,f,indent=2);f.write('\n')
+print(json.dumps(receipt))

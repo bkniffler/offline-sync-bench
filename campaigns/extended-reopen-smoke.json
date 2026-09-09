@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 600000,
+  "stacks": [
+    "syncular",
+    "electric-tanstack",
+    "jazz-v2"
+  ],
+  "scenarios": [
+    "replica-reopen"
+  ],
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Run one native offline replica reopen per adapter. Verify exact 2,000-task and 50-row screen output in a new process, blocked routes, persisted TanStack collection hydration and independent Jazz durable seeding. Syncular checks the existing shared-controller path. These single trials establish correctness only."
+}

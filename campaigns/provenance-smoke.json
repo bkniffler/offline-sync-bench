@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 300000,
+  "stacks": ["syncular", "syncular-rust"],
+  "scenarios": ["local-query", "deep-relationship-query"],
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run four exact-output screen checks with external resources and an archived source snapshot. Preserve every attempt. These single-trial correctness checks cannot be published as performance comparisons."
+}

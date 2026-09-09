@@ -1,0 +1,15 @@
+{
+  "status": "published-and-restored",
+  "output": "/Users/bkniffler/GitHub/sync/offline-sync-bench/results/reports/tuned-v017-zero",
+  "campaignId": "campaign-2026-09-09T11-26-05-626Z",
+  "packaged": {
+    "status": "packaged",
+    "files": 63,
+    "rawBytes": 34658166,
+    "compressedBytes": 6550674
+  },
+  "checked": {
+    "status": "restored-and-verified",
+    "files": 63
+  }
+}

@@ -1,0 +1,5 @@
+# Reporting source
+
+The measured source is immutable. After collection, the report renderer gained concise observed ranges and stopped repeating plotted comparisons as tables. [This patch](reporting.patch) applies those changes to the measured checkout; [file hashes](../../../archive/files/results/diagnostics/publication-reporting-source/FILES.json.gz) bind the before/after source. The scripts directory contains the actual publisher, packager, summary assembler and chart tools used for this publication. Copy those scripts into the restored source checkout before regeneration. Runtime dependencies remain those declared in the source manifest.
+
+Restore a report with its root RESTORE.py, then regenerate its main page and companion using the patched checkout's publication command. The publication receipt verifies byte-identical regeneration after archive restoration. Chart inputs preserve pre-chart annotation manifests; adding chart evidence afterwards does not change result bindings or plotted values.

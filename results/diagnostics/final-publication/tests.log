@@ -1,0 +1,449 @@
+bun test v1.4.0 (34cbb9a40)
+
+src/campaign.test.ts:
+(pass) campaign plan is reproducible, complete, and shuffled within independent blocks [0.32ms]
+(pass) publication rejects insufficient replication, duplicate cases and imaginary network shaping [0.08ms]
+(pass) latest failure is never replaced by an older success [0.06ms]
+(pass) incompatible attempts cannot enter the same aggregate [0.07ms]
+(pass) uncertainty uses independent trials and stays unavailable for too few trials [1.45ms]
+(pass) client-count parameters reject malformed values instead of falling back silently [0.08ms]
+(pass) startup campaign scales are declared, ordered and checked against actual results [0.13ms]
+
+src/report-editorial.test.ts:
+(pass) recovery headings expose ownership and queue persistence instead of identical contract labels [0.10ms]
+(pass) fanout headings expose cache ownership and do not infer restart durability [0.05ms]
+(pass) startup report labels use the declared campaign sizes [0.93ms]
+
+src/source-snapshot.test.ts:
+(pass) snapshot preserves dirty source bytes, executable modes, links and deletion records [3.01ms]
+(pass) source validation rejects corrupted bytes even if the outer snapshot checksum is recomputed [1.12ms]
+
+src/metrics.test.ts:
+(pass) slow Docker polls keep timers responsive and never overlap [407.10ms]
+
+src/cargo-configuration.test.ts:
+(pass) Cargo configuration respects ancestor, home, legacy-file and recursive include precedence [17.12ms]
+(pass) new ancestor config, symlink target changes, cycles and missing includes cannot bypass Cargo input guards [4.14ms]
+(pass) Cargo configuration provenance rejects altered or absent evidence [0.73ms]
+
+src/syncular-coverage.test.ts:
+(pass) a completed 25-client storm does not count as a complete scale study [0.17ms]
+(pass) unscoped resource measurements cannot populate a 500-client result [0.04ms]
+(pass) zero-valued measurements are present while null and non-finite values are missing [0.03ms]
+(pass) a recorded scale failure counts as an attempted tier without inventing values [0.04ms]
+
+src/resources.test.ts:
+(pass) a selected client tree excludes its controller and sibling clients [63.06ms]
+(pass) external samples continue during synchronous work [299.53ms]
+(pass) startup sampling excludes retained controller data and includes a newly launched client [149.26ms]
+
+src/http-meter.test.ts:
+(pass) stream metering returns before EOF and forwards cancellation [0.43ms]
+(pass) default metering counts finite responses as the client consumes them [0.05ms]
+(pass) stream metering preserves bodyless responses [0.04ms]
+(pass) fixed-length metering preserves binary bytes and Content-Length over HTTP [3.07ms]
+(pass) Request inputs respect method, header and body overrides [0.10ms]
+
+src/server-storage.test.ts:
+(pass) storage allocation distinguishes allocated KiB, zero and unavailable output [0.08ms]
+(pass) storage inventory includes named data volumes and writable binds, excluding read-only configuration [0.18ms]
+(pass) storage observations cannot overlap the workload or silently change services and mounts [0.38ms]
+(pass) publication storage inventories bind to complete configuration and preserve unavailable counters [0.20ms]
+(pass) storage preparation policy separates profiles while observed allocation remains trial evidence [0.10ms]
+
+src/configuration.test.ts:
+(pass) configuration fingerprints preserve redacted values, unset overrides and generated-ID exclusions [0.24ms]
+(pass) container configuration detects changes with the same image and excludes process state [0.23ms]
+(pass) mounted configuration includes bytes and modes without publishing contents and rejects untracked link targets [0.97ms]
+(pass) publication requires source-bound configuration, verified artifact bytes and service coverage [0.52ms]
+(pass) resolved mount enumeration is unordered while mount contents and declared argument order remain significant [0.19ms]
+
+src/campaign-report.test.ts:
+(pass) a complete campaign can truthfully report failures [0.88ms]
+(pass) attachment reports expose their own milestones without inheriting screen workload labels [0.68ms]
+(pass) publication rejects missing attempts, smoke campaigns and corrupt provenance [0.97ms]
+(pass) annotations expire when results/configurations change and confirmation requires causal evidence [0.29ms]
+(pass) publication requires verified source bytes and bundles them with the report [15.98ms]
+(pass) access reports keep native purge, memory refresh and persisted refresh in separate tables [0.65ms]
+(pass) the main report selects findings while complete metric tables stay in the companion [0.61ms]
+(pass) editorial selection rejects missing review, cherry-picked attempts and unmeasured metrics [0.33ms]
+(pass) compact coverage preserves old failures and distinguishes missing work from unsupported configurations [0.17ms]
+(pass) finding tables separate incompatible guarantees and experimental lanes [0.16ms]
+(pass) finding tables use independent trial summaries and suppress a failed latest estimate [539.44ms]
+(pass) the complete roster stays compact without hiding unselected suite failures [60.35ms]
+(pass) startup companion tables show each declared extended scale without a hard-coded 100k label [0.53ms]
+(pass) publication requires physical observations and their declared preparation policy [0.42ms]
+(pass) publication binds the storage exclusion window to the actual trial timestamps [0.12ms]
+(pass) the opening leads with the selected finding and charts require bound local evidence [0.46ms]
+
+src/execution.test.ts:
+(pass) failed attempts retain their start and elapsed time [19.71ms]
+(pass) classifies invalid contracts and timeouts across subprocess error messages [0.05ms]
+(pass) a success label cannot bypass screen validation [0.06ms]
+(pass) a valid contract tag cannot certify an unrelated scenario [0.03ms]
+(pass) invalid measurements retain the adapter observations for diagnosis [0.12ms]
+
+src/build-inputs.test.ts:
+(pass) build input closure captures file bytes, modes, added files and deletions [1.76ms]
+(pass) input links resolve through recorded aliases and require captured external targets [1.36ms]
+(pass) archived input validation rejects malformed entries even after a fingerprint is recomputed [0.43ms]
+(pass) Cargo graph validation rejects absent nodes, missing dependency packages and duplicated identities [0.17ms]
+
+src/rust-build.test.ts:
+(pass) controlled Rust environment excludes ambient wrappers, flags and library paths [0.09ms]
+(pass) fresh artifact admission rejects cached units, external outputs and graph/feature drift [0.41ms]
+(pass) Rust build identity binds source, executable and archive path [0.08ms]
+(pass) build tree allows unused metadata packages/features but rejects missing and ambiguous identities [0.13ms]
+
+src/dependencies.test.ts:
+(pass) installed package identity includes native bytes, modes, symlinks and missing targets [3.00ms]
+(pass) dependency evidence rejects mismatched pins, missing provenance, corrupt artifacts and uncaptured links [1.78ms]
+
+src/executables.test.ts:
+(pass) executable guards detect changed bytes and permissions at an unchanged path [0.83ms]
+(pass) Cargo output selects the actual driver executable and rejects missing or ambiguous artifacts [0.07ms]
+(pass) publication requires build provenance bound to the archived Cargo inputs [0.13ms]
+(pass) completed Rust trials must report the exact executable selected by the campaign [0.05ms]
+
+src/access/zero-auth.test.ts:
+(pass) Zero query grants require a verified actor and prevent global-query bypass [1.46ms]
+(pass) Zero server query uses the authenticated actor in the native membership relation [0.96ms]
+
+src/recovery/startup-observer.test.ts:
+(pass) startup exposes a correct screen before full sync and waits for complete data [36.09ms]
+(pass) a full count cannot certify an incorrect startup screen; sync errors remain failures [5.87ms]
+(pass) startup timeouts retain partial progress and the last incorrect screen without reporting success [15.60ms]
+(pass) native completion prompts a snapshot without waiting for the next progress-count interval [25.46ms]
+(pass) a complete local snapshot can precede the native sync-completion signal [0.11ms]
+(pass) native completion and full counts cannot certify a missing snapshot [0.08ms]
+(pass) deadline bounds a stalled native query and a stalled final sync promise [42.14ms]
+(pass) an early native marker with partial data waits for the correct screen and complete snapshot [17.33ms]
+(pass) partial native and screen hints are captured once and cannot report full data [25.52ms]
+(pass) falsy native rejection reasons still fail immediately [0.08ms]
+
+src/recovery/ready.test.ts:
+(pass) native completion before canonical catch-up cannot start recovery [6.21ms]
+(pass) readiness timeout preserves the incomplete data observation [10.23ms]
+(pass) readiness propagates native sync failures without waiting for a mismatch timeout [0.11ms]
+(pass) healthy backlog witness must receive every changed record before readiness [5.69ms]
+
+src/recovery/network-gate.test.ts:
+(pass) client gate kills existing streams and blocks new ones while service remains healthy [8.84ms]
+
+src/recovery/lifecycle.test.ts:
+(pass) a locally initialized product can close and exit normally without a forced kill [73.86ms]
+(pass) cleanup after process exit retains the original PID and can run twice [0.73ms]
+(pass) a detached recovery worker exits when its controlling process is killed [43.36ms]
+(pass) a worker preserves structured startup failure evidence across process messages [57.84ms]
+
+src/contracts/screens.test.ts:
+(pass) local-query: SQL and application queries return the exact canonical outputs [980.02ms]
+(pass) deep-relationship-query: SQL and application queries return the exact canonical outputs [665.25ms]
+(pass) rejects the historical 10k workload and a missing project subscription [41.05ms]
+(pass) rejects substituted rows and corrupted values despite correct totals [37.68ms]
+(pass) rejects different list limits, ordering, aggregate values, and missing related tables [104.91ms]
+(pass) fixture readiness waits for replacement data despite equal row counts [216.03ms]
+(pass) fixture readiness times out on stale data and preserves read failures [26.79ms]
+
+src/contracts/conflicts.test.ts:
+(pass) a converged last-write winner cannot pass a version-precondition policy [3.22ms]
+(pass) delete retention requires absence and the declared native response [0.48ms]
+(pass) application SQL policy is explicit and every untouched task remains validated [0.91ms]
+
+src/contracts/reopen.test.ts:
+(pass) replica startup rejects same-process caches, incomplete local data and network refetch [20.26ms]
+(pass) TanStack reopen requires the same native collection and complete persisted and active data [10.04ms]
+(pass) Jazz reopen requires independent durable seeding and the existing dataset without transport [20.81ms]
+
+src/contracts/attachments.test.ts:
+(pass) attachment state checks every task, all metadata fields and native pending work [8.54ms]
+(pass) attachment results reject stale objects, invented receipts, reused clients and altered milestone summaries [7.97ms]
+
+src/contracts/access.test.ts:
+(pass) access validates exact retained rows and rejects lost, substituted or locally rejected data [1.89ms]
+(pass) access requires same-client purge, fresh authorization checks and a proven offline interval [15.09ms]
+(pass) application refresh needs cache disposal and persisted data proof in its separate profile [7.33ms]
+(pass) PowerSync native purge binds its scope and the same SQLite file to its adapter [6.24ms]
+(pass) Zero purge requires correct raw cache and visible rows in the same native client [145.07ms]
+(pass) Jazz purge cannot pass on filtered views, replaced storage or unverified membership revocation [502.37ms]
+
+src/contracts/jazz-conflicts.test.ts:
+(pass) Jazz conflict success requires actual losing-write receipts and independent full edge data [107.27ms]
+(pass) Jazz delete receipt success cannot conceal a retained row in one edge view [35.52ms]
+
+src/contracts/startup.test.ts:
+(pass) startup requires full data, fresh stores/processes and verified cold/warm service sequence [273.20ms]
+(pass) full startup validation accepts SDK enumeration order but still rejects missing, duplicate or corrupted records [3.03ms]
+(pass) memory startup validates the same outputs without inventing persistent store evidence [269.87ms]
+(pass) TanStack startup requires full persisted data as well as the active collection [267.97ms]
+(pass) Zero startup requires empty native views and complete query receipts with matching identities [278.39ms]
+(pass) Jazz startup requires a separate durable seeder and native local reads in fresh files [280.74ms]
+(pass) startup accepts partial native hints but rejects unsupported or repeated snapshot claims [373.72ms]
+(pass) one-million startup validation handles the task ID width boundary without weakening output checks [2082.12ms]
+(pass) startup result validation binds custom scales to both ordered cases and fixture parameters [167.27ms]
+
+src/contracts/fanout.test.ts:
+(pass) reconnect requires a real stale backlog, all readers and matching per-client summaries [62.90ms]
+
+src/contracts/fanout-native.test.ts:
+(pass) fanout rejects controller catch-up hidden inside a connected or restored delivery [0.20ms]
+(pass) Electric fanout validates fresh isolated caches and complete native auxiliary snapshots [55.25ms]
+
+src/contracts/collaboration.test.ts:
+(pass) reader visibility is recorded independently of later server acknowledgment [308.39ms]
+(pass) local commit stays unavailable when the path exposes no local commit receipt [111.84ms]
+(pass) incorrect bootstrap records cannot enter collaboration timings [0.12ms]
+
+src/contracts/electric-collaboration.test.ts:
+(pass) Electric acceptance makes one mutation request and retains its response [0.20ms]
+(pass) Electric rejects successful HTTP responses that do not confirm the write [0.08ms]
+(pass) Electric publication binds every acknowledgment to the exact task, operation and version [1.00ms]
+
+src/contracts/conflicts-validation.test.ts:
+(pass) publication requires ordering, complete validation and the predeclared conflict policy [96.88ms]
+(pass) Zero conflict policy retains its existing title-only patch and native independent-client evidence [217.71ms]
+
+src/contracts/seeding-isolation.test.ts:
+(pass) screen resource proof rejects retained seed processes, reused stores and unconfirmed remote seed data [0.25ms]
+
+src/contracts/recovery-policy.test.ts:
+(pass) recovery refuses adaptive restoration, hidden traffic and missing retry evidence [0.42ms]
+(pass) absolute restoration wait rejects late readiness and tolerates early timer wakeups [0.10ms]
+(pass) recovery duration is declared and bound to campaign parameters [0.10ms]
+
+src/contracts/electric-recovery.test.ts:
+(pass) electric recovery validates actual queued payloads, complete auxiliary data and final receipts [50.58ms]
+(pass) electric-tanstack recovery validates actual queued payloads, complete auxiliary data and final receipts [49.20ms]
+
+src/contracts/result-validation.test.ts:
+(pass) local-query: publication rejects altered fixture/output digests and invented summaries [435.14ms]
+(pass) deep-relationship-query: publication rejects altered fixture/output digests and invented summaries [855.23ms]
+(pass) collaboration verifies digests, receipt availability, sample identities and reported percentiles [137.02ms]
+
+src/contracts/screen-indexes.test.ts:
+(pass) local-query: real SQLite plans use tuned indexes and preserve exact outputs [199.77ms]
+(pass) deep-relationship-query: real SQLite plans use tuned indexes and preserve exact outputs [206.27ms]
+
+src/contracts/recovery.test.ts:
+(pass) checking only the last replayed row cannot satisfy recovery [1.24ms]
+(pass) recovery validates untouched rows, native pending work and rejections [3.84ms]
+
+src/contracts/turso-physical.test.ts:
+(pass) Turso physical evidence keeps server files and replica page statistics distinct [0.33ms]
+
+src/contracts/recovery-validation.test.ts:
+(pass) publication rejects same-process reopen, missing writes and a leaky outage [42.17ms]
+(pass) Jazz restart requires complete native local and deferred edge durability evidence [46.96ms]
+(pass) Jazz controller validates actual edge rows before retaining compact evidence [30.99ms]
+(pass) recovery requires explicit guarantees and cannot label memory replay as persistent [10.83ms]
+(pass) Zero live recovery requires exact native mutation outcomes and independent clients [52.70ms]
+
+src/contracts/electric-conflict-receipt.test.ts:
+(pass) conflict receipts distinguish applied updates, exact retries and missing-row no-ops [0.12ms]
+(pass) conflict profiles preserve queue ownership and persistence even for an identical write policy [0.09ms]
+
+src/contracts/jazz-deployment.test.ts:
+(pass) Jazz requires a published policy for its exact schema before accepting setup [0.20ms]
+
+src/network/campaign.test.ts:
+(pass) packet campaigns reject imaginary or incompletely integrated network profiles [0.15ms]
+(pass) client endpoint remapping preserves administration, protocol and path [0.30ms]
+
+src/network/emulator.test.ts:
+(pass) packet network admission and accounting > routes HTTP and WebSocket paths through the same service port [0.15ms]
+(pass) packet network admission and accounting > requires immutable images and finite bounded impairment settings [0.19ms]
+(pass) packet network admission and accounting > audits all selected packets, including oversized or uncounted skbs [0.12ms]
+
+src/fanout/observe.test.ts:
+(pass) delivery query requires every expected title/version, not a matching last row [0.64ms]
+(pass) local delivery observer rejects duplicated or missing rows without issuing a sync [11.75ms]
+(pass) missing Docker counters stay unavailable while measured zero is retained [0.23ms]
+(pass) native array delivery checks each title and version and preserves duplicate evidence [11.70ms]
+
+src/browser/loaded-artifacts.test.ts:
+(pass) raw trial files verify after relocation without their original directory [3.90ms]
+(pass) raw trial verification rejects changed log [1.07ms]
+(pass) raw trial verification rejects missing log [0.79ms]
+(pass) raw trial verification rejects changed input bytes [0.77ms]
+(pass) raw trial verification rejects missing worker output [0.93ms]
+(pass) raw trial verification rejects changed worker bytes [0.93ms]
+(pass) raw trial verification rejects changed raw parent [0.95ms]
+(pass) raw trial verification rejects path outside campaign [1.21ms]
+(pass) raw trial verification rejects hidden worker output [0.83ms]
+(pass) raw trial verification rejects changed copied worker duration [0.93ms]
+(pass) raw trial verification rejects changed copied failure explanation [0.96ms]
+(pass) raw trial verification rejects worker outside parent clock window [0.98ms]
+(pass) raw trial verification rejects changed input condition with updated byte digest [1.04ms]
+(pass) raw trial verification rejects symlinked artifact [0.91ms]
+(pass) malformed worker output stays available as bytes for an invalid attempt [1.09ms]
+
+src/browser/loaded-operation.test.ts:
+(pass) loaded timing uses the same independent RPC completions in both forwarding modes [0.38ms]
+(pass) loaded operation rejects an incorrect observer receipt and reversed writer clock [0.09ms]
+(pass) loaded operation retains a missing-native-completion timeout [5.74ms]
+
+src/browser/loaded-analysis.test.ts:
+(pass) loaded analysis uses independent paired differences and preserves absent local acknowledgment [88.72ms]
+(pass) one failed condition removes its whole pair from timing estimates and retains its outcome [71.91ms]
+(pass) a measured zero difference and a negative difference remain numeric [154.84ms]
+(pass) browser evidence cannot be moved to a different trial group [57.10ms]
+
+src/browser/initial-ready.test.ts:
+(pass) browser readiness waits through empty and stale complete views for exact seeded data [2.92ms]
+(pass) browser readiness retains deadline evidence for a same-size incorrect fixture [10.95ms]
+(pass) browser readiness propagates native errors and rejects an empty expected fixture [0.23ms]
+
+src/browser/loaded-plan.test.ts:
+(pass) loaded plan preserves adjacent pairs and covers both modes exactly once per pair [0.29ms]
+(pass) loaded diagnostic design rejects an expanded count, missing adapter or network change [0.12ms]
+(pass) paired analysis retains all failed conditions without inventing zero overhead [0.75ms]
+(pass) paired analysis rejects a missing attempt, reordered plan or unverified cleanup [1.01ms]
+
+src/browser/loaded-child.test.ts:
+(pass) loaded child preserves failed worker output and its log [259.84ms]
+(pass) loaded child deadline terminates its owned root and helper [1550.83ms]
+(pass) loaded child cleans up an owned helper that outlives the failed worker [258.63ms]
+
+src/browser/loaded-process.test.ts:
+(pass) loaded group binds the browser to its trial and declared controller [0.09ms]
+(pass) loaded group rejects unrelated controller [0.05ms]
+(pass) loaded group rejects unrelated browser parent [0.02ms]
+(pass) loaded group rejects browser escaped group [0.02ms]
+(pass) loaded group rejects browser adopted from elsewhere [0.01ms]
+(pass) loaded group rejects missing root [0.01ms]
+(pass) loaded group rejects missing cleanup
+(pass) loaded group rejects changed root before kill [0.02ms]
+(pass) a deadline flag alone cannot establish termination evidence [0.05ms]
+(pass) a failed launch stays invalid without inventing a native process identity [0.03ms]
+
+src/browser/loaded-validation.test.ts:
+(pass) electric buffered synthetic loaded evidence validates [3.23ms]
+(pass) electric forwarded synthetic loaded evidence validates [3.67ms]
+(pass) electric loaded evidence rejects incomplete operation set [2.94ms]
+(pass) electric loaded evidence rejects duplicated operation [2.63ms]
+(pass) electric loaded evidence rejects missing native receipt [2.68ms]
+(pass) electric loaded evidence rejects missing buffered receipt [2.69ms]
+(pass) electric loaded evidence rejects missing forwarded receipt [2.60ms]
+(pass) electric loaded evidence rejects changed forwarded record [2.70ms]
+(pass) electric loaded evidence rejects changed browser mode [2.62ms]
+(pass) electric loaded evidence rejects changed readback mode [2.69ms]
+(pass) electric loaded evidence rejects binding-driven completion contract [2.26ms]
+(pass) electric loaded evidence rejects reversed writer clock [2.98ms]
+(pass) electric loaded evidence rejects overlapping controller operations [2.87ms]
+(pass) electric loaded evidence rejects nonmonotonic reader clock [2.83ms]
+(pass) electric loaded evidence rejects incorrect visible record [2.80ms]
+(pass) electric loaded evidence rejects wrong JSON byte total [2.69ms]
+(pass) electric loaded evidence rejects incomplete final dataset [3.43ms]
+(pass) electric loaded evidence rejects shared process [2.39ms]
+(pass) electric loaded evidence rejects surviving helper [2.30ms]
+(pass) electric loaded evidence rejects missing resource scope [3.80ms]
+(pass) electric buffered condition rejects leaked live events [2.51ms]
+(pass) zero buffered synthetic loaded evidence validates [3.64ms]
+(pass) zero forwarded synthetic loaded evidence validates [4.30ms]
+(pass) zero loaded evidence rejects incomplete operation set [3.06ms]
+(pass) zero loaded evidence rejects duplicated operation [3.02ms]
+(pass) zero loaded evidence rejects missing native receipt [3.04ms]
+(pass) zero loaded evidence rejects missing buffered receipt [3.04ms]
+(pass) zero loaded evidence rejects missing forwarded receipt [3.03ms]
+(pass) zero loaded evidence rejects changed forwarded record [2.95ms]
+(pass) zero loaded evidence rejects changed browser mode [2.89ms]
+(pass) zero loaded evidence rejects changed readback mode [3.10ms]
+(pass) zero loaded evidence rejects binding-driven completion contract [2.70ms]
+(pass) zero loaded evidence rejects reversed writer clock [3.28ms]
+(pass) zero loaded evidence rejects overlapping controller operations [3.17ms]
+(pass) zero loaded evidence rejects nonmonotonic reader clock [2.92ms]
+(pass) zero loaded evidence rejects incorrect visible record [2.92ms]
+(pass) zero loaded evidence rejects wrong JSON byte total [2.92ms]
+(pass) zero loaded evidence rejects incomplete final dataset [3.83ms]
+(pass) zero loaded evidence rejects shared process [2.52ms]
+(pass) zero loaded evidence rejects surviving helper [2.62ms]
+(pass) zero loaded evidence rejects missing resource scope [4.44ms]
+(pass) zero buffered condition rejects leaked live events [2.75ms]
+
+src/browser/validation.test.ts:
+(pass) electric real browser evidence passes complete validation [1.86ms]
+(pass) electric rejects missing client [0.95ms]
+(pass) electric rejects shared browser process [0.81ms]
+(pass) electric rejects shared profile directory [0.77ms]
+(pass) electric rejects shared native client ID [0.78ms]
+(pass) electric rejects different runtime [0.82ms]
+(pass) electric rejects wrong browser origin [0.74ms]
+(pass) electric rejects disabled web security [0.77ms]
+(pass) electric rejects helper escapes trial group [0.76ms]
+(pass) electric rejects unowned CDP process [0.77ms]
+(pass) electric rejects surviving helper [0.79ms]
+(pass) electric rejects missing helper cleanup [0.88ms]
+(pass) electric rejects missing late helper cleanup [0.79ms]
+(pass) electric rejects altered initial title [0.80ms]
+(pass) electric rejects altered final owner [2.21ms]
+(pass) electric rejects missing final writer row [1.71ms]
+(pass) electric rejects altered final digest [1.97ms]
+(pass) electric rejects missing native receipt [1.28ms]
+(pass) electric rejects duplicate native receipt [1.34ms]
+(pass) electric rejects missing native event [1.32ms]
+(pass) electric rejects altered visibility row [1.36ms]
+(pass) electric rejects decreasing event clock [1.30ms]
+(pass) electric rejects unbound measured sample [1.28ms]
+(pass) electric rejects wrong reported percentile [1.25ms]
+(pass) electric rejects missing reader resource sampling [1.29ms]
+(pass) electric rejects missing after calibration [1.99ms]
+(pass) electric rejects missing calibration sample [1.96ms]
+(pass) electric rejects calibration binding before arming [1.98ms]
+(pass) zero real browser evidence passes complete validation [1.36ms]
+(pass) zero rejects missing client [0.88ms]
+(pass) zero rejects shared browser process [0.83ms]
+(pass) zero rejects shared profile directory [0.80ms]
+(pass) zero rejects shared native client ID [0.79ms]
+(pass) zero rejects different runtime [0.82ms]
+(pass) zero rejects wrong browser origin [0.79ms]
+(pass) zero rejects disabled web security [0.83ms]
+(pass) zero rejects helper escapes trial group [0.80ms]
+(pass) zero rejects unowned CDP process [0.82ms]
+(pass) zero rejects surviving helper [0.82ms]
+(pass) zero rejects missing helper cleanup [0.84ms]
+(pass) zero rejects missing late helper cleanup [0.81ms]
+(pass) zero rejects altered initial title [0.81ms]
+(pass) zero rejects altered final owner [2.21ms]
+(pass) zero rejects missing final writer row [1.80ms]
+(pass) zero rejects altered final digest [2.01ms]
+(pass) zero rejects missing native receipt [1.38ms]
+(pass) zero rejects duplicate native receipt [1.36ms]
+(pass) zero rejects missing native event [1.39ms]
+(pass) zero rejects altered visibility row [1.41ms]
+(pass) zero rejects decreasing event clock [1.39ms]
+(pass) zero rejects unbound measured sample [1.31ms]
+(pass) zero rejects wrong reported percentile [1.28ms]
+(pass) zero rejects missing reader resource sampling [1.32ms]
+(pass) zero rejects missing after calibration [2.00ms]
+(pass) zero rejects missing calibration sample [1.99ms]
+(pass) zero rejects calibration binding before arming [2.03ms]
+(pass) Zero rejects shared native IndexedDB [1.19ms]
+(pass) Zero rejects failed local mutation [1.37ms]
+(pass) Zero rejects failed server mutation [1.36ms]
+(pass) Zero rejects false acceptance event [1.37ms]
+(pass) Electric rejects receipt-only administrative reread and altered version sequence [2.64ms]
+(pass) browser ownership follows descendants, excluding unrelated same-group processes [0.07ms]
+
+src/browser/provenance.test.ts:
+(pass) runtime selection rejects implicit roots, extra settings and unsupported browser networks [0.14ms]
+(pass) browser inventory catches changed resources, permissions, additions and missing helpers [2.27ms]
+(pass) browser admission binds outer measurements, actual runtime and campaign artifacts [6.77ms]
+(pass) profiles separate native/browser measurements and reject missing browser identity [1.34ms]
+(pass) browser coverage never falls through to a native adapter [0.18ms]
+
+src/startup/persisted-snapshot.test.ts:
+(pass) full-data capture waits for the native persisted snapshot instead of accepting active-memory counts [11.44ms]
+
+src/attachments/transfer-gate.test.ts:
+(pass) real HTTP interruption transmits a prefix, persists across retries, and restores exact bytes with signed Host/path intact [18.38ms]
+
+src/attachments/milestones.test.ts:
+(pass) attachment visibility is captured before a slower writer acknowledgment and after observation is armed [100.61ms]
+
+src/attachments/download-recovery.test.ts:
+(pass) download evidence rejects preflight faults, warm caches, partial recovery and controller sampling [0.28ms]
+
+ 323 pass
+ 0 fail
+ 1430 expect() calls
+Ran 323 tests across 60 files. [14.93s]

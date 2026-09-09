@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260907,
+  "trials": 2,
+  "trialTimeoutMs": 900000,
+  "stacks": [
+    "powersync"
+  ],
+  "scenarios": [
+    "local-query",
+    "deep-relationship-query"
+  ],
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Run two predeclared randomized blocks of both canonical 100000-task screen cases after replacing unconditional rebuilds and row-count-only fixture readiness. Verify exact tasks, related data and query outputs, native worker resources and samples, retained container/image/mount identities and before/after disk observations. Preserve failures; this correctness smoke is not a performance publication."
+}

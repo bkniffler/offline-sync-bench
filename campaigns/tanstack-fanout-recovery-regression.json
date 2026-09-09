@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 900000,
+  "stacks": [
+    "electric-tanstack"
+  ],
+  "scenarios": [
+    "offline-replay",
+    "large-offline-queue"
+  ],
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Run both native TanStack recovery cases after the online fanout acknowledgment change. Verify queued native payloads and optimistic rows during a client-only outage, complete confirmed SQLite rows, native retry/commit receipts and independent-reader convergence at 10/100/500/1000 writes. Preserve every failure. The live memory queue has no process-restart claim, and this smoke cannot be published as a performance comparison."
+}

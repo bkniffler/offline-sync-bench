@@ -62,6 +62,8 @@ struct BenchTransport {
     stats: TransportStats,
     block_blob_uploads: bool,
     rejected_blob_puts: u64,
+    blob_download_proxy: Option<(String, String)>,
+    blob_event_id: Option<Value>,
 }
 
 impl BenchTransport {
@@ -72,6 +74,8 @@ impl BenchTransport {
             stats: TransportStats::default(),
             block_blob_uploads: false,
             rejected_blob_puts: 0,
+            blob_download_proxy: None,
+            blob_event_id: None,
         }
     }
 
@@ -81,6 +85,8 @@ impl BenchTransport {
             stats: TransportStats::default(),
             block_blob_uploads: false,
             rejected_blob_puts: 0,
+            blob_download_proxy: None,
+            blob_event_id: None,
         })
     }
 
@@ -112,6 +118,16 @@ impl BenchTransport {
     fn count_request(&mut self, bytes: u64) {
         self.stats.request_count += 1;
         self.stats.request_bytes += bytes;
+    }
+
+    fn uploaded(&self, route: &str, bytes: usize) {
+        if let Some(id) = &self.blob_event_id {
+            let message = json!({ "id": id, "event": "blobUploaded", "data": { "route": route, "byteLength": bytes } });
+            let stdout = std::io::stdout();
+            let mut output = stdout.lock();
+            let _ = writeln!(output, "{message}");
+            let _ = output.flush();
+        }
     }
 }
 
@@ -165,7 +181,9 @@ impl Transport for BenchTransport {
             ));
         }
         self.count_request(bytes.len() as u64);
-        self.inner.blob_upload(blob_id, bytes, media_type)
+        self.inner.blob_upload(blob_id, bytes, media_type)?;
+        self.uploaded("authenticated-direct", bytes.len());
+        Ok(())
     }
 
     fn blob_download(&mut self, blob_id: &str) -> Result<BlobDownload, TransportError> {
@@ -179,7 +197,15 @@ impl Transport for BenchTransport {
 
     fn fetch_blob_url(&mut self, url: &str) -> Result<Vec<u8>, TransportError> {
         self.count_request(0);
-        let response = self.inner.fetch_blob_url(url)?;
+        let relayed;
+        let target = if let Some((origin, relay)) = &self.blob_download_proxy {
+            let suffix = url.strip_prefix(&format!("{origin}/")).ok_or_else(|| {
+                TransportError::new("sync.transport_failed", "Signed blob URL does not match the declared object origin")
+            })?;
+            relayed = format!("{relay}/{suffix}");
+            relayed.as_str()
+        } else { url };
+        let response = self.inner.fetch_blob_url(target)?;
         self.stats.response_bytes += response.len() as u64;
         Ok(response)
     }
@@ -209,7 +235,9 @@ impl Transport for BenchTransport {
             ));
         }
         self.count_request(bytes.len() as u64);
-        self.inner.blob_put_url(url, bytes, media_type)
+        self.inner.blob_put_url(url, bytes, media_type)?;
+        self.uploaded("presigned", bytes.len());
+        Ok(())
     }
 
     fn realtime_connect(&mut self) -> Result<(), TransportError> {
@@ -306,6 +334,10 @@ fn wait_for_query(
         .get("forceSyncIntervalMs")
         .and_then(Value::as_u64)
         .map(Duration::from_millis);
+    let poll_ms = params.get("pollIntervalMs").and_then(Value::as_u64).unwrap_or(1);
+    if !(1..=1000).contains(&poll_ms) {
+        return Err(client_err("pollIntervalMs must be between 1 and 1000".to_owned()));
+    }
     let started = Instant::now();
     // First forced round fires immediately.
     let mut last_forced: Option<Instant> = None;
@@ -334,7 +366,7 @@ fn wait_for_query(
         if started.elapsed() >= timeout {
             return Ok(json!({ "ok": false, "waitedMs": waited_ms, "rows": rows }));
         }
-        std::thread::sleep(Duration::from_millis(1));
+        std::thread::sleep(Duration::from_millis(poll_ms));
     }
 }
 
@@ -353,16 +385,19 @@ fn bench_query(client: &mut Option<SyncClient>, params: &Value) -> Result<Value,
     let instance = need_client(client)?;
     let mut ns_per_iteration = Vec::with_capacity(iterations as usize);
     let mut row_count = 0usize;
+    let mut last_rows = Vec::new();
     for _ in 0..iterations {
         let started = Instant::now();
         let rows = instance.query(&sql, &bind).map_err(client_err)?;
         ns_per_iteration.push(started.elapsed().as_nanos() as u64);
         row_count = rows.len();
+        last_rows = rows;
     }
     Ok(json!({
         "iterations": iterations,
         "nsPerIteration": ns_per_iteration,
         "rowCount": row_count,
+        "rows": last_rows,
     }))
 }
 
@@ -390,6 +425,14 @@ fn handle(
         "waitForQuery" => wait_for_query(transport, client, params),
         "benchQuery" => bench_query(client, params),
         "stats" => Ok(transport.stats_json()),
+        "setBlobDownloadProxy" => {
+            let origin = params.get("origin").and_then(Value::as_str)
+                .ok_or_else(|| client_err("Blob proxy requires origin".to_owned()))?;
+            let relay = params.get("relay").and_then(Value::as_str)
+                .ok_or_else(|| client_err("Blob proxy requires relay".to_owned()))?;
+            transport.blob_download_proxy = Some((origin.to_owned(), relay.to_owned()));
+            Ok(json!({}))
+        }
         "blockBlobUploads" => {
             transport.block_blob_uploads = params
                 .get("blocked")
@@ -461,7 +504,9 @@ fn main() {
             respond(&id, Ok(json!({})));
             break;
         }
+        transport.blob_event_id = if params.get("benchBlobMilestones").and_then(Value::as_bool) == Some(true) { Some(id.clone()) } else { None };
         let result = handle(&mut transport, &mut client, &mut effects, &method, &params);
+        transport.blob_event_id = None;
         // Deliver any realtime traffic buffered while the command ran.
         drain_inbound(&mut transport, &mut client);
         respond(&id, result);

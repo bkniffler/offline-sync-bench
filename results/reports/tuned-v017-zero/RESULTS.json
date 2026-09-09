@@ -1,0 +1,13 @@
+{
+  "schema": "benchmark-publication-index-v1",
+  "campaignId": "campaign-2026-09-09T11-26-05-626Z",
+  "status": "complete",
+  "attempts": 6,
+  "plannedAttempts": 6,
+  "outcomes": {
+    "completed": 6
+  },
+  "manifest": "archive/files/RESULTS.json.gz",
+  "artifacts": "ARCHIVE.json",
+  "restoreInstructions": "README-ARCHIVE.md"
+}

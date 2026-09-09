@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260920,
+  "trials": 1,
+  "trialTimeoutMs": 180000,
+  "stacks": ["electric", "zero", "syncular"],
+  "scenarios": ["online-propagation", "offline-restart"],
+  "runtime": {
+    "kind": "chromium",
+    "installationRoot": "/Users/bkniffler/Library/Caches/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app",
+    "executable": "/Users/bkniffler/Library/Caches/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
+  },
+  "network": {"id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0},
+  "stoppingRule": "Run each declared case once in seeded randomized order. Preserve every failed attempt and explicit not-implemented browser case. This validates runtime admission and coverage, not performance rankings."
+}

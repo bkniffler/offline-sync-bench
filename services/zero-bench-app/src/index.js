@@ -1,21 +1,11 @@
 import { Hono } from 'hono';
 import postgres from 'postgres';
-import {
-  boolean,
-  createBuilder,
-  createSchema,
-  defineMutator,
-  defineMutators,
-  defineQueries,
-  defineQuery,
-  mustGetMutator,
-  mustGetQuery,
-  number,
-  string,
-  table,
-} from '@rocicorp/zero';
+import { mustGetMutator, mustGetQuery } from '@rocicorp/zero';
+import { mutators } from './mutators.ts';
+import { schema, queries } from './schema.ts';
 import { handleMutateRequest, handleQueryRequest } from '@rocicorp/zero/server';
 import { zeroPostgresJS } from '@rocicorp/zero/server/adapters/postgresjs';
+import { authenticate, authorizeQuery } from './auth.ts';
 
 const databaseUrl =
   process.env.DATABASE_URL ??
@@ -25,69 +15,6 @@ const sql = postgres(databaseUrl, { max: 5 });
 
 await ensureTasksTable();
 
-const organizations = table('organizations')
-  .columns({
-    id: string(),
-    name: string(),
-  })
-  .primaryKey('id');
-
-const projects = table('projects')
-  .columns({
-    id: string(),
-    org_id: string(),
-    name: string(),
-  })
-  .primaryKey('id');
-
-const tasks = table('tasks')
-  .columns({
-    id: string(),
-    org_id: string(),
-    project_id: string(),
-    owner_id: string(),
-    title: string(),
-    completed: boolean(),
-    server_version: number(),
-    updated_at: number(),
-  })
-  .primaryKey('id');
-
-const schema = createSchema({
-  tables: [organizations, projects, tasks],
-  enableLegacyQueries: false,
-  enableLegacyMutators: false,
-});
-
-const zql = createBuilder(schema);
-
-const queries = defineQueries({
-  organizations: {
-    all: defineQuery(() => zql.organizations.orderBy('id', 'asc')),
-  },
-  projects: {
-    all: defineQuery(() => zql.projects.orderBy('id', 'asc')),
-  },
-  tasks: {
-    all: defineQuery(() => zql.tasks.orderBy('id', 'asc')),
-  },
-});
-
-const mutators = defineMutators({
-  tasks: {
-    update: defineMutator(async ({ tx, args }) => {
-      const existing = await tx.run(zql.tasks.where('id', args.id).one());
-      if (!existing) {
-        return;
-      }
-
-      await tx.mutate.tasks.update({
-        id: args.id,
-        title: args.title,
-      });
-    }),
-  },
-});
 
 const app = new Hono();
 const dbProvider = zeroPostgresJS(schema, sql);
@@ -98,16 +25,22 @@ app.get('/health', async (c) => {
 });
 
 app.post('/zero/query', async (c) => {
-  const result = await handleQueryRequest(
-    (name, args) => mustGetQuery(queries, name).fn({ args, ctx: undefined }),
-    schema,
-    c.req.raw
-  );
+  let auth;
+  try { auth = await authenticate(c.req.header('authorization')); }
+  catch { return c.json({ error: 'Unauthorized' }, 401); }
+  const result = await handleQueryRequest({
+    handler: (name, args) => { authorizeQuery(auth, name); return mustGetQuery(queries, name).fn({ args, ctx: auth }); },
+    schema, request: c.req.raw, userID: auth.userId,
+  });
 
   return c.json(result);
 });
 
 app.post('/zero/mutate', async (c) => {
+  let auth;
+  try { auth = await authenticate(c.req.header('authorization')); }
+  catch { return c.json({ error: 'Unauthorized' }, 401); }
+  if (auth.profile !== 'global') return c.json({ error: 'Access grant is read-only' }, 403);
   const result = await handleMutateRequest(
     dbProvider,
     (transact) =>
@@ -128,6 +61,7 @@ Bun.serve({
 console.log(`[zero-bench-app] listening on :${port}`);
 
 async function ensureTasksTable() {
+  await sql`create table if not exists project_memberships (project_id text not null, user_id text not null, role text not null default 'member', primary key (project_id, user_id))`;
   await sql`
     create table if not exists organizations (
       id text primary key,

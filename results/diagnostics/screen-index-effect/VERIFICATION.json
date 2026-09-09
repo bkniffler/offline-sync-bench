@@ -1,0 +1,155 @@
+{
+  "reviewedAt": "2026-09-09T01:22:38.617084+00:00",
+  "status": "six-controlled-attempts-verified",
+  "scope": "Controlled reduction using Bun SQLite in memory and the canonical 100,000-task local-screen fixture. Only the two tuned indexes differ. Both conditions retain the original project/completion/time and owner indexes. updated_at_ms is fixed at zero; it is not a screen input. This measures synchronous SQL reads and row materialization, excluding Syncular APIs, replication, setup, index construction and validation. It does not isolate the SDK upgrade, explain other engines, or reproduce an archived product trial.",
+  "publicationPause": "../publication-index-review/SPACE-GUARD-PAUSE.json",
+  "checks": [
+    "Plan and six per-attempt files match aggregate results",
+    "Six fresh process IDs, three attempts per condition",
+    "Input file hashes match plan",
+    "Fixture and all output digests, SQLite version and compile options agree",
+    "Every query retains 25 finite nonnegative samples; recomputed per-attempt medians agree"
+  ],
+  "results": {
+    "original-indexes": {
+      "list": {
+        "values": [
+          10.430833000000007,
+          10.655124999999998,
+          10.440458000000035
+        ],
+        "trials": 3,
+        "min": 10.430833000000007,
+        "median": 10.440458000000035,
+        "max": 10.655124999999998,
+        "confidence95": null
+      },
+      "search": {
+        "values": [
+          10.741792000000032,
+          10.94516699999997,
+          10.943500000000085
+        ],
+        "trials": 3,
+        "min": 10.741792000000032,
+        "median": 10.943500000000085,
+        "max": 10.94516699999997,
+        "confidence95": null
+      },
+      "aggregate": {
+        "values": [
+          21.911582999999837,
+          21.956874999999854,
+          21.844959000000017
+        ],
+        "trials": 3,
+        "min": 21.844959000000017,
+        "median": 21.911582999999837,
+        "max": 21.956874999999854,
+        "confidence95": null
+      }
+    },
+    "tuned-indexes": {
+      "list": {
+        "values": [
+          0.010333000000002812,
+          0.010333000000002812,
+          0.011334000000033484
+        ],
+        "trials": 3,
+        "min": 0.010333000000002812,
+        "median": 0.010333000000002812,
+        "max": 0.011334000000033484,
+        "confidence95": null
+      },
+      "search": {
+        "values": [
+          0.010833000000047832,
+          0.010250000000041837,
+          0.011332999999979165
+        ],
+        "trials": 3,
+        "min": 0.010250000000041837,
+        "median": 0.010833000000047832,
+        "max": 0.011332999999979165,
+        "confidence95": null
+      },
+      "aggregate": {
+        "values": [
+          3.7922079999999596,
+          3.7624999999999886,
+          3.6903330000000096
+        ],
+        "trials": 3,
+        "min": 3.6903330000000096,
+        "median": 3.7624999999999886,
+        "max": 3.7922079999999596,
+        "confidence95": null
+      }
+    }
+  },
+  "medianRatiosOriginalToTuned": {
+    "list": 1010.3994967576883,
+    "search": 1010.2003138513584,
+    "aggregate": 5.823676544850472
+  },
+  "explanation": "Only the two added indexes differ. Original plans use temporary ordering/grouping trees; tuned list/search plans follow matching indexes and tuned grouping uses a covering index. This confirms the index effect within this reduction; it does not attribute published SDK or cross-product differences.",
+  "files": {
+    "6.json": {
+      "bytes": 14630,
+      "sha256": "882ab1f899a9537ab7b7e3aab794ef85a5eb38188d8b48b026685e7e5598e8d1"
+    },
+    "PLAN.json": {
+      "bytes": 2435,
+      "sha256": "14f046630a76fea19605e32838071fffc10fb6986a72bf66ab68d3e8d6689784"
+    },
+    "chart-input.json": {
+      "bytes": 6471,
+      "sha256": "68959880a8e87a2ebf0e90112b62d3df757eadc1faca4acfb41a76c25101f740"
+    },
+    "RESULTS.json": {
+      "bytes": 98605,
+      "sha256": "e4ffaa01a12d50218feeecda4f7f1c82888c3032e85a3138163a4ced08c51c05"
+    },
+    "1.json": {
+      "bytes": 14612,
+      "sha256": "2791f33450bb72fde6bcd536b42c878b8f3dd81e21272272eddc042ff62c3f2e"
+    },
+    "2.json": {
+      "bytes": 15051,
+      "sha256": "c6a014558911a2ac1bce46d81e2597614d31eba5834b2807b806c6925dd02958"
+    },
+    "3.json": {
+      "bytes": 15073,
+      "sha256": "a7357221431dd83efe5f7970d4712803af59214f04535ef99a1c959d94982f3f"
+    },
+    "4.json": {
+      "bytes": 14598,
+      "sha256": "f88bbfb2501c0ae0fcf667099b91d5e2f7011052fca12e6b49d86703a47a0e1d"
+    },
+    "5.json": {
+      "bytes": 15055,
+      "sha256": "1e701986b760d46aab7c7b896d48d0d80377209a7e68995f298bd82355409aa3"
+    },
+    "inputs/4.txt": {
+      "bytes": 8793,
+      "sha256": "6b994262920cf458b9b5467de093cbf0585f9e8fb0a324645fc2a47f69c74bb3"
+    },
+    "inputs/3.txt": {
+      "bytes": 2340,
+      "sha256": "a7dff3dbafd10d0a4a34095f46163094598a49dee619edc89e5d6feccfce6bcb"
+    },
+    "inputs/2.txt": {
+      "bytes": 850,
+      "sha256": "3219ed2984db301c05dceb8ea7da2ebe343e8c4b4bdee67877cc398cbc5b5d66"
+    },
+    "inputs/0.txt": {
+      "bytes": 7580,
+      "sha256": "f118381ed47de46a48d2d3f62640d10eb46a546d43f55f895ce8f869ba33d0b5"
+    },
+    "inputs/1.txt": {
+      "bytes": 12365,
+      "sha256": "f0156961e24bee513c27dbe1c86fd418c72ec6f422829626f59349eafdc184a7"
+    }
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "version": 1,
+  "inspectedAt": "2026-09-09T10:14:15.368975+00:00",
+  "status": "supported-hypothesis",
+  "campaignId": "campaign-2026-09-08T22-58-56-419Z",
+  "sourceHash": "8ecde51941dc281ad277fea9b6a28b7165e0c72cc9202d1fbb71c64201ca9a03",
+  "dependencyFingerprint": "8fcfee81dbc5a09251577cb486a4540bd61c224166ba85b347284c442ed6472e",
+  "dependencyInventorySha256": "8bad40126d1d04290af05bd8458733d73e88f3c9231db1f0ff9d9231f3490edd",
+  "installedVersions": {
+    "node": "1.0.0",
+    "common": "2.2.0",
+    "shared-internals": "1.2.0"
+  },
+  "observation": "The first two PowerSync collaboration trials report reader-visible p50 values of 1005.13 ms and 982.51 ms.",
+  "confirmedFacts": [
+    "The benchmark connects without a SyncOptions override.",
+    "The installed TypeScript source and emitted JavaScript set crudUploadThrottleMs to 1000 when no override is supplied.",
+    "Each outer upload loop awaits both _uploadAllCrud and its throttle delay concurrently, then waits for a CRUD notification.",
+    "The upload worker drains queued transactions and updates its local target, using a legacy checkpoint by default.",
+    "The benchmark records server acceptance after the successful mutation-backend response; reader visibility is observed independently through 1 ms local SQL polling."
+  ],
+  "explanation": "Upload scheduling may contribute to the measured delay. The configured 1000 ms throttle alone does not establish how much of the reader-visible latency it causes.",
+  "limitations": [
+    "No timestamped upload-loop, checkpoint or reader-apply trace exists for these trials.",
+    "The throttle overlaps upload work; it is not an additive 1000 ms delay per write.",
+    "Per-trial p50 milestone differences cannot isolate a pipeline stage.",
+    "This is source inspection, not a controlled performance experiment. It does not invalidate or replace the fixed campaign samples."
+  ],
+  "nextExperiment": "After fixed collection, separately instrument queue notification, upload start, backend response, checkpoint receipt and reader apply. Compare the unchanged default with one explicitly declared supported crudUploadThrottleMs override, holding workload, versions, storage preparation and network conditions constant. Preserve original campaign results and profile the diagnostic separately.",
+  "trials": [
+    {
+      "attempt": 25,
+      "trial": 1,
+      "resultId": "fa50afe3-1455-4019-8241-20a53f866b7d",
+      "status": "completed",
+      "raw": "trials/0025-powersync-online-propagation.json",
+      "rawSha256": "dd071f372d65e2f6ce49bcc74b1ad3c25c78a0a5fd10a80d7490eba0dd471fd9",
+      "metrics": {
+        "iterations": 50,
+        "warmup_iterations": 5,
+        "local_commit_p50_ms": 0.27,
+        "server_accepted_p50_ms": 441.69,
+        "mirror_visible_p50_ms": 1005.13
+      }
+    },
+    {
+      "attempt": 106,
+      "trial": 2,
+      "resultId": "7b16e2c2-9c08-49ba-99c0-a2e0580fa0e4",
+      "status": "completed",
+      "raw": "trials/0106-powersync-online-propagation.json",
+      "rawSha256": "d0db4a50123f0c5af85dc9ee4858f142f4970d5c3efdf9f9ffa7386b18bc6a6f",
+      "metrics": {
+        "iterations": 50,
+        "warmup_iterations": 5,
+        "local_commit_p50_ms": 0.4,
+        "server_accepted_p50_ms": 322.82,
+        "mirror_visible_p50_ms": 982.51
+      }
+    }
+  ],
+  "files": [
+    {
+      "originalPath": "src/adapters/powersync-runner.ts",
+      "copy": "source/src/adapters/powersync-runner.ts.txt",
+      "sha256": "3308bdd48ae385c41e5a1930723daafd95bb77e880b1a9ec602fa52cd364870b",
+      "bytes": 12191,
+      "inventory": "campaign-source"
+    },
+    {
+      "originalPath": "node_modules/@powersync/node/package.json",
+      "copy": "source/installed-sdk/@powersync/node/package.json.txt",
+      "sha256": "9be585eb7a406bfdaa5f6bb722dffb39f5772433747d88214895551c67c77e5f",
+      "bytes": 2106,
+      "inventory": "dependencies"
+    },
+    {
+      "originalPath": "node_modules/@powersync/shared-internals/package.json",
+      "copy": "source/installed-sdk/@powersync/shared-internals/package.json.txt",
+      "sha256": "c41689fb02613bbd39d0a23b53eb1baba13a1d11d4573038c4762740da021ab4",
+      "bytes": 1999,
+      "inventory": "dependencies"
+    },
+    {
+      "originalPath": "node_modules/@powersync/common/package.json",
+      "copy": "source/installed-sdk/@powersync/common/package.json.txt",
+      "sha256": "3aba8ccfaa3c83f9d007c7a3c75822907d60e23fc2449541c99db93457fa0220",
+      "bytes": 1102,
+      "inventory": "dependencies"
+    },
+    {
+      "originalPath": "node_modules/@powersync/shared-internals/src/client/sync/options.ts",
+      "copy": "source/installed-sdk/@powersync/shared-internals/src/client/sync/options.ts.txt",
+      "sha256": "02b99513f106b590f7ae680c0df8c5e448d8f79617a16cad8bab1ff01e74c057",
+      "bytes": 804,
+      "inventory": "dependencies"
+    },
+    {
+      "originalPath": "node_modules/@powersync/shared-internals/src/client/sync/stream/AbstractStreamingSyncImplementation.ts",
+      "copy": "source/installed-sdk/@powersync/shared-internals/src/client/sync/stream/AbstractStreamingSyncImplementation.ts.txt",
+      "sha256": "2f2e95b86fac48c4cb69c3f5450ee0be5c8505b41757ec5534ac130d53842166",
+      "bytes": 33500,
+      "inventory": "dependencies"
+    },
+    {
+      "originalPath": "node_modules/@powersync/shared-internals/src/client/BasePowerSyncDatabase.ts",
+      "copy": "source/installed-sdk/@powersync/shared-internals/src/client/BasePowerSyncDatabase.ts.txt",
+      "sha256": "06806887a6b787201807eff00fa5d2bde62e46837104d6ee8756e8de919686c2",
+      "bytes": 28414,
+      "inventory": "dependencies"
+    },
+    {
+      "originalPath": "node_modules/@powersync/shared-internals/lib/client/sync/options.js",
+      "copy": "source/installed-sdk/@powersync/shared-internals/lib/client/sync/options.js.txt",
+      "sha256": "4df423b6558a6c29173c5fc2085fcd260c99833ac03b38d2b5fd51933b2c7a2d",
+      "bytes": 686,
+      "inventory": "dependencies"
+    },
+    {
+      "originalPath": "node_modules/@powersync/shared-internals/lib/client/sync/stream/AbstractStreamingSyncImplementation.js",
+      "copy": "source/installed-sdk/@powersync/shared-internals/lib/client/sync/stream/AbstractStreamingSyncImplementation.js.txt",
+      "sha256": "69b0b70f561e8faea139c244296b1034d8420b5432050821126a03c22955b7fb",
+      "bytes": 34055,
+      "inventory": "dependencies"
+    },
+    {
+      "originalPath": "node_modules/@powersync/shared-internals/lib/client/BasePowerSyncDatabase.js",
+      "copy": "source/installed-sdk/@powersync/shared-internals/lib/client/BasePowerSyncDatabase.js.txt",
+      "sha256": "6d19ae3af9b987f682a1fa889377f29a08ba87fcb8ad9645ab6ed29a059c6dd3",
+      "bytes": 26202,
+      "inventory": "dependencies"
+    },
+    {
+      "originalPath": "node_modules/@powersync/shared-internals/lib/index.js",
+      "copy": "source/installed-sdk/@powersync/shared-internals/lib/index.js.txt",
+      "sha256": "ee5047a47a53187ecb35329804c275f7a4cfd4f8febd74b16f1273e93a31f5eb",
+      "bytes": 1145,
+      "inventory": "dependencies"
+    },
+    {
+      "originalPath": "node_modules/@powersync/node/src/sync/stream/NodeStreamingSyncImplementation.ts",
+      "copy": "source/installed-sdk/@powersync/node/src/sync/stream/NodeStreamingSyncImplementation.ts.txt",
+      "sha256": "91e5e81c30b99577a712188cb065f1625dc7082a7ccc3ffc8f3bc83624a7812f",
+      "bytes": 1336,
+      "inventory": "dependencies"
+    },
+    {
+      "originalPath": "node_modules/@powersync/node/src/db/PowerSyncDatabase.ts",
+      "copy": "source/installed-sdk/@powersync/node/src/db/PowerSyncDatabase.ts.txt",
+      "sha256": "1761031876d14d80f9095a51f4ef100cb4400a3d9f02b15c94d476c7ded7bcfb",
+      "bytes": 2431,
+      "inventory": "dependencies"
+    },
+    {
+      "originalPath": "node_modules/@powersync/node/lib/sync/stream/NodeStreamingSyncImplementation.js",
+      "copy": "source/installed-sdk/@powersync/node/lib/sync/stream/NodeStreamingSyncImplementation.js.txt",
+      "sha256": "993d052e994851fad6e8439991b22ba96d362d8aa5302fc2b41e79fad576b097",
+      "bytes": 1285,
+      "inventory": "dependencies"
+    },
+    {
+      "originalPath": "node_modules/@powersync/node/lib/db/PowerSyncDatabase.js",
+      "copy": "source/installed-sdk/@powersync/node/lib/db/PowerSyncDatabase.js.txt",
+      "sha256": "0113d12508c420586134c7b3fbae7a474f1b75167044cf6d7d1645f1d031571a",
+      "bytes": 1478,
+      "inventory": "dependencies"
+    },
+    {
+      "originalPath": "node_modules/@powersync/node/lib/index.js",
+      "copy": "source/installed-sdk/@powersync/node/lib/index.js.txt",
+      "sha256": "e4c97c588481c15f27bd7c5ff730b687b13d25d26bb761aa4fc0a54c705aea29",
+      "bytes": 260,
+      "inventory": "dependencies"
+    }
+  ]
+}

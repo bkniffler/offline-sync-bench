@@ -1,0 +1,131 @@
+{
+  "status": "verified",
+  "scope": "Both published manifests, all compressed/original archive bytes, raw trials/logs, full publication contracts, annotations, independent-trial summaries, chart values and main-report structure. Link/Git and visual reviews have separate receipts.",
+  "records": [
+    {
+      "campaignId": "campaign-2026-09-08T22-58-56-419Z",
+      "sourceHash": "8ecde51941dc281ad277fea9b6a28b7165e0c72cc9202d1fbb71c64201ca9a03",
+      "attempts": 168,
+      "groups": 56,
+      "annotations": 4,
+      "caseOutcomes": {
+        "permission-change": {
+          "completed": 9,
+          "unsupported": 3
+        },
+        "bootstrap": {
+          "completed": 9,
+          "timed-out": 3
+        },
+        "reconnect-storm": {
+          "completed": 8,
+          "invalid": 3,
+          "failed": 1
+        },
+        "offline-restart": {
+          "invalid": 3,
+          "completed": 9
+        },
+        "replica-reopen": {
+          "timed-out": 3,
+          "completed": 8,
+          "failed": 1
+        },
+        "online-propagation": {
+          "completed": 12
+        },
+        "deep-relationship-query": {
+          "completed": 12
+        },
+        "connected-fanout": {
+          "completed": 8,
+          "invalid": 3,
+          "failed": 1
+        },
+        "offline-replay": {
+          "completed": 9,
+          "invalid": 3
+        },
+        "conflict-update-update": {
+          "completed": 9,
+          "invalid": 3
+        },
+        "conflict-update-delete": {
+          "invalid": 3,
+          "completed": 9
+        },
+        "large-offline-queue": {
+          "completed": 9,
+          "invalid": 3
+        },
+        "local-query": {
+          "completed": 12
+        },
+        "blob-flow": {
+          "timed-out": 3,
+          "completed": 3,
+          "unsupported": 6
+        }
+      },
+      "artifactCount": 933
+    },
+    {
+      "campaignId": "campaign-2026-09-09T11-26-05-626Z",
+      "sourceHash": "8ecde51941dc281ad277fea9b6a28b7165e0c72cc9202d1fbb71c64201ca9a03",
+      "attempts": 6,
+      "groups": 2,
+      "annotations": 3,
+      "caseOutcomes": {
+        "local-query": {
+          "completed": 3
+        },
+        "deep-relationship-query": {
+          "completed": 3
+        }
+      },
+      "artifactCount": 63
+    }
+  ],
+  "outcomes": {
+    "completed": 132,
+    "invalid": 21,
+    "timed-out": 9,
+    "unsupported": 9,
+    "failed": 3
+  },
+  "metricSummaries": 991,
+  "artifacts": 996,
+  "charts": [
+    {
+      "id": "tuned-local-screens",
+      "resultCount": 12,
+      "svgSha256": "a379e9e4b9f8db37dfc4b5346872cc8f6e50a70cd31611e7a987997daaaaed7d",
+      "dataSha256": "b1d777c77051bac0ea02ae4a80f0c5e14d855706841994e925c0cf209ef19683"
+    },
+    {
+      "id": "startup-readiness",
+      "resultCount": 12,
+      "svgSha256": "f5f44f9cf1415baa0183394317fb02862149ef2abe426af3c96d25cea118f8b8",
+      "dataSha256": "0ec7a182075609dc5ee3233b671c86c1d2f9fc22a450396139866a37a1942087"
+    },
+    {
+      "id": "collaboration-milestones",
+      "resultCount": 12,
+      "svgSha256": "5d63fdb6a2da1666b4b47fc6fa9dd0da8ef63cdf31f7603c46511a228f4bfb53",
+      "dataSha256": "258d0882ef3e45551b8f44692b94d3bd59ede824cbead9dbbb4806c7dd716088"
+    },
+    {
+      "id": "zero-application-aggregation",
+      "resultCount": 3,
+      "svgSha256": "fdac88fe4644ca476a6f55a4f6d2aaa35200b7741d5369e4c7e2688fe0e5bfaa",
+      "dataSha256": "57d69185474eb7b588c7e43c977bd138dac30e1dced053953fbd61b0c72c2ed2"
+    }
+  ],
+  "main": {
+    "wordCount": 2833,
+    "sha256": "37f47c1f098d1eebec026a8e4494e97793cf26d7da991944999e19a1e744666a",
+    "presentation": "readme-benchmarks-v1",
+    "reviewedAnnotations": 4
+  },
+  "auditorSha256": "29236acf2a8652bda0fd244775af590e194ff9245c1f78c028ed42bc7ea0d1a0"
+}

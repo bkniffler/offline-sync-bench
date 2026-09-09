@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260914,
+  "trials": 1,
+  "trialTimeoutMs": 900000,
+  "stacks": [
+    "electric",
+    "syncular"
+  ],
+  "scenarios": [
+    "online-propagation"
+  ],
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Execute Electric and Syncular collaboration once, with five warmups and 50 measured operations per case. Validate complete fixture/output contracts and corrected Electric mutation-response receipts, including exact operation, task, title and version bindings. Preserve every failure and the 900000 ms deadline. Verify source, dependency, executable, configuration, storage and declared network evidence. This regression does not estimate a speedup or publication uncertainty."
+}

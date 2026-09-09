@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { registerConflictEndpoint } from './conflicts.ts';
 import postgres from 'postgres';
 
 const databaseUrl =
@@ -17,6 +18,7 @@ await sql`
 `;
 
 const app = new Hono();
+await registerConflictEndpoint(app, sql);
 
 app.get('/health', async (c) => {
   const result = await sql<{ ok: number }[]>`select 1 as ok`;

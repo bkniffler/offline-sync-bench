@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "purpose": "diagnostic",
+  "seed": 20260923,
+  "trials": 3,
+  "trialTimeoutMs": 900000,
+  "stacks": ["syncular", "syncular-rust", "electric", "electric-tanstack", "zero", "powersync", "turso", "jazz-v2"],
+  "scenarios": ["bootstrap", "online-propagation", "offline-replay", "local-query", "connected-fanout", "permission-change"],
+  "network": {"id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0},
+  "stoppingRule": "Run all 144 planned attempts in three seeded randomized blocks, including failed and unavailable cases. Do not retry selectively or stop for favorable measurements. This pilot describes run-to-run variation in six core workload families; it is not a performance publication. Choose the final fixed trial count using docs/implementation/publication-plan.md after reviewing the completed pilot."
+}

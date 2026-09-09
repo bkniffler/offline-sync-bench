@@ -14,7 +14,5 @@ Current routes:
 - `http://localhost:3212/health`
 - `http://localhost:3212/admin/*`
 
-Important benchmark note:
-
-- `offline-replay` is currently marked unsupported for Electric in this benchmark repo until we explicitly add and label a separate client outbox layer.
+Offline replay and restart use this benchmark’s persistent application outbox. They measure the reference application’s durability, not an Electric-native queue. See the [recovery definition](../../docs/benchmarks.md#offline-recovery).
 

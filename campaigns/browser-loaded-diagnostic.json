@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "purpose": "diagnostic",
+  "method": "browser-milestone-forwarding-v1",
+  "seed": 20260924,
+  "pairs": 5,
+  "trialTimeoutMs": 300000,
+  "stacks": [
+    "electric",
+    "zero"
+  ],
+  "runtime": {
+    "kind": "chromium",
+    "installationRoot": "/Users/bkniffler/Library/Caches/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app",
+    "executable": "/Users/bkniffler/Library/Caches/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
+  },
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Run five independent pairs for each browser adapter in the declared seeded pair and AB/BA order. Run each condition once, preserve failures, and do not append favorable retries. Analyze complete pairs; fewer than five complete pairs have no confidence interval. Do not subtract the estimated difference from canonical browser timings."
+}

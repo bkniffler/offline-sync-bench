@@ -4,6 +4,23 @@ node_modules
 .DS_Store
 .env
 *.log
+!results/**/*.log
 syncular-rust-driver/target
 
 .cache/
+
+# Machine-local forensic database image; checksums and benchmark results are tracked.
+results/history/2026-09-09-turso-failed-reset/data.tar.gz
+
+# Lossless machine-local archives of retired ignored working directories.
+results/history/2026-09-09-retired-working-copies/*.tar.gz
+
+# Restored artifacts referenced by the unchanged September 5 historical reports.
+!results/history/2026-09-05/.results/
+!results/history/2026-09-05/.results/**
+
+# Complete, verified publication packages, including preserved hidden history.
+!results/reports/tuned-v017-sql/**/
+!results/reports/tuned-v017-sql/**
+!results/reports/tuned-v017-zero/**/
+!results/reports/tuned-v017-zero/**

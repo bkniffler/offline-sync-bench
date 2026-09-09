@@ -315,6 +315,12 @@ async function ensureBenchmarkSchema(): Promise<void> {
   await sql`
     create index if not exists idx_tasks_owner_id on tasks (owner_id)
   `;
+  if (stackId === 'powersync') {
+    // Existing volumes predate membership-scoped sync. Publish changes after
+    // the table exists, without recreating any database or replication store.
+    const published = await sql`select 1 from pg_publication_tables where pubname = 'powersync' and schemaname = 'public' and tablename = 'project_memberships'`;
+    if (!published.length) await sql`alter publication powersync add table public.project_memberships`;
+  }
 }
 
 async function resetData(): Promise<void> {

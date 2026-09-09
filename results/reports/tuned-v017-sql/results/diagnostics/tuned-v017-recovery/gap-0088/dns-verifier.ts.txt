@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import { readFile, writeFile } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
+import { configurationHash } from '../src/configuration.ts';
+import { verifyEmptyDnsRecovery } from '../scripts/recovery-configuration.ts';
+const original=JSON.parse(await readFile('.results/campaign-2026-09-08T22-58-56-419Z/CONFIGURATION.json','utf8'));
+const observed=JSON.parse(await readFile('.tmp/tuned-recovery-0079-configuration.json','utf8'));
+const names=original.services.turso.containers.map((c:any)=>c.name);
+const hosts=Object.fromEntries(JSON.parse(execFileSync('docker',['inspect',...names],{encoding:'utf8'})).map((c:any)=>[c.Name,c.HostConfig]));
+const result=verifyEmptyDnsRecovery(observed,original,hosts);assert.equal(result.changes.length,2);
+let rejected=0;
+for(const field of ['Dns','DnsOptions','DnsSearch']){const h=structuredClone(hosts),o=structuredClone(observed);h[names[0]][field]=['changed'];o.services.turso.containers.find((c:any)=>c.name===names[0]).hostConfigurationSha256=configurationHash(h[names[0]]);assert.throws(()=>verifyEmptyDnsRecovery(o,original,h));rejected++;}
+const changed=structuredClone(observed);changed.runtime.dockerContext='different';assert.throws(()=>verifyEmptyDnsRecovery(changed,original,hosts));rejected++;
+await writeFile('.tmp/dns-recovery-verification.json',JSON.stringify({checkedAt:new Date().toISOString(),status:'verified',result,rejectedMutations:rejected,scope:'Actual container and full-configuration hash equivalence with rejection checks for three nonempty DNS overrides and another runtime change.'},null,2)+'\n');
+console.log('Two actual container hashes reproduced; four non-equivalent mutations rejected.');

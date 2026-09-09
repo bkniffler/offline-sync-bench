@@ -1,0 +1,667 @@
+{
+  "at": "2026-09-09T01:32:45.613Z",
+  "command": "bun run bundle:size",
+  "status": "ten-entrypoint-builds-verified",
+  "scope": "Entrypoint-only emitted JavaScript; not complete working applications or SDK performance timings.",
+  "checks": [
+    "Named command completed",
+    "Independent regeneration matches JSON and Markdown byte for byte",
+    "Every emitted JS file independently counted and gzip-compressed at level 9",
+    "Totals, artifact counts and 1024-byte KiB conversions agree",
+    "Syncular entries report installed 0.17.0"
+  ],
+  "rows": 10,
+  "artifacts": [
+    {
+      "target": "syncular-client-retained",
+      "file": "out-syncular-client-retained/chunk-2j66jtbk.js",
+      "rawBytes": 9694,
+      "gzipBytes": 3216,
+      "sha256": "a2cfa55789d3760ed315aee583ed41589a8bc7f10b1d877bccf4be0962f6e0af"
+    },
+    {
+      "target": "syncular-client-retained",
+      "file": "out-syncular-client-retained/syncular-client-retained.js",
+      "rawBytes": 171377,
+      "gzipBytes": 49345,
+      "sha256": "d6307bc245809f7c29271e8abf537679211221efbb7a796693b46aa40ddaab47"
+    },
+    {
+      "target": "syncular-client-retained",
+      "file": "out-syncular-client-retained/chunk-98gfg5vy.js",
+      "rawBytes": 140,
+      "gzipBytes": 125,
+      "sha256": "98a17bf114623c00de3a9ecd59f470e12566501b602cc636f06678c0f442fc9d"
+    },
+    {
+      "target": "syncular-client-root-named",
+      "file": "out-syncular-client-root-named/chunk-17acvnw1.js",
+      "rawBytes": 5488,
+      "gzipBytes": 1978,
+      "sha256": "486ada0aa14cd7de1856f4f328f504c89fe9276e612b94e3669974a695506ff9"
+    },
+    {
+      "target": "syncular-client-root-named",
+      "file": "out-syncular-client-root-named/syncular-client-root-named.js",
+      "rawBytes": 110202,
+      "gzipBytes": 31991,
+      "sha256": "4eb76eb7f3bbbd9799a164b42becfc58de7a8aea6f5c21fab9e636ca83d7b47e"
+    },
+    {
+      "target": "syncular-client-root-named",
+      "file": "out-syncular-client-root-named/chunk-k515v785.js",
+      "rawBytes": 4063,
+      "gzipBytes": 1462,
+      "sha256": "7cb7cd9a422c8a6acce45385cd9f754966f887d06580b103e6d836c360aeb3cc"
+    },
+    {
+      "target": "electric-retained",
+      "file": "out-electric-retained/electric-retained.js",
+      "rawBytes": 59972,
+      "gzipBytes": 18900,
+      "sha256": "61a98c60caf14ee0003e383865cf868627bb1a9566970980bb55a2a48b0d36b0"
+    },
+    {
+      "target": "electric-minimal",
+      "file": "out-electric-minimal/electric-minimal.js",
+      "rawBytes": 56872,
+      "gzipBytes": 17861,
+      "sha256": "3f7fa6b2aaa994efb92b1a3bcb59d0698a782f556547bdda3f79030b3be3649d"
+    },
+    {
+      "target": "zero-retained",
+      "file": "out-zero-retained/chunk-wc6tw9qs.js",
+      "rawBytes": 76915,
+      "gzipBytes": 24229,
+      "sha256": "d7ac8ca279155c12b5effc3f93e46d94480cc8db4641b5f63a35b2c66455e445"
+    },
+    {
+      "target": "zero-retained",
+      "file": "out-zero-retained/zero-retained.js",
+      "rawBytes": 232787,
+      "gzipBytes": 72209,
+      "sha256": "6e8aa2cd316124108ff04eeea30d4733836ec8a7d60b16f7f3506d6448e90708"
+    },
+    {
+      "target": "zero-retained",
+      "file": "out-zero-retained/chunk-wa512abp.js",
+      "rawBytes": 10230,
+      "gzipBytes": 3788,
+      "sha256": "d4f6e1fcf2b5cf6962d15eaaf24cbb394006286255c86dca6c745c04f6279c95"
+    },
+    {
+      "target": "zero-minimal",
+      "file": "out-zero-minimal/zero-minimal.js",
+      "rawBytes": 223307,
+      "gzipBytes": 69243,
+      "sha256": "a666016baf7221b9d4e5748baac1bdcc9bb8ef390124955acd686001e96afee0"
+    },
+    {
+      "target": "zero-minimal",
+      "file": "out-zero-minimal/chunk-7dxqvj00.js",
+      "rawBytes": 76754,
+      "gzipBytes": 24182,
+      "sha256": "b5721718fc3d20aefe285234fbb51502baf5e1c0024c9875acdcdcf76f90bc69"
+    },
+    {
+      "target": "zero-minimal",
+      "file": "out-zero-minimal/chunk-cxpk62xx.js",
+      "rawBytes": 10230,
+      "gzipBytes": 3789,
+      "sha256": "9aa3ccaf8ad7d58a35db6fec24848459cae8199117c9c2d6846b290d4ceaea21"
+    },
+    {
+      "target": "powersync-retained",
+      "file": "out-powersync-retained/chunk-s2ba7dcn.js",
+      "rawBytes": 112017,
+      "gzipBytes": 25899,
+      "sha256": "1ef26ec617699a670f5eaab6310e265b8f1bbe166e2a756f9b7f8be6d3c81c2d"
+    },
+    {
+      "target": "powersync-retained",
+      "file": "out-powersync-retained/chunk-vw5htfm8.js",
+      "rawBytes": 1659,
+      "gzipBytes": 708,
+      "sha256": "913f3416fa587d634febe0212d55e3cee1144758133ee197cca9458da8a156f3"
+    },
+    {
+      "target": "powersync-retained",
+      "file": "out-powersync-retained/chunk-djvn8r4n.js",
+      "rawBytes": 6335,
+      "gzipBytes": 1942,
+      "sha256": "9cd8efba6acab111f1986f077f261c16763af5667b817e38a2d05fb0a01c456a"
+    },
+    {
+      "target": "powersync-retained",
+      "file": "out-powersync-retained/chunk-f0farb06.js",
+      "rawBytes": 766,
+      "gzipBytes": 425,
+      "sha256": "37f9c2fd0914a47a93215d05f7712b4fc2f37d906f6fca3b97ae05694c0e4efa"
+    },
+    {
+      "target": "powersync-retained",
+      "file": "out-powersync-retained/chunk-47y535t5.js",
+      "rawBytes": 13461,
+      "gzipBytes": 4358,
+      "sha256": "dc28d53a818b8c9f82a8300c8982b956846450f69dcdaf3e3cc2ade23dee57fd"
+    },
+    {
+      "target": "powersync-retained",
+      "file": "out-powersync-retained/chunk-rpptnbna.js",
+      "rawBytes": 7898,
+      "gzipBytes": 2558,
+      "sha256": "fc6e1d61c5bf9a3071309388c1381065b12f3e35cf37c2f80ae99b39d954ff65"
+    },
+    {
+      "target": "powersync-retained",
+      "file": "out-powersync-retained/chunk-kf5ygaqf.js",
+      "rawBytes": 450,
+      "gzipBytes": 299,
+      "sha256": "ff7a009fe8ac3547c204b2b90b30e0d0fb5ae7069a4bfbc3755fa0c8dde84459"
+    },
+    {
+      "target": "powersync-retained",
+      "file": "out-powersync-retained/chunk-xsg58fh7.js",
+      "rawBytes": 62632,
+      "gzipBytes": 20900,
+      "sha256": "d9570f23340a025939d16b07f1078578c567b15f4b2656d6feea2d08838eb439"
+    },
+    {
+      "target": "powersync-retained",
+      "file": "out-powersync-retained/chunk-k78er3yh.js",
+      "rawBytes": 62964,
+      "gzipBytes": 20991,
+      "sha256": "de529365d1fcd7c458c97c63b2740bfcb268847a37da62d4766bc242aee73ee7"
+    },
+    {
+      "target": "powersync-retained",
+      "file": "out-powersync-retained/chunk-a77dqm9e.js",
+      "rawBytes": 66888,
+      "gzipBytes": 22205,
+      "sha256": "4f7814e3e405d499917e39120b523db5cab11e6ed4907755fb46a80e7209d2a0"
+    },
+    {
+      "target": "powersync-retained",
+      "file": "out-powersync-retained/powersync-retained.js",
+      "rawBytes": 130194,
+      "gzipBytes": 38523,
+      "sha256": "e016d37859e4ef58161cc3e0929190e155607459913fcbbe364fffa4d5619683"
+    },
+    {
+      "target": "powersync-retained",
+      "file": "out-powersync-retained/chunk-h1k41wx5.js",
+      "rawBytes": 3952,
+      "gzipBytes": 1758,
+      "sha256": "6818f044f5ffd1f5e1928795b1d025cc146c2a34386debe04847bfb4a066d40a"
+    },
+    {
+      "target": "powersync-retained",
+      "file": "out-powersync-retained/chunk-at26ngdb.js",
+      "rawBytes": 66556,
+      "gzipBytes": 22104,
+      "sha256": "32f7456a91ec070970557863f0df29307258e5d8daf350d753202b0b71638a1a"
+    },
+    {
+      "target": "powersync-retained",
+      "file": "out-powersync-retained/chunk-95mv8zh7.js",
+      "rawBytes": 24337,
+      "gzipBytes": 7579,
+      "sha256": "a881bc2163ea2e1dec18c20a6b242bf81e19721bcf280891fa2cfe5a24401813"
+    },
+    {
+      "target": "powersync-minimal",
+      "file": "out-powersync-minimal/chunk-6zqzc3dy.js",
+      "rawBytes": 66556,
+      "gzipBytes": 22103,
+      "sha256": "caaa67d6391111e8385ffd9fa6a39d614fc39ad0a22f6fb98d6c0748cd69ef01"
+    },
+    {
+      "target": "powersync-minimal",
+      "file": "out-powersync-minimal/powersync-minimal.js",
+      "rawBytes": 108306,
+      "gzipBytes": 32731,
+      "sha256": "17fd9ce2db6e564669b6c0476938ca202dbe07a360a7331c585976c8c9f9b105"
+    },
+    {
+      "target": "powersync-minimal",
+      "file": "out-powersync-minimal/chunk-dr0jqhw9.js",
+      "rawBytes": 3952,
+      "gzipBytes": 1757,
+      "sha256": "08404b69e1f2abb1bb33f6a74febb49c4ec28e9ccad2d399630b3289cb39145d"
+    },
+    {
+      "target": "powersync-minimal",
+      "file": "out-powersync-minimal/chunk-djvn8r4n.js",
+      "rawBytes": 6335,
+      "gzipBytes": 1942,
+      "sha256": "9cd8efba6acab111f1986f077f261c16763af5667b817e38a2d05fb0a01c456a"
+    },
+    {
+      "target": "powersync-minimal",
+      "file": "out-powersync-minimal/chunk-f0farb06.js",
+      "rawBytes": 766,
+      "gzipBytes": 425,
+      "sha256": "37f9c2fd0914a47a93215d05f7712b4fc2f37d906f6fca3b97ae05694c0e4efa"
+    },
+    {
+      "target": "powersync-minimal",
+      "file": "out-powersync-minimal/chunk-9x70f9pv.js",
+      "rawBytes": 62632,
+      "gzipBytes": 20899,
+      "sha256": "d1699dcf2b528f6896cc69095b31931bfa21c799e35dedc4c71e6cbae062cb90"
+    },
+    {
+      "target": "powersync-minimal",
+      "file": "out-powersync-minimal/chunk-frvdew4s.js",
+      "rawBytes": 66888,
+      "gzipBytes": 22205,
+      "sha256": "ab9d213a1f1167599e57f9284c3b29f18d79135b654e6937f77092a6b6989d0c"
+    },
+    {
+      "target": "powersync-minimal",
+      "file": "out-powersync-minimal/chunk-rvm3k0h7.js",
+      "rawBytes": 112017,
+      "gzipBytes": 25898,
+      "sha256": "ddf96c11d1aa1ae4cda9d39682caa791dbec0ae0c4781679802dcfcd415f52a4"
+    },
+    {
+      "target": "powersync-minimal",
+      "file": "out-powersync-minimal/chunk-xeyvdtwy.js",
+      "rawBytes": 24337,
+      "gzipBytes": 7578,
+      "sha256": "08597257ae132407c460d6aa666e6e3706325c3255a34d79d1737fc38b54ddfc"
+    },
+    {
+      "target": "powersync-minimal",
+      "file": "out-powersync-minimal/chunk-81d5vdzc.js",
+      "rawBytes": 13461,
+      "gzipBytes": 4355,
+      "sha256": "af634ffd117233d9a1fa1f359f3667f89ede961a9698c2124e15afad5287d5b1"
+    },
+    {
+      "target": "powersync-minimal",
+      "file": "out-powersync-minimal/chunk-70v2mg4y.js",
+      "rawBytes": 1659,
+      "gzipBytes": 707,
+      "sha256": "6999c23f81994ba9c57ceeefd18d0820a9adba2601bddeba0c2ec45617852213"
+    },
+    {
+      "target": "powersync-minimal",
+      "file": "out-powersync-minimal/chunk-e2epbrdx.js",
+      "rawBytes": 268,
+      "gzipBytes": 193,
+      "sha256": "5449510ed8f3369d303a6fcab6dd6da1aa14f37db733ba03a3dce1e29b2c74ef"
+    },
+    {
+      "target": "powersync-minimal",
+      "file": "out-powersync-minimal/chunk-ty01zey4.js",
+      "rawBytes": 62964,
+      "gzipBytes": 20989,
+      "sha256": "b3898661091a8ca20051c2159ab7dfb0b556f43b90ec9518313d352b096a3a3d"
+    },
+    {
+      "target": "powersync-minimal",
+      "file": "out-powersync-minimal/chunk-3tzz4t0g.js",
+      "rawBytes": 7898,
+      "gzipBytes": 2556,
+      "sha256": "89d6fc819998344ec09a57550b8ab9d68e29b78f6fb6d98f5be007ca124d3c34"
+    },
+    {
+      "target": "electric-tanstack-combo",
+      "file": "out-electric-tanstack-combo/electric-tanstack-combo.js",
+      "rawBytes": 245997,
+      "gzipBytes": 70065,
+      "sha256": "046320683f10236db714a4aaa50bbf7b4740d534c37150582689b362a0ea1b8d"
+    },
+    {
+      "target": "jazz-v2-minimal",
+      "file": "out-jazz-v2-minimal/jazz-v2-minimal.js",
+      "rawBytes": 170341,
+      "gzipBytes": 45406,
+      "sha256": "4d6a47fb19061c12186681d4961ffd1b1a31ad87eed82dfa320c294fbefc1890"
+    },
+    {
+      "target": "jazz-v2-minimal",
+      "file": "out-jazz-v2-minimal/chunk-y0v31j5v.js",
+      "rawBytes": 9917,
+      "gzipBytes": 3830,
+      "sha256": "e623859998f3551e3b40363a9100aa6768155f3d0cd0ed9444fdfb1ad24ddb72"
+    },
+    {
+      "target": "jazz-v2-minimal",
+      "file": "out-jazz-v2-minimal/chunk-q7fxykkh.js",
+      "rawBytes": 268,
+      "gzipBytes": 193,
+      "sha256": "98405543f7d9d877d20397610255d58ef41e29f7bea970ea719ed6a7babf2001"
+    },
+    {
+      "target": "jazz-v2-minimal",
+      "file": "out-jazz-v2-minimal/chunk-pv4kpk2v.js",
+      "rawBytes": 7954,
+      "gzipBytes": 3222,
+      "sha256": "9e1d84516cfd9493f02676e672324252d0c41621383471d05668beb5f3b0e770"
+    },
+    {
+      "target": "jazz-v2-minimal",
+      "file": "out-jazz-v2-minimal/chunk-316vmbat.js",
+      "rawBytes": 9117,
+      "gzipBytes": 3225,
+      "sha256": "bf2cda781d7c72135b1e6c50af27c245df4de01e465ea67e98a8cab92f0a945d"
+    },
+    {
+      "target": "jazz-v2-minimal",
+      "file": "out-jazz-v2-minimal/chunk-p1fhvjfy.js",
+      "rawBytes": 10828,
+      "gzipBytes": 4056,
+      "sha256": "253e79273a1dab95af76c1d1ed3087e7cc7d7628d51f7fa1ed721df81b3595e4"
+    },
+    {
+      "target": "jazz-v2-minimal",
+      "file": "out-jazz-v2-minimal/chunk-58w971zd.js",
+      "rawBytes": 21787,
+      "gzipBytes": 6641,
+      "sha256": "0b47d8b3e8e81bb306c8d1e2bd817b95a4e07b08048b52e5a76a4287440e139d"
+    },
+    {
+      "target": "jazz-v2-minimal",
+      "file": "out-jazz-v2-minimal/chunk-6533gqay.js",
+      "rawBytes": 32727,
+      "gzipBytes": 10054,
+      "sha256": "ec2aef0fb06082d7e7c7a9ed5a8b2b92e30f31c7abc9231822c3fbb7a6ae45eb"
+    },
+    {
+      "target": "jazz-v2-minimal",
+      "file": "out-jazz-v2-minimal/chunk-c4ewe8r8.js",
+      "rawBytes": 34069,
+      "gzipBytes": 8435,
+      "sha256": "aa71573dd74c6f765caaac323d0b4755fa869c108eeb0f55ac328cea75bb07c4"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "src/bundle-size.ts",
+      "copy": "input-0.txt",
+      "sha256": "030fd05fb450d64f3db3d809285acacb2d560bfcc0c4d2e54a509494f1adc9ff"
+    },
+    {
+      "path": "src/paths.ts",
+      "copy": "input-1.txt",
+      "sha256": "e2ffcb457b94eba99871200cc0197dfb3d2002d8a973109527eb948c37e7c983"
+    },
+    {
+      "path": "package.json",
+      "copy": "input-2.txt",
+      "sha256": "5140e54e68b5a0a3fa98c950646f8dff8a39e6aface75d13d2b6362725d54ed2"
+    },
+    {
+      "path": "bun.lock",
+      "copy": "input-3.txt",
+      "sha256": "65dc6c490a448991974e92ecd838c568f11b1c3e6722c4cf7cc942029b4badb3"
+    }
+  ],
+  "runtime": {
+    "bunVersion": "1.4.0",
+    "executableSha256": "539598c775882420b9d8deb7dc14d845f20f7d26f5600c50ab067dde6ac3f3bf"
+  },
+  "publicationTiming": "Campaign PID 27488 was paused without an active child throughout both builds; no publication samples were added.",
+  "archive": {
+    "path": "build-artifacts.tar.gz",
+    "bytes": 794927,
+    "sha256": "e3bb02ce9214d29f6ac77ba4fa201d842900ed5f61cb7922ab3fa380c8f24037",
+    "files": {
+      "powersync-retained.ts": {
+        "bytes": 128,
+        "sha256": "fd496f5462250e820d03374d45ec88272354489a32011bd284d0c1c430c8c7c0"
+      },
+      "syncular-client-root-named.ts": {
+        "bytes": 184,
+        "sha256": "ce35ae3310286baa0ddf230e66f7e670f1a36bf12059a25d6428f8a7bab3dd76"
+      },
+      "electric-minimal.ts": {
+        "bytes": 152,
+        "sha256": "934c9395786af284625e97dfe0dd38dd4c8220c334ce645c5467fe3c01ac3c66"
+      },
+      "electric-retained.ts": {
+        "bytes": 134,
+        "sha256": "043f254fc3a7c9e28e46e63a0a771728a4bdda19d85178825babdd0b7757db40"
+      },
+      "electric-tanstack-combo.ts": {
+        "bytes": 352,
+        "sha256": "281cc85418b5c79be260b1c76b9e51f47f374bb539761afaef5db8630044a7ea"
+      },
+      "zero-minimal.ts": {
+        "bytes": 132,
+        "sha256": "375b0e5a910ad1e934e603b426a7c6ec9d9c9faca257de058a2b2ab44094bdd5"
+      },
+      "jazz-v2-minimal.ts": {
+        "bytes": 152,
+        "sha256": "b351d1c0186885275f198eeae12cb3a3401b2f885554615334a04cb9808d095f"
+      },
+      "powersync-minimal.ts": {
+        "bytes": 158,
+        "sha256": "3c58159390869e2960d5f113b9150c810f3513afb2564fd7ef3d14a15f5deda9"
+      },
+      "zero-retained.ts": {
+        "bytes": 128,
+        "sha256": "73cdb84821d9454ddb76590f89f60c80064b424d9b2ff0a5c00a6e81396a0f04"
+      },
+      "syncular-client-retained.ts": {
+        "bytes": 130,
+        "sha256": "f0eb4ed9763f88c6fd4e1e5a569e14d0fd1a7c383915c18d5f3fa28a24afc533"
+      },
+      "out-jazz-v2-minimal/jazz-v2-minimal.js": {
+        "bytes": 170341,
+        "sha256": "4d6a47fb19061c12186681d4961ffd1b1a31ad87eed82dfa320c294fbefc1890"
+      },
+      "out-jazz-v2-minimal/chunk-y0v31j5v.js": {
+        "bytes": 9917,
+        "sha256": "e623859998f3551e3b40363a9100aa6768155f3d0cd0ed9444fdfb1ad24ddb72"
+      },
+      "out-jazz-v2-minimal/chunk-q7fxykkh.js": {
+        "bytes": 268,
+        "sha256": "98405543f7d9d877d20397610255d58ef41e29f7bea970ea719ed6a7babf2001"
+      },
+      "out-jazz-v2-minimal/chunk-pv4kpk2v.js": {
+        "bytes": 7954,
+        "sha256": "9e1d84516cfd9493f02676e672324252d0c41621383471d05668beb5f3b0e770"
+      },
+      "out-jazz-v2-minimal/chunk-316vmbat.js": {
+        "bytes": 9117,
+        "sha256": "bf2cda781d7c72135b1e6c50af27c245df4de01e465ea67e98a8cab92f0a945d"
+      },
+      "out-jazz-v2-minimal/chunk-p1fhvjfy.js": {
+        "bytes": 10828,
+        "sha256": "253e79273a1dab95af76c1d1ed3087e7cc7d7628d51f7fa1ed721df81b3595e4"
+      },
+      "out-jazz-v2-minimal/chunk-58w971zd.js": {
+        "bytes": 21787,
+        "sha256": "0b47d8b3e8e81bb306c8d1e2bd817b95a4e07b08048b52e5a76a4287440e139d"
+      },
+      "out-jazz-v2-minimal/chunk-6533gqay.js": {
+        "bytes": 32727,
+        "sha256": "ec2aef0fb06082d7e7c7a9ed5a8b2b92e30f31c7abc9231822c3fbb7a6ae45eb"
+      },
+      "out-jazz-v2-minimal/chunk-c4ewe8r8.js": {
+        "bytes": 34069,
+        "sha256": "aa71573dd74c6f765caaac323d0b4755fa869c108eeb0f55ac328cea75bb07c4"
+      },
+      "out-syncular-client-root-named/chunk-17acvnw1.js": {
+        "bytes": 5488,
+        "sha256": "486ada0aa14cd7de1856f4f328f504c89fe9276e612b94e3669974a695506ff9"
+      },
+      "out-syncular-client-root-named/syncular-client-root-named.js": {
+        "bytes": 110202,
+        "sha256": "4eb76eb7f3bbbd9799a164b42becfc58de7a8aea6f5c21fab9e636ca83d7b47e"
+      },
+      "out-syncular-client-root-named/chunk-k515v785.js": {
+        "bytes": 4063,
+        "sha256": "7cb7cd9a422c8a6acce45385cd9f754966f887d06580b103e6d836c360aeb3cc"
+      },
+      "out-zero-retained/chunk-wc6tw9qs.js": {
+        "bytes": 76915,
+        "sha256": "d7ac8ca279155c12b5effc3f93e46d94480cc8db4641b5f63a35b2c66455e445"
+      },
+      "out-zero-retained/zero-retained.js": {
+        "bytes": 232787,
+        "sha256": "6e8aa2cd316124108ff04eeea30d4733836ec8a7d60b16f7f3506d6448e90708"
+      },
+      "out-zero-retained/chunk-wa512abp.js": {
+        "bytes": 10230,
+        "sha256": "d4f6e1fcf2b5cf6962d15eaaf24cbb394006286255c86dca6c745c04f6279c95"
+      },
+      "out-zero-minimal/zero-minimal.js": {
+        "bytes": 223307,
+        "sha256": "a666016baf7221b9d4e5748baac1bdcc9bb8ef390124955acd686001e96afee0"
+      },
+      "out-zero-minimal/chunk-7dxqvj00.js": {
+        "bytes": 76754,
+        "sha256": "b5721718fc3d20aefe285234fbb51502baf5e1c0024c9875acdcdcf76f90bc69"
+      },
+      "out-zero-minimal/chunk-cxpk62xx.js": {
+        "bytes": 10230,
+        "sha256": "9aa3ccaf8ad7d58a35db6fec24848459cae8199117c9c2d6846b290d4ceaea21"
+      },
+      "out-powersync-minimal/chunk-6zqzc3dy.js": {
+        "bytes": 66556,
+        "sha256": "caaa67d6391111e8385ffd9fa6a39d614fc39ad0a22f6fb98d6c0748cd69ef01"
+      },
+      "out-powersync-minimal/powersync-minimal.js": {
+        "bytes": 108306,
+        "sha256": "17fd9ce2db6e564669b6c0476938ca202dbe07a360a7331c585976c8c9f9b105"
+      },
+      "out-powersync-minimal/chunk-dr0jqhw9.js": {
+        "bytes": 3952,
+        "sha256": "08404b69e1f2abb1bb33f6a74febb49c4ec28e9ccad2d399630b3289cb39145d"
+      },
+      "out-powersync-minimal/chunk-djvn8r4n.js": {
+        "bytes": 6335,
+        "sha256": "9cd8efba6acab111f1986f077f261c16763af5667b817e38a2d05fb0a01c456a"
+      },
+      "out-powersync-minimal/chunk-f0farb06.js": {
+        "bytes": 766,
+        "sha256": "37f9c2fd0914a47a93215d05f7712b4fc2f37d906f6fca3b97ae05694c0e4efa"
+      },
+      "out-powersync-minimal/chunk-9x70f9pv.js": {
+        "bytes": 62632,
+        "sha256": "d1699dcf2b528f6896cc69095b31931bfa21c799e35dedc4c71e6cbae062cb90"
+      },
+      "out-powersync-minimal/chunk-frvdew4s.js": {
+        "bytes": 66888,
+        "sha256": "ab9d213a1f1167599e57f9284c3b29f18d79135b654e6937f77092a6b6989d0c"
+      },
+      "out-powersync-minimal/chunk-rvm3k0h7.js": {
+        "bytes": 112017,
+        "sha256": "ddf96c11d1aa1ae4cda9d39682caa791dbec0ae0c4781679802dcfcd415f52a4"
+      },
+      "out-powersync-minimal/chunk-xeyvdtwy.js": {
+        "bytes": 24337,
+        "sha256": "08597257ae132407c460d6aa666e6e3706325c3255a34d79d1737fc38b54ddfc"
+      },
+      "out-powersync-minimal/chunk-81d5vdzc.js": {
+        "bytes": 13461,
+        "sha256": "af634ffd117233d9a1fa1f359f3667f89ede961a9698c2124e15afad5287d5b1"
+      },
+      "out-powersync-minimal/chunk-70v2mg4y.js": {
+        "bytes": 1659,
+        "sha256": "6999c23f81994ba9c57ceeefd18d0820a9adba2601bddeba0c2ec45617852213"
+      },
+      "out-powersync-minimal/chunk-e2epbrdx.js": {
+        "bytes": 268,
+        "sha256": "5449510ed8f3369d303a6fcab6dd6da1aa14f37db733ba03a3dce1e29b2c74ef"
+      },
+      "out-powersync-minimal/chunk-ty01zey4.js": {
+        "bytes": 62964,
+        "sha256": "b3898661091a8ca20051c2159ab7dfb0b556f43b90ec9518313d352b096a3a3d"
+      },
+      "out-powersync-minimal/chunk-3tzz4t0g.js": {
+        "bytes": 7898,
+        "sha256": "89d6fc819998344ec09a57550b8ab9d68e29b78f6fb6d98f5be007ca124d3c34"
+      },
+      "out-syncular-client-retained/chunk-2j66jtbk.js": {
+        "bytes": 9694,
+        "sha256": "a2cfa55789d3760ed315aee583ed41589a8bc7f10b1d877bccf4be0962f6e0af"
+      },
+      "out-syncular-client-retained/syncular-client-retained.js": {
+        "bytes": 171377,
+        "sha256": "d6307bc245809f7c29271e8abf537679211221efbb7a796693b46aa40ddaab47"
+      },
+      "out-syncular-client-retained/chunk-98gfg5vy.js": {
+        "bytes": 140,
+        "sha256": "98a17bf114623c00de3a9ecd59f470e12566501b602cc636f06678c0f442fc9d"
+      },
+      "out-powersync-retained/chunk-s2ba7dcn.js": {
+        "bytes": 112017,
+        "sha256": "1ef26ec617699a670f5eaab6310e265b8f1bbe166e2a756f9b7f8be6d3c81c2d"
+      },
+      "out-powersync-retained/chunk-vw5htfm8.js": {
+        "bytes": 1659,
+        "sha256": "913f3416fa587d634febe0212d55e3cee1144758133ee197cca9458da8a156f3"
+      },
+      "out-powersync-retained/chunk-djvn8r4n.js": {
+        "bytes": 6335,
+        "sha256": "9cd8efba6acab111f1986f077f261c16763af5667b817e38a2d05fb0a01c456a"
+      },
+      "out-powersync-retained/chunk-f0farb06.js": {
+        "bytes": 766,
+        "sha256": "37f9c2fd0914a47a93215d05f7712b4fc2f37d906f6fca3b97ae05694c0e4efa"
+      },
+      "out-powersync-retained/chunk-47y535t5.js": {
+        "bytes": 13461,
+        "sha256": "dc28d53a818b8c9f82a8300c8982b956846450f69dcdaf3e3cc2ade23dee57fd"
+      },
+      "out-powersync-retained/chunk-rpptnbna.js": {
+        "bytes": 7898,
+        "sha256": "fc6e1d61c5bf9a3071309388c1381065b12f3e35cf37c2f80ae99b39d954ff65"
+      },
+      "out-powersync-retained/chunk-kf5ygaqf.js": {
+        "bytes": 450,
+        "sha256": "ff7a009fe8ac3547c204b2b90b30e0d0fb5ae7069a4bfbc3755fa0c8dde84459"
+      },
+      "out-powersync-retained/chunk-xsg58fh7.js": {
+        "bytes": 62632,
+        "sha256": "d9570f23340a025939d16b07f1078578c567b15f4b2656d6feea2d08838eb439"
+      },
+      "out-powersync-retained/chunk-k78er3yh.js": {
+        "bytes": 62964,
+        "sha256": "de529365d1fcd7c458c97c63b2740bfcb268847a37da62d4766bc242aee73ee7"
+      },
+      "out-powersync-retained/chunk-a77dqm9e.js": {
+        "bytes": 66888,
+        "sha256": "4f7814e3e405d499917e39120b523db5cab11e6ed4907755fb46a80e7209d2a0"
+      },
+      "out-powersync-retained/powersync-retained.js": {
+        "bytes": 130194,
+        "sha256": "e016d37859e4ef58161cc3e0929190e155607459913fcbbe364fffa4d5619683"
+      },
+      "out-powersync-retained/chunk-h1k41wx5.js": {
+        "bytes": 3952,
+        "sha256": "6818f044f5ffd1f5e1928795b1d025cc146c2a34386debe04847bfb4a066d40a"
+      },
+      "out-powersync-retained/chunk-at26ngdb.js": {
+        "bytes": 66556,
+        "sha256": "32f7456a91ec070970557863f0df29307258e5d8daf350d753202b0b71638a1a"
+      },
+      "out-powersync-retained/chunk-95mv8zh7.js": {
+        "bytes": 24337,
+        "sha256": "a881bc2163ea2e1dec18c20a6b242bf81e19721bcf280891fa2cfe5a24401813"
+      },
+      "out-electric-minimal/electric-minimal.js": {
+        "bytes": 56872,
+        "sha256": "3f7fa6b2aaa994efb92b1a3bcb59d0698a782f556547bdda3f79030b3be3649d"
+      },
+      "out-electric-retained/electric-retained.js": {
+        "bytes": 59972,
+        "sha256": "61a98c60caf14ee0003e383865cf868627bb1a9566970980bb55a2a48b0d36b0"
+      },
+      "out-electric-tanstack-combo/electric-tanstack-combo.js": {
+        "bytes": 245997,
+        "sha256": "046320683f10236db714a4aaa50bbf7b4740d534c37150582689b362a0ea1b8d"
+      }
+    },
+    "verification": "Every archived file byte count and SHA-256 matches the emitted build directory before cleanup."
+  },
+  "reportFiles": {
+    "BUNDLE_SIZES.json": "0fc785af39b9b224c963606b1e6e406e549b975a62264fdc32e04ea1cd1b90c2",
+    "BUNDLE_SIZES.md": "28fb457f794fc407d57851a269c0b04a20420860ab7a17990fd0d3be4d5a5829"
+  }
+}

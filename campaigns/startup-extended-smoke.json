@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 1800000,
+  "stacks": ["syncular", "turso"],
+  "scenarios": ["bootstrap"],
+  "parameters": { "startupSizes": [1000, 500000, 1000000] },
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run both declared startup attempts with 1000, 500000 and 1000000 tasks and the existing cold/warm client sequence and 90-second observation limit. Verify complete data including the seven-digit millionth task ID. Preserve failed scales and unrun later conditions. Record Turso server main/WAL file sizes outside timing and native replica page/freelist counts after measurement. Server storage and OS caches remain retained; this smoke does not establish normalized physical state or a performance ranking. A separate controlled fresh-versus-retained database experiment remains required."
+}

@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260913,
+  "trials": 1,
+  "trialTimeoutMs": 900000,
+  "stacks": ["syncular", "syncular-rust", "powersync", "turso", "electric", "electric-tanstack", "zero", "jazz-v2"],
+  "scenarios": ["online-propagation"],
+  "network": {
+    "id": "private-veth-netem-v1",
+    "imageId": "sha256:647eda9af9b0d172fc317357352fef8f5e40b609d397e78823a852b162765b87",
+    "oneWayDelayMs": 50,
+    "lossPct": 1,
+    "seed": 43,
+    "packetLimit": 10000
+  },
+  "stoppingRule": "Execute all eight collaboration cases once with 50 ms packet delay in each direction and 1% configured random loss. Both directional streams use seed 43. Keep workload, warmups, operation counts and existing completion deadlines unchanged; verify exact outputs, applied routes, actual drops, MTU-sized packets, source/configuration bindings and emulator cleanup. Preserve failures. This is an integration smoke and does not estimate performance differences or loss variability."
+}

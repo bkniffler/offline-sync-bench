@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 600000,
+  "stacks": ["syncular", "syncular-rust", "powersync", "turso"],
+  "scenarios": ["bootstrap"],
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run four startup checks, each with 1k/10k/100k tasks under process-cold and warm server conditions. Retain every failure. Do not publish single-trial correctness checks as performance comparisons."
+}

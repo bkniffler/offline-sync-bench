@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "method": "browser-milestone-forwarding-v1",
+  "seed": 20260924,
+  "pairs": 1,
+  "trialTimeoutMs": 300000,
+  "stacks": [
+    "electric",
+    "zero"
+  ],
+  "runtime": {
+    "kind": "chromium",
+    "installationRoot": "/Users/bkniffler/Library/Caches/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app",
+    "executable": "/Users/bkniffler/Library/Caches/ms-playwright/chromium-1234/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
+  },
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Run one pair for each browser adapter. Preserve both conditions and every failure. This is correctness smoke evidence, not the five-pair overhead experiment."
+}

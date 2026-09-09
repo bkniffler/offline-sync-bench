@@ -1,0 +1,3523 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-08T23:12:31.636593+00:00",
+  "status": "retained-history-not-current-comparison",
+  "sourceCampaign": "campaign-2026-09-07T07-13-19-779Z",
+  "sourceCampaignStatus": "invalid",
+  "sourceHash": "f6d23b446229ead3546f0e49c869e5150500c559446dfe349cb0e17e2cd8198b",
+  "archive": "results/history/2026-09-07-withdrawn-campaign/campaign.tar.gz",
+  "archiveSha256": "2f49ffa29712b0e8527ee2ad8d598e4ebc12526db230a88f3ae705cefb515250",
+  "manifestArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/CAMPAIGN.json",
+  "manifestSha256": "be42b81519b647e83c51d03ff2f4f1ece309c1c0c7962c0abe3d1eb90c5c13d4",
+  "selection": "All recorded Electric, Electric + TanStack DB and Jazz v2 cases; Zero except local-query and deep-relationship-query. All SQL-adapter cases and the two Zero screen cases are replaced by the new campaigns.",
+  "limitations": "The source campaign stopped at 470 of 1120 planned attempts and was withdrawn. These 4\u20135-attempt case histories are retained without promoting the stopped campaign to complete or pooling them with new measurements. Jazz remains experimental. This catalog reports outcomes, not new performance estimates.",
+  "caseCount": 54,
+  "attemptCount": 230,
+  "outcomes": {
+    "completed": 176,
+    "unsupported": 40,
+    "timed-out": 14
+  },
+  "cases": [
+    {
+      "stack": "electric",
+      "scenario": "blob-flow",
+      "attemptCount": 4,
+      "outcomes": {
+        "unsupported": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "a46b6196-8c83-47c3-b75a-5db8eeb14ed2",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Blob flow benchmarking is not implemented for Electric in this harness yet."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0028-electric-blob-flow.json",
+          "sha256": "8e919528ee3d4b8b5da9cb9ad447a9eb82d1ba8b885ae5779b250b97682649d6",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0028-electric-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "808284c6-959e-4aa5-b6db-3ad89cfe035c",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Blob flow benchmarking is not implemented for Electric in this harness yet."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0177-electric-blob-flow.json",
+          "sha256": "1ec8157ba43fb2b02cf3035ff28465fba6b92130b7e5114415a519a430fdd820",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0177-electric-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "f9b3e613-1fb0-4c19-8bb5-e0e248427c99",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Blob flow benchmarking is not implemented for Electric in this harness yet."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0252-electric-blob-flow.json",
+          "sha256": "06276339a542951551a7ced1900e654989d96f27cf77e66e9ea01586f0168757",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0252-electric-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "82a27c42-90ba-4b9d-b9fd-4f977a383bf6",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Blob flow benchmarking is not implemented for Electric in this harness yet."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0424-electric-blob-flow.json",
+          "sha256": "9d0071b623d4e99bf4b4619f62cb2179cec976db7e6a003361002273c3e0400a",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0424-electric-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "bootstrap",
+      "attemptCount": 5,
+      "outcomes": {
+        "completed": 5
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "b0cad228-7493-45d7-a0f7-7ecb02fd2d39",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0008-electric-bootstrap.json",
+          "sha256": "9ed3df4791cd37321ab32d13ccfb4e079ddb8ea26ae9e205735f62dc695fe20b",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0008-electric-bootstrap.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "8a603be4-adba-4b49-bbdd-2b69e37d45fa",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0190-electric-bootstrap.json",
+          "sha256": "19fc2258fdd85d24c5ccb201f1aedc8fb120d91d2e6cfcc222453b58a3fedb5c",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0190-electric-bootstrap.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "119b4a48-0b9d-4312-a6fa-dbc58072a697",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0259-electric-bootstrap.json",
+          "sha256": "fadcc75eacc3e01fd078e56e50bf4e6613421d1345bea45f26990f9648ee5d0a",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0259-electric-bootstrap.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "b04e9201-ddd5-43f9-a8f1-0e703f55977a",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0398-electric-bootstrap.json",
+          "sha256": "318e8aa616c488be372bf5df224e7e805896184bcfa731245d9626e5b964dc2f",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0398-electric-bootstrap.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 5,
+          "resultId": "52d16ec3-84e4-42ee-9d9b-816b9eccf197",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0452-electric-bootstrap.json",
+          "sha256": "4ee66777f823c0b4ba0448b4c1ed1c6b581982e69b6bf039f01edacbcd7e8cfb",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0452-electric-bootstrap.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "conflict-update-delete",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "a370ec86-f9ae-48f6-bd40-54806dca020f",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0058-electric-conflict-update-delete.json",
+          "sha256": "7892d373c5a0561245904600fec7ddee4c79b5babb40a0fab7c988b4e5fc90ef",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0058-electric-conflict-update-delete.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "64e4dc9f-ab50-483d-99fe-7bbe0267231a",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0170-electric-conflict-update-delete.json",
+          "sha256": "f5cf9676ae5a84494a7e99822a55f6163b18a977869a1641379c41d35e3fa59b",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0170-electric-conflict-update-delete.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "0dddbb6c-8fb9-4825-8999-12fd5848de1e",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0335-electric-conflict-update-delete.json",
+          "sha256": "14436894110b346016c82e1209a91571184d52a5b87bc43c3946671a50e1defc",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0335-electric-conflict-update-delete.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "20045a7e-cbdf-43f1-aebb-ac1f9f181340",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0429-electric-conflict-update-delete.json",
+          "sha256": "6751d358a199b2c3ef1c2fc6c6a3dc8282871ccd8169873761a7708a39254542",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0429-electric-conflict-update-delete.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "conflict-update-update",
+      "attemptCount": 5,
+      "outcomes": {
+        "completed": 5
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "4564fa50-b4a1-4f63-89f3-b47d3f7b915b",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0052-electric-conflict-update-update.json",
+          "sha256": "b8cb5300209e5336a56045e6332807b153654dc7ba735fea065461430774477c",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0052-electric-conflict-update-update.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "91364f5e-95ac-453c-baec-6f9df383b41a",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0165-electric-conflict-update-update.json",
+          "sha256": "afed4f99f3dc9efb62a2cfaa1277f5360fc96a9b183c118db95753d2e454974f",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0165-electric-conflict-update-update.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "ae0ccd74-bf78-4cbd-9f37-48f42ceda632",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0262-electric-conflict-update-update.json",
+          "sha256": "c0307e9a04ae66d2eb4d409413642d3d1abbdbebab948246dd0e4938a77ffb61",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0262-electric-conflict-update-update.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "75c9bc89-2780-4e17-8b52-200106a1e329",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0401-electric-conflict-update-update.json",
+          "sha256": "f3ce4f50decd9af264ac78de91e5ce3470b02c446c46929f1d4bfad434c3e7cd",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0401-electric-conflict-update-update.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 5,
+          "resultId": "ee2094e7-fbac-40a5-9881-9eea272b3fa0",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0463-electric-conflict-update-update.json",
+          "sha256": "e7c3ce2c483092fb3990b926d869bcde42e4ed7452c1bb58352cf943e094f7c9",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0463-electric-conflict-update-update.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "connected-fanout",
+      "attemptCount": 5,
+      "outcomes": {
+        "completed": 5
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "21fcf5e0-d404-4c35-a522-031f0aec3416",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0081-electric-connected-fanout.json",
+          "sha256": "b9fbfb5a81163fc57bca6f3e1886da5b731176303c11417aef3000a0fe17a267",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0081-electric-connected-fanout.json.log",
+          "logSha256": "1bd0ecf8e28f4eccf6567e37e5947199461093febebfbc3de5b5f9920bfdedc4"
+        },
+        {
+          "trial": 2,
+          "resultId": "b831b106-a740-47b3-b7f0-112f205fcc75",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0146-electric-connected-fanout.json",
+          "sha256": "3d1ef68d80e6ab775897d76fe838307eb757cd9a92d1d36926994353db4413c7",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0146-electric-connected-fanout.json.log",
+          "logSha256": "1bd0ecf8e28f4eccf6567e37e5947199461093febebfbc3de5b5f9920bfdedc4"
+        },
+        {
+          "trial": 3,
+          "resultId": "3b96997f-ac89-40d2-aa37-548ffe5ae234",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0236-electric-connected-fanout.json",
+          "sha256": "4ded11c89ee8fbc6598757aa8945f493d4550df9e89222444db630c878bd1a14",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0236-electric-connected-fanout.json.log",
+          "logSha256": "1bd0ecf8e28f4eccf6567e37e5947199461093febebfbc3de5b5f9920bfdedc4"
+        },
+        {
+          "trial": 4,
+          "resultId": "1d4d9474-d5fb-46df-aa9b-8db2505a26a2",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0403-electric-connected-fanout.json",
+          "sha256": "058eb05691fd87169a269f9154cd74d5749d0a6ff22e72e53e81ba6cff8581c5",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0403-electric-connected-fanout.json.log",
+          "logSha256": "1bd0ecf8e28f4eccf6567e37e5947199461093febebfbc3de5b5f9920bfdedc4"
+        },
+        {
+          "trial": 5,
+          "resultId": "bc2583e2-e761-4e0c-9aac-49dc13e0f93c",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0456-electric-connected-fanout.json",
+          "sha256": "dafba56aa3f637a2b64efffbc47b1e62e3ddd0fd292c344367c38b100c31733f",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0456-electric-connected-fanout.json.log",
+          "logSha256": "1bd0ecf8e28f4eccf6567e37e5947199461093febebfbc3de5b5f9920bfdedc4"
+        }
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "deep-relationship-query",
+      "attemptCount": 4,
+      "outcomes": {
+        "unsupported": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "1828c7eb-9684-43bd-8f55-e5795f371646",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Deep relationship querying is not implemented for Electric in this harness yet."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0111-electric-deep-relationship-query.json",
+          "sha256": "d973fe6c5f509a50cfb4fc93d086249a456e3235a832114510c9f7cd58ff6de6",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0111-electric-deep-relationship-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "11458f06-4247-4a6b-ba6c-0122029efc96",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Deep relationship querying is not implemented for Electric in this harness yet."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0117-electric-deep-relationship-query.json",
+          "sha256": "3c112c673696820daa649126e0a61d5bdf528eb199b53e0a547387c701f84811",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0117-electric-deep-relationship-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "a092bfed-996a-4de9-bfb1-0708a1302cae",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Deep relationship querying is not implemented for Electric in this harness yet."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0298-electric-deep-relationship-query.json",
+          "sha256": "bc8cae976275f27dae03fa4e919c62fba852b8d2a648ace4b7a8451b7456751d",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0298-electric-deep-relationship-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "934595c9-c2ad-4b31-aba7-6889d27b4b30",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Deep relationship querying is not implemented for Electric in this harness yet."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0443-electric-deep-relationship-query.json",
+          "sha256": "eaa15b463a0d66c50e223ae396db11530f4129233195c363341bc658ae305ac8",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0443-electric-deep-relationship-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "large-offline-queue",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "4c80f4e3-fbb8-4143-b74b-b94717701de1",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0045-electric-large-offline-queue.json",
+          "sha256": "0cc07a24b98b6630fc11b05aee8a0a1d1630eb6d1d00546d145d43e5cfd47726",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0045-electric-large-offline-queue.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "d45798d8-76d3-4320-8830-416e1933b96f",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0194-electric-large-offline-queue.json",
+          "sha256": "284617b7fddada82752a50dcb45cd02f202615e3fa88667c01beb11e2f6f8f1c",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0194-electric-large-offline-queue.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "ec17b06c-a89e-45fd-b5c7-dcf250f02abe",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0316-electric-large-offline-queue.json",
+          "sha256": "23727ba48c8408dccb7c14c66279dde9e3007f4618bdb614fcdf4b200dd38a09",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0316-electric-large-offline-queue.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "721f9814-897a-4bf7-936a-9df7cab69880",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0430-electric-large-offline-queue.json",
+          "sha256": "5b0d1b02256fd52e80fedb19d768062469ffbd97b74aa247667d99c64bd81e96",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0430-electric-large-offline-queue.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "local-query",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "90dcb51f-b906-440a-9e60-b3419d4a8e01",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0060-electric-local-query.json",
+          "sha256": "0e4f27612620b2fc1de60e9f54162e4c866d52bd516620107f51336cc1a5c5af",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0060-electric-local-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "ff15dbf0-e263-408f-9212-050a3a405668",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0204-electric-local-query.json",
+          "sha256": "76025f8d5d10a599a234d5fa1e6fae4675416eb8ea3b5d1b01e669e4950f4935",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0204-electric-local-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "decadc02-02f6-4841-9d8c-18fd81649292",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0325-electric-local-query.json",
+          "sha256": "4cd046cfe431af4b1fbdd39f3db5f6c65507febd64b044b7af32dc0571eda545",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0325-electric-local-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "daca4ff5-4182-42ac-b868-a609faef6521",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0391-electric-local-query.json",
+          "sha256": "2d79d579eab74c9238dcfed1c3c43ed6cf21281a0217a2c369e9dd94a9ef50d3",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0391-electric-local-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "offline-replay",
+      "attemptCount": 5,
+      "outcomes": {
+        "completed": 5
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "4adbe8a0-74f7-471a-9070-eada1a9fbcae",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0014-electric-offline-replay.json",
+          "sha256": "2e93524d75bc53ba175284e0121ef0049633d69a62dda0cd1df7a82d537f3f26",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0014-electric-offline-replay.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "69d968bc-89e6-4d99-a4c3-9f6724372ac1",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0126-electric-offline-replay.json",
+          "sha256": "9b3ebbdaaaaed542eda34c5aac5d1fbdbdeac3d2e4371e8edd57fe2b9d454bfd",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0126-electric-offline-replay.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "cca34ac5-87b1-4b4e-ba53-3a03e28553d3",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0273-electric-offline-replay.json",
+          "sha256": "736700eb482d16098c9e9fef32bbc400845dc17c869dfe56d40f44a8cfc99661",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0273-electric-offline-replay.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "f0a71c3e-636d-464a-a1af-77f43550b0ae",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0412-electric-offline-replay.json",
+          "sha256": "f28ad154fa80f1943b2e8d18e790c0b68605e391fb2b98877df49d04aef45e7f",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0412-electric-offline-replay.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 5,
+          "resultId": "d4e45583-a142-4b35-9d2a-f1d831004352",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0457-electric-offline-replay.json",
+          "sha256": "1019551c66339964ee3652b16782f7b82a14b29a79c116a90cd6cd72766b2d4e",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0457-electric-offline-replay.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "offline-restart",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "cd04c4fd-7937-492c-b5db-69e7e471a750",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0044-electric-offline-restart.json",
+          "sha256": "d4a8ce4978eb56d75b1b56f916c1dbb9435a035ef1a34722a56db1b43581d46b",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0044-electric-offline-restart.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "55cf1827-a677-467c-9fde-f36f91772cf8",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0135-electric-offline-restart.json",
+          "sha256": "c86de633b97f99e4d5d4da2cff17375139eed5bbd46e056b0fef6f2c4ba72c48",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0135-electric-offline-restart.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "4032762b-1ada-4884-9443-c9929627b07a",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0334-electric-offline-restart.json",
+          "sha256": "8f84e0dc668c8c8a7c57a9f38c79ba3eadbd6889c11e9d4216a77bc33116d576",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0334-electric-offline-restart.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "dda22603-2aef-4667-95ff-f1c2abd306d7",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0444-electric-offline-restart.json",
+          "sha256": "4c9fb0a5b9dd0395d5593b5d975ccb25b761ce7fa6e0ae190bfc3788d33b13fa",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0444-electric-offline-restart.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "online-propagation",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "f90ae90e-3efd-4608-b4ec-d47dfa7cc45b",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0015-electric-online-propagation.json",
+          "sha256": "30144e96e72eb45afa4ea926f78bc8323e2046528e57fee8fd688865e842f79c",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0015-electric-online-propagation.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "36b7b538-ad3c-423f-acc5-b51623519a75",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0148-electric-online-propagation.json",
+          "sha256": "5422cbda7e58bb91fbce752f893620ae0807074f3f2acbdf823b4142d566532a",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0148-electric-online-propagation.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "3d09da75-b39d-4a43-8224-c96c747fe3a5",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0297-electric-online-propagation.json",
+          "sha256": "24a5ef12b7aab65a74fab2d3fc12fc67948a0eaf634a78189ad7998ba21bd64f",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0297-electric-online-propagation.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "4c9794a3-c57e-439a-94ca-dbd5c50cecf8",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0342-electric-online-propagation.json",
+          "sha256": "cddb1a1b6acb75a2d4b7e7a8bd0dd566b10d8627be3c50d3d9fb75db4a46cf49",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0342-electric-online-propagation.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "permission-change",
+      "attemptCount": 5,
+      "outcomes": {
+        "completed": 5
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "0b523177-18c5-4124-bbf8-9193074bfb4a",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0002-electric-permission-change.json",
+          "sha256": "939c076111c620d8ca7b08548a2ea16b5b84912c084bf27fb36c046194d550fc",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0002-electric-permission-change.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "e05e0859-01b2-48c2-bda5-6a7d0c065949",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0180-electric-permission-change.json",
+          "sha256": "d21f02c31a43509bb0fc4d4a29211c67b58d56ae408d3eefda32e92419afcd3f",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0180-electric-permission-change.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "9a04c5ea-7785-473f-90c3-eb78e21bff09",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0235-electric-permission-change.json",
+          "sha256": "962993f5b45b384e360b2c9fa2dafc3d3923a007ac162b756c1ad4ae6988c78a",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0235-electric-permission-change.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "81566c95-023d-427c-ad5b-a23ccbd93b2b",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0387-electric-permission-change.json",
+          "sha256": "0b8a9bb08df1c22027f55963e3d68777937381a6c7db0cdbc3d827ee228048bd",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0387-electric-permission-change.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 5,
+          "resultId": "5d5d38bc-2c12-47d9-932d-de6585383606",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0468-electric-permission-change.json",
+          "sha256": "9dc3bf155d5b49305cd46f321e0bc3699151cbb8aa7440d1072ad9bf9a576822",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0468-electric-permission-change.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "reconnect-storm",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "1bedc323-7cf7-4ebe-ab22-4f8d21a3614b",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0005-electric-reconnect-storm.json",
+          "sha256": "c7a711772db644dd25874867b27a33f6081c76a407f619c7a20ec9294a9b4b70",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0005-electric-reconnect-storm.json.log",
+          "logSha256": "8550dd1ce9c85fe5b95e395a5f6c1e378a7942a729cbe009302c1215669385c8"
+        },
+        {
+          "trial": 2,
+          "resultId": "dbddb3d6-b5e8-40ec-ad7a-dc8a63c3c4d2",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0223-electric-reconnect-storm.json",
+          "sha256": "0d66c7958c06a13d925eee1140876e2bd53dbe702d60681e7ab81198d42aba76",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0223-electric-reconnect-storm.json.log",
+          "logSha256": "8550dd1ce9c85fe5b95e395a5f6c1e378a7942a729cbe009302c1215669385c8"
+        },
+        {
+          "trial": 3,
+          "resultId": "1c0c67ad-fb97-4d8e-a54d-490489aea4ea",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0246-electric-reconnect-storm.json",
+          "sha256": "d54ee4485f4c2d88c6c8eaeec356011e55161be8c7152cb530f858076acb2a0a",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0246-electric-reconnect-storm.json.log",
+          "logSha256": "8550dd1ce9c85fe5b95e395a5f6c1e378a7942a729cbe009302c1215669385c8"
+        },
+        {
+          "trial": 4,
+          "resultId": "ce2c80eb-a3b0-435a-a5a6-c81374e6047e",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0445-electric-reconnect-storm.json",
+          "sha256": "268c15842635bafd8ea95657e1d35c1c27662729982fc8713271f10955eea339",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0445-electric-reconnect-storm.json.log",
+          "logSha256": "8550dd1ce9c85fe5b95e395a5f6c1e378a7942a729cbe009302c1215669385c8"
+        }
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "replica-reopen",
+      "attemptCount": 4,
+      "outcomes": {
+        "unsupported": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "be9e3954-59b6-4e63-9544-cfccb8543e1e",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "replica-reopen is not implemented for this adapter; no product capability conclusion is implied."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0057-electric-replica-reopen.json",
+          "sha256": "f5a7a848d4c870b8a2a326c3e5d14c316d3f658628846f08183ca7cf4fe5555f",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0057-electric-replica-reopen.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "48207676-b01b-4c87-ae17-c0f12c951efc",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "replica-reopen is not implemented for this adapter; no product capability conclusion is implied."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0142-electric-replica-reopen.json",
+          "sha256": "157046b5c6c62e4e80b3febaefde74eae8db4074bf212f602c793c81cc08bbb3",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0142-electric-replica-reopen.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "e99fb2ed-da1a-4db0-8097-63cff4a2f177",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "replica-reopen is not implemented for this adapter; no product capability conclusion is implied."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0294-electric-replica-reopen.json",
+          "sha256": "09ea6da3d05d010bf98e4ccf72787613833bc3720d6bf26bfc0bff6626af8b00",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0294-electric-replica-reopen.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "d6d0af39-97ea-4be6-b260-01c0f31d7f8d",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "replica-reopen is not implemented for this adapter; no product capability conclusion is implied."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0337-electric-replica-reopen.json",
+          "sha256": "5c426acc4eca8d4eabc08a35c4d4097a0c7bc51c02188f3ef892fa109612be0b",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0337-electric-replica-reopen.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric-tanstack",
+      "scenario": "blob-flow",
+      "attemptCount": 4,
+      "outcomes": {
+        "unsupported": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "836a8d75-547d-4680-9d2c-c14305f3afb2",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Electric + TanStack DB does not provide a native blob transport in this stack."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0024-electric-tanstack-blob-flow.json",
+          "sha256": "4724a31be3cf320d2a7b01d25754511121b2e7b3e58f78cdcc62109730c5e911",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0024-electric-tanstack-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "cd4ae7fa-f741-465a-8a85-d26f254a24a3",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Electric + TanStack DB does not provide a native blob transport in this stack."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0198-electric-tanstack-blob-flow.json",
+          "sha256": "74cbe898e9908de9312cc4d0f6fa5554d00b22b510ac5c2e1c318686c5eadaac",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0198-electric-tanstack-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "97e80e54-9e4e-4dd1-9d4c-59a24ea33574",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Electric + TanStack DB does not provide a native blob transport in this stack."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0247-electric-tanstack-blob-flow.json",
+          "sha256": "dc137c0993ebff20b545557443a0083a4398ce154983360a5c8de93c4a5a2e7b",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0247-electric-tanstack-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "fb7f65e1-13da-49c3-8166-33f09b125f74",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Electric + TanStack DB does not provide a native blob transport in this stack."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0397-electric-tanstack-blob-flow.json",
+          "sha256": "27e3437e869c3a3c9374e994e300137721e8cbacab0ccf262b6a37cb32686458",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0397-electric-tanstack-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric-tanstack",
+      "scenario": "bootstrap",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "dbb04781-ebbd-4283-a14a-15dccdd3b488",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0053-electric-tanstack-bootstrap.json",
+          "sha256": "367e3f6e1b4ee13c5e8874c2554980e8a99ce8b29b9bd42bc754528f3c4e9d91",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0053-electric-tanstack-bootstrap.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "5c8d04c5-90e8-4af5-8581-113d8bd94db1",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0132-electric-tanstack-bootstrap.json",
+          "sha256": "9a683f3e70620b035acf1631fec71fa0708b7a3565b81059e11d7e59ea0718ac",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0132-electric-tanstack-bootstrap.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "3db892cc-d36d-4fc1-9732-ab90d44afe6c",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0286-electric-tanstack-bootstrap.json",
+          "sha256": "98deba0a90d56daca172e20dd01b038f205a256126e2b18ae9f95bf8ea45b87d",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0286-electric-tanstack-bootstrap.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "b50e55bd-87b3-47ba-bf32-92383d019149",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0382-electric-tanstack-bootstrap.json",
+          "sha256": "4383f388f7389a06dcf94523d2b07ab69e314f199ec3497c85707fdbb00b0c81",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0382-electric-tanstack-bootstrap.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric-tanstack",
+      "scenario": "conflict-update-delete",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "567ec063-7205-4724-a5d0-9f4c802c5bb6",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0066-electric-tanstack-conflict-update-delete.json",
+          "sha256": "c7860531a4748468a0988211019bc2d1d99e404c2d7d2df6591f80086cab3a2b",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0066-electric-tanstack-conflict-update-delete.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "b40cd845-f14b-4be2-bfca-36609b91e5f0",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0139-electric-tanstack-conflict-update-delete.json",
+          "sha256": "6c3880bbe884abaca476adf476fae425e150666e38e0228a63de0cb04b349a63",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0139-electric-tanstack-conflict-update-delete.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "17d34461-ed86-48fe-9261-eb588f8c0132",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0241-electric-tanstack-conflict-update-delete.json",
+          "sha256": "1b3eda11057afa6414c7c7941a63116fa60b0c1e23b673783767fb71885fd188",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0241-electric-tanstack-conflict-update-delete.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "ededb4ab-6003-45a0-9596-8e10c4c95504",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0423-electric-tanstack-conflict-update-delete.json",
+          "sha256": "7fd0b5d9c1a5ac158565e67e273cead513569a51eb2e0a74036b67a9e1819d29",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0423-electric-tanstack-conflict-update-delete.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric-tanstack",
+      "scenario": "conflict-update-update",
+      "attemptCount": 5,
+      "outcomes": {
+        "completed": 5
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "5c25f493-c748-415f-a7c2-38b537881855",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0065-electric-tanstack-conflict-update-update.json",
+          "sha256": "441ceb360041e9392a40c2d50784f86e51415f05c1b96504ad9d08c50a94bca5",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0065-electric-tanstack-conflict-update-update.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "15d11f57-f6c1-400a-9dce-e06be09cff9a",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0187-electric-tanstack-conflict-update-update.json",
+          "sha256": "726fbbea7d3a775c822fd4bc939e1a2b8b3a5514285bec8b07c18344919775bd",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0187-electric-tanstack-conflict-update-update.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "f167a063-487c-49aa-a9e4-8bb049184b93",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0249-electric-tanstack-conflict-update-update.json",
+          "sha256": "79667ea5b33c6adc0891321faae38ae1a8cfd10c1f7ba5fdb1b8b6a7332a36d7",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0249-electric-tanstack-conflict-update-update.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "641b827c-a4e2-4527-bc2c-b72ab4b05438",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0369-electric-tanstack-conflict-update-update.json",
+          "sha256": "e77401b0a9be4188cb71fd1a68849343a0cfaf18eb2698a4daf08ae4096535f9",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0369-electric-tanstack-conflict-update-update.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 5,
+          "resultId": "5824a560-d5dd-4bd6-9e7b-365dc35657ad",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0454-electric-tanstack-conflict-update-update.json",
+          "sha256": "da416d01bc409dfa949fdb5893c596dcbd100c2073588ff4682e054e82418e00",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0454-electric-tanstack-conflict-update-update.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric-tanstack",
+      "scenario": "connected-fanout",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "b3026620-703d-4751-801c-9df7d3f96d76",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0003-electric-tanstack-connected-fanout.json",
+          "sha256": "369b6f37d3bcd0b320ae56aa062dd311c82049318bda39170fc8c8febb6e0ecd",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0003-electric-tanstack-connected-fanout.json.log",
+          "logSha256": "37f7f300ef2cd31b499f26a811624d9c09bd73061035c18da1283443dc5904b8"
+        },
+        {
+          "trial": 2,
+          "resultId": "a00d5446-0122-4397-a74b-ac621056ce42",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0151-electric-tanstack-connected-fanout.json",
+          "sha256": "3d7b258164e3b485ed7ff078d9e32308054980b040a5138e9f3ad008e535f986",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0151-electric-tanstack-connected-fanout.json.log",
+          "logSha256": "37f7f300ef2cd31b499f26a811624d9c09bd73061035c18da1283443dc5904b8"
+        },
+        {
+          "trial": 3,
+          "resultId": "1252f635-a60a-4cfa-99b2-b47591675958",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0296-electric-tanstack-connected-fanout.json",
+          "sha256": "ff8170bd1597dbe2ca5f28fffbc1b6cf3b4fe83bf3e81cc9dbe1226badfbe427",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0296-electric-tanstack-connected-fanout.json.log",
+          "logSha256": "37f7f300ef2cd31b499f26a811624d9c09bd73061035c18da1283443dc5904b8"
+        },
+        {
+          "trial": 4,
+          "resultId": "8a566dda-ce0f-4987-a2fd-a2d078b6041d",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0406-electric-tanstack-connected-fanout.json",
+          "sha256": "610059983042e261a9ee41c5235d66de1563b894812356dabf3eceef1a7bdff0",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0406-electric-tanstack-connected-fanout.json.log",
+          "logSha256": "37f7f300ef2cd31b499f26a811624d9c09bd73061035c18da1283443dc5904b8"
+        }
+      ]
+    },
+    {
+      "stack": "electric-tanstack",
+      "scenario": "deep-relationship-query",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "66e776cb-1ac3-4017-8f91-df1ee04f4779",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0054-electric-tanstack-deep-relationship-query.json",
+          "sha256": "ddc502d54311f84e723acf9e9a5e1e33f91ea6df04328f8ee34c1e7445258c76",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0054-electric-tanstack-deep-relationship-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "d9c601ca-2d7a-4457-91aa-e4bf5df82959",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0152-electric-tanstack-deep-relationship-query.json",
+          "sha256": "7003b0146404542aaa6deda909a402f18707f4f94edd16513a9aceade7cb984c",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0152-electric-tanstack-deep-relationship-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "51988b38-74c0-491e-ba7f-9c3abb4870dc",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0253-electric-tanstack-deep-relationship-query.json",
+          "sha256": "c556a6a59b9c0839a75f401109922b32d05b16e17eddd06d5f9e42046a4049a4",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0253-electric-tanstack-deep-relationship-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "2955beb3-5d14-4815-9c38-4f5af56949e5",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0343-electric-tanstack-deep-relationship-query.json",
+          "sha256": "fbeb4360937acbdbce099ce22cb68af5542955f8868118ab6a19dfba8af028ea",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0343-electric-tanstack-deep-relationship-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric-tanstack",
+      "scenario": "large-offline-queue",
+      "attemptCount": 5,
+      "outcomes": {
+        "completed": 5
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "86223172-00a5-4ae5-8ec7-4f78427337b0",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0092-electric-tanstack-large-offline-queue.json",
+          "sha256": "154ca998dfbd0eb30958cfbb57818521130a2213acece0de4f669e9affa133ff",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0092-electric-tanstack-large-offline-queue.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "ba7d63ae-2aa1-4695-a5b0-9fdb27fecce3",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0134-electric-tanstack-large-offline-queue.json",
+          "sha256": "a38f348efe70dfd26f26fda07bdad3309a635a67e5e9ca2a63c6042f639a6560",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0134-electric-tanstack-large-offline-queue.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "0abec1a2-40b6-4493-a67b-95473145ab2b",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0263-electric-tanstack-large-offline-queue.json",
+          "sha256": "684d23911af50e8dc246cce77badb9c839116cf13199ace8b5755c08752fe32d",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0263-electric-tanstack-large-offline-queue.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "3bd58161-5bcc-4555-898e-5ef167b24a6d",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0367-electric-tanstack-large-offline-queue.json",
+          "sha256": "78e7c676e25a8f4917bf632b394fbf9bc21e1fee929784ca00683f53c3faa4bc",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0367-electric-tanstack-large-offline-queue.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 5,
+          "resultId": "510ca3fc-4283-43dc-9873-551b2a1a6a3d",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0455-electric-tanstack-large-offline-queue.json",
+          "sha256": "4c962b1bbbb6cae8a726cb1d90463e39aacf2a4e2956caa07f952ba35072f6a3",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0455-electric-tanstack-large-offline-queue.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric-tanstack",
+      "scenario": "local-query",
+      "attemptCount": 5,
+      "outcomes": {
+        "completed": 5
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "c0da66a0-d17f-4295-b175-83edeaeb2bd3",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0025-electric-tanstack-local-query.json",
+          "sha256": "c3a685413097d4cee7ff5450f274ab01a7471ebf916292ab9f45e13810c84408",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0025-electric-tanstack-local-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "716fd565-bb71-40c4-972b-db9aa994e23d",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0127-electric-tanstack-local-query.json",
+          "sha256": "3c79d03d8324ee465fddfe40817a7d6dae032f35241a348e725700f89713ced3",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0127-electric-tanstack-local-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "5af8ac72-e557-4675-9f3e-642d792ff4bd",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0254-electric-tanstack-local-query.json",
+          "sha256": "850e8a2ba52010fe534e5fd3b6508e66e0038d85250653fffa3886a2354c7979",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0254-electric-tanstack-local-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "1aad49e9-a12e-455e-ada6-bad23a38a366",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0438-electric-tanstack-local-query.json",
+          "sha256": "db9df6a3655da8e05cb4f56151dfbdfc3ccd66161b837a2b7396488751894e0d",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0438-electric-tanstack-local-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 5,
+          "resultId": "a48f793f-4626-4f8e-9c27-48ec1cf7279e",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0465-electric-tanstack-local-query.json",
+          "sha256": "5bba4406050184d364b5144b3980e8c5163cdcab6cc71aaea6139d0420382a98",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0465-electric-tanstack-local-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric-tanstack",
+      "scenario": "offline-replay",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "03066d00-8c5d-412a-8a7d-7c16c0a94d96",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0018-electric-tanstack-offline-replay.json",
+          "sha256": "0ca599fc2393753ce3c7ffe2e005bb6968af2d96118198545bc42ece24e7b469",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0018-electric-tanstack-offline-replay.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "1bf6f780-fea2-409c-9d48-376b03f045ed",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0128-electric-tanstack-offline-replay.json",
+          "sha256": "c9198eedadbe236de864c0e8a0b75e5485182b385fd25a328af7d1f44d87a418",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0128-electric-tanstack-offline-replay.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "9f3b1f2c-6fa2-48c2-99e1-ea0a78026115",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0266-electric-tanstack-offline-replay.json",
+          "sha256": "b6f030c8fea89da6c74b26a4c0f9bb34d2e9ac5d69e5f9c0018c102a16af7db3",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0266-electric-tanstack-offline-replay.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "22339d02-48d3-419d-88eb-1bb0eb83d078",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0432-electric-tanstack-offline-replay.json",
+          "sha256": "f7c0eb3c24830442268f63299ac218d901036c1c5288f6bf2f305ab0a5d0ff00",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0432-electric-tanstack-offline-replay.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric-tanstack",
+      "scenario": "offline-restart",
+      "attemptCount": 4,
+      "outcomes": {
+        "unsupported": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "18866ca0-d500-4ba3-912d-691a9c9f9b78",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "unsupported-tested-configuration",
+            "reason": "The current Node offline executor uses fake-indexeddb, whose queue is in process memory. SQLite collection persistence does not make that executor queue survive process termination. A browser IndexedDB profile remains to be implemented."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0105-electric-tanstack-offline-restart.json",
+          "sha256": "950b22765bc39c3c53fda252be351e07de6c4263787476b7458b90075251286c",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0105-electric-tanstack-offline-restart.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "b1823464-fb30-4422-b4af-2c8bafe336a0",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "unsupported-tested-configuration",
+            "reason": "The current Node offline executor uses fake-indexeddb, whose queue is in process memory. SQLite collection persistence does not make that executor queue survive process termination. A browser IndexedDB profile remains to be implemented."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0186-electric-tanstack-offline-restart.json",
+          "sha256": "e5a159ce879b7f76fa0cdb981b6b3bb6f83af0251667ec2afdac9fbadd38bc43",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0186-electric-tanstack-offline-restart.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "1a153e76-e23e-4387-9e1c-d4b190259f0d",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "unsupported-tested-configuration",
+            "reason": "The current Node offline executor uses fake-indexeddb, whose queue is in process memory. SQLite collection persistence does not make that executor queue survive process termination. A browser IndexedDB profile remains to be implemented."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0332-electric-tanstack-offline-restart.json",
+          "sha256": "91a4a865df62802d68c858445510b95f3e2ec4379ab63d534a4389e64ffa81f2",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0332-electric-tanstack-offline-restart.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "290b6487-6f70-427f-9601-24a2b34bcc1b",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "unsupported-tested-configuration",
+            "reason": "The current Node offline executor uses fake-indexeddb, whose queue is in process memory. SQLite collection persistence does not make that executor queue survive process termination. A browser IndexedDB profile remains to be implemented."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0392-electric-tanstack-offline-restart.json",
+          "sha256": "c550e1f42b7325cbea83d6a9e8cf2b9db295a59bfaa72779589937bd9e206a8a",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0392-electric-tanstack-offline-restart.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric-tanstack",
+      "scenario": "online-propagation",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "d8e0c0c9-410d-480d-bf07-3fb9e92af12a",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0093-electric-tanstack-online-propagation.json",
+          "sha256": "c6d47790e0e1106a22f272238059db0d5a78241912176bb83ba02511691ba35d",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0093-electric-tanstack-online-propagation.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "71f5eab2-7451-4a47-879d-5d600dc0d7e1",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0125-electric-tanstack-online-propagation.json",
+          "sha256": "4c6d8eb3d48e92fea27794195efe41ffcbd79918e3af4e851a3c75358ab06d2d",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0125-electric-tanstack-online-propagation.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "b2c2c140-e274-4b49-a8d1-2937652906e0",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0300-electric-tanstack-online-propagation.json",
+          "sha256": "900e01256e1aab8a1d338dfdd03e1f878d47fb586d876fadc98bb5888ec41908",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0300-electric-tanstack-online-propagation.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "04acea38-1c0c-4f07-acdf-89c731c9c645",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0379-electric-tanstack-online-propagation.json",
+          "sha256": "e5960a5c529f978df3f7317b7a8242ce559def813c6b0d181439157d07a45ff0",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0379-electric-tanstack-online-propagation.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric-tanstack",
+      "scenario": "permission-change",
+      "attemptCount": 5,
+      "outcomes": {
+        "completed": 5
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "06fb35c5-3ba3-4d86-a461-6ac3b4b2330a",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0083-electric-tanstack-permission-change.json",
+          "sha256": "cf1fdf99af9905f2fb3d172fc4b1c3c0806bbb78fd5d6469670b10e6790750c0",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0083-electric-tanstack-permission-change.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "855bf610-e02b-4c15-bac7-be8e4aed9050",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0216-electric-tanstack-permission-change.json",
+          "sha256": "438d820b2945f0da77c6fc48426fa6565b16b2e0ee4c3a2ce2377b92ed826a9a",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0216-electric-tanstack-permission-change.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "52fbddfc-3ee0-4572-addd-4b5f3300de02",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0245-electric-tanstack-permission-change.json",
+          "sha256": "a370d2a90a1b29c8188e9d0343cf435a7d15779d11cecafcacd21c6e20bd5251",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0245-electric-tanstack-permission-change.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "c5f2130d-b42e-4dea-ba0d-daf68ef670ac",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0399-electric-tanstack-permission-change.json",
+          "sha256": "ffdfc18c208abd1fd5d3302f52c630ef271f892042f04f0696c08b704022d38d",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0399-electric-tanstack-permission-change.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 5,
+          "resultId": "834912b4-7231-4e04-a8f5-4b36c85261ca",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0458-electric-tanstack-permission-change.json",
+          "sha256": "89c292fc1410edb657bf565049f72874ab95047060b1181d2e0e727ec58e3705",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0458-electric-tanstack-permission-change.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "electric-tanstack",
+      "scenario": "reconnect-storm",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "4dfe690f-19ab-4fae-b008-2232592c959e",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0112-electric-tanstack-reconnect-storm.json",
+          "sha256": "6547bb901a4ea370f933bc4d1795202316000a347610487b00c37519c2dbea77",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0112-electric-tanstack-reconnect-storm.json.log",
+          "logSha256": "c4ac35afc07ee2a7567b658fe20db042ceccf3acaffd3a99aba9468354ed07a0"
+        },
+        {
+          "trial": 2,
+          "resultId": "b8272168-a33b-44ee-a30e-62df119e3f6d",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0176-electric-tanstack-reconnect-storm.json",
+          "sha256": "e9860d5b9b33271e7b3ab957b016d1aa7ebbfa768bc0ce58e185844e0c24d1e3",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0176-electric-tanstack-reconnect-storm.json.log",
+          "logSha256": "c4ac35afc07ee2a7567b658fe20db042ceccf3acaffd3a99aba9468354ed07a0"
+        },
+        {
+          "trial": 3,
+          "resultId": "f601d263-e614-4741-9a4b-caebee1bdd80",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0271-electric-tanstack-reconnect-storm.json",
+          "sha256": "4cdc0979d215aecf671d64a39318e4ba9dd91dd42c383bba8559f305d86c4be4",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0271-electric-tanstack-reconnect-storm.json.log",
+          "logSha256": "c4ac35afc07ee2a7567b658fe20db042ceccf3acaffd3a99aba9468354ed07a0"
+        },
+        {
+          "trial": 4,
+          "resultId": "a6b57f1d-607d-4724-a8e6-864e2f3f9cfa",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0416-electric-tanstack-reconnect-storm.json",
+          "sha256": "67699b693ead5cd01ee68db4df415cfd66284a8ca3423e8a75d5b1edeb442ae1",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0416-electric-tanstack-reconnect-storm.json.log",
+          "logSha256": "c4ac35afc07ee2a7567b658fe20db042ceccf3acaffd3a99aba9468354ed07a0"
+        }
+      ]
+    },
+    {
+      "stack": "electric-tanstack",
+      "scenario": "replica-reopen",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "c1e15e7c-7701-4ed5-8566-d58fe6e42552",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0042-electric-tanstack-replica-reopen.json",
+          "sha256": "395c62c57b6d0f8fe752b3cd94a73871eb979ce2bf6bb95de7f5a91a48943db5",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0042-electric-tanstack-replica-reopen.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "863709c4-d04a-4ddc-8361-ffc4138d52c3",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0133-electric-tanstack-replica-reopen.json",
+          "sha256": "37385109bf4c309f636280930ea1afb2c08e7c1879b3e727fdd4dabdb9e489f3",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0133-electric-tanstack-replica-reopen.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "9e05b88d-e177-4695-bae5-0ac30589e553",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0250-electric-tanstack-replica-reopen.json",
+          "sha256": "dd59eabf52a5deb4954b59a0dca9936ea0774d2011110a901973e20a4b368f62",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0250-electric-tanstack-replica-reopen.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "0f061c0d-f8c1-4812-a3b5-ba2bff4ebeaa",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0386-electric-tanstack-replica-reopen.json",
+          "sha256": "aa7cb9e9d15ad812a85fae1ee6bfdc02a9589eb270f28be486f7cbd9a5341f95",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0386-electric-tanstack-replica-reopen.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "blob-flow",
+      "attemptCount": 4,
+      "outcomes": {
+        "unsupported": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "4ac247ad-fbc7-4729-b4ff-4153b4a7041c",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Jazz v2 file storage exists, but the benchmark blob-flow adapter is not implemented."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0084-jazz-v2-blob-flow.json",
+          "sha256": "01d4ae0c818700b6c38074d74a490bef61d4b6d0cd741b46ba259e969df10f9a",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0084-jazz-v2-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "db42a959-358f-49ee-87f3-3f7ac2e47de4",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Jazz v2 file storage exists, but the benchmark blob-flow adapter is not implemented."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0199-jazz-v2-blob-flow.json",
+          "sha256": "519f980d49a1b5b417571c0538b6ede6e09ab353c48d5a5cfed315a18a1e6fee",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0199-jazz-v2-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "6e659ccb-cf63-4261-b797-5ae65e06bab9",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Jazz v2 file storage exists, but the benchmark blob-flow adapter is not implemented."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0319-jazz-v2-blob-flow.json",
+          "sha256": "b6bf7296623517633c538550da710e5426d16d890ba7273b29f0f6d57064ee3a",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0319-jazz-v2-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "e9a7e354-5bd4-458c-99d8-bc403757ce24",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Jazz v2 file storage exists, but the benchmark blob-flow adapter is not implemented."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0375-jazz-v2-blob-flow.json",
+          "sha256": "efbfbbde1c0898f95e84edce49bf19e2c237dbc1935a151f6f494cedf2651a1f",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0375-jazz-v2-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "bootstrap",
+      "attemptCount": 5,
+      "outcomes": {
+        "timed-out": 5
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "00476792-7aa5-4c5b-b3bb-c6b913d09e52",
+          "outcome": "timed-out",
+          "coverage": null,
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0080-jazz-v2-bootstrap.json",
+          "sha256": "a95d3fae26918e013144c8e5b73deed85546e1ba99110db55074f4ed58ba7e31",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0080-jazz-v2-bootstrap.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "073c74a8-2bd8-4f9d-b5c3-aa43b40a0a75",
+          "outcome": "timed-out",
+          "coverage": null,
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0221-jazz-v2-bootstrap.json",
+          "sha256": "4bf4909c3bbdd5e75c67525f6e3c2eb1876e4e62cca4534523348b19b10d374a",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0221-jazz-v2-bootstrap.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "5aee4adb-a644-46ec-a665-5a847c2aed02",
+          "outcome": "timed-out",
+          "coverage": null,
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0257-jazz-v2-bootstrap.json",
+          "sha256": "3dafe3b775b8c823ed71463b3b3a7a36db7388c663e1020bba3747e4e82da0c6",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0257-jazz-v2-bootstrap.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "10ba441a-6a8c-487c-bae0-15a8842e077f",
+          "outcome": "timed-out",
+          "coverage": null,
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0364-jazz-v2-bootstrap.json",
+          "sha256": "d4c13f0655d6dcfe04d4161610d9baeb07b4409f47b1a1ef10356066dbff2efc",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0364-jazz-v2-bootstrap.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 5,
+          "resultId": "155af2c5-b45e-449e-b0f1-57942c71c66c",
+          "outcome": "timed-out",
+          "coverage": null,
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0449-jazz-v2-bootstrap.json",
+          "sha256": "7ca656a51912b3b2f729d14a46770dd02f250b494c56b253978d0d57b34100a0",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0449-jazz-v2-bootstrap.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "conflict-update-delete",
+      "attemptCount": 5,
+      "outcomes": {
+        "timed-out": 5
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "928c0980-6593-47f2-bb5f-59f060d79a1e",
+          "outcome": "timed-out",
+          "coverage": null,
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0100-jazz-v2-conflict-update-delete.json",
+          "sha256": "9fda3ba9b486b36115cfcd38b68de43ae561111c95b2ebbdf57373aa38a41434",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0100-jazz-v2-conflict-update-delete.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "8f016997-596b-4019-be01-81e8b54943aa",
+          "outcome": "timed-out",
+          "coverage": null,
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0153-jazz-v2-conflict-update-delete.json",
+          "sha256": "392406ef923ef5e63d151cbbbf8093f292a5d40072b55a3a17c0511d2bec4856",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0153-jazz-v2-conflict-update-delete.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "e41e705c-ec2d-4ac6-96c2-9e9544a5260d",
+          "outcome": "timed-out",
+          "coverage": null,
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0278-jazz-v2-conflict-update-delete.json",
+          "sha256": "fcabfd97545c0071a260cfa7780384bbb9e6574b2e98328d4f7a7b9417d777c8",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0278-jazz-v2-conflict-update-delete.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "5f652877-01f5-41b6-9c42-73946b25a756",
+          "outcome": "timed-out",
+          "coverage": null,
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0448-jazz-v2-conflict-update-delete.json",
+          "sha256": "a75db7ca7e82419132c43a643b9bcd84a6f189bfdb9ecf9c9411a423bbaa6568",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0448-jazz-v2-conflict-update-delete.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 5,
+          "resultId": "6418f787-2d33-4dc8-976c-29f1b5d2e6a7",
+          "outcome": "timed-out",
+          "coverage": null,
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0464-jazz-v2-conflict-update-delete.json",
+          "sha256": "94ed5817c16639070b599dc1da585c7dd4192b7b4b5635ee3ab59179f9a42d1c",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0464-jazz-v2-conflict-update-delete.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "conflict-update-update",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "b9e03926-42b6-4251-aa96-7d0d1ed8ba32",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0106-jazz-v2-conflict-update-update.json",
+          "sha256": "8530e3e9f824e76945de9747125b72844510a4463d7e19bc7ce3aa545b58bf15",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0106-jazz-v2-conflict-update-update.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "980cde6a-1492-4269-8e96-7f148559fa22",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0143-jazz-v2-conflict-update-update.json",
+          "sha256": "961a30d1540c70a60a407eb8933037798a84eeafbba0c18d7173084b305bd2e0",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0143-jazz-v2-conflict-update-update.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "8bff2143-d6bd-4da7-9c11-e9edf87473d6",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0256-jazz-v2-conflict-update-update.json",
+          "sha256": "87bec95e856e0d3b6a307ef77f679d0803f9ea80c339c3b016e35270785bdb25",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0256-jazz-v2-conflict-update-update.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "fc3ecaa3-6915-4a92-8cce-99a613c5dd88",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0374-jazz-v2-conflict-update-update.json",
+          "sha256": "10119ff3ba375044cf430235f03f7f9dda9b10501f393838def0b2bbb2b1d940",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0374-jazz-v2-conflict-update-update.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "connected-fanout",
+      "attemptCount": 5,
+      "outcomes": {
+        "completed": 5
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "ebaca514-17d8-4135-9383-bea0d423a8d1",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0030-jazz-v2-connected-fanout.json",
+          "sha256": "982c9d0ab5e4f043fe503e4e9a8e725a6cd4821cc1dbdc5da77c63ddec9522b3",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0030-jazz-v2-connected-fanout.json.log",
+          "logSha256": "a798a51fd5c661db92c171673a514d1cdb0a5d031513a5f8914b7419cc319340"
+        },
+        {
+          "trial": 2,
+          "resultId": "d3ceebf3-b913-46bc-ad43-26e1b16c2036",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0205-jazz-v2-connected-fanout.json",
+          "sha256": "cd5209d1756000fbbe453ca767318507e4ae18ab057b3e3cb201271a18b834fb",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0205-jazz-v2-connected-fanout.json.log",
+          "logSha256": "a798a51fd5c661db92c171673a514d1cdb0a5d031513a5f8914b7419cc319340"
+        },
+        {
+          "trial": 3,
+          "resultId": "c66e3acf-7f7f-4bd1-90f7-11de6c25d2a4",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0324-jazz-v2-connected-fanout.json",
+          "sha256": "23152a63e23f9ca0c7e9e059fc18ba9c68c7cf74a194d5ac1ed6db1ae0187668",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0324-jazz-v2-connected-fanout.json.log",
+          "logSha256": "a798a51fd5c661db92c171673a514d1cdb0a5d031513a5f8914b7419cc319340"
+        },
+        {
+          "trial": 4,
+          "resultId": "26b7047d-ee20-49d4-a9e5-2981ca6b06eb",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0389-jazz-v2-connected-fanout.json",
+          "sha256": "3eb24f2a67704242e9e48cc01826ed81d1ccaf4a42ae7353703790e030359bc1",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0389-jazz-v2-connected-fanout.json.log",
+          "logSha256": "a798a51fd5c661db92c171673a514d1cdb0a5d031513a5f8914b7419cc319340"
+        },
+        {
+          "trial": 5,
+          "resultId": "1cfe015a-670a-4850-b07c-19123a019cf1",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0459-jazz-v2-connected-fanout.json",
+          "sha256": "18ef2f418aa6575ef8337424afdc593f16164240a6a0c8671f1869c4c047622f",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0459-jazz-v2-connected-fanout.json.log",
+          "logSha256": "a798a51fd5c661db92c171673a514d1cdb0a5d031513a5f8914b7419cc319340"
+        }
+      ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "deep-relationship-query",
+      "attemptCount": 4,
+      "outcomes": {
+        "unsupported": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "c0380b3e-eb05-4419-9e75-b224523f6e15",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Deep relationship queries are not implemented for the Jazz v2 alpha adapter."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0063-jazz-v2-deep-relationship-query.json",
+          "sha256": "40077d710f041e6ec0c5ec963da209d2645a2aa7e145ebaa9367d82deada8f50",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0063-jazz-v2-deep-relationship-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "997399a7-08e4-4dd2-bb3d-727e8d8995c9",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Deep relationship queries are not implemented for the Jazz v2 alpha adapter."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0184-jazz-v2-deep-relationship-query.json",
+          "sha256": "96dd7e3d479c207383ca222882540e94a4c016922805db0486bc719b165610a4",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0184-jazz-v2-deep-relationship-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "38bcff25-7cb5-4746-a504-d44113462867",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Deep relationship queries are not implemented for the Jazz v2 alpha adapter."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0240-jazz-v2-deep-relationship-query.json",
+          "sha256": "ae8445a13d4c48f6eedda85746885134d65f921a9a486f3154c3784b9281dfa7",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0240-jazz-v2-deep-relationship-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "4eb3546b-1f8a-486e-b80e-1205bc31c1e0",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Deep relationship queries are not implemented for the Jazz v2 alpha adapter."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0418-jazz-v2-deep-relationship-query.json",
+          "sha256": "80ddf00d0a6c4158a13d2d0e38c1b2fe575efb7bd65ea464a5edae430caacec2",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0418-jazz-v2-deep-relationship-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "large-offline-queue",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "9f3640f6-f946-4bea-8c7e-9dfca9fa5452",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0051-jazz-v2-large-offline-queue.json",
+          "sha256": "3ea4276f0e68ffb961fe8f71a51d82672cf9910b387ff3355d5585c9511350c1",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0051-jazz-v2-large-offline-queue.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "a867ca61-92d8-4c76-ac97-b9e7b3d9b313",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0167-jazz-v2-large-offline-queue.json",
+          "sha256": "56c89c5f2f2393d46f16b5f7565259147ff2651ad81409d6c4c116d4ecee2991",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0167-jazz-v2-large-offline-queue.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "8ae6a718-6d9b-4af9-a762-d0f6209e3396",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0315-jazz-v2-large-offline-queue.json",
+          "sha256": "f9c20dde95420365f6af927ccdeafa233d13b2738d37f5c8069b4df1cfcda514",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0315-jazz-v2-large-offline-queue.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "e94b0015-5790-43b6-a043-4044bd3ccae4",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0442-jazz-v2-large-offline-queue.json",
+          "sha256": "1646b8586239e6b63945d61fe7cc97abde6bbf6eb9a70b38e44e892581a25526",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0442-jazz-v2-large-offline-queue.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "local-query",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "11569a70-839f-497c-a24a-c7d341c2af56",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0026-jazz-v2-local-query.json",
+          "sha256": "10087ac5641d34daed2405eecf06365fedd0d5881a412ec4f649dff6fe075744",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0026-jazz-v2-local-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "932c043d-4048-45d4-aaad-1bb905147671",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0215-jazz-v2-local-query.json",
+          "sha256": "b87935f1f75fc664579cd99cd0a5f204755f3b28f0acda4ca6ca6d5f84fc7d20",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0215-jazz-v2-local-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "dd23dc98-91ea-498e-9974-ff36163749d8",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0295-jazz-v2-local-query.json",
+          "sha256": "2522d89ffe2eac44444efcb881e119a2efb26d2201dd0c90eb806ca9ab810933",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0295-jazz-v2-local-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "18d6c5b7-9e62-4c92-bd21-6a80c276c974",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0409-jazz-v2-local-query.json",
+          "sha256": "038d7d53f8518a83c3111e08c9bc4de8d421da118e9f2bba767ff3d2f2e42485",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0409-jazz-v2-local-query.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "offline-replay",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "05f40d53-c151-44b3-90c0-f08dcc9614be",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0109-jazz-v2-offline-replay.json",
+          "sha256": "534b2478ffec323dc6dc2d435e259c9253c3a2831f0b85a707403729f2a7ecbc",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0109-jazz-v2-offline-replay.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "2149cd9a-da10-42c0-90fc-d31a54466e4a",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0201-jazz-v2-offline-replay.json",
+          "sha256": "411811d3cfbc57bf5c4d35f3b124573f74f9a0ca2ca715db510a91ee2c48faa4",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0201-jazz-v2-offline-replay.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "f585e9e9-b11e-4bf1-9077-20f4edbd7604",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0268-jazz-v2-offline-replay.json",
+          "sha256": "9c55871b2fae2473a1d8dbae905da00b9e3ae9f81c62d5fcf28ecf3e0705def3",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0268-jazz-v2-offline-replay.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "2e1c8e5d-e6dd-4225-8ae6-ed9ea9a3f397",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0425-jazz-v2-offline-replay.json",
+          "sha256": "4edff87a1e7d7cac800093ac5d05ebece6593e4da0ea59160cc27afac4fa4918",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0425-jazz-v2-offline-replay.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "offline-restart",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "5759bdaf-86f5-46b4-a4fc-b0e16b5134d1",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0043-jazz-v2-offline-restart.json",
+          "sha256": "9cc029d43a11cfccaa5a458a7fc46e339d623a6b4366497d0e267c463327f127",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0043-jazz-v2-offline-restart.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "363ce1fa-b2b7-44f9-89b5-aea2055d2df5",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0166-jazz-v2-offline-restart.json",
+          "sha256": "4c376bdc2f8ddd067e34478fc88905201c600c13d2aff9995b530fdd1458d2f1",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0166-jazz-v2-offline-restart.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "82bf11ca-e7ad-4574-b510-4698f7a0e43f",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0232-jazz-v2-offline-restart.json",
+          "sha256": "85c0d2a9c6d968468e8d6854cd928d62194e16d64b0f3ccdddbe8c2c35de6386",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0232-jazz-v2-offline-restart.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "fa1a1e45-c920-4775-9e8a-34f83a91146f",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0338-jazz-v2-offline-restart.json",
+          "sha256": "2cff7c66214461d3b82f27f6a5b74b44297c38a02fd4a730bb9efe827a6fabf8",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0338-jazz-v2-offline-restart.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "online-propagation",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "40631d5c-bddb-4d51-9161-96359c2be685",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0104-jazz-v2-online-propagation.json",
+          "sha256": "384acee0c473381fa4f8f9298973910eb7ff7a36f83c6f49cb715d757eceea07",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0104-jazz-v2-online-propagation.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "55e26021-b913-41a3-9fdc-cfe0f9e58224",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0213-jazz-v2-online-propagation.json",
+          "sha256": "1368f714d975d30ee766e590292b95b6cb727560da7e83a43d7c1de1e301c52d",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0213-jazz-v2-online-propagation.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "609bc09f-2dc1-44cc-a528-11c08ca22102",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0306-jazz-v2-online-propagation.json",
+          "sha256": "f43bd05ea3d15a2622aca519a0df5b349191cae2b76119d7cbc6d54b0bd7bb4d",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0306-jazz-v2-online-propagation.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "8d7cd2a1-64f1-432e-9293-99d542018208",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0351-jazz-v2-online-propagation.json",
+          "sha256": "4b43ebf26f6c90c482e6188fe0b559298ac1f0a98392795bd59be08fd2fd9bf9",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0351-jazz-v2-online-propagation.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "permission-change",
+      "attemptCount": 4,
+      "outcomes": {
+        "timed-out": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "9e665b2e-c38e-4210-8188-30ff6716552f",
+          "outcome": "timed-out",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0088-jazz-v2-permission-change.json",
+          "sha256": "f65daeffd06943afa888f6baccdba4617ad9f3fb904984892a52602c8398c99d",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0088-jazz-v2-permission-change.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "e8eebdcf-421f-4825-a5ae-d3997c91e720",
+          "outcome": "timed-out",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0162-jazz-v2-permission-change.json",
+          "sha256": "5e964c05bd52526f071591d14d62a527a6251bb2f54be6af588e99afbf022fe4",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0162-jazz-v2-permission-change.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "27d5c35d-7037-4e6b-b64c-a89ff36bf9b9",
+          "outcome": "timed-out",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0283-jazz-v2-permission-change.json",
+          "sha256": "ac8f628e7fdd738c4457be47aa75612fdaa0f5e46c4958fa0ea58b893f4bf9f6",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0283-jazz-v2-permission-change.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "8a684f5e-35ac-4e44-abe1-854ccddc67a3",
+          "outcome": "timed-out",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0377-jazz-v2-permission-change.json",
+          "sha256": "b76fd6bfaa6e6cd6501e4361490c92e3d785e358b32b4f6e28c428fd29cc67a4",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0377-jazz-v2-permission-change.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "reconnect-storm",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "91c641a0-7893-4487-b587-84e2c70ad221",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0056-jazz-v2-reconnect-storm.json",
+          "sha256": "30bd320e3f89b70bce956d3ec203f3cbda0f926f8b95c7f551607be40fb69fd9",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0056-jazz-v2-reconnect-storm.json.log",
+          "logSha256": "e26c1712c09ff94aba95cb0ce7085b5a887b0c2b3749731df9c3e23654abffc8"
+        },
+        {
+          "trial": 2,
+          "resultId": "40ec2fb4-b30c-47d6-828d-0f191c55f128",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0222-jazz-v2-reconnect-storm.json",
+          "sha256": "8334d3523ad083933a0dc59720e68e109943e3562b811f9df87da530c18c7bcd",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0222-jazz-v2-reconnect-storm.json.log",
+          "logSha256": "e26c1712c09ff94aba95cb0ce7085b5a887b0c2b3749731df9c3e23654abffc8"
+        },
+        {
+          "trial": 3,
+          "resultId": "f11249f3-f2d8-4f33-8ff1-448cd47cee66",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0328-jazz-v2-reconnect-storm.json",
+          "sha256": "2c37623f26d74074489435b39922c6760fbd1f5e72f568c5f86ffbe92ba280ca",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0328-jazz-v2-reconnect-storm.json.log",
+          "logSha256": "e26c1712c09ff94aba95cb0ce7085b5a887b0c2b3749731df9c3e23654abffc8"
+        },
+        {
+          "trial": 4,
+          "resultId": "e0039177-aa0e-496e-8de9-62e953361005",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0340-jazz-v2-reconnect-storm.json",
+          "sha256": "23cfd9bcb509fe0ffeac73737b6da2046c8e29edfc9fcbfefc595f5e8a15fd08",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0340-jazz-v2-reconnect-storm.json.log",
+          "logSha256": "e26c1712c09ff94aba95cb0ce7085b5a887b0c2b3749731df9c3e23654abffc8"
+        }
+      ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "replica-reopen",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "5d38b5c5-a24b-4882-afb2-f20f64252edd",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0075-jazz-v2-replica-reopen.json",
+          "sha256": "17d0c0d1fd92bee030f4a713964fb32ccabdc9b91973200c6405f408b6466427",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0075-jazz-v2-replica-reopen.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "298eda72-5502-485f-898e-ec7f6d20ec94",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0124-jazz-v2-replica-reopen.json",
+          "sha256": "1b1add33c84c4320815e8187a172f155a75afedb70b69d160fe678333f61c1ed",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0124-jazz-v2-replica-reopen.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "e8b2dd30-9248-421c-a142-f156c1dff09e",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0329-jazz-v2-replica-reopen.json",
+          "sha256": "98d7699c2eb50c3b7bf78a0818ee28cd48de273428a40f353bca3a5631775273",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0329-jazz-v2-replica-reopen.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "e3b12e1d-a4a3-4ef8-93b5-6c93ace7b778",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0384-jazz-v2-replica-reopen.json",
+          "sha256": "930fb3de6e19a9de4a107552b75280909d6b7166cfa3ab16fdbfe88f4381deba",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0384-jazz-v2-replica-reopen.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "zero",
+      "scenario": "blob-flow",
+      "attemptCount": 4,
+      "outcomes": {
+        "unsupported": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "9be3072f-8414-48df-9e9e-058f0e1450e1",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Blob flow benchmarking is not implemented for Zero in this harness yet."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0097-zero-blob-flow.json",
+          "sha256": "9d843961aa26269de25a758b82df62e22fa3e8f304e11580c7074774280e02fe",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0097-zero-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "d3788618-f16a-41be-a8a2-b913ac7d4093",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Blob flow benchmarking is not implemented for Zero in this harness yet."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0171-zero-blob-flow.json",
+          "sha256": "35687da45516651b93c7a3162bf5d1ced428f02e7c5a086bd5ca4e8f479d62de",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0171-zero-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "c3fd515c-8a18-4d6a-bb0c-5b674db8cfb6",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Blob flow benchmarking is not implemented for Zero in this harness yet."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0251-zero-blob-flow.json",
+          "sha256": "33d5caac52e8de7a46b0ab01da6c07cd62df7d5c5b559b872218a61d3e5c0485",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0251-zero-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "801c83eb-164b-495d-af01-ea99ad823d8d",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Blob flow benchmarking is not implemented for Zero in this harness yet."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0420-zero-blob-flow.json",
+          "sha256": "456b9ac4604156e638e41c0d413dd42b1c8ed8e46fb0ef5eaee03a1186769525",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0420-zero-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "zero",
+      "scenario": "bootstrap",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "5844fb01-4df6-4403-8315-e3991585bf92",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0059-zero-bootstrap.json",
+          "sha256": "fab9e179ebefcf67122079af9277203ee9a96924e83538c2099053b54e37cb30",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0059-zero-bootstrap.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "4319ce35-c99e-418b-b0ce-bbb077d11185",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0159-zero-bootstrap.json",
+          "sha256": "2d50e5cbf253e62167fcb6218188fe355e15dd156d2729f7837616cc7b41a483",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0159-zero-bootstrap.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "357281d8-4b55-406e-84e9-99bca76cf2b5",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0299-zero-bootstrap.json",
+          "sha256": "13fa70f7b44a81cdee7876c3d991a1dca5173ddf71454b818908c40ca1b074f4",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0299-zero-bootstrap.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "a9cfd126-b3dd-4b1b-9b95-11ce2a2d9fbc",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0417-zero-bootstrap.json",
+          "sha256": "bb9e54de672537de80604617facc2e9b78f71ef5f26095d0a327b4784aba937f",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0417-zero-bootstrap.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "zero",
+      "scenario": "conflict-update-delete",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "b3cb8509-80cb-4c66-983c-07a0beb7c5ac",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0029-zero-conflict-update-delete.json",
+          "sha256": "2d057e1a29e067504f84dbfab5a3306920a84c2cc94a149ecaf5a2aac7d3c856",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0029-zero-conflict-update-delete.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "2070aa34-0909-412d-b834-da34eac1a221",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0136-zero-conflict-update-delete.json",
+          "sha256": "4dfbdb95b7a8c24215367170bcc1274e5e2c2db4831275750379792402cb7c6f",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0136-zero-conflict-update-delete.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "697c454b-ae2a-4367-8ae1-f78ff14ff008",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0264-zero-conflict-update-delete.json",
+          "sha256": "c38ae978dab0e87f7e64d0e5b8a985bc81dcb4945c6c7a79a7d89ee657733afb",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0264-zero-conflict-update-delete.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "61d39a59-fc04-4c20-a4d9-cef695fadd66",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0373-zero-conflict-update-delete.json",
+          "sha256": "7c8f186ca805f5ef6fed1e5276f4b8437dc61b02982ad937a69e1783a2a1eaf1",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0373-zero-conflict-update-delete.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "zero",
+      "scenario": "conflict-update-update",
+      "attemptCount": 5,
+      "outcomes": {
+        "completed": 5
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "6b45b82e-c367-49ac-8f09-3ad25c59f06b",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0012-zero-conflict-update-update.json",
+          "sha256": "e773d6089f95809d779047c4b837780ca7b3260ff0da41cf3455f72036f33bdf",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0012-zero-conflict-update-update.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "56ed0320-57d3-40c3-a53b-a50e2d3ad368",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0175-zero-conflict-update-update.json",
+          "sha256": "9c941174f86b6646e513231ed3463c0abfefd68158bdb9ad7f0e0a8d5fe0eba5",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0175-zero-conflict-update-update.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "eaffedfe-7fe4-4fe9-93dd-aebbbb317663",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0282-zero-conflict-update-update.json",
+          "sha256": "ec0b75b158fc2d03d3bbbfb94f963d26f04b8685a794ce3a207bd9b4812213c3",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0282-zero-conflict-update-update.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "014df307-6522-4051-9775-e9ca9cbadad3",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0359-zero-conflict-update-update.json",
+          "sha256": "9fe9bc393b2bfd7bf59ed57c6079ef1f484e99148bb13301fdb9ca62fe0de822",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0359-zero-conflict-update-update.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 5,
+          "resultId": "269d9022-4f28-4051-8b6d-edde970641fb",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0461-zero-conflict-update-update.json",
+          "sha256": "d2ce71cb2a26cb94c81bf73c1a0a3bf924afcb6f29c06f29dc3d45a7cb5edd31",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0461-zero-conflict-update-update.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "zero",
+      "scenario": "connected-fanout",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "95dca0da-4113-4c48-b8b4-b4ee36fae4ab",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0099-zero-connected-fanout.json",
+          "sha256": "2ddccff473b2a9831e5d64911daa0b5c1a067d42f3f08f56463e624b89f0c9a2",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0099-zero-connected-fanout.json.log",
+          "logSha256": "42bd953c0fe0c767bb16a8b48c5605cf8ee7e217a1220b7852cf0a92ff8c1227"
+        },
+        {
+          "trial": 2,
+          "resultId": "98aec911-69ad-4a6f-bb1c-fb5ff327801b",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0161-zero-connected-fanout.json",
+          "sha256": "56aa9bb587adcdaa0d7ec816007d3ba54ca05c5baf85e9446913f2f7a2300d9b",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0161-zero-connected-fanout.json.log",
+          "logSha256": "42bd953c0fe0c767bb16a8b48c5605cf8ee7e217a1220b7852cf0a92ff8c1227"
+        },
+        {
+          "trial": 3,
+          "resultId": "ec5dd978-1f6c-4c06-ad67-2af3c61d4272",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0228-zero-connected-fanout.json",
+          "sha256": "c2836090999f9ffcce8c770e69f38b4022f65ca40d2699ab50a9a7c351746662",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0228-zero-connected-fanout.json.log",
+          "logSha256": "42bd953c0fe0c767bb16a8b48c5605cf8ee7e217a1220b7852cf0a92ff8c1227"
+        },
+        {
+          "trial": 4,
+          "resultId": "aa8356d8-5d3d-419c-9225-3c9d4e5bb93e",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0393-zero-connected-fanout.json",
+          "sha256": "d72fe7d2af10bd3353696c3e3d2d99a1b87fdb6a738d151089eec552c1b15bfb",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0393-zero-connected-fanout.json.log",
+          "logSha256": "42bd953c0fe0c767bb16a8b48c5605cf8ee7e217a1220b7852cf0a92ff8c1227"
+        }
+      ]
+    },
+    {
+      "stack": "zero",
+      "scenario": "large-offline-queue",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "dd06e0b6-c1b1-4c7d-b54f-08d80e9865f8",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0034-zero-large-offline-queue.json",
+          "sha256": "8b4937acb14d51f7068791f2f6a4602e930ec417448e19c4372cee2b84f97b6b",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0034-zero-large-offline-queue.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "396fc0f4-5433-4b02-a212-141cec74f7e8",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0140-zero-large-offline-queue.json",
+          "sha256": "449a8550076f1dca851576ddc07edd7f4d4ebf7a37ea001d3688b04df85db495",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0140-zero-large-offline-queue.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "98e94253-d298-4b28-aae9-cd22e8bf9ef1",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0289-zero-large-offline-queue.json",
+          "sha256": "805423ea44e0884e9a6ab76e632b0fa1b74a080f493754c2238ec87a4e536715",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0289-zero-large-offline-queue.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "12284477-881b-4771-babf-4c1920b48c79",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0436-zero-large-offline-queue.json",
+          "sha256": "a853cdf5d854270ec69fa7a8f76932201fd181b343fd0f75a86127ad8d9c84b0",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0436-zero-large-offline-queue.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "zero",
+      "scenario": "offline-replay",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "f826078e-2bc8-47c2-8682-59221914ab4e",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0102-zero-offline-replay.json",
+          "sha256": "feaeb05e1103dcbe0c00db00271d2a659abc7e9831ea8d19722c74c3ca3b5ddf",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0102-zero-offline-replay.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "c8e80e9e-6a55-4546-9088-b827fd68f526",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0179-zero-offline-replay.json",
+          "sha256": "ef323a516ba194aa5733c5bff2cb3a386b69e755e5e75abc1aefed15d0ae0f8d",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0179-zero-offline-replay.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "d0e64647-9ce8-447e-8a28-64eaa6f73d04",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0274-zero-offline-replay.json",
+          "sha256": "0c53fa3ce6bf6fa3dc9bfe27ec7c73a769d2d9d800fef151acfc7efe326a6cf7",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0274-zero-offline-replay.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "898b1529-ba66-43eb-b286-69d227472d92",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0350-zero-offline-replay.json",
+          "sha256": "020d88a9ea08a5d0db871bdbc3a8ad8fc3c9bb6a3978a50e66ccde0a35972361",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0350-zero-offline-replay.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "zero",
+      "scenario": "offline-restart",
+      "attemptCount": 4,
+      "outcomes": {
+        "unsupported": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "d0bac68a-9563-4553-b744-a5ad5d2f3aab",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "unsupported-tested-configuration",
+            "reason": "This Node adapter selects kvStore: mem, which cannot preserve queued writes after process termination. This says nothing about other Zero storage configurations."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0079-zero-offline-restart.json",
+          "sha256": "881937157813bfc85db1578f58950933cf17caa0911363baac225b0631797854",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0079-zero-offline-restart.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "8850c1ba-8fdc-468e-9055-c737c8987fe1",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "unsupported-tested-configuration",
+            "reason": "This Node adapter selects kvStore: mem, which cannot preserve queued writes after process termination. This says nothing about other Zero storage configurations."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0224-zero-offline-restart.json",
+          "sha256": "c2ec8aa2dbf07ad6582f16d02c4d8cfa2b1234108ff19e876fd162531f996d11",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0224-zero-offline-restart.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "a428e5ea-f22a-4459-8dfc-41b96e2cdca8",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "unsupported-tested-configuration",
+            "reason": "This Node adapter selects kvStore: mem, which cannot preserve queued writes after process termination. This says nothing about other Zero storage configurations."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0275-zero-offline-restart.json",
+          "sha256": "bfe31e8375cb01fec708ffaa4820b47d5640bcfb5f4ff9d7ea05346736835355",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0275-zero-offline-restart.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "77bc49ab-29e0-4489-adbd-6a245703ddc5",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "unsupported-tested-configuration",
+            "reason": "This Node adapter selects kvStore: mem, which cannot preserve queued writes after process termination. This says nothing about other Zero storage configurations."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0441-zero-offline-restart.json",
+          "sha256": "6c55f419a72882fd49e53e1dd8083e81c13f3f17114c91723b9c15caaf497a50",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0441-zero-offline-restart.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "zero",
+      "scenario": "online-propagation",
+      "attemptCount": 5,
+      "outcomes": {
+        "completed": 5
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "c261cf28-fc7b-428f-81ad-a4f24f16b8f5",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0017-zero-online-propagation.json",
+          "sha256": "fc77cb302e0ae77ecca1cd1e26813125716e4b93d3677a9420c1a8e1ec2f7695",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0017-zero-online-propagation.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "8353538c-2bab-42b6-a75c-08ce6f349b3e",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0149-zero-online-propagation.json",
+          "sha256": "53c105434b340eaf3f1bcabbae53550e4fa5ab70c4116105ae921985e19ba75e",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0149-zero-online-propagation.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "43b833c7-4db9-4d71-b87c-1d100c6d4c93",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0230-zero-online-propagation.json",
+          "sha256": "50c5487161d82746204ace50ee051d0bc231151bfde11777dd93bc174e582e4d",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0230-zero-online-propagation.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "6fc42b98-1753-4253-b3bd-0ff818d20255",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0347-zero-online-propagation.json",
+          "sha256": "4650508fa1b139050f4ccf7f47b994fc805da3e2323486417190057c795efe4e",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0347-zero-online-propagation.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 5,
+          "resultId": "98845fb8-4196-437c-a071-e546bdbd2ddd",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0469-zero-online-propagation.json",
+          "sha256": "18abb5c714552f7a9e0ad8d5451b0045750a8aac8c1bcfe01dffe2f44994221f",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0469-zero-online-propagation.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "zero",
+      "scenario": "permission-change",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "74a7af39-9648-4a92-99ab-77e34ca02722",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0048-zero-permission-change.json",
+          "sha256": "d1f60ee0d82fac74b101705971866fa72fb2e343c4c4c34bd20641bf89013010",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0048-zero-permission-change.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "c3fcf249-0957-4685-bdc1-d4e7d75fcb43",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0200-zero-permission-change.json",
+          "sha256": "05fe485dc12a15f89c1d5da07ed8ae0a4841006c6110e2ae9213142668a35a9e",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0200-zero-permission-change.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "6ff24f1c-a7e4-4dd8-8a2a-6caec4549dc0",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0317-zero-permission-change.json",
+          "sha256": "a27dbfe1981acacbe6b7a9b273cc269f968be1e25e2b1f73fd4396738532a694",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0317-zero-permission-change.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "01f335dd-f95a-4a8f-99c3-f72ce18fd96c",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0366-zero-permission-change.json",
+          "sha256": "eea5d94494bf9886e8da02ca75178db0f6c4c7bef12288087c53e131a0dbbd87",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0366-zero-permission-change.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "zero",
+      "scenario": "reconnect-storm",
+      "attemptCount": 4,
+      "outcomes": {
+        "completed": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "6dd612a2-65f7-4ce9-85b7-060db5dff02e",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0001-zero-reconnect-storm.json",
+          "sha256": "20b2b6a44b9c53c8b95448c57f9a4e5802ba88013489325f0b760095e840415c",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0001-zero-reconnect-storm.json.log",
+          "logSha256": "6e71a70ef8406b0c9996e3452121ff7d16c2dc759608cd1e3382021ee47357ad"
+        },
+        {
+          "trial": 2,
+          "resultId": "4e91c383-6c9a-4e16-9355-fa6664116e86",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0192-zero-reconnect-storm.json",
+          "sha256": "1e6832490596e6acf85b3e2cb70c553e6253d693b97c692b53ddf4ac164a2085",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0192-zero-reconnect-storm.json.log",
+          "logSha256": "6e71a70ef8406b0c9996e3452121ff7d16c2dc759608cd1e3382021ee47357ad"
+        },
+        {
+          "trial": 3,
+          "resultId": "2eada9ba-7ca8-40ad-aea1-cd7ac1f1546f",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0229-zero-reconnect-storm.json",
+          "sha256": "1546ee6e41a6fc715c0a15fa74852725d48b565cead6fbf6c742d3e99d98d907",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0229-zero-reconnect-storm.json.log",
+          "logSha256": "6e71a70ef8406b0c9996e3452121ff7d16c2dc759608cd1e3382021ee47357ad"
+        },
+        {
+          "trial": 4,
+          "resultId": "a7a29ae6-0d4b-4f68-8bcd-87200adf9819",
+          "outcome": "completed",
+          "coverage": {
+            "status": "implemented",
+            "reason": "Adapter executed this case."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0357-zero-reconnect-storm.json",
+          "sha256": "2ff7eb638200c8d14fa05782e419961f1d95db25a6ece5e1ebcf1e42bd07a869",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0357-zero-reconnect-storm.json.log",
+          "logSha256": "6e71a70ef8406b0c9996e3452121ff7d16c2dc759608cd1e3382021ee47357ad"
+        }
+      ]
+    },
+    {
+      "stack": "zero",
+      "scenario": "replica-reopen",
+      "attemptCount": 4,
+      "outcomes": {
+        "unsupported": 4
+      },
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "2f886572-e74c-47e2-8a9a-2a20d82e2239",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "replica-reopen is not implemented for this adapter; no product capability conclusion is implied."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0067-zero-replica-reopen.json",
+          "sha256": "5f17048484bccbe07f374e72529eaf69685313803b2892ceeb774ef8aee83691",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0067-zero-replica-reopen.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "a815befa-f3fe-4801-8600-5d6ccba79d15",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "replica-reopen is not implemented for this adapter; no product capability conclusion is implied."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0195-zero-replica-reopen.json",
+          "sha256": "12697b96580ea8c8b5e6d78521a42f492b8739b98a326c8aa3f12fffad420ee8",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0195-zero-replica-reopen.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "30d20a6f-609e-4756-9902-cd1089f732dc",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "replica-reopen is not implemented for this adapter; no product capability conclusion is implied."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0272-zero-replica-reopen.json",
+          "sha256": "c22e0e33b527a7bfd33811fabc0d58181fc04dcebcbd5a76a155feefd994dbd8",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0272-zero-replica-reopen.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "7a55e1c4-91e8-4ff7-8310-51319177015b",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "replica-reopen is not implemented for this adapter; no product capability conclusion is implied."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0341-zero-replica-reopen.json",
+          "sha256": "22db191d16adcae7576530ff79dea20ce298a205c116e697864a5574f66e78ba",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0341-zero-replica-reopen.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
+  ]
+}

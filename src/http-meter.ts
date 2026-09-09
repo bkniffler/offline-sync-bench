@@ -1,15 +1,7 @@
-interface BodyLike {
-  arrayBuffer(): Promise<ArrayBuffer>;
-}
-
 export interface HttpMeterSnapshot {
   requestCount: number;
   requestBytes: number;
   responseBytes: number;
-}
-
-function hasArrayBuffer(value: object): value is BodyLike {
-  return 'arrayBuffer' in value && typeof value.arrayBuffer === 'function';
 }
 
 export function createHttpMeter(
@@ -26,30 +18,22 @@ export function createHttpMeter(
   const meteredFetchImpl = async (input: RequestInfo | URL, init?: RequestInit) => {
       requestCount += 1;
 
-      const request =
-        input instanceof Request ? input : new Request(input, init);
-      let requestBody: ArrayBuffer | undefined;
-
-      if (request.body) {
-        const requestClone = request.clone();
-        requestBody = await requestClone.arrayBuffer();
-        requestBytes += requestBody.byteLength;
-      } else if (typeof init?.body === 'string') {
-        requestBytes += new TextEncoder().encode(init.body).byteLength;
-      } else if (
-        init?.body &&
-        typeof init.body === 'object' &&
-        hasArrayBuffer(init.body)
-      ) {
-        requestBytes += (await init.body.arrayBuffer()).byteLength;
+      const request = new Request(input, init);
+      let response: Response;
+      if (request.body && options.fixedLengthRequests) {
+        // Explicit compatibility path for transports requiring Content-Length.
+        const bytes = await request.arrayBuffer();
+        requestBytes += bytes.byteLength;
+        response = await baseFetch(new Request(request, { body: bytes }));
+      } else if (request.body) {
+        const body = request.body.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
+          transform(chunk, controller) { requestBytes += chunk.byteLength; controller.enqueue(chunk); },
+        }));
+        response = await baseFetch(new Request(request, { body, duplex: 'half' } as RequestInit));
+      } else {
+        response = await baseFetch(request);
       }
-
-      // Cloning tees a Bun Request body into a stream, which fetch sends
-      // chunked. Some native sync servers require Content-Length framing.
-      const response = options.fixedLengthRequests && requestBody
-        ? await baseFetch(input, { ...init, headers: request.headers, body: requestBody })
-        : await baseFetch(request);
-      if (options.streamResponses && response.body) {
+      if (options.streamResponses !== false && response.body) {
         // Long-lived sync responses must reach the client before EOF. Count
         // consumed chunks while preserving backpressure and cancellation.
         const body = response.body.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({

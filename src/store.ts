@@ -256,8 +256,17 @@ function getSupportLevel(result: BenchmarkResult): string {
       return capabilities.bootstrap;
     case 'online-propagation':
       return capabilities.onlinePropagation;
+    case 'conflict-update-update':
+    case 'conflict-update-delete':
+      return result.metadata.workloadContract === 'conflicting-edits-v1' ? 'implemented' : 'not-implemented';
+    case 'replica-reopen':
+      return result.metadata.workloadContract === 'persisted-replica-reopen-v1' ? 'implemented' : 'not-implemented';
+    case 'offline-restart':
+      return capabilities.offlineRestart ?? 'not-implemented';
     case 'offline-replay':
       return capabilities.offlineReplay;
+    case 'connected-fanout':
+      return result.metadata.workloadContract === 'client-fanout-recovery-v1' ? 'implemented' : 'not-implemented';
     case 'reconnect-storm':
       return capabilities.reconnectStorm;
     case 'large-offline-queue':

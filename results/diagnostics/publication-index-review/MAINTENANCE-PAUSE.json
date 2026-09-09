@@ -1,0 +1,13 @@
+{
+  "pid": 27488,
+  "identity": "/Users/bkniffler/.volta/tools/image/packages/bun/lib/node_modules/bun/bin/bun.exe src/campaign.ts --config campaigns/publication-tuned-sql.json",
+  "pausedAt": 1788914937.537202,
+  "finishedAttempts": 57,
+  "reason": "Turso 25-reader setup reported no storage space. Pause at an observed gap without child processes for workspace storage maintenance.",
+  "resumedAt": "2026-09-09T00:59:25.695670+00:00",
+  "freeBytesAtResume": 5654405120,
+  "resumeScope": "Same campaign and fixed plan resumed. Separate guard will pause before a remaining Turso 25-reader case if headroom remains under precautionary 8 GiB.",
+  "archivedWorkingCopies": "results/history/2026-09-09-retired-working-copies/INDEX.json",
+  "archivedIdleStores": "results/history/2026-09-09-retired-working-copies/idle-client-stores.json",
+  "idleCompilationCleanup": "results/diagnostics/publication-index-review/IDLE-COMPILATION-CACHE-CLEANUP.json"
+}

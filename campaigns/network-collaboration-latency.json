@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260912,
+  "trials": 1,
+  "trialTimeoutMs": 900000,
+  "stacks": ["syncular", "syncular-rust", "powersync", "turso", "electric", "electric-tanstack", "zero", "jazz-v2"],
+  "scenarios": ["online-propagation"],
+  "network": {
+    "id": "private-veth-netem-v1",
+    "imageId": "sha256:647eda9af9b0d172fc317357352fef8f5e40b609d397e78823a852b162765b87",
+    "oneWayDelayMs": 50,
+    "lossPct": 0,
+    "seed": 42,
+    "packetLimit": 10000
+  },
+  "stoppingRule": "Execute all eight collaboration cases once with the existing five warmups, 50 measured operations and complete fixture/output validation. Require exact client routes, applied two-direction packet delay, MTU-sized forwarding, original administrative addresses, process resources and owned-emulator cleanup. Preserve failed attempts without changing timeouts. This is an integration smoke, not a repeated performance comparison."
+}

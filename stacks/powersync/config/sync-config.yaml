@@ -1,12 +1,12 @@
-# yaml-language-server: $schema=https://unpkg.com/@powersync/service-sync-rules@latest/schema/sync_rules.json
-
-config:
-  edition: 3
-
-streams:
+# Active rules for the pinned PowerSync service. Global and access grants are separate.
+bucket_definitions:
   global:
-    auto_subscribe: true
-    queries:
+    parameters: SELECT WHERE request.jwt() ->> 'bench_profile' = 'global'
+    data:
       - SELECT id, name FROM organizations
       - SELECT id, org_id, name FROM projects
       - SELECT id, org_id, project_id, owner_id, title, completed, server_version, updated_at FROM tasks
+  member_projects:
+    parameters: SELECT project_id FROM project_memberships WHERE user_id = request.user_id() AND request.jwt() ->> 'bench_profile' = 'access'
+    data:
+      - SELECT id, org_id, project_id, owner_id, title, completed, server_version, updated_at FROM tasks WHERE project_id = bucket.project_id

@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 900000,
+  "stacks": [
+    "syncular",
+    "electric",
+    "electric-tanstack",
+    "zero",
+    "jazz-v2"
+  ],
+  "scenarios": [
+    "connected-fanout",
+    "reconnect-storm"
+  ],
+  "parameters": {
+    "clientCounts": [
+      5,
+      25
+    ]
+  },
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Run all ten declared migration attempts at both 5 and 25 independent readers. Verify full 2000-record snapshots, native auxiliary data and identities, live readiness, one-update connected delivery without extra controller sync, and a 100-update backlog with an independent healthy witness. Preserve all failures at every scale. Single-trial correctness checks cannot establish performance comparisons."
+}

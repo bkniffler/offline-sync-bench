@@ -1,0 +1,26 @@
+{
+  "reviewedAt": "2026-09-09T01:09:04.673731+00:00",
+  "campaignId": "campaign-2026-09-08T22-58-56-419Z",
+  "resultId": "6d1557e7-58da-441f-8bbd-6492ecc56601",
+  "sourceHash": "8ecde51941dc281ad277fea9b6a28b7165e0c72cc9202d1fbb71c64201ca9a03",
+  "rawSha256": "7a81f16cd5f4855d162f4a554a57c7a61ecc54ed546292d60cc0d106b5a565f4",
+  "status": "unexplained",
+  "observation": "Turso replica-reopen trial 2 failed during initial setup when its native sync fetch reported an unexpectedly closed socket, before any reopen measurement.",
+  "confirmedFacts": {
+    "stage": "setup",
+    "error": "sync engine operation failed: database sync engine error: fetch error: TypeError: The socket connection was closed unexpectedly. For more information, pass `verbose: true` in the second argument to fetch()",
+    "durationMs": 19489.113667,
+    "openGateResponseBytes": 34119652,
+    "gateBlocked": false,
+    "serviceCaptureSucceeded": true,
+    "serviceLog": "Broken pipe and invalid HTTP request messages; no recorded no-storage-space error in this attempt.",
+    "containerState": "Turso and admin remained running with unchanged recorded start times across the trial.",
+    "rawEqualsManifest": true,
+    "captureHashesVerified": true
+  },
+  "limitations": [
+    "The socket error establishes failed transport setup, not why the connection closed.",
+    "This failure is not attributed to disk exhaustion or product reopen behavior. Empty outer/client logs do not prove absence of SDK errors."
+  ],
+  "nextAction": "After fixed collection, inspect client/server request-close timing and reproduce setup with verbose transport traces. Preserve the failed attempt without replacement."
+}

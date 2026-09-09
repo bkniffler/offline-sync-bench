@@ -1,0 +1,271 @@
+{
+  "reviewedAt": "2026-09-09T00:37:44.514953+00:00",
+  "campaignId": "campaign-2026-09-08T22-58-56-419Z",
+  "resultId": "35023c20-b60e-4cca-8282-a5b529aed63a",
+  "sourceHash": "8ecde51941dc281ad277fea9b6a28b7165e0c72cc9202d1fbb71c64201ca9a03",
+  "rawSha256": "c61f072093bfffb595473b2f41fe3f457631f7d9297f8fe365c17434c85d2769",
+  "status": "unexplained",
+  "observation": "The first PowerSync startup client, at 1000 tasks, reached the 90-second observation deadline without a validated first screen or full dataset. All 18 recorded progress counts were zero.",
+  "confirmedFacts": {
+    "outcome": "timed-out",
+    "durationMs": 97761.694542,
+    "stage": "process-cold-1000",
+    "completedCases": 0,
+    "condition": "process-cold",
+    "clientElapsedMs": 90210.283875,
+    "initializedAtMs": 190.56483299999945,
+    "traffic": {
+      "blocked": false,
+      "rejectedConnections": 0,
+      "forwardedConnections": 2,
+      "requestBytes": 1428,
+      "responseBytes": 179012685,
+      "endpoints": {
+        "sync": {
+          "blocked": false,
+          "rejectedConnections": 0,
+          "forwardedConnections": 1,
+          "requestBytes": 1223,
+          "responseBytes": 179011998
+        },
+        "app": {
+          "blocked": false,
+          "rejectedConnections": 0,
+          "forwardedConnections": 1,
+          "requestBytes": 205,
+          "responseBytes": 687
+        }
+      }
+    },
+    "startupObservation": {
+      "policy": {
+        "version": 3,
+        "screenPollDelayMs": 5,
+        "progressCountDelayMs": 5000,
+        "timeoutMs": 90000,
+        "fullDataTrigger": "single-native-completion-and-first-screen-candidates-or-complete-progress-count",
+        "screen": "query-until-first-correct-screen"
+      },
+      "polls": 15986,
+      "observations": [
+        {
+          "atMs": 0.9488750000000152,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 5006.532334,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 10007.999209000001,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 15012.482334,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 20013.424292,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 25016.709791999998,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 30021.854792,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 35022.5355,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 40022.960959,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 45027.574667,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 50033.164417,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 55033.777709,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 60039.379792,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 65043.134208999996,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 70045.144167,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 75045.777792,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 80051.503417,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        },
+        {
+          "atMs": 85055.173709,
+          "rows": 0,
+          "screenCorrect": false,
+          "kind": "progress-count"
+        }
+      ],
+      "screenQueries": 15986,
+      "countQueries": [
+        {
+          "startMs": 0.808667000000014,
+          "durationMs": 0.12354199999998627,
+          "rows": 0
+        },
+        {
+          "startMs": 5006.255084,
+          "durationMs": 0.2672499999998763,
+          "rows": 0
+        },
+        {
+          "startMs": 10007.735334,
+          "durationMs": 0.24308299999756855,
+          "rows": 0
+        },
+        {
+          "startMs": 15012.242042000002,
+          "durationMs": 0.22524999999950523,
+          "rows": 0
+        },
+        {
+          "startMs": 20012.848209,
+          "durationMs": 0.5345410000008997,
+          "rows": 0
+        },
+        {
+          "startMs": 25013.891667,
+          "durationMs": 2.7998330000009446,
+          "rows": 0
+        },
+        {
+          "startMs": 30021.638584,
+          "durationMs": 0.20099999999729334,
+          "rows": 0
+        },
+        {
+          "startMs": 35021.986584,
+          "durationMs": 0.5157079999989946,
+          "rows": 0
+        },
+        {
+          "startMs": 40022.664124999996,
+          "durationMs": 0.28325000000040745,
+          "rows": 0
+        },
+        {
+          "startMs": 45027.33575,
+          "durationMs": 0.21758399999816902,
+          "rows": 0
+        },
+        {
+          "startMs": 50032.941249999996,
+          "durationMs": 0.20300000000133878,
+          "rows": 0
+        },
+        {
+          "startMs": 55033.434959,
+          "durationMs": 0.31966600000305334,
+          "rows": 0
+        },
+        {
+          "startMs": 60038.871875,
+          "durationMs": 0.4643750000032014,
+          "rows": 0
+        },
+        {
+          "startMs": 65042.969959,
+          "durationMs": 0.14812499999970896,
+          "rows": 0
+        },
+        {
+          "startMs": 70044.976125,
+          "durationMs": 0.15179200000420678,
+          "rows": 0
+        },
+        {
+          "startMs": 75045.552292,
+          "durationMs": 0.20545800001127645,
+          "rows": 0
+        },
+        {
+          "startMs": 80051.326209,
+          "durationMs": 0.15595799998845905,
+          "rows": 0
+        },
+        {
+          "startMs": 85055,
+          "durationMs": 0.15099999999802094,
+          "rows": 0
+        }
+      ],
+      "candidateSnapshots": [],
+      "fullSnapshot": null,
+      "syncCompletedAtMs": null,
+      "syncFinished": false,
+      "expectedRows": 1000,
+      "timeoutMs": 90000,
+      "elapsedMs": 90010.4725,
+      "firstScreen": false,
+      "fullData": false,
+      "pendingQuery": null,
+      "lastScreenMismatch": "Invalid measurement: startup screen: expected 50 rows, got 0"
+    },
+    "captureErrors": 0
+  },
+  "interpretation": "This is a measured startup deadline failure. The last row count was recorded around 85 seconds, not exactly at the deadline. About 179.0 MB of response traffic crossed the open gate, but transport volume alone does not establish its contents, local application progress or the cause of the missed milestones. No larger or warm startup case completed.",
+  "serviceLogReview": "The captured logs show PowerSync startup and consistent PostgreSQL logical decoding using a saved snapshot. They contain no client materialization or checkpoint failure.",
+  "nextExperiment": "After fixed collection, record downloaded operations, client checkpoint/apply progress and initial-sync completion alongside first-screen observations. Compare separately declared fresh and retained service storage with the same 1000-task fixture; keep the existing observer settings constant.",
+  "verification": "Captured file bytes and hashes match receipts; raw result equals the campaign attempt."
+}

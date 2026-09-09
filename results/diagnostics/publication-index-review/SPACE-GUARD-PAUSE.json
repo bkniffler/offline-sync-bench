@@ -1,0 +1,12 @@
+{
+  "at": "2026-09-09T01:19:46.295491+00:00",
+  "pid": 27488,
+  "finishedAttempts": 69,
+  "next": {
+    "stackId": "turso",
+    "scenarioId": "connected-fanout",
+    "trial": 2
+  },
+  "freeBytes": 5288714240,
+  "reason": "Conservative 7 GiB guard before known high-storage 25-reader workload. Threshold is precautionary, not a measured peak. Paused only with no child process."
+}

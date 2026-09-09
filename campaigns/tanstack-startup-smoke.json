@@ -1,0 +1,7 @@
+{
+  "version": 1, "purpose": "smoke", "seed": 20260906, "trials": 1,
+  "trialTimeoutMs": 600000,
+  "stacks": ["electric-tanstack"], "scenarios": ["bootstrap"],
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run all six 1k/10k/100k shared startup cases with restarted and warm sync services. Require fresh Node processes and product SQLite files, exact native-query screens, full persisted snapshots before the full-data receipt, matching complete active collections and scoped resources. Preserve failures. This smoke does not establish a performance ranking or offline write-queue durability."
+}

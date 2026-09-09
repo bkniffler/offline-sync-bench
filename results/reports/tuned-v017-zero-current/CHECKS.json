@@ -1,0 +1,61 @@
+{
+  "at": "2026-09-09T11:38:57.392Z",
+  "status": "superseded-by-reviewed-publication",
+  "campaignId": "campaign-2026-09-09T11-26-05-626Z",
+  "campaignStatus": "complete",
+  "attempts": 6,
+  "planned": 6,
+  "sourceHash": "8ecde51941dc281ad277fea9b6a28b7165e0c72cc9202d1fbb71c64201ca9a03",
+  "manifestSha256": "bb9c5a836c43b75eda06f5021bd1e4f7f00ae8d1e4ed9a1dbc80364db80ea5ec",
+  "compressedManifestSha256": "918387fc3fcc7f4c49e85dcde763ddc77cf86849d1998af717d9ffda8fd843a0",
+  "markdownSha256": "aed733c144a0b44447288df34b108da9c9b2695cd351d8f7a85810b9c65fec42",
+  "rendererSha256": "1f6cd1a0f1d285a8c9d026830639a22a9d583d4461f3cfb3d44bb20fa56fa313",
+  "scope": "Plan prefix, raw-result equality, result contracts, profiles and summary grouping. Not completed-campaign publication acceptance.",
+  "bindings": [
+    {
+      "index": 1,
+      "resultId": "3a601904-e210-4424-af1d-64a33d6e85ff",
+      "resultDigest": "a6da71c061a9aee3766f91c6e990e605f9e59f0144687f436668a684e3ba16fa",
+      "rawSha256": "182f8a8b16641468ec8df66c690e201bab87c091e0cc24d7ff263dd1cd0c0e53",
+      "resultFile": "0001-zero-local-query.json"
+    },
+    {
+      "index": 2,
+      "resultId": "a6a57c62-2d70-444f-a3a0-906998b34e43",
+      "resultDigest": "b07a75b8e4ee8a1f6b4b10a55945770923cd6797b3ade4a2b2eddfe132c3d458",
+      "rawSha256": "0177093bd26222c7302b33a3f3afdfca1fc4f08caeffd18d0bf95ea3128ab9c6",
+      "resultFile": "0002-zero-deep-relationship-query.json"
+    },
+    {
+      "index": 3,
+      "resultId": "45e56495-8ae3-4bce-a2e6-ee529d895f99",
+      "resultDigest": "87a84b3a6d4a9c6b8b20edfd0b86a9a7cec35787b073bcffb9c716b490233c9c",
+      "rawSha256": "8727a90372d20e140eff2c022cf91df19e63b76e87897199c3da47a8df1bbfa2",
+      "resultFile": "0003-zero-deep-relationship-query.json"
+    },
+    {
+      "index": 4,
+      "resultId": "1e37d01f-057a-4381-b08b-2d2544aeaa66",
+      "resultDigest": "3362a9078930f7f9244f8f98ebf2cd9c19b4d03222b5ed9b05ab47cdd456853a",
+      "rawSha256": "1dbac29a9b54aa8e542bcb8ab60a94f9c2071e5eba063612ae332f17591f54b2",
+      "resultFile": "0004-zero-local-query.json"
+    },
+    {
+      "index": 5,
+      "resultId": "1d4ddeb1-6651-41b4-bcbe-67924b759d0c",
+      "resultDigest": "41e55ee6217a32f0129fa778932f15792c3dc893e123bae7ed2e21f0af5e63e7",
+      "rawSha256": "fbdc0515122fb311372fd2d78d98b378d9c177277e269ca33aea588ccdd2040e",
+      "resultFile": "0005-zero-local-query.json"
+    },
+    {
+      "index": 6,
+      "resultId": "83aaa74a-c087-437d-8274-e00082491180",
+      "resultDigest": "abf5f327d930097855cb59ca15e492fa046d54417e8d1222a3810a0dbe69ad9e",
+      "rawSha256": "aa154d3530e7ece6a4f7cde82224b27a79a5e29e8e5711f7f0af416d74879e0f",
+      "resultFile": "0006-zero-deep-relationship-query.json"
+    }
+  ],
+  "snapshotMarkdownSha256": "9e12a3857ddc56c3d39115562685d33531d66746e9b18df3855a0e4c9757bb3b",
+  "snapshotMarkdownArchive": "SNAPSHOT.md.gz",
+  "currentReport": "../tuned-v017-zero/results/reports/campaign-2026-09-09T11-26-05-626Z/DETAILS.md"
+}

@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 600000,
+  "stacks": [
+    "syncular-rust"
+  ],
+  "scenarios": [
+    "replica-reopen"
+  ],
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Run one native Rust persisted-replica reopen with the Cargo configuration hierarchy, include/missing-file probes and complete inherited build-environment fingerprint. Validate source, compiler, executable, dependency and configuration bindings. This smoke makes no performance comparison."
+}

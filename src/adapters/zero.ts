@@ -1,6 +1,11 @@
+import { runFanout } from '../fanout/run.ts';
+import { runAccess } from '../access/run.ts';
+import { runConflicts } from '../recovery/conflicts.ts';
 import { spawnSync } from 'node:child_process';
+import { runRecovery } from '../recovery/run.ts';
+import { runStartup } from '../startup/run.ts';
 import { benchmarkRoot } from '../paths';
-import { getStack } from '../stacks';
+import { getClientStack as getStack } from '../stacks';
 import type { BenchmarkAdapter, BenchmarkStatus, JsonValue } from '../types';
 import { createUnsupportedScenarioResult } from '../unsupported';
 
@@ -13,9 +18,7 @@ interface RunnerResult {
 
 function runZeroScenario(
   scenario:
-    | 'bootstrap'
     | 'online-propagation'
-    | 'offline-replay'
     | 'local-query'
     | 'deep-relationship-query'
 ) {
@@ -57,29 +60,31 @@ export class ZeroBenchmarkAdapter implements BenchmarkAdapter {
   readonly stack = getStack('zero');
 
   async runBootstrap() {
-    return runZeroScenario('bootstrap');
+    return runStartup('zero');
   }
 
   async runOnlinePropagation() {
     return runZeroScenario('online-propagation');
   }
 
-  async runOfflineReplay() {
-    return runZeroScenario('offline-replay');
+  async runOfflineRestart() {
+    return createUnsupportedScenarioResult({ implementation: 'zero-node-restart', coverage: 'unsupported-tested-configuration', notes: ['This Node adapter selects kvStore: mem, which cannot preserve queued writes after process termination. This says nothing about other Zero storage configurations.'] });
   }
 
-  async runReconnectStorm() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Reconnect storm is not implemented for Zero in this harness yet.'],
-    });
+  async runOfflineReplay() {
+    return runRecovery('zero', 'offline-replay');
   }
+
+  async runConnectedFanout() { return runFanout('zero', 'connected-fanout'); }
+
+  async runConflictUpdateUpdate() { return runConflicts('zero', 'conflict-update-update'); }
+
+  async runConflictUpdateDelete() { return runConflicts('zero', 'conflict-update-delete'); }
+
+  async runReconnectStorm() { return runFanout('zero', 'reconnect-storm'); }
 
   async runLargeOfflineQueue() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Large offline queue replay is not implemented for Zero in this harness yet.'],
-    });
+    return runRecovery('zero', 'large-offline-queue');
   }
 
   async runLocalQuery() {
@@ -91,10 +96,7 @@ export class ZeroBenchmarkAdapter implements BenchmarkAdapter {
   }
 
   async runPermissionChange() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Permission-change convergence is not implemented for Zero in this harness yet.'],
-    });
+    return runAccess('zero');
   }
 
   async runBlobFlow() {

@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "purpose": "smoke",
+  "seed": 20260906,
+  "trials": 1,
+  "trialTimeoutMs": 1800000,
+  "stacks": [
+    "jazz-v2"
+  ],
+  "scenarios": [
+    "bootstrap"
+  ],
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Run all six 1k/10k/100k startup cases with restarted and warm Jazz services. Before each scale, require a separate seeder to validate the canonical full fixture, confirm native edge durability, close and exit. Require two fresh Node reader processes with empty native SQLite files, exact native first-screen and full-data queries, edge-completion receipts and worker-only resources. Preserve failures. Experimental correctness smoke only; no speed ranking or process-recovery claim."
+}

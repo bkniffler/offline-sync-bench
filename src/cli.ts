@@ -1,16 +1,7 @@
 import { Database } from 'bun:sqlite';
-import { randomUUID } from 'node:crypto';
+import { executeBenchmark, isFailed } from './execution';
 import { createAdapter } from './adapters';
 import { cleanupBenchmarkArtifacts } from './cleanup';
-import { runBootstrapScenario } from './runners/bootstrap';
-import { runBlobFlowScenario } from './runners/blob-flow';
-import { runDeepRelationshipQueryScenario } from './runners/deep-relationship-query';
-import { runLargeOfflineQueueScenario } from './runners/large-offline-queue';
-import { runLocalQueryScenario } from './runners/local-query';
-import { runOfflineReplayScenario } from './runners/offline-replay';
-import { runOnlinePropagationScenario } from './runners/online-propagation';
-import { runPermissionChangeScenario } from './runners/permission-change';
-import { runReconnectStormScenario } from './runners/reconnect-storm';
 import { catalogPath } from './paths';
 import { scenarios } from './scenarios';
 import { stacks } from './stacks';
@@ -134,22 +125,8 @@ function parseOptionalStackFlag(): StackId | null {
 
 function parseScenarioFlag(): ScenarioId {
   const scenarioId = parseFlag('--scenario');
-  if (
-    scenarioId !== 'bootstrap' &&
-    scenarioId !== 'online-propagation' &&
-    scenarioId !== 'offline-replay' &&
-    scenarioId !== 'reconnect-storm' &&
-    scenarioId !== 'large-offline-queue' &&
-    scenarioId !== 'local-query' &&
-    scenarioId !== 'deep-relationship-query' &&
-    scenarioId !== 'permission-change' &&
-    scenarioId !== 'blob-flow'
-  ) {
-    throw new Error(
-      '--scenario must be one of: bootstrap, online-propagation, offline-replay, reconnect-storm, large-offline-queue, local-query, deep-relationship-query, permission-change, blob-flow'
-    );
-  }
-  return scenarioId;
+  if (!scenarios.some(scenario => scenario.id === scenarioId)) throw new Error(`--scenario must be one of: ${scenarios.map(s => s.id).join(', ')}`);
+  return scenarioId as ScenarioId;
 }
 
 async function executeScenario(args: {
@@ -157,72 +134,8 @@ async function executeScenario(args: {
   adapter: BenchmarkAdapter;
   scenarioId: ScenarioId;
 }): Promise<BenchmarkResult> {
-  try {
-    const partialResult =
-      args.scenarioId === 'bootstrap'
-        ? await runBootstrapScenario(args.context, args.adapter)
-        : args.scenarioId === 'online-propagation'
-          ? await runOnlinePropagationScenario(args.context, args.adapter)
-          : args.scenarioId === 'offline-replay'
-            ? await runOfflineReplayScenario(args.context, args.adapter)
-            : args.scenarioId === 'reconnect-storm'
-              ? await runReconnectStormScenario(args.context, args.adapter)
-              : args.scenarioId === 'large-offline-queue'
-                ? await runLargeOfflineQueueScenario(args.context, args.adapter)
-                : args.scenarioId === 'local-query'
-                  ? await runLocalQueryScenario(args.context, args.adapter)
-                  : args.scenarioId === 'deep-relationship-query'
-                    ? await runDeepRelationshipQueryScenario(
-                        args.context,
-                        args.adapter
-                      )
-                  : args.scenarioId === 'permission-change'
-                    ? await runPermissionChangeScenario(
-                        args.context,
-                        args.adapter
-                      )
-                    : await runBlobFlowScenario(args.context, args.adapter);
-
-    return {
-      ...partialResult,
-      metadata: enrichResultMetadata(
-        args.adapter.stack,
-        args.scenarioId,
-        partialResult.metadata
-      ),
-    };
-  } catch (error) {
-    const startedAt = new Date();
-    const finishedAt = new Date();
-    switch (args.scenarioId) {
-      case 'bootstrap':
-      case 'online-propagation':
-      case 'offline-replay':
-      case 'reconnect-storm':
-      case 'large-offline-queue':
-      case 'local-query':
-      case 'deep-relationship-query':
-      case 'permission-change':
-      case 'blob-flow':
-        return {
-          runId: args.context.runId,
-          resultId: randomUUID(),
-          stackId: args.adapter.stack.id,
-          scenarioId: args.scenarioId,
-          status: 'failed',
-          startedAt: startedAt.toISOString(),
-          finishedAt: finishedAt.toISOString(),
-          durationMs: 0,
-          metrics: {},
-          notes: [error instanceof Error ? error.message : String(error)],
-          metadata: enrichResultMetadata(args.adapter.stack, args.scenarioId, {
-            implementation: 'benchmark-runner-error',
-          }),
-        };
-      default:
-        throw new Error(`Unsupported scenario: ${args.scenarioId}`);
-    }
-  }
+  const result = await executeBenchmark(args.context, args.adapter, args.scenarioId);
+  return { ...result, metadata: enrichResultMetadata(args.adapter.stack, args.scenarioId, result.metadata) };
 }
 
 function enrichResultMetadata(
@@ -262,6 +175,8 @@ function getScenarioSupportLevel(stackId: StackId, scenarioId: ScenarioId): stri
       return stack.capabilities.bootstrap;
     case 'online-propagation':
       return stack.capabilities.onlinePropagation;
+    case 'offline-restart':
+      return stack.capabilities.offlineRestart ?? 'not-implemented';
     case 'offline-replay':
       return stack.capabilities.offlineReplay;
     case 'reconnect-storm':
@@ -293,22 +208,13 @@ async function runSingleCommand(): Promise<void> {
   console.log(`runId=${context.runId}`);
   console.log(`result=${filePath}`);
   console.log(`status=${result.status}`);
+  if (isFailed(result.status)) process.exitCode = 1;
 }
 
 async function runAllCommand(): Promise<void> {
   const context = await createRunContext();
   const requestedStackId = parseOptionalStackFlag();
-  const scenarioIds: ScenarioId[] = [
-    'bootstrap',
-    'online-propagation',
-    'offline-replay',
-    'reconnect-storm',
-    'large-offline-queue',
-    'local-query',
-    'deep-relationship-query',
-    'permission-change',
-    'blob-flow',
-  ];
+  const scenarioIds = scenarios.map(scenario => scenario.id);
   const targetStacks = requestedStackId
     ? stacks.filter((stack) => stack.id === requestedStackId)
     : stacks;
@@ -320,6 +226,7 @@ async function runAllCommand(): Promise<void> {
       console.log(`[run-all] ${stack.id} ${scenarioId}`);
       const result = await executeScenario({ context, adapter, scenarioId });
       results.push(result);
+      if (isFailed(result.status)) process.exitCode = 1;
       await saveResult(context, result);
     }
   }
