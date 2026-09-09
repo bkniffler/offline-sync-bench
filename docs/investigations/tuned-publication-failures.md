@@ -1,6 +1,6 @@
 # Failures in the corrected collection
 
-These reviews concern the three-attempt SQL campaign using Syncular 0.17.0, started on 2026-09-08 at 22:58 UTC. They remain attached to specific attempts. [Current coverage](../../results/diagnostics/publication-coverage/COVERAGE.md) includes successful, unavailable and failed outcomes; the examples below are not product failure rates.
+These reviews concern the three-attempt SQL campaign using Syncular 0.17.0, started on 2026-09-08 at 22:58 UTC. They remain attached to specific attempts. [Current coverage](../../COVERAGE.md) includes successful, unavailable and failed outcomes; the examples below are not product failure rates.
 
 PowerSync missed initial client readiness before the intended offline replay, restart, conflict, fanout or reconnect work. Its replica-reopen attempts instead exceeded setup sync-command deadlines before reopening. The captured logs do not establish the cause. These attempts provide no latency for the intended workload. Fanout setup failures before reader creation cannot establish a reader-count scaling limit. The [individual setup reviews](../../results/diagnostics/tuned-v017-publication-failures/campaign-2026-09-08T22-58-56-419Z/CASE-REVIEWS.json) preserve each case and its causal limits. Per-client sync and read milestones, followed by a separate fresh-versus-retained storage experiment, would distinguish setup causes.
 

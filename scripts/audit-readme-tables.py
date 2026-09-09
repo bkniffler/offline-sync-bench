@@ -56,7 +56,7 @@ assert len(sections) == len(metrics)
 cells = timings = 0
 for section, (scenario, keys) in zip(sections, metrics):
     rows = [line for line in section.splitlines() if line.startswith('| ')][2:]
-    assert len(rows) == 8
+    assert [row.split('|')[1].strip() for row in rows] == list(labels)
     stacks = set()
     for row in rows:
         values = [v.strip() for v in row.split('|')[1:-1]]

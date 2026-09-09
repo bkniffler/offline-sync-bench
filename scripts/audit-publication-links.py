@@ -11,6 +11,21 @@ receipt = Path('results/diagnostics/final-publication/LINKS-AND-GIT.json')
 queue = deque(map(Path, ['README.md', 'RESULTS.md', 'docs/methodology.md',
                         'docs/benchmarks.md', 'docs/reporting.md', 'docs/history/README.md']))
 seen, missing = set(), []
+# Check the entrypoint's deep links as well as the files they name.
+readme_anchors = 0
+for target in re.findall(r'\]\(([^)]+)\)', Path('README.md').read_text()):
+    if target.startswith(('https:', 'http:', 'mailto:')) or '#' not in target:
+        continue
+    filename, anchor = target.split('#', 1)
+    page = Path(filename or 'README.md')
+    slugs, seen_slugs = set(), {}
+    for heading in re.findall(r'^#+ (.+)$', page.read_text(), re.M):
+        slug = re.sub(r'[^\w\- ]', '', heading.lower()).replace(' ', '-')
+        suffix = seen_slugs.get(slug, 0)
+        seen_slugs[slug] = suffix + 1
+        slugs.add(slug if suffix == 0 else f'{slug}-{suffix}')
+    assert anchor in slugs, f'Missing README anchor: {target}'
+    readme_anchors += 1
 while queue:
     path = queue.popleft().resolve()
     if path in seen:
@@ -48,13 +63,13 @@ assert not missing, missing
 records = []
 for name in paths:
     if name in [str(receipt)]:
-        # The RFC audit binds this receipt. Hashing it here would create a cycle.
+        # Exclude this receipt from its own content hashes.
         records.append({'path': name, 'scope': 'Existence and Git inclusion only; audit/receipt cycle excluded from byte hashes.'})
     else:
         data = Path(name).read_bytes()
         records.append({'path': name, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
 receipt.write_text(json.dumps({'status': 'verified',
-    'scope': 'Recursive local Markdown targets from reader entrypoints, every component-package file, final receipts and current-result redirects. All exist and none are Git-ignored. No staging, commit or push performed. URL fragments are not anchor-validated.',
+    'scope': 'Recursive local Markdown targets from reader entrypoints, every component-package file, final receipts and current-result redirects. All exist and none are Git-ignored. README section anchors are verified; other pages are checked for file existence. This audit does not stage, commit or push.',
     'auditorSha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-    'files': records, 'missing': [], 'ignored': []}, indent=2) + '\n')
+    'readmeAnchors': readme_anchors, 'files': records, 'missing': [], 'ignored': []}, indent=2) + '\n')
 print(f'Verified {len(records)} linked and packaged files; none missing or Git-ignored.')

@@ -28,9 +28,9 @@ Query 100,000 tasks across four projects. **Project detail** returns the first 1
 
 | Client | Project detail | Organization dashboard |
 | --- | ---: | ---: |
-| Electric | Not supported here | Not supported here |
+| Electric | Unavailable | Unavailable |
 | Electric + TanStack DB | 130.62 ms (127.53 ms–143.72 ms; n=4) | 567.16 ms (564.35 ms–600.59 ms; n=4) |
-| Jazz v2 (experimental) | Not supported here | Not supported here |
+| Jazz v2 (experimental) | Unavailable | Unavailable |
 
 
 
@@ -62,10 +62,10 @@ Open an existing 2,000-task store in a new process with the network blocked. Mea
 
 | Client | First correct screen | All rows available |
 | --- | ---: | ---: |
-| Electric | Not supported here | Not supported here |
+| Electric | Unavailable | Unavailable |
 | Electric + TanStack DB | 151.00 ms (145.62 ms–160.59 ms; n=4) | 159.19 ms (152.89 ms–169.36 ms; n=4) |
 | Jazz v2 (experimental) | 134.94 ms (131.10 ms–379.75 ms; n=4) | 166.01 ms (161.58 ms–490.82 ms; n=4) |
-| Zero | Not supported here | Not supported here |
+| Zero | Unavailable | Unavailable |
 
 Electric and Zero have no eligible persistent-reopen path in these tested configurations.
 
@@ -132,12 +132,12 @@ Repeat recovery with 100, 500 and 1,000 queued writes. Each column measures time
 
 Queue 1,000 writes, kill the writer process, reopen the same store offline, then reconnect. Verify every pending edit survives and reaches the reader.
 
-| Client | Reopen offline | Queue completed after reconnect | Reader visible after reconnect |
+| Client | Reopen offline | Queue completed | Reader visible |
 | --- | ---: | ---: | ---: |
 | Electric | 29.33 ms (28.67 ms–29.68 ms; n=4) | 16433.91 ms (8510.68 ms–23892.80 ms; n=4) | 16431.58 ms (8511.70 ms–23889.62 ms; n=4) |
-| Electric + TanStack DB | Not supported here | Not supported here | Not supported here |
+| Electric + TanStack DB | Unavailable | Unavailable | Unavailable |
 | Jazz v2 (experimental) | 195.26 ms (191.77 ms–197.02 ms; n=4) | 11780.65 ms (10797.98 ms–18515.98 ms; n=4) | 10728.40 ms (7508.49 ms–11658.75 ms; n=4) |
-| Zero | Not supported here | Not supported here | Not supported here |
+| Zero | Unavailable | Unavailable | Unavailable |
 
 Electric’s durable outbox is benchmark-owned. TanStack and Zero use memory queues here and cannot establish crash recovery.
 
@@ -175,7 +175,7 @@ A queues an offline edit; B deletes that task online. Reconnect A and check that
 | Jazz v2 (experimental) | Not established | Timed out |
 | Zero | Deletion retained | 3849.39 ms (3810.56 ms–3884.87 ms; n=4) |
 
-Jazz timed out without establishing deletion retention; earlier successful results do not replace that outcome.
+Jazz timed out without establishing deletion retention.
 
 - **Electric**: benchmark-sqlite-cache; unspecified. Outcomes: trial 1: completed, trial 2: completed, trial 3: completed, trial 4: completed.
 - **Electric + TanStack DB**: tanstack-node-sqlite-cache; unspecified. Outcomes: trial 1: completed, trial 2: completed, trial 3: completed, trial 4: completed.
@@ -240,12 +240,12 @@ Electric and TanStack rebuild the application cache; Zero invalidates its native
 
 Transfer two 2 MiB objects linked to tasks. Measure upload, an uncached download and recovery after an interrupted download; verify the complete object hashes.
 
-| Client | Upload | Fresh download | Interrupted download recovery |
+| Client | Upload | Fresh download | Download retry |
 | --- | ---: | ---: | ---: |
-| Electric | Not supported here | Not supported here | Not supported here |
-| Electric + TanStack DB | Not supported here | Not supported here | Not supported here |
-| Jazz v2 (experimental) | Not supported here | Not supported here | Not supported here |
-| Zero | Not supported here | Not supported here | Not supported here |
+| Electric | Unavailable | Unavailable | Unavailable |
+| Electric + TanStack DB | Unavailable | Unavailable | Unavailable |
+| Jazz v2 (experimental) | Unavailable | Unavailable | Unavailable |
+| Zero | Unavailable | Unavailable | Unavailable |
 
 
 

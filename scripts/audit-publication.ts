@@ -78,7 +78,7 @@ if(config.presentation==='readme-benchmarks-v1'){
  assert.equal(sections.length,14);
  assert.equal((page.match(/^\| Client \|/gm)??[]).length,14);
  for(const section of sections){
-  assert(section.includes('[Workload details](')&&section.includes('[Results, ranges and samples]('));
+  assert(section.includes('[Workload details](')&&section.includes('[SQL details]('));
   for(const label of ['Syncular JS','Syncular Rust','PowerSync','Turso','Electric','Electric + TanStack DB','Jazz v2 (experimental)'])assert(section.includes(`| ${label} |`));
   assert(section.includes('| Zero |'));
   assert(section.includes('[Other client details]('));

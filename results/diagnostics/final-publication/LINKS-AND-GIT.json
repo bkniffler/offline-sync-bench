@@ -1,7 +1,8 @@
 {
   "status": "verified",
-  "scope": "Recursive local Markdown targets from reader entrypoints, every component-package file, final receipts and current-result redirects. All exist and none are Git-ignored. No staging, commit or push performed. URL fragments are not anchor-validated.",
-  "auditorSha256": "72b08abbbbb2592116d0c1548155b18b7c0c3036fc00d519cb69ba00c8431e0d",
+  "scope": "Recursive local Markdown targets from reader entrypoints, every component-package file, final receipts and current-result redirects. All exist and none are Git-ignored. README section anchors are verified; other pages are checked for file existence. This audit does not stage, commit or push.",
+  "auditorSha256": "0c75a9b527211fcdf709f75463b686b9b5a9cd1f456a91a9742b33b474d4134d",
+  "readmeAnchors": 44,
   "files": [
     {
       "path": "COVERAGE.json",
@@ -15,13 +16,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 18652,
-      "sha256": "75d917317b1a026f64411a4fd1c55c10136a15208bbd54a407abf40b3fac0fb5"
+      "bytes": 17913,
+      "sha256": "6caf8d8bd2014cdb51f78c2d65a689e6a49882886011a4b763ea5061b14c27df"
     },
     {
       "path": "RESULTS.json",
       "bytes": 2057,
-      "sha256": "1cec27ccbe8ad5ccb8c1a0e2bbfc360aac8ee9f1254194fb6f2e0261d8d44fc7"
+      "sha256": "82a9966757e969002772e40b24266b5dfe3b01a7da8250f49e9ecd82e1b7832b"
     },
     {
       "path": "RESULTS.md",
@@ -40,8 +41,8 @@
     },
     {
       "path": "docs/appendices/deployment-footprint.md",
-      "bytes": 2131,
-      "sha256": "44bd3138cc2aa0660b897cdddf7846d97009b138330551fe2552623494a19728"
+      "bytes": 2060,
+      "sha256": "78547a5234347b56ed9b70c459ac30f66b3948033dfa24f3c63a7a1cb05559bc"
     },
     {
       "path": "docs/benchmarks.md",
@@ -70,8 +71,8 @@
     },
     {
       "path": "docs/investigations/powersync-collaboration.md",
-      "bytes": 2086,
-      "sha256": "7cb5fabebab4c27a939fde45ec7958a5417a294d7d397ae05bf5eb6ccce53b5e"
+      "bytes": 2068,
+      "sha256": "82d70bc4fd855efc67f93b866fada9f209dae0319612d1eebd07c7072438dcdc"
     },
     {
       "path": "docs/investigations/screen-index-effect.md",
@@ -80,8 +81,8 @@
     },
     {
       "path": "docs/investigations/tuned-publication-failures.md",
-      "bytes": 4049,
-      "sha256": "1dbfc78f4edfca76cc73a2e272d78845e4a4dc84e17f1eeebb6b61732f134edc"
+      "bytes": 4008,
+      "sha256": "086f7b9a4464944948009a617a94d87e30994f95adfb0367fc9e96f11c26fcf1"
     },
     {
       "path": "docs/methodology.md",
@@ -140,12 +141,12 @@
     {
       "path": "results/diagnostics/final-publication/README-TABLE-AUDIT.json",
       "bytes": 337,
-      "sha256": "2f80a1204d2391ca5e66c3a005c3ab071587d77b82418c785be956e109008906"
+      "sha256": "3c97854d5b349a41072bed03715f5fb3937645c482c79a7ebc81f73e046bee6b"
     },
     {
       "path": "results/diagnostics/final-publication/RESULT-AUDIT.json",
       "bytes": 3765,
-      "sha256": "81721bc46f8b5cc6eb1bcb8de630901b1f2adb8e966c86681fa649e7660b99c3"
+      "sha256": "f7b0cb6cbffb5f131d2c2c3ab555c51e25c8b29f388f7a921036e2b50fd21f4d"
     },
     {
       "path": "results/diagnostics/final-publication/SQL-PUBLICATION.json",
@@ -186,16 +187,6 @@
       "path": "results/diagnostics/powersync-collaboration-throttle/INSPECTION.json",
       "bytes": 8718,
       "sha256": "0f841bce6fd80b0e15e4361bc4d348bce038ec2c18670b9432ceba6aaa910dea"
-    },
-    {
-      "path": "results/diagnostics/publication-coverage/COVERAGE.json",
-      "bytes": 278426,
-      "sha256": "05214ed5fd6fb9dd94081976a5fa8848e5282c231335e1704ca0448a8ae8b57e"
-    },
-    {
-      "path": "results/diagnostics/publication-coverage/COVERAGE.md",
-      "bytes": 2010,
-      "sha256": "3102ddc3e21635a2481cd764c1037a7ad6d08486147423dda7d325ca4b767365"
     },
     {
       "path": "results/diagnostics/publication-index-review/EVIDENCE-COMPRESSION.json",
@@ -314,8 +305,8 @@
     },
     {
       "path": "results/history/2026-09-07-withdrawn-campaign/RETAINED-RESULTS.md",
-      "bytes": 19040,
-      "sha256": "467810e04e6ce67c0078f2e3b535aa7d86b03c1bbf43c61b196a55bf5a8eea8d"
+      "bytes": 18755,
+      "sha256": "5c7f72a74b2aa71675da574929bb73989edd238a60ab69fe3ec1fbd5728d79b4"
     },
     {
       "path": "results/history/2026-09-07-withdrawn-campaign/campaign.tar.gz",
@@ -5949,18 +5940,18 @@
     },
     {
       "path": "scripts/audit-publication-links.py",
-      "bytes": 3132,
-      "sha256": "72b08abbbbb2592116d0c1548155b18b7c0c3036fc00d519cb69ba00c8431e0d"
+      "bytes": 3938,
+      "sha256": "0c75a9b527211fcdf709f75463b686b9b5a9cd1f456a91a9742b33b474d4134d"
     },
     {
       "path": "scripts/audit-publication.ts",
-      "bytes": 8084,
-      "sha256": "e0022c225845b78e1239fd6932919e0b90392c5104014ff572059a442adf1447"
+      "bytes": 8068,
+      "sha256": "ea42b2ec500b58549b7eef3ab064674ccaec4d566ff0b2a36639c42591ebafe7"
     },
     {
       "path": "scripts/audit-readme-tables.py",
-      "bytes": 5308,
-      "sha256": "a09127afdedcb24daa8465bc688e73f830db4121de9d618c797552bb6e858f86"
+      "bytes": 5353,
+      "sha256": "18ad6bc754e705372d740cb50836ef17c9204df68b391f38d61900999f0d02b8"
     },
     {
       "path": "scripts/diagnose-screen-index-effect.ts",

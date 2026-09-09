@@ -122,10 +122,10 @@
     }
   ],
   "main": {
-    "wordCount": 2714,
-    "sha256": "75d917317b1a026f64411a4fd1c55c10136a15208bbd54a407abf40b3fac0fb5",
+    "wordCount": 2579,
+    "sha256": "6caf8d8bd2014cdb51f78c2d65a689e6a49882886011a4b763ea5061b14c27df",
     "presentation": "readme-benchmarks-v1",
     "reviewedAnnotations": 4
   },
-  "auditorSha256": "e0022c225845b78e1239fd6932919e0b90392c5104014ff572059a442adf1447"
+  "auditorSha256": "ea42b2ec500b58549b7eef3ab064674ccaec4d566ff0b2a36639c42591ebafe7"
 }

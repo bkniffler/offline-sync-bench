@@ -14,4 +14,4 @@ Only emitted `.js` files count toward the totals. Workers, storage engines, WASM
 
 Entrypoint sizes remain separate from sync latency and correctness findings. A failed browser bundle indicates a problem with that tested entrypoint/configuration; it does not prove the product cannot run in a browser. Native Rust driver size answers a different deployment question and is not part of this browser bundle comparison.
 
-A future complete-application footprint case should implement the same working screen, sync flow and storage guarantees, inventory every deployed or fetched asset, distinguish initial from deferred downloads, and validate the app before measuring it. That extension is separate from the RFC's current entrypoint appendix.
+A future complete-application footprint case should implement the same working screen, sync flow and storage guarantees, inventory every deployed or fetched asset, distinguish initial from deferred downloads, and validate the app before measuring it.
