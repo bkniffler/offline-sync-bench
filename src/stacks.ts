@@ -100,11 +100,11 @@ export const stacks: StackSpec[] = [
     },
     capabilities: {
       bootstrap: 'native',
-      onlinePropagation: 'native',
-      offlineReplay: 'emulated',
-      offlineRestart: 'emulated',
-      reconnectStorm: 'native',
-      largeOfflineQueue: 'emulated',
+      onlinePropagation: 'unsupported',
+      offlineReplay: 'unsupported',
+      offlineRestart: 'unsupported',
+      reconnectStorm: 'unsupported',
+      largeOfflineQueue: 'unsupported',
       localQuery: 'native',
       deepRelationshipQuery: 'emulated',
       permissionChange: 'native',
@@ -113,7 +113,7 @@ export const stacks: StackSpec[] = [
     notes: [
       'Uses Electric shape feeds directly for bootstrap and visibility timing.',
       'Permission-change convergence uses a benchmark-owned auth-scoped Electric shape proxy that derives project access from project_memberships.',
-      'Offline replay uses a benchmark-owned Bun SQLite outbox to emulate durable client-side queuing.',
+      'Read-path sync only; client-write workloads are not supported. No custom outbox or uploader is supplied.',
     ],
   },
   {

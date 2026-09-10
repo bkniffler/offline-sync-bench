@@ -1,8 +1,10 @@
 # Browser collaboration components
 
-Campaigns select these components through an explicit `runtime.kind: "chromium"` configuration. The [canonical browser smoke](../../results/diagnostics/browser-collaboration-smoke/VERIFICATION.json) passes Electric and Zero collaboration and preserves four not-implemented cases. The [same-source native control](../../results/diagnostics/browser-native-control/VERIFICATION.json) passes Syncular, Electric and Zero. These establish runtime admission and separation; neither smoke supplies publication-level performance evidence.
+Plain Electric client-write workloads are Not supported. Current browser collaboration uses Zero; Electric development artifacts remain historical validation fixtures.
 
-- `client-entry.ts` bundles the installed Electric and Zero browser SDKs. Zero imports the shared production fixture schema/mutators and uses native IndexedDB. The browser emits native receipts through a CDP binding.
+Campaigns select these components through an explicit `runtime.kind: "chromium"` configuration. The historical [canonical browser smoke](../../results/diagnostics/browser-collaboration-smoke/VERIFICATION.json) passes Electric and Zero collaboration and preserves four not-implemented cases. The [same-source native control](../../results/diagnostics/browser-native-control/VERIFICATION.json) passes Syncular, Electric and Zero. These establish runtime admission and separation; neither smoke supplies publication-level performance evidence.
+
+- `client-entry.ts` bundles the installed Zero browser SDK. Zero imports the shared production fixture schema/mutators and uses native IndexedDB. The browser emits native receipts through a CDP binding.
 - `process.ts` owns a fresh Chromium process/profile, verifies origin and OS/CDP process identity, and transports nested big integers as decimal strings. It inherits the trial process group so the campaign timeout can terminate helpers. Normal cleanup acts only on the observed browser descendants and checks that their identities disappear.
 - `calibration.ts` records 100 idle two-call/binding round trips before/after a workload. Do not subtract these values from workload samples or describe them as loaded SDK instrumentation overhead.
 - `validation.ts` verifies complete initial/final data, independent clients, ordered native receipts, resources, calibration and observed-helper cleanup. `validation.test.ts` uses the preserved native development records as correctness fixtures.

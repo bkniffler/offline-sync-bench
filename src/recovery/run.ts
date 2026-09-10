@@ -1,3 +1,4 @@
+import { electricWriteUnsupported } from '../electric-support.ts';
 import { configuredRecoveryPolicy, validateRestoration } from '../contracts/recovery-policy.ts';
 import { validateOutage } from '../contracts/outage.ts';
 import { waitForRestoration } from './restoration.ts';
@@ -169,6 +170,7 @@ async function measureScale(stackId: StackId, scenario: RecoveryCase, count: num
 }
 
 export async function runRecovery(stackId: StackId, scenario: RecoveryCase) {
+  if (stackId === 'electric') return electricWriteUnsupported();
   await ensureStackUp(stackId);
   const scales = [];
   const metrics: Record<string, number | null> = {};
@@ -186,7 +188,6 @@ export async function runRecovery(stackId: StackId, scenario: RecoveryCase) {
     'The writer TCP gate drops existing connections and refuses new ones. The service and independent reader remain online. A blocked sync probe and unchanged reader data are required before reconnect.',
     'Restoration follows a predeclared absolute deadline from gate blocking. All offline checks must finish first; missed deadlines invalidate the attempt. Adapter-native probes remain explicit and do not determine restoration time. TCP event times use the controller clock and are not SDK state events.',
     'Queue drain and second-client visibility are timestamped independently from network restoration using the parent clock, including worker IPC receipt. All 2,000 records are validated before and after replay.',
-    ...(stackId === 'electric' ? ['Electric recovery is an application reference implementation: a benchmark-owned SQLite cache and outbox, idempotent HTTP uploads and native Shape delivery. Persisted recovery establishes this application’s behavior, not a native Electric queue.'] : []),
     ...(stackId === 'electric-tanstack' && scenario === 'offline-restart' ? ['TanStack uses its native offline transaction executor with a durable SQLite StorageAdapter. Local acknowledgment requires the serialized queue to be committed with synchronous FULL; after SIGKILL, the SDK restores optimistic edits and retries uploads from that queue. The storage adapter is application-owned.'] : []),
     ...(stackId === 'electric-tanstack' && scenario !== 'offline-restart' ? ['TanStack uses its native offline transaction executor and serialized IndexedDB outbox. The Node fake-indexeddb queue is in memory, separately from the SQLite confirmed-data cache. No process-durability claim is made for pending writes. Native retry requests traverse the same gated application route as shape delivery.'] : []),
     ...(stackId === 'zero' ? ['Zero uses a live memory-backed client and its native mutation.client/server promises. Pending counts cover only this trial’s issued mutations; the aggregate native queue counter is unavailable. The SDK owns reconnect and replay. This profile makes no process-durability claim.'] : []),

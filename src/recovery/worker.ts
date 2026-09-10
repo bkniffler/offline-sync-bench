@@ -14,7 +14,7 @@ async function createDriver(config: RecoveryClientConfig): Promise<RecoveryDrive
     ? (await import('../access/jazz-admin.ts')).createJazzAccessAdmin(config)
     : (await import('../access/jazz-driver.ts')).createJazzAccessDriver(config);
   if (config.accessNative && config.stackId === 'zero') return (await import('../access/zero-driver.ts')).createZeroAccessDriver(config);
-  if (config.recovery && config.stackId === 'electric') return (await import('./electric-driver.ts')).createElectricRecoveryDriver(config);
+  if (config.recovery && config.stackId === 'electric') return (await import('./electric-driver.ts')).createElectricReadCacheDriver(config);
   if (config.recovery && config.stackId === 'electric-tanstack') return (await import('./tanstack-driver.ts')).createTanStackRecoveryDriver(config);
   if (config.recovery && config.stackId === 'zero') return (await import('./zero-driver.ts')).createZeroRecoveryDriver(config);
   if (config.recovery && config.stackId === 'jazz-v2') return (await import('./jazz-driver.ts')).createJazzRecoveryDriver(config);

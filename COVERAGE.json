@@ -455,10 +455,16 @@
           "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         }
       ],
+      "exclusion": {
+        "stack": "electric",
+        "scenario": "blob-flow",
+        "label": "Not supported",
+        "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+      },
       "attempted": 4,
       "failedAttempts": 0,
       "latestOutcome": "unsupported",
-      "display": "not implemented"
+      "display": "Not supported"
     },
     {
       "stack": "electric",
@@ -598,10 +604,16 @@
           "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         }
       ],
+      "exclusion": {
+        "stack": "electric",
+        "scenario": "conflict-update-delete",
+        "label": "Not supported",
+        "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+      },
       "attempted": 4,
       "failedAttempts": 0,
       "latestOutcome": "completed",
-      "display": "passed"
+      "display": "Not supported"
     },
     {
       "stack": "electric",
@@ -676,10 +688,16 @@
           "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         }
       ],
+      "exclusion": {
+        "stack": "electric",
+        "scenario": "conflict-update-update",
+        "label": "Not supported",
+        "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+      },
       "attempted": 5,
       "failedAttempts": 0,
       "latestOutcome": "completed",
-      "display": "passed"
+      "display": "Not supported"
     },
     {
       "stack": "electric",
@@ -754,10 +772,16 @@
           "logSha256": "1bd0ecf8e28f4eccf6567e37e5947199461093febebfbc3de5b5f9920bfdedc4"
         }
       ],
+      "exclusion": {
+        "stack": "electric",
+        "scenario": "connected-fanout",
+        "label": "Not supported",
+        "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+      },
       "attempted": 5,
       "failedAttempts": 0,
       "latestOutcome": "completed",
-      "display": "passed"
+      "display": "Not supported"
     },
     {
       "stack": "electric",
@@ -843,10 +867,16 @@
           "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         }
       ],
+      "exclusion": {
+        "stack": "electric",
+        "scenario": "large-offline-queue",
+        "label": "Not supported",
+        "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+      },
       "attempted": 4,
       "failedAttempts": 0,
       "latestOutcome": "completed",
-      "display": "passed"
+      "display": "Not supported"
     },
     {
       "stack": "electric",
@@ -986,10 +1016,16 @@
           "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         }
       ],
+      "exclusion": {
+        "stack": "electric",
+        "scenario": "offline-replay",
+        "label": "Not supported",
+        "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+      },
       "attempted": 5,
       "failedAttempts": 0,
       "latestOutcome": "completed",
-      "display": "passed"
+      "display": "Not supported"
     },
     {
       "stack": "electric",
@@ -1051,10 +1087,16 @@
           "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         }
       ],
+      "exclusion": {
+        "stack": "electric",
+        "scenario": "offline-restart",
+        "label": "Not supported",
+        "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+      },
       "attempted": 4,
       "failedAttempts": 0,
       "latestOutcome": "completed",
-      "display": "passed"
+      "display": "Not supported"
     },
     {
       "stack": "electric",
@@ -1116,10 +1158,16 @@
           "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         }
       ],
+      "exclusion": {
+        "stack": "electric",
+        "scenario": "online-propagation",
+        "label": "Not supported",
+        "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+      },
       "attempted": 4,
       "failedAttempts": 0,
       "latestOutcome": "completed",
-      "display": "passed"
+      "display": "Not supported"
     },
     {
       "stack": "electric",
@@ -1259,10 +1307,16 @@
           "logSha256": "8550dd1ce9c85fe5b95e395a5f6c1e378a7942a729cbe009302c1215669385c8"
         }
       ],
+      "exclusion": {
+        "stack": "electric",
+        "scenario": "reconnect-storm",
+        "label": "Not supported",
+        "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+      },
       "attempted": 4,
       "failedAttempts": 0,
       "latestOutcome": "completed",
-      "display": "passed"
+      "display": "Not supported"
     },
     {
       "stack": "electric",

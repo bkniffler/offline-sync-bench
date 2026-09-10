@@ -1,6 +1,6 @@
 {
-  "scope": "Every current skipped/failed case plus missing local-commit cells and earlier Turso failures: 22 client/case entries. Immutable trial statuses remain unchanged. Six repaired cases have explicit publication or development dispositions below.",
-  "coverageSha256": "59adcb8e5284bff8d32393055fb633c614f357125f53ded8ed2a40d783a89b9b",
+  "scope": "Every current skipped/failed case plus missing local-commit cells and earlier Turso failures: 29 client/case entries. Immutable trial statuses remain unchanged. Six repaired cases have explicit publication or development dispositions below.",
+  "coverageSha256": "0464ab48467761d3f61923eeef0694b82cee51373f0c5ef36ed404477cdf6a0b",
   "policy": "Missing adapters, inconvenient runtime choices and setup failures are work to do, not product limitations. Only a documented lack of an equivalent workload or an inapplicable milestone justifies omission.",
   "cases": [
     {
@@ -125,14 +125,15 @@
       "stack": "electric",
       "scenario": "blob-flow",
       "metric": null,
-      "disposition": "implement-application-path",
-      "label": "Not implemented",
-      "reason": "No standalone attachment queue is wired for this adapter; the application can sync file references and use object storage.",
-      "nextStep": "Implement one shared application-owned object-transfer queue, with each product syncing metadata. Separate product-owned versus application-owned transfer machinery; do not imply native attachment support.",
+      "disposition": "not-supported",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.",
+      "nextStep": "Keep Electric read-only; do not add a benchmark-owned write path.",
       "evidence": [
         "src/adapters/electric.ts",
         "src/contracts/attachments.ts",
-        "src/attachments/run.ts"
+        "src/attachments/run.ts",
+        "src/electric-support.ts"
       ]
     },
     {
@@ -195,15 +196,16 @@
     {
       "stack": "electric",
       "scenario": "online-propagation",
-      "metric": "local_commit_p50_ms",
-      "disposition": "not-applicable",
-      "label": "Not applicable",
-      "reason": "This direct-to-server write path performs no local commit.",
-      "nextStep": "Keep this milestone absent for the direct-write profile; a SQLite outbox profile can measure it separately without claiming native Electric persistence.",
+      "metric": null,
+      "disposition": "not-supported",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.",
+      "nextStep": "Keep Electric read-only; do not add a benchmark-owned write path.",
       "evidence": [
         "src/adapters/electric.ts",
         "src/recovery/electric-driver.ts",
-        "https://electric.ax/docs/sync/guides/writes"
+        "https://electric.ax/docs/sync/guides/writes",
+        "src/electric-support.ts"
       ]
     },
     {
@@ -309,6 +311,97 @@
       "evidence": [
         "docs/investigations/tuned-publication-failures.md"
       ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "offline-replay",
+      "metric": null,
+      "disposition": "not-supported",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.",
+      "nextStep": "Keep Electric read-only; do not add a benchmark-owned write path.",
+      "evidence": [
+        "src/electric-support.ts",
+        "src/adapters/electric.ts"
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "large-offline-queue",
+      "metric": null,
+      "disposition": "not-supported",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.",
+      "nextStep": "Keep Electric read-only; do not add a benchmark-owned write path.",
+      "evidence": [
+        "src/electric-support.ts",
+        "src/adapters/electric.ts"
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "offline-restart",
+      "metric": null,
+      "disposition": "not-supported",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.",
+      "nextStep": "Keep Electric read-only; do not add a benchmark-owned write path.",
+      "evidence": [
+        "src/electric-support.ts",
+        "src/adapters/electric.ts"
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "conflict-update-update",
+      "metric": null,
+      "disposition": "not-supported",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.",
+      "nextStep": "Keep Electric read-only; do not add a benchmark-owned write path.",
+      "evidence": [
+        "src/electric-support.ts",
+        "src/adapters/electric.ts"
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "conflict-update-delete",
+      "metric": null,
+      "disposition": "not-supported",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.",
+      "nextStep": "Keep Electric read-only; do not add a benchmark-owned write path.",
+      "evidence": [
+        "src/electric-support.ts",
+        "src/adapters/electric.ts"
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "connected-fanout",
+      "metric": null,
+      "disposition": "not-supported",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.",
+      "nextStep": "Keep Electric read-only; do not add a benchmark-owned write path.",
+      "evidence": [
+        "src/electric-support.ts",
+        "src/adapters/electric.ts"
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "reconnect-storm",
+      "metric": null,
+      "disposition": "not-supported",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.",
+      "nextStep": "Keep Electric read-only; do not add a benchmark-owned write path.",
+      "evidence": [
+        "src/electric-support.ts",
+        "src/adapters/electric.ts"
+      ]
     }
   ],
   "evidence": [
@@ -358,7 +451,7 @@
     },
     {
       "path": "results/diagnostics/final-publication/TIMEOUT-REVIEW.json",
-      "sha256": "3c31d773da82e2d423fdc7ab8972435be3ceb686e697f04f8786dd2c88001dc3"
+      "sha256": "ae579f5292eb85e69b32c3448d3590ceb5eb2a605a7333481922d58da9184e35"
     },
     {
       "path": "results/reports/coverage-fixes/RESULTS.json",
@@ -374,7 +467,7 @@
     },
     {
       "path": "src/adapters/electric.ts",
-      "sha256": "2ddda9635b2750fc449e0dcb7cdcac5e845a72368078ab4403390a3d13f360bd"
+      "sha256": "abb51523a9efe565f07e46a33a4e91daaed3604e30b94aa957cdc2e49095427b"
     },
     {
       "path": "src/adapters/jazz-native.ts",
@@ -394,7 +487,7 @@
     },
     {
       "path": "src/browser/client-entry.ts",
-      "sha256": "e0bb0d73030dd350f26670a78e22c8b208692e0bbb315a2810a4d9c8594c175d"
+      "sha256": "0ac62e0211b55136fc513edf6fd8679f0a556591ccfbcdd9a1f15030f7b5722a"
     },
     {
       "path": "src/contracts/access.ts",
@@ -413,8 +506,12 @@
       "sha256": "f0156961e24bee513c27dbe1c86fd418c72ec6f422829626f59349eafdc184a7"
     },
     {
+      "path": "src/electric-support.ts",
+      "sha256": "cadaa78d40c8f20d072a99d1795b83b54438babcfd335e275f630540c1ec441b"
+    },
+    {
       "path": "src/recovery/electric-driver.ts",
-      "sha256": "343efd0abd5627ebf9675cb908f3dd7b976b5c1912e42258a089e853f575110c"
+      "sha256": "8a8fd130c6516fed2301efebc3493436adc76320117ebefda2830c7919516b0d"
     },
     {
       "path": "src/recovery/reopen.ts",
@@ -429,5 +526,5 @@
       "sha256": "fd8d3bcc39414015511bd30074802ee759f11849dc6d86ab8be89d2f7d4ec3fc"
     }
   ],
-  "optionalBrowserRuntime": "src/browser/adapter.ts implements only Electric and Zero collaboration; other Chromium combinations are implementation gaps and are not claimed as tested product limitations. The native Rust executable is not a browser SDK."
+  "optionalBrowserRuntime": "src/browser/adapter.ts implements only Zero collaboration; plain Electric client-write workloads are excluded; other Chromium combinations are implementation gaps and are not claimed as tested product limitations. The native Rust executable is not a browser SDK."
 }

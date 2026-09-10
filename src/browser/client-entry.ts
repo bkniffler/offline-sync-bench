@@ -1,4 +1,3 @@
-import {Shape,ShapeStream} from '@electric-sql/client';
 import {Zero} from '@rocicorp/zero';
 import {schema,queries} from '../../services/zero-bench-app/src/schema.ts';
 import {mutators} from '../../services/zero-bench-app/src/mutators.ts';
@@ -29,22 +28,8 @@ function check(){if(fatal)throw new Error(fatal);}
 async function init(value:Config){
  if(value.diagnosticForwarding!==undefined&&!['buffered','forwarded'].includes(value.diagnosticForwarding))throw new Error('Unknown diagnostic forwarding mode');
  config=value;
- if(config.stackId==='electric'){
-  const abort=new AbortController();
-  const stream=new ShapeStream({url:`${config.syncBaseUrl}/v1/shape`,params:{table:'tasks'},signal:abort.signal,onError:error=>{fail(error);return undefined;}});
-  const shape=new Shape(stream);readRows=()=>shape.currentRows as Row[];
-  const unsubscribe=shape.subscribe(()=>{if(shape.error)fail(shape.error);else matches();});
-  close=async()=>{unsubscribe();abort.abort();};
-  await shape.rows;check();
-  write=async(taskId,title,iteration)=>{
-   const url=`${config.mutationBaseUrl}/admin/write`,request={taskId,title};
-   const response=await fetch(url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(request),redirect:'error'});
-   const body=await response.json();const receipt={iteration,url,method:'POST',request,response:{status:response.status,body}};
-   receipts.push(receipt);
-   if(response.status!==200||body.ok!==true||body.stackId!=='electric'||body.row?.id!==taskId||body.row.title!==title||typeof body.row.completed!=='boolean'||!Number.isSafeInteger(Number(body.row.server_version))||Number(body.row.server_version)<2)throw new Error('Electric mutation response mismatch');
-   emit('accepted',{title,taskId,browserAtMs:performance.now(),receipt});
-  };
- }else{
+ if(config.stackId!=='zero')throw new Error('Electric client writes are not supported');
+ {
   const zero=new Zero({userID:config.actorId,auth:config.auth,cacheURL:config.syncBaseUrl,schema,mutators,storageKey:config.clientId,kvStore:'idb',logLevel:'error'});
   const all=zero.materialize(queries.tasks.all());readRows=()=>all.data as Row[];
   let ready!:()=>void,reject!: (error:unknown)=>void;
@@ -63,7 +48,7 @@ async function init(value:Config){
  }
  const initialReadiness=await awaitBrowserFixture(()=>{check();return readRows();},config.expectedRows);
  return{clientId:config.clientId,role:config.role,stackId:config.stackId,origin:location.origin,userAgent:navigator.userAgent,initialReadiness,...(config.diagnosticForwarding?{diagnosticForwarding:config.diagnosticForwarding}:{}),
-  storage:config.stackId==='zero'?'native-indexeddb':'sdk-memory-shape',secureContext:isSecureContext,
+  storage:'native-indexeddb',secureContext:isSecureContext,
   visibility:document.visibilityState,nativeRowTypes:Object.fromEntries(Object.entries(readRows()[0]??{}).map(([key,value])=>[key,typeof value])),rows:readRows(),databases:await indexedDB.databases()};
 }
 globalThis.benchmarkDispatch=async(method,params)=>{

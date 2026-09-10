@@ -1,3 +1,4 @@
+import { electricWriteUnsupported } from '../electric-support.ts';
 import { mkdir, mkdtemp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -138,6 +139,7 @@ async function measureScale(stackId: StackId, scenario: FanoutCase, count: numbe
   finally { resources.abort(); servers.abort(); await Promise.allSettled(processes.map(client => client.kill())); await Promise.allSettled(readers.map(r => r.gate.close())); await rm(dir, { recursive: true, force: true }); }
 }
 export async function runFanout(stackId: StackId, scenario: FanoutCase) {
+  if (stackId === 'electric') return electricWriteUnsupported();
   await ensureStackUp(stackId);
   if (stackId === 'syncular-rust') await (await import('../adapters/syncular-rust.ts')).ensureBenchBinary();
   const counts = clientCounts(), cases: JsonObject[] = [], metrics: Record<string, number | null> = {}, notes: string[] = [];

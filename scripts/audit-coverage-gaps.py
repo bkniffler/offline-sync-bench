@@ -42,12 +42,21 @@ for c in cases:
    c.update(disposition='published-single-run',label='Measured',reason='The repaired implementation passed its complete workload and output checks in one predeclared publication run (n=1). Run-to-run variability is unknown.',nextStep='Retain the single-run caveat; investigate costs separately before any further campaign.')
    c['evidence'].append('results/reports/coverage-fixes/RESULTS.json')
 
+config=json.loads(Path('SUMMARY.json').read_text())
+for exclusion in config['exclusions']:
+ c=next((c for c in cases if (c['stack'],c['scenario'])==(exclusion['stack'],exclusion['scenario'])),None)
+ if c is None:
+  add(exclusion['stack'],exclusion['scenario'],'not-supported','Not supported',exclusion['reason'],'Keep Electric read-only; do not add a benchmark-owned write path.',['src/electric-support.ts','src/adapters/electric.ts'])
+ else:
+  c.update(disposition='not-supported',label='Not supported',metric=None,reason=exclusion['reason'],nextStep='Keep Electric read-only; do not add a benchmark-owned write path.')
+  c['evidence'].append('src/electric-support.ts')
+
 reviewed={(c['stack'],c['scenario']) for c in cases}
 missing={(c['stack'],c['scenario']) for c in coverage['cases'] if not c['attempts'] or any(a['outcome']!='completed' for a in c['attempts'])}
 assert missing <= reviewed, missing-reviewed
-assert len(cases)==22
+assert len(cases)==29
 files=sorted({p for c in cases for p in c['evidence'] if not p.startswith('https://')})
 evidence=[dict(path=p,sha256=hashlib.sha256(Path(p).read_bytes()).hexdigest()) for p in files]
-r={'scope':'Every current skipped/failed case plus missing local-commit cells and earlier Turso failures: 22 client/case entries. Immutable trial statuses remain unchanged. Six repaired cases have explicit publication or development dispositions below.','coverageSha256':hashlib.sha256(Path('COVERAGE.json').read_bytes()).hexdigest(),'policy':'Missing adapters, inconvenient runtime choices and setup failures are work to do, not product limitations. Only a documented lack of an equivalent workload or an inapplicable milestone justifies omission.','cases':cases,'evidence':evidence,'optionalBrowserRuntime':'src/browser/adapter.ts implements only Electric and Zero collaboration; other Chromium combinations are implementation gaps and are not claimed as tested product limitations. The native Rust executable is not a browser SDK.'}
+r={'scope':'Every current skipped/failed case plus missing local-commit cells and earlier Turso failures: 29 client/case entries. Immutable trial statuses remain unchanged. Six repaired cases have explicit publication or development dispositions below.','coverageSha256':hashlib.sha256(Path('COVERAGE.json').read_bytes()).hexdigest(),'policy':'Missing adapters, inconvenient runtime choices and setup failures are work to do, not product limitations. Only a documented lack of an equivalent workload or an inapplicable milestone justifies omission.','cases':cases,'evidence':evidence,'optionalBrowserRuntime':'src/browser/adapter.ts implements only Zero collaboration; plain Electric client-write workloads are excluded; other Chromium combinations are implementation gaps and are not claimed as tested product limitations. The native Rust executable is not a browser SDK.'}
 Path('results/diagnostics/final-publication/COVERAGE-REVIEW.json').write_text(json.dumps(r,indent=2)+'\n')
 print('Reviewed',len(cases),'entries; every selected non-completed case covered.')

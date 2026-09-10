@@ -34,7 +34,7 @@ All recovery cases use 2,000 tasks and keep the service and independent reader h
 
 The default outage is 20 seconds from the monotonic blocking anchor. Offline preparation must finish before the declared restoration deadline; missed readiness or excessive restoration lateness invalidates the case. Blocked-route probes and an unchanged reader prove the outage. Full records, including untouched rows, are checked after recovery. Queue completion and reader visibility have independent timers from restoration.
 
-A persistent read cache alone does not prove durable queued writes. Zero's tested Node memory store and TanStack's Node memory queue cannot pass process-restart durability. Electric's persistent outbox is benchmark-owned. Native queue counters and scoped mutation receipts are identified rather than treated as interchangeable. [Workload](../src/contracts/recovery.ts) · [Validation](../src/contracts/recovery-validation.ts).
+A persistent read cache alone does not prove durable queued writes. Zero's retained memory profile does not prove process-restart durability. TanStack's crash-recovery case uses its native executor with a durable SQLite storage adapter. Plain Electric is excluded from client-write workloads; no custom outbox is supplied. Native queue counters and scoped mutation receipts are identified rather than treated as interchangeable. [Workload](../src/contracts/recovery.ts) · [Validation](../src/contracts/recovery-validation.ts).
 
 ## Conflicting edits
 
@@ -43,7 +43,7 @@ A persistent read cache alone does not prove durable queued writes. Zero's teste
 | Tested write path | Expected behavior |
 | --- | --- |
 | Syncular with explicit version precondition | Reject the stale update; retain B's edit or deletion |
-| PowerSync SQL PATCH, Electric/TanStack application SQL, Turso SQL UPDATE, Zero title-only mutator | Apply A's later title update to an existing row; preserve a missing row as deleted |
+| PowerSync SQL PATCH, TanStack application SQL, Turso SQL UPDATE, Zero title-only mutator | Apply A's later title update to an existing row; preserve a missing row as deleted |
 | Jazz timestamp-ordered update / soft delete | Retain B's later-written title; deletion retention remains an explicitly tested requirement with historical failures |
 
 These are configured application paths, not universal product conflict policies. Different outcomes are not combined into a latency ranking. One ordered race does not cover every possible interleaving. [Contract and policies](../src/contracts/conflicts.ts).

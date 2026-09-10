@@ -29,6 +29,8 @@ metrics = [
 labels = {'Syncular JS': 'syncular', 'Syncular Rust': 'syncular-rust', 'PowerSync': 'powersync', 'Turso': 'turso',
           'Zero': 'zero', 'Electric': 'electric',
           'Electric + TanStack DB': 'electric-tanstack', 'Jazz v2 (experimental)': 'jazz-v2'}
+exclusions={(e['stack'],e['scenario']):e for e in config['exclusions']}
+assert set(exclusions)=={('electric',s) for s in ['online-propagation','offline-replay','large-offline-queue','offline-restart','conflict-update-update','conflict-update-delete','connected-fanout','reconnect-storm','blob-flow']}
 groups = {}
 selected_sources = {(c['stack'], c['scenario']): c['source'] for c in coverage['cases']}
 for source in config['sources']:
@@ -90,7 +92,9 @@ for section, (scenario, keys) in zip(sections, metrics):
         if scenario.startswith('conflict'):
             outcome = {'last-arriving-patch': 'A’s replayed edit retained', 'last-written-field': 'B’s edit retained',
                        'reject-stale-update': 'B’s edit retained', 'delete-retained': 'Deletion retained'}
-            if eligible:
+            if (stack,scenario) in exclusions:
+                assert values[1].startswith('Not supported')
+            elif eligible:
                 assert values[1] == outcome[latest['metadata']['policy']['outcome']]
         for metric, displayed in zip(keys, values[-len(keys):]):
             marker = re.search(r' ((?:\\\*)+)$', displayed)
@@ -99,6 +103,11 @@ for section, (scenario, keys) in zip(sections, metrics):
                 used_markers.add(marker[1])
                 footnoted_cells += 1
                 displayed = displayed[:marker.start()]
+            if (stack,scenario) in exclusions:
+                assert marker and displayed=='Not supported'
+                assert footnotes[marker[1]]==exclusions[stack,scenario]['reason']
+                cells+=1
+                continue
             samples = [r['metrics'].get(metric) for r in passed]
             if eligible and samples and all(isinstance(v, (int, float)) for v in samples):
                 median = statistics.median(samples)

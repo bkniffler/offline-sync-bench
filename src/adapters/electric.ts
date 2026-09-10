@@ -1,25 +1,17 @@
+import { electricWriteUnsupported } from '../electric-support.ts';
 import { indexRelatedScreens } from '../contracts/related-screen-index.ts';
-import { runConflicts } from '../recovery/conflicts.ts';
-import { runFanout } from '../fanout/run.ts';
-import { runRecovery } from '../recovery/run.ts';
 import { runReopen } from '../recovery/reopen.ts';
 import { Shape, ShapeStream } from '@electric-sql/client';
 import { runStartup } from '../startup/run.ts';
 import { runAccess } from '../access/run.ts';
-import { measureCollaboration, collaborationSeed, collaborationWarmup, pollUntil } from '../contracts/collaboration.ts';
-import { ELECTRIC_ACKNOWLEDGMENT } from '../contracts/electric-collaboration.ts';
-import { submitElectricCollaborationWrite } from './electric-write.ts';
 import { measureScreens, screenSeed, arrayScreenQuery, taskRecord, type Row } from '../contracts/screens.ts';
 import {
   ensureStackUp,
-  getFixtures,
   seedStack,
 } from '../stack-manager';
 import { getClientStack as getStack } from '../stacks';
-import { createUnsupportedScenarioResult } from '../unsupported';
 import type {
   BenchmarkAdapter,
-  JsonObject,
   TaskRecord,
 } from '../types';
 
@@ -202,91 +194,20 @@ async function bootstrapShape(args: {
   };
 }
 
-async function waitForElectricTitle(args: {
-  baseUrl: string;
-  fetchImpl: typeof fetch;
-  state: ElectricShapeState;
-  taskId: string;
-  expectedTitle: string;
-  timeoutMs?: number;
-}): Promise<ElectricShapeState> {
-  const timeoutMs = args.timeoutMs ?? 30_000;
-  const startedAt = Date.now();
-  let currentState = args.state;
-
-  while (Date.now() - startedAt < timeoutMs) {
-    const page = await fetchShapePage({
-      baseUrl: args.baseUrl,
-      fetchImpl: args.fetchImpl,
-      handle: currentState.handle,
-      offset: currentState.offset,
-      live: true,
-    });
-
-    const nextRows = new Map(currentState.rows);
-    applyShapeMessages(nextRows, page.messages);
-
-    currentState = {
-      handle: page.handle,
-      offset: page.offset,
-      rows: nextRows,
-      serverVersion: page.serverVersion,
-    };
-
-    if (nextRows.get(args.taskId)?.title === args.expectedTitle) {
-      return currentState;
-    }
-  }
-
-  throw new Error(
-    `Electric live shape did not observe ${args.taskId}=${args.expectedTitle}`
-  );
-}
-
 export class ElectricBenchmarkAdapter implements BenchmarkAdapter {
   readonly stack = getStack('electric');
 
-  async runConflictUpdateUpdate() { return runConflicts('electric', 'conflict-update-update'); }
-  async runConflictUpdateDelete() { return runConflicts('electric', 'conflict-update-delete'); }
+  async runConflictUpdateUpdate() { return electricWriteUnsupported(); }
+  async runConflictUpdateDelete() { return electricWriteUnsupported(); }
 
   async runBootstrap() { return runStartup('electric'); }
 
-  async runOnlinePropagation() {
-    await ensureStackUp('electric'); await seedStack('electric', collaborationSeed);
-    const fixtures = await getFixtures('electric');
-    if (!fixtures.sampleTaskId) throw new Error('Electric task fixture missing');
-    const taskId = fixtures.sampleTaskId;
-    let state = await bootstrapShape({ baseUrl: this.stack.syncBaseUrl, fetchImpl: fetch });
-    const mutationReceipts: JsonObject[] = [];
-    let writeIndex = -collaborationWarmup;
-    const result = await measureCollaboration({
-      readData: () => [...state.rows.values()] as unknown as Row[],
-      localCommit: false,
-      write: async (title, milestones, signal) => {
-        const receipt = await submitElectricCollaborationWrite(this.stack.mutationBaseUrl!, taskId, title, writeIndex++, signal);
-        milestones.serverAccepted();
-        mutationReceipts.push(receipt);
-      },
-      observe: async (title, signal) => {
-        const timedFetch = ((input: RequestInfo | URL, init?: RequestInit) => fetch(input, { ...init, signal })) as typeof fetch;
-        state = await waitForElectricTitle({ baseUrl: this.stack.syncBaseUrl, fetchImpl: timedFetch, state, taskId, expectedTitle: title, timeoutMs: 30_000 });
-      },
-      diagnostics: { localCommit: 'unavailable: application writes directly to backend', serverAccepted: 'validated SQL mutation response; no administrative reread', reader: 'Electric shape long-poll, application Map materialization', localStorage: 'javascript-map' },
-    }).catch(error => {
-      throw Object.assign(error instanceof Error ? error : new Error(String(error)), { evidence: { ...(error?.evidence ?? {}), acknowledgmentContract: ELECTRIC_ACKNOWLEDGMENT, mutationReceipts } });
-    });
-    return { status: 'completed' as const, ...result, metadata: { ...result.metadata, implementation: 'electric-collaboration-v3', acknowledgmentContract: ELECTRIC_ACKNOWLEDGMENT, mutationReceipts } };
-  }
-
-  async runOfflineReplay() { return runRecovery('electric', 'offline-replay'); }
-
-  async runOfflineRestart() { return runRecovery('electric', 'offline-restart'); }
-
-  async runConnectedFanout() { return runFanout('electric', 'connected-fanout'); }
-
-  async runReconnectStorm() { return runFanout('electric', 'reconnect-storm'); }
-
-  async runLargeOfflineQueue() { return runRecovery('electric', 'large-offline-queue'); }
+  async runOnlinePropagation() { return electricWriteUnsupported(); }
+  async runOfflineReplay() { return electricWriteUnsupported(); }
+  async runOfflineRestart() { return electricWriteUnsupported(); }
+  async runConnectedFanout() { return electricWriteUnsupported(); }
+  async runReconnectStorm() { return electricWriteUnsupported(); }
+  async runLargeOfflineQueue() { return electricWriteUnsupported(); }
 
   async runLocalQuery() {
     await ensureStackUp('electric');
@@ -334,10 +255,5 @@ export class ElectricBenchmarkAdapter implements BenchmarkAdapter {
 
   async runPermissionChange() { return runAccess('electric'); }
 
-  async runBlobFlow() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Blob flow benchmarking is not implemented for Electric in this harness yet.'],
-    });
-  }
+  async runBlobFlow() { return electricWriteUnsupported(); }
 }

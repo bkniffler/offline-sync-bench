@@ -1,3 +1,4 @@
+import { electricWriteUnsupported } from '../electric-support.ts';
 import { mkdir, mkdtemp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -15,6 +16,7 @@ import { restartStartupServer, serverState } from '../startup/server.ts';
 import type { JsonObject, StackId } from '../types.ts';
 
 export async function runConflicts(stackId: StackId, scenario: ConflictCase) {
+  if (stackId === 'electric') return electricWriteUnsupported();
   const policy = conflictPolicy(stackId, scenario);
   await ensureStackUp(stackId);
   if (stackId !== 'jazz-v2') await seedStack(stackId, recoverySeed);
@@ -104,7 +106,7 @@ export async function runConflicts(stackId: StackId, scenario: ConflictCase) {
       notes: ['A queues a stale edit behind a client-only TCP outage. B changes or deletes the same task; a third client must observe B before A reconnects.',
         'The declared policy determines the expected winner, native disposition and application version. Every remaining task is checked on all three clients. An empty queue alone cannot establish correctness.',
         'Resolution time includes native disposition followed by all three client observations and controller IPC. Conflict policies are separate comparison profiles; PowerSync policy belongs to this application backend.'],
-      metadata: { ...evidence, clients: records, clientStorage: stackId === 'zero' ? 'memory; native Zero mutation queue, no process durability' : stackId === 'electric' ? 'benchmark-owned persistent SQLite cache and outbox' : stackId === 'electric-tanstack' ? 'product persistent SQLite cache; native fake-indexeddb-memory queue, no process durability' : 'product persistent store and queue', implementation: `${stackId}-${CONFLICT_CONTRACT}`, workloadContract: CONFLICT_CONTRACT, fixture: recoverySeed, policy: { ...policy }, pendingBefore: queued.pending,
+      metadata: { ...evidence, clients: records, clientStorage: stackId === 'zero' ? 'memory; native Zero mutation queue, no process durability' : stackId === 'electric-tanstack' ? 'product persistent SQLite cache; native fake-indexeddb-memory queue, no process durability' : 'product persistent store and queue', implementation: `${stackId}-${CONFLICT_CONTRACT}`, workloadContract: CONFLICT_CONTRACT, fixture: recoverySeed, policy: { ...policy }, pendingBefore: queued.pending,
         peerAcceptedBeforeReconnect: true, outage: { method: 'client-only-tcp-gate', before, after, probeError }, validation, writerOutcome: evidence.writerOutcome,
         diagnostics: writer.diagnostics, resources: usage.metadata } };
   } catch (error) {

@@ -13,7 +13,8 @@ export function renderPublicationCoverage(coverage:any):string {
   const last=attempts.at(-1);const failedAttempts=attempts.filter(a=>['failed','invalid','timed-out'].includes(a.outcome)).length;
   let display='pending';
   if(historical||attempts.length===input.plannedAttempts)display=last?.outcome==='completed'?'passed':last?.outcome==='unsupported'?last.coverage?.status==='unsupported-tested-configuration'?'unsupported':last.coverage?.status==='not-implemented'?'not implemented':'unavailable':last?.outcome??'pending';
-  records.set(key,{historical,display,failedAttempts});
+  if(input.exclusion)display=input.exclusion.label;
+  records.set(key,{historical,display,failedAttempts:input.exclusion?0:failedAttempts});
   if(historical)retained+=attempts.length;else current+=attempts.length;
  }
  const expected=stacks.flatMap(s=>suites.flatMap(suite=>suite.cases.map(c=>`${s.id}/${c}`))).sort();
@@ -27,6 +28,6 @@ export function renderPublicationCoverage(coverage:any):string {
    return [...counts].map(([label,n])=>`${n} ${label}`).join('; ')+(items.every(i=>i.historical)?' H':'')+(failed?`; ${failed} failed attempt${failed===1?'':'s'}`:'');
   });lines.push(`| ${suite.title} | ${cells.join(' | ')} |`);
  }
- lines.push('','Cells summarize the latest outcome per case; replacement cases remain pending until their declared attempts are recorded. Failed-attempt counts include earlier failures. H cases retain their original attempts and are not new tuned comparisons. Jazz v2 remains experimental. Unavailable coverage makes no claim about product capabilities.','', 'This combines coverage only. Timings, annotations and uncertainty stay with their source campaign. [Source and trial identities](./COVERAGE.json).','');
+ lines.push('','Cells summarize the latest outcome per case; replacement cases remain pending until their declared attempts are recorded. Failed-attempt counts include earlier failures. H cases retain their original attempts and are not new tuned comparisons. Jazz v2 remains experimental. Unavailable coverage makes no claim about product capabilities.','', 'Excluded client-write workflows are marked Not supported; old attempts remain retained for audit, not displayed as product timings. This combines coverage only. Timings, annotations and uncertainty stay with their source campaign. [Source and trial identities](./COVERAGE.json).','');
  return lines.join('\n');
 }

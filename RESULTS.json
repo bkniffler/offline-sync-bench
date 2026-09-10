@@ -4,9 +4,9 @@
   "capturedAt": "2026-09-10T07:22:34.150Z",
   "report": "README.md",
   "summary": "SUMMARY.json",
-  "summarySha256": "091ca59a6fb39f00f3f18f11e5f1319ad469cfef474e20cf11c89e82c2459f1b",
+  "summarySha256": "c2668ff1e017700ad79d01dfd48c87d4923af3775e159a8b211a7c662999a935",
   "coverage": "COVERAGE.json",
-  "coverageSha256": "59adcb8e5284bff8d32393055fb633c614f357125f53ded8ed2a40d783a89b9b",
+  "coverageSha256": "0464ab48467761d3f61923eeef0694b82cee51373f0c5ef36ed404477cdf6a0b",
   "attempts": 177,
   "outcomes": {
     "completed": 165,
@@ -47,14 +47,70 @@
       "archiveSha256": "dea254ff49bd61fbcdce7c7042f8d8316933e70ddff4274d870de68d3ccf9b9f"
     }
   ],
-  "scope": "Each component retains its complete raw manifest, samples, annotations, profiles and provenance. Coverage selects one source per client/case. The six repaired cases use one predeclared run each (n=1), without an estimate of run-to-run variability. Replaced and development samples are never pooled; unchanged historical selections remain separate.",
+  "scope": "Each component retains its complete raw manifest, samples, annotations, profiles and provenance. Coverage selects one source per client/case. The six repaired cases use one predeclared run each (n=1), without an estimate of run-to-run variability. Replaced and development samples are never pooled; unchanged historical selections remain separate. Plain Electric client-write workflows are excluded as Not supported; retained attempts document the removed application implementation and supply no current write timings.",
   "publicationChecks": "results/diagnostics/final-publication",
   "withdrawnIndex": "results/history/2026-09-09-withdrawn-interim/PRE-CURRENT-INDEX.json",
   "withdrawnIndexSha256": "4bc5e295d3366de7e56a02954c64cd764e8ba90385e0aec48e53af536c946e5b",
   "presentation": "readme-benchmarks-v1",
   "renderer": "scripts/render-publication-summary.ts",
-  "rendererSha256": "7da62082ac3a3b5735abc579384d49f3441246dbd7713ba66468e77ad344acec",
+  "rendererSha256": "a782032d78081c99f5785f947f9cb7ead6ef25570db1c0cd32634dae85f6e909",
   "documentationHistory": "docs/history/INDEX.json",
   "historicalReport": "results/history/2026-09-07-withdrawn-campaign/RETAINED-RESULTS.md",
-  "supersededAttempts": 45
+  "supersededAttempts": 45,
+  "exclusions": [
+    {
+      "stack": "electric",
+      "scenario": "online-propagation",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+    },
+    {
+      "stack": "electric",
+      "scenario": "offline-replay",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+    },
+    {
+      "stack": "electric",
+      "scenario": "large-offline-queue",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+    },
+    {
+      "stack": "electric",
+      "scenario": "offline-restart",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+    },
+    {
+      "stack": "electric",
+      "scenario": "conflict-update-update",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+    },
+    {
+      "stack": "electric",
+      "scenario": "conflict-update-delete",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+    },
+    {
+      "stack": "electric",
+      "scenario": "connected-fanout",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+    },
+    {
+      "stack": "electric",
+      "scenario": "reconnect-storm",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+    },
+    {
+      "stack": "electric",
+      "scenario": "blob-flow",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+    }
+  ]
 }

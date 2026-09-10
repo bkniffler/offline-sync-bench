@@ -1,3 +1,4 @@
+import { electricWriteScenarios, electricWriteReason } from '../src/electric-support.ts';
 /** Assemble separately published campaigns; do not combine their samples.
  * Input paths are relative to the summary configuration. Output is Markdown.
  * bun scripts/render-publication-summary.ts SUMMARY.json OUTPUT.md
@@ -19,6 +20,9 @@ const config=JSON.parse(await readFile(configPath,'utf8'));
 assert.equal(config.version,1);assert.equal(config.kind,'source-separated-publication-summary');
 assert(Array.isArray(config.sources)&&[2,3,4].includes(config.sources.length));
 assert(Array.isArray(config.findings)&&config.findings.length>=3&&config.findings.length<=5);
+const expectedExclusions=electricWriteScenarios.map(scenario=>({stack:'electric',scenario,label:'Not supported',reason:electricWriteReason}));
+assert.deepEqual(config.exclusions,expectedExclusions,'Declare every read-only exclusion');
+const excluded=(stack:string,scenario:string)=>config.exclusions.find((e:any)=>e.stack===stack&&e.scenario===scenario);
 const base=dirname(resolve(configPath));
 assert.equal(dirname(resolve(outputPath)),base,'Write the report beside its summary configuration');
 const sha=(b:Uint8Array)=>createHash('sha256').update(b).digest('hex');
@@ -65,7 +69,8 @@ for(const source of config.sources){
 assert(sources.has('tuned-sql')&&sources.has('tuned-zero'));
 assert.equal(resolve(base,config.coverage),resolve(base,'COVERAGE.json'),'Keep the coverage inventory beside the report');
 const coverageBytes=await readFile(resolve(base,config.coverage));assert.equal(sha(coverageBytes),config.coverageSha256,'Stale coverage binding');
-const coverage=JSON.parse(coverageBytes.toString());assert.equal(coverage.status,'replacement-collection-complete');
+const coverage=JSON.parse(coverageBytes.toString());
+for(const c of coverage.cases)assert.deepEqual(c.exclusion,excluded(c.stack,c.scenario));assert.equal(coverage.status,'replacement-collection-complete');
 assert.equal(coverage.currentAttempts,coverage.cases.filter((c:any)=>!c.historical).reduce((n:number,c:any)=>n+c.attempts.length,0));assert.equal(coverage.cases.length,112);
 for(const [id,source] of sources){
  const record=coverage.sources.find((s:any)=>s.id===id);assert(record);
@@ -165,6 +170,7 @@ if (config.presentation === 'readme-benchmarks-v1') {
   return status==='invalid'||status==='failed'?'Failed':'—';
  };
  const cell=(s:Source,stack:string,scenario:string,metric:string)=>{
+  if(excluded(stack,scenario))return 'Not supported';
   const result=summarizeCase(attemptsFor(s,stack,scenario),metric);
   if(!result.summary)return missingCell(attemptsFor(s,stack,scenario),result.status,metric);
   assert.equal(result.summary.trials,s.manifest.config.trials-result.failures,'Disclose every independent run');
@@ -200,6 +206,7 @@ with tarfile.open(base/source['archive']) as archive:
  const historyDetailsPath='results/history/2026-09-07-withdrawn-campaign/RETAINED-RESULTS.md';
  const formatMs=(n:number)=>(n<1?n.toFixed(3):n.toFixed(2))+' ms';
  const historyCell=(attempts:CampaignAttempt[],metric:string,range=false)=>{
+  if(excluded(attempts[0]!.stackId,attempts[0]!.scenarioId))return 'Not supported';
   const result=summarizeCase(attempts,metric);
   if(!result.summary)return missingCell(attempts,result.status,metric);
   const value=formatMs(result.summary.median)+(result.failures?' *':'');
@@ -227,9 +234,9 @@ with tarfile.open(base/source['archive']) as archive:
    const cells=row.split('|');const label=cells[1]!.trim();
    for(let i=2;i<cells.length-1;i++){
     const value=cells[i]!.trim();
-    if(!/^(Unavailable|Unsupported|Not implemented|Needs persistent test|No equivalent|Not applicable|Timed out|Setup timed out|Purge timed out|Did not converge|Not reached|Setup failed|Failed|Not established|Not measured|—)$/.test(value)&&!value.includes(' ms *'))continue;
+    if(!/^(Not supported|Unavailable|Unsupported|Not implemented|Needs persistent test|No equivalent|Not applicable|Timed out|Setup timed out|Purge timed out|Did not converge|Not reached|Setup failed|Failed|Not established|Not measured|—)$/.test(value)&&!value.includes(' ms *'))continue;
     const review=gapReviews.get(`${clientIds[label]}/${scenario}`);
-    const reason=value.includes(' ms *')?(fixedCase(clientIds[label]!,scenario)?singleRunNotes[`${clientIds[label]}/${scenario}`]:earlierFailureNotes[scenario]):review?.reason;
+    const reason=excluded(clientIds[label]!,scenario)?.reason??(value.includes(' ms *')?(fixedCase(clientIds[label]!,scenario)?singleRunNotes[`${clientIds[label]}/${scenario}`]:earlierFailureNotes[scenario]):review?.reason);
     assert(reason,`Add a short result footnote for ${scenario}/${label}: ${value}`);
     if(!notes.includes(reason))notes.push(reason);
     const marker='\\*'.repeat(notes.indexOf(reason)+1);
@@ -242,11 +249,11 @@ with tarfile.open(base/source['archive']) as archive:
  const historicalCaveats:Record<string,string>={
   'local-query':'Electric filters/sorts arrays; TanStack uses indexed native queries; Jazz combines indexed search with JavaScript grouping.',
   'bootstrap':'Electric and Zero load memory caches, so their “Complete local dataset” does not establish a persistent offline copy.',
-  'offline-restart':'Electric’s durable outbox is benchmark-owned.',
-  'conflict-update-update':'Electric, TanStack and Zero apply A’s arriving title update; Jazz retains B’s later-written field.',
+
+  'conflict-update-update':'TanStack and Zero apply A’s arriving title update; Jazz retains B’s later-written field.',
   'permission-change':'Electric and TanStack rebuild the application cache; Zero invalidates its native memory cache. These provide different guarantees from persistent native purge.'
  };
- const historicalLines=['# Retained September 7 results','','Generated from the unchanged cases in the stopped, withdrawn September 7 campaign. These are historical estimates, not a newly completed campaign. Each cell shows its own successful-trial median, observed range and sample size; a failed latest trial has no timing. No samples are pooled with September 9.','','[Archive and restoration](./README.md) · [Raw campaign archive](./campaign.tar.gz) · [Selected trial identities and hashes](../../diagnostics/publication-index-review/RETAINED-HISTORY.json) · [Current README](../../../README.md)','','Source hash: `'+historicalSource.sourceHash+'`. Jazz uses the experimental runtime. Exact profiles, configurations, operation samples and logs remain in the archive.',''];
+ const historicalLines=['# Retained September 7 results','','Generated from the unchanged cases in the stopped, withdrawn September 7 campaign. These are historical estimates, not a newly completed campaign. Each cell shows its own successful-trial median, observed range and sample size; a failed latest trial has no timing. No samples are pooled with September 9.','','[Archive and restoration](./README.md) · [Raw campaign archive](./campaign.tar.gz) · [Selected trial identities and hashes](../../diagnostics/publication-index-review/RETAINED-HISTORY.json) · [Current README](../../../README.md)','','Source hash: `'+historicalSource.sourceHash+'`. Jazz uses the experimental runtime. Exact profiles, configurations, operation samples and logs remain in the archive. Plain Electric write workflows are excluded from current tables; their archived custom-outbox results are not product write benchmarks.',''];
  const lines=['# offline-sync-bench','',
   'Compare offline-first sync stacks using the same task app. The suite measures local queries, startup, edit delivery, offline recovery, conflicts, client scaling, access changes and attachments, and checks the returned data for correctness.','',
   'Includes Syncular JS/Rust, PowerSync, Turso, Zero, Electric, Electric + TanStack DB and experimental Jazz. Results describe each tested application and its guarantees.','',
@@ -281,7 +288,7 @@ with tarfile.open(base/source['archive']) as archive:
     const policy=latest.metadata.policy as {outcome?:string}|undefined;
     const outcomes:Record<string,string>={'last-arriving-patch':'A’s replayed edit retained','last-written-field':'B’s edit retained','delete-retained':'Deletion retained'};
     if(latest.status==='completed')assert(policy?.outcome&&outcomes[policy.outcome]);
-    outcome=(latest.status==='completed'?outcomes[policy!.outcome!]:'Not established')+' | ';
+    outcome=(excluded(stack,section.id)?'Not supported':latest.status==='completed'?outcomes[policy!.outcome!]:'Not established')+' | ';
    }
    tableRows.push(`| ${historyLabels[stack]} | ${outcome}${section.columns.map(([,metric])=>historyCell(attempts,metric)).join(' | ')} |`);
    historicalLines.push(`| ${historyLabels[stack]} | ${outcome}${section.columns.map(([,metric])=>historyCell(attempts,metric,true)).join(' | ')} |`);

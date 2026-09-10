@@ -1,3 +1,4 @@
+import { electricWriteScenarios, electricWriteReason } from '../src/electric-support.ts';
 /** Outcome-only catalog across separately sourced campaigns. Never pools timings.
  * bun scripts/build-publication-coverage.ts SQL_MANIFEST OUTPUT_DIRECTORY [ZERO_MANIFEST] [POWERSYNC_MANIFEST] [FIXES_MANIFEST]
  */
@@ -56,10 +57,12 @@ for(const [id,path,configPath] of [['tuned-sql',sqlPath,'campaigns/publication-t
 assert.equal(records.size,112);
 const failures=new Set(['failed','invalid','timed-out']);
 for(const record of records.values()){
+ if(record.stack==='electric'&&electricWriteScenarios.includes(record.scenario))record.exclusion={stack:'electric',scenario:record.scenario,label:'Not supported',reason:electricWriteReason};
  record.attempts.sort((a:any,b:any)=>a.trial-b.trial);
  record.attempted=record.attempts.length;record.failedAttempts=record.attempts.filter((a:any)=>failures.has(a.outcome)).length;
  const last=record.attempts.at(-1);record.latestOutcome=last?.outcome??'not-run';
  record.display=record.historical||record.attempted===record.plannedAttempts ? last?.outcome==='completed'?'passed':last?.outcome==='unsupported'?last.coverage?.status==='unsupported-tested-configuration'?'unsupported':last.coverage?.status==='not-implemented'?'not implemented':'unavailable':last?.outcome??'pending':'pending';
+ if(record.exclusion)record.display=record.exclusion.label;
 }
 await mkdir(output,{recursive:true});
 newAttempts=[...records.values()].filter(c=>!c.historical).reduce((n,c)=>n+c.attempts.length,0);

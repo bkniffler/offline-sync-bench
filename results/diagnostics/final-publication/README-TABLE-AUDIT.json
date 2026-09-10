@@ -3,10 +3,10 @@
   "sections": 14,
   "clientRows": 112,
   "cells": 248,
-  "numericalTimings": 218,
-  "footnotedCells": 50,
+  "numericalTimings": 202,
+  "footnotedCells": 66,
   "currentAttempts": 177,
   "historicalAttempts": 210,
-  "readmeSha256": "07f445305d73caeb2f3dfe5a00a7b00d3d633657835bac84e22b7d6bf3dfbafe",
-  "auditorSha256": "610e3c9745afe25c38fea03cdead95d50b38e8aa282b9d7a928ec246f986d079"
+  "readmeSha256": "1dc7faa11d09fdee52ad6ed5e0fac50bf71c72b07849930e7765c61ac6fdd6e6",
+  "auditorSha256": "7b3a4ef64a55bb6bb0287569e32d5a16e79783103afafddb5548117206dc01bd"
 }

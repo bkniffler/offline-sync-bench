@@ -1,3 +1,4 @@
+import { electricWriteUnsupported } from '../electric-support.ts';
 import { mkdir, mkdtemp, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -8,7 +9,6 @@ import { browserBinding, type BrowserIdentity, type ChromiumRuntime } from './pr
 import { BROWSER_IMPLEMENTATION, validateBrowserProbe } from './validation.ts';
 import { measureCollaboration, collaborationSeed, collaborationWarmup } from '../contracts/collaboration.ts';
 import { assertRows, taskRecord, fixtureTasks } from '../contracts/screens.ts';
-import { validateElectricMutationReceipt } from '../contracts/electric-collaboration.ts';
 import { getStack } from '../stacks.ts';
 import { seedStack, getFixtures } from '../stack-manager.ts';
 import { tempRoot } from '../paths.ts';
@@ -16,6 +16,7 @@ import { sha256 } from '../source-snapshot.ts';
 import type { JsonObject } from '../types.ts';
 
 export async function runBrowserCollaboration(stackId: 'electric' | 'zero', runtime: ChromiumRuntime, identity: BrowserIdentity, bundlePath: string) {
+  if(stackId==='electric')return electricWriteUnsupported();
   const bundle = await readFile(bundlePath, 'utf8');
   if (sha256(bundle) !== identity.bundleSha256) throw new Error('Injected browser bundle differs from campaign');
   await seedStack(stackId, collaborationSeed);
@@ -32,7 +33,7 @@ export async function runBrowserCollaboration(stackId: 'electric' | 'zero', runt
   let arming: Promise<any> = Promise.resolve(), iteration = -collaborationWarmup;
   const sorted = (rows: any[]) => rows.map(taskRecord).sort((a, b) => String(a.id).localeCompare(String(b.id)));
   try {
-    const origin = stackId === 'electric' ? stack.mutationBaseUrl! : stack.syncBaseUrl;
+    const origin = stack.syncBaseUrl;
     for (const [i, role] of ['writer', 'reader'].entries()) {
       const browser = new BrowserProcess(runtime.executable, profiles[i]); browsers.push(browser);
       const client: any = {}; evidence.clients.push(client);
@@ -49,7 +50,7 @@ export async function runBrowserCollaboration(stackId: 'electric' | 'zero', runt
         }
         if (role === 'writer' && current && current.title === data.title) {
           if (event === 'local') current.localCommitted();
-          if (event === 'accepted') { if (stackId === 'electric') validateElectricMutationReceipt(data.receipt); current.serverAccepted(); }
+          if (event === 'accepted') { current.serverAccepted(); }
         }
       });
       const auth = stackId === 'zero' ? await new SignJWT({}).setProtectedHeader({ alg: 'HS256' }).setIssuedAt().setSubject('org-1-user-1').setExpirationTime('10m').sign(new TextEncoder().encode('benchsecret')) : undefined;
@@ -70,7 +71,7 @@ export async function runBrowserCollaboration(stackId: 'electric' | 'zero', runt
     });
     result.notes[1] = 'The controller observes native browser subscription and mutation receipts through CDP. Timings include arming, dispatch and binding delivery. Idle bridge calibration is retained separately and is not subtracted.';
     evidence.result = result; evidence.finalWriter = await writer.call('read'); evidence.finalReader = await reader.call('read');
-    const expected = fixtureTasks(collaborationSeed).map(row => row.id === fixture.sampleTaskId ? { ...row, title: result.metadata.samples.at(-1)!.title, server_version: stackId === 'electric' ? 56 : 1 } : row);
+    const expected = fixtureTasks(collaborationSeed).map(row => row.id === fixture.sampleTaskId ? { ...row, title: result.metadata.samples.at(-1)!.title, server_version: 1 } : row);
     evidence.finalDigests = { writer: assertRows('browser writer final', sorted(evidence.finalWriter.rows), sorted(expected)), reader: assertRows('browser reader final', sorted(evidence.finalReader.rows), sorted(expected)) };
     evidence.calibrationAfter = await calibrateBrowserBridge(writer, reader); evidence.stage = 'complete';
   } catch (error) { evidence.stage = 'failed'; evidence.error = String(error); failure = error; }

@@ -58,10 +58,66 @@
     }
   ],
   "coverage": "COVERAGE.json",
-  "coverageSha256": "59adcb8e5284bff8d32393055fb633c614f357125f53ded8ed2a40d783a89b9b",
+  "coverageSha256": "0464ab48467761d3f61923eeef0694b82cee51373f0c5ef36ed404477cdf6a0b",
   "coverageMarkdown": "COVERAGE.md",
-  "coverageMarkdownSha256": "8bebd5fbc3f5d16aa98ed56c7f42994d2efe8135c3223660664e9fb54d0ef2b6",
+  "coverageMarkdownSha256": "d0dffccc61787dc9a88f808d4f3d26a87cb1f29af6029f122c91f41f9e9ec533",
   "presentation": "readme-benchmarks-v1",
   "coverageReview": "results/diagnostics/final-publication/COVERAGE-REVIEW.json",
-  "coverageReviewSha256": "fbf48865d0da15d781402f2956e678d3eba5c0a4955b14ba043412cc073dfd76"
+  "coverageReviewSha256": "c875bc419210a5034645f97bb19b1c7f61a21cd1d3d24deedcbd579a2f6d2cff",
+  "exclusions": [
+    {
+      "stack": "electric",
+      "scenario": "online-propagation",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+    },
+    {
+      "stack": "electric",
+      "scenario": "offline-replay",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+    },
+    {
+      "stack": "electric",
+      "scenario": "large-offline-queue",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+    },
+    {
+      "stack": "electric",
+      "scenario": "offline-restart",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+    },
+    {
+      "stack": "electric",
+      "scenario": "conflict-update-update",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+    },
+    {
+      "stack": "electric",
+      "scenario": "conflict-update-delete",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+    },
+    {
+      "stack": "electric",
+      "scenario": "connected-fanout",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+    },
+    {
+      "stack": "electric",
+      "scenario": "reconnect-storm",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+    },
+    {
+      "stack": "electric",
+      "scenario": "blob-flow",
+      "label": "Not supported",
+      "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+    }
+  ]
 }

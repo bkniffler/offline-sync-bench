@@ -2,27 +2,7 @@ import { expect, test } from 'bun:test';
 import { validateElectricCollaboration, validateElectricMutationReceipt, ELECTRIC_ACKNOWLEDGMENT } from './electric-collaboration.ts';
 import { collaborationIterations, collaborationSeed, collaborationWarmup } from './collaboration.ts';
 import { fixtureTasks } from './screens.ts';
-import { submitElectricCollaborationWrite } from '../adapters/electric-write.ts';
 import type { JsonObject } from '../types.ts';
-
-test('Electric acceptance makes one mutation request and retains its response', async () => {
-  const calls: { url: string; method?: string; body: unknown }[] = [];
-  const fetchImpl = (async (url: string | URL | Request, init?: RequestInit) => {
-    calls.push({ url: String(url), method: init?.method, body: JSON.parse(String(init?.body)) });
-    if (init?.method !== 'POST') throw new Error('An administrative reread must not delay acceptance');
-    return Response.json({ ok: true, stackId: 'electric', row: { id: 'task', title: 'new title', completed: false, server_version: 2 } });
-  }) as unknown as typeof fetch;
-  const receipt = await submitElectricCollaborationWrite('http://localhost:3212', 'task', 'new title', -5, new AbortController().signal, fetchImpl);
-  expect(calls).toEqual([{ url: 'http://localhost:3212/admin/write', method: 'POST', body: { taskId: 'task', title: 'new title' } }]);
-  expect(receipt.response).toEqual({ status: 200, body: { ok: true, stackId: 'electric', row: { id: 'task', title: 'new title', completed: false, server_version: 2 } } });
-});
-
-test('Electric rejects successful HTTP responses that do not confirm the write', async () => {
-  for (const body of [{ ok: false }, { ok: true, stackId: 'electric', row: { id: 'task', title: 'different', completed: false, server_version: 2 } }]) {
-    const fetchImpl = (async () => Response.json(body)) as unknown as typeof fetch;
-    await expect(submitElectricCollaborationWrite('http://localhost:3212', 'task', 'new title', 0, new AbortController().signal, fetchImpl)).rejects.toThrow('confirm');
-  }
-});
 
 test('Electric publication binds every acknowledgment to the exact task, operation and version', () => {
   const task = fixtureTasks(collaborationSeed)[0];

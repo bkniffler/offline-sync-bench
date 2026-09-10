@@ -4,7 +4,7 @@ Generated from the unchanged cases in the stopped, withdrawn September 7 campaig
 
 [Archive and restoration](./README.md) · [Raw campaign archive](./campaign.tar.gz) · [Selected trial identities and hashes](../../diagnostics/publication-index-review/RETAINED-HISTORY.json) · [Current README](../../../README.md)
 
-Source hash: `f6d23b446229ead3546f0e49c869e5150500c559446dfe349cb0e17e2cd8198b`. Jazz uses the experimental runtime. Exact profiles, configurations, operation samples and logs remain in the archive.
+Source hash: `f6d23b446229ead3546f0e49c869e5150500c559446dfe349cb0e17e2cd8198b`. Jazz uses the experimental runtime. Exact profiles, configurations, operation samples and logs remain in the archive. Plain Electric write workflows are excluded from current tables; their archived custom-outbox results are not product write benchmarks.
 
 ## local-query
 
@@ -74,12 +74,12 @@ Make 50 title edits with 200 tasks loaded on independent writer and reader clien
 
 | Client | Local commit | Server accepted | Reader visible |
 | --- | ---: | ---: | ---: |
-| Electric | Not applicable \* | 1.58 ms (1.34 ms–2.43 ms; n=4) | 2.22 ms (2.05 ms–3.44 ms; n=4) |
+| Electric | Not supported \* | Not supported \* | Not supported \* |
 | Electric + TanStack DB | Not measured \*\* | 3.00 ms (2.34 ms–3.28 ms; n=4) | 5.24 ms (4.66 ms–5.74 ms; n=4) |
 | Jazz v2 (experimental) | 0.320 ms (0.280 ms–0.360 ms; n=4) | 8.54 ms (8.01 ms–8.68 ms; n=4) | 9.11 ms (9.02 ms–9.40 ms; n=4) |
 | Zero | 0.360 ms (0.340 ms–0.410 ms; n=5) | 15.14 ms (14.70 ms–19.54 ms; n=5) | 15.65 ms (14.32 ms–19.80 ms; n=5) |
 
-\* This direct-to-server write path performs no local commit.
+\* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
 
 \*\* The adapter deliberately disables localCommit even though the collection exposes the optimistic local update; that is not a durable queue receipt.
 
@@ -96,10 +96,12 @@ Queue ten writes against 2,000 tasks during a 20-second writer outage. Time queu
 
 | Client | Queue completed | Reader visible |
 | --- | ---: | ---: |
-| Electric | 20021.82 ms (16118.33 ms–25040.25 ms; n=5) | 20019.48 ms (16116.72 ms–25039.66 ms; n=5) |
+| Electric | Not supported \* | Not supported \* |
 | Electric + TanStack DB | 11111.22 ms (11092.79 ms–17217.40 ms; n=4) | 11111.98 ms (11094.51 ms–17219.52 ms; n=4) |
 | Jazz v2 (experimental) | 586.18 ms (561.19 ms–892.33 ms; n=4) | 340.84 ms (324.00 ms–654.42 ms; n=4) |
 | Zero | 134.07 ms (120.22 ms–151.52 ms; n=4) | 129.62 ms (111.65 ms–145.11 ms; n=4) |
+
+\* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
 
 
 
@@ -114,10 +116,12 @@ Repeat recovery with 100, 500 and 1,000 queued writes. Each column measures time
 
 | Client | 100 writes | 500 writes | 1,000 writes |
 | --- | ---: | ---: | ---: |
-| Electric | 11364.54 ms (4027.89 ms–25777.98 ms; n=4) | 22174.49 ms (7541.74 ms–24569.45 ms; n=4) | 19808.32 ms (12951.12 ms–28449.04 ms; n=4) |
+| Electric | Not supported \* | Not supported \* | Not supported \* |
 | Electric + TanStack DB | 23423.11 ms (11663.38 ms–25423.11 ms; n=5) | 23247.82 ms (19826.16 ms–27083.33 ms; n=5) | 18323.55 ms (16847.86 ms–29596.74 ms; n=5) |
 | Jazz v2 (experimental) | 1445.02 ms (308.03 ms–1490.07 ms; n=4) | 2561.66 ms (1656.78 ms–5192.52 ms; n=4) | 5413.21 ms (2841.95 ms–10658.38 ms; n=4) |
 | Zero | 577.68 ms (565.58 ms–946.05 ms; n=4) | 3093.88 ms (1981.79 ms–3415.16 ms; n=4) | 5194.49 ms (3769.32 ms–7318.82 ms; n=4) |
+
+\* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
 
 
 
@@ -132,13 +136,15 @@ Queue 1,000 writes, kill the writer process, reopen the same store offline, then
 
 | Client | Reopen offline | Queue completed | Reader visible |
 | --- | ---: | ---: | ---: |
-| Electric | 29.33 ms (28.67 ms–29.68 ms; n=4) | 16433.91 ms (8510.68 ms–23892.80 ms; n=4) | 16431.58 ms (8511.70 ms–23889.62 ms; n=4) |
+| Electric | Not supported \* | Not supported \* | Not supported \* |
 | Jazz v2 (experimental) | 195.26 ms (191.77 ms–197.02 ms; n=4) | 11780.65 ms (10797.98 ms–18515.98 ms; n=4) | 10728.40 ms (7508.49 ms–11658.75 ms; n=4) |
-| Zero | Needs persistent test \* | Needs persistent test \* | Needs persistent test \* |
+| Zero | Needs persistent test \*\* | Needs persistent test \*\* | Needs persistent test \*\* |
 
-\* Memory storage explains the current skip, but IndexedDB alone does not prove immediate crash durability. Zero limits offline writes by connection state.
+\* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
 
-Electric’s durable outbox is benchmark-owned.
+\*\* Memory storage explains the current skip, but IndexedDB alone does not prove immediate crash durability. Zero limits offline writes by connection state.
+
+
 
 - **Electric**: benchmark-sqlite-cache; unspecified. Outcomes: trial 1: completed, trial 2: completed, trial 3: completed, trial 4: completed.
 - **Jazz v2 (experimental)**: jazz-napi-sqlite-file; unspecified. Outcomes: trial 1: completed, trial 2: completed, trial 3: completed, trial 4: completed.
@@ -150,12 +156,14 @@ A queues an offline edit; B edits the same task online. Reconnect A and verify a
 
 | Client | Verified outcome | All clients agree |
 | --- | --- | ---: |
-| Electric | A’s replayed edit retained | 190.27 ms (89.38 ms–925.75 ms; n=5) |
+| Electric | Not supported \* | Not supported \* |
 | Electric + TanStack DB | A’s replayed edit retained | 855.28 ms (770.71 ms–1560.49 ms; n=5) |
 | Jazz v2 (experimental) | B’s edit retained | 1012.84 ms (692.59 ms–1182.75 ms; n=4) |
 | Zero | A’s replayed edit retained | 3821.52 ms (3551.29 ms–3848.83 ms; n=5) |
 
-Electric, TanStack and Zero apply A’s arriving title update; Jazz retains B’s later-written field.
+\* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
+
+TanStack and Zero apply A’s arriving title update; Jazz retains B’s later-written field.
 
 - **Electric**: benchmark-sqlite-cache; unspecified. Outcomes: trial 1: completed, trial 2: completed, trial 3: completed, trial 4: completed, trial 5: completed.
 - **Electric + TanStack DB**: tanstack-node-sqlite-cache; unspecified. Outcomes: trial 1: completed, trial 2: completed, trial 3: completed, trial 4: completed, trial 5: completed.
@@ -168,12 +176,14 @@ A queues an offline edit; B deletes that task online. Reconnect A and check that
 
 | Client | Verified outcome | All clients agree |
 | --- | --- | ---: |
-| Electric | Deletion retained | 504.95 ms (213.16 ms–652.94 ms; n=4) |
+| Electric | Not supported \* | Not supported \* |
 | Electric + TanStack DB | Deletion retained | 823.76 ms (816.20 ms–846.93 ms; n=4) |
-| Jazz v2 (experimental) | Not established \* | Did not converge \* |
+| Jazz v2 (experimental) | Not established \*\* | Did not converge \*\* |
 | Zero | Deletion retained | 3849.39 ms (3810.56 ms–3884.87 ms; n=4) |
 
-\* Writer and other clients disagree after acknowledged writes and a 90-second deadline.
+\* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
+
+\*\* Writer and other clients disagree after acknowledged writes and a 90-second deadline.
 
 
 
@@ -188,10 +198,12 @@ With 2,000 tasks on each reader, measure one live edit reaching every connected 
 
 | Client | 5 readers | 25 readers |
 | --- | ---: | ---: |
-| Electric | 17.84 ms (14.22 ms–33.78 ms; n=5) | 40.37 ms (35.59 ms–49.96 ms; n=5) |
+| Electric | Not supported \* | Not supported \* |
 | Electric + TanStack DB | 16.33 ms (15.05 ms–31.40 ms; n=4) | 32.24 ms (29.08 ms–37.53 ms; n=4) |
 | Jazz v2 (experimental) | 153.85 ms (144.09 ms–187.04 ms; n=5) | 337.17 ms (290.29 ms–407.14 ms; n=5) |
 | Zero | 31.46 ms (28.34 ms–46.32 ms; n=4) | 79.28 ms (59.42 ms–100.20 ms; n=4) |
+
+\* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
 
 
 
@@ -206,10 +218,12 @@ Disconnect five or 25 readers, accumulate 100 updates, then restore their connec
 
 | Client | 5 readers | 25 readers |
 | --- | ---: | ---: |
-| Electric | 2304.59 ms (1095.14 ms–2998.11 ms; n=4) | 3682.57 ms (3242.86 ms–4874.84 ms; n=4) |
+| Electric | Not supported \* | Not supported \* |
 | Electric + TanStack DB | 1926.60 ms (965.72 ms–4204.44 ms; n=4) | 3628.66 ms (3022.35 ms–7635.45 ms; n=4) |
 | Jazz v2 (experimental) | 2145.69 ms (1801.17 ms–2311.72 ms; n=4) | 6908.60 ms (6112.25 ms–9671.63 ms; n=4) |
 | Zero | 4279.02 ms (4226.82 ms–4329.55 ms; n=4) | 4331.42 ms (4141.11 ms–4619.04 ms; n=4) |
+
+\* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
 
 
 
@@ -244,14 +258,16 @@ Transfer two 2 MiB objects linked to tasks. Measure upload, an uncached download
 
 | Client | Upload | Fresh download | Download retry |
 | --- | ---: | ---: | ---: |
-| Electric | Not implemented \* | Not implemented \* | Not implemented \* |
-| Electric + TanStack DB | Not implemented \* | Not implemented \* | Not implemented \* |
-| Jazz v2 (experimental) | Not implemented \*\* | Not implemented \*\* | Not implemented \*\* |
-| Zero | Not implemented \* | Not implemented \* | Not implemented \* |
+| Electric | Not supported \* | Not supported \* | Not supported \* |
+| Electric + TanStack DB | Not implemented \*\* | Not implemented \*\* | Not implemented \*\* |
+| Jazz v2 (experimental) | Not implemented \*\*\* | Not implemented \*\*\* | Not implemented \*\*\* |
+| Zero | Not implemented \*\* | Not implemented \*\* | Not implemented \*\* |
 
-\* No standalone attachment queue is wired for this adapter; the application can sync file references and use object storage.
+\* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
 
-\*\* Jazz 2 alpha has chunked file creation/loading APIs; our adapter returns a placeholder.
+\*\* No standalone attachment queue is wired for this adapter; the application can sync file references and use object storage.
+
+\*\*\* Jazz 2 alpha has chunked file creation/loading APIs; our adapter returns a placeholder.
 
 
 

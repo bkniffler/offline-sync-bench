@@ -109,11 +109,11 @@ Make 50 title edits with 200 tasks loaded on independent writer and reader clien
 | PowerSync | 0.270 ms | 984.92 ms | 1003.20 ms |
 | Turso | 0.120 ms | 24.23 ms | 25.93 ms |
 | Zero | 0.360 ms | 15.14 ms | 15.65 ms |
-| Electric | Not applicable \* | 1.58 ms | 2.22 ms |
+| Electric | Not supported \* | Not supported \* | Not supported \* |
 | Electric + TanStack DB | Not measured \*\* | 3.00 ms | 5.24 ms |
 | Jazz v2 (experimental) | 0.320 ms | 8.54 ms | 9.11 ms |
 
-\* This direct-to-server write path performs no local commit.
+\* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
 
 \*\* The adapter deliberately disables localCommit even though the collection exposes the optimistic local update; that is not a durable queue receipt.
 
@@ -132,9 +132,11 @@ Queue ten writes against 2,000 tasks during a 20-second writer outage. Time queu
 | PowerSync | 51.13 ms | 133.38 ms |
 | Turso | 43.04 ms | 46.97 ms |
 | Zero | 134.07 ms | 129.62 ms |
-| Electric | 20021.82 ms | 20019.48 ms |
+| Electric | Not supported \* | Not supported \* |
 | Electric + TanStack DB | 11111.22 ms | 11111.98 ms |
 | Jazz v2 (experimental) | 586.18 ms | 340.84 ms |
+
+\* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
 
 Queue completion and reader visibility have independent observers.
 
@@ -151,9 +153,11 @@ Repeat recovery with 100, 500 and 1,000 queued writes. Each column measures time
 | PowerSync | 560.21 ms | 2263.44 ms | 4356.07 ms |
 | Turso | 35.63 ms | 38.30 ms | 92.48 ms |
 | Zero | 577.68 ms | 3093.88 ms | 5194.49 ms |
-| Electric | 11364.54 ms | 22174.49 ms | 19808.32 ms |
+| Electric | Not supported \* | Not supported \* | Not supported \* |
 | Electric + TanStack DB | 23423.11 ms | 23247.82 ms | 18323.55 ms |
 | Jazz v2 (experimental) | 1445.02 ms | 2561.66 ms | 5413.21 ms |
+
+\* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
 
 The cause of the large Turso/Syncular gap remains unmeasured.
 
@@ -170,15 +174,17 @@ Queue 1,000 writes, kill the writer process, reopen the same store offline, then
 | PowerSync | 194.33 ms | 5112.17 ms | 5167.18 ms |
 | Turso | 38.06 ms | 77.64 ms | 86.86 ms |
 | Zero | Needs persistent test \* | Needs persistent test \* | Needs persistent test \* |
-| Electric | 29.33 ms | 16433.91 ms | 16431.58 ms |
-| Electric + TanStack DB | 330.41 ms \*\* | 18091.82 ms \*\* | 18096.21 ms \*\* |
+| Electric | Not supported \*\* | Not supported \*\* | Not supported \*\* |
+| Electric + TanStack DB | 330.41 ms \*\*\* | 18091.82 ms \*\*\* | 18096.21 ms \*\*\* |
 | Jazz v2 (experimental) | 195.26 ms | 11780.65 ms | 10728.40 ms |
 
 \* Memory storage explains the current skip, but IndexedDB alone does not prove immediate crash durability. Zero limits offline writes by connection state.
 
-\*\* One run (n=1); run-to-run variability is unknown. The native executor restores all 1,000 transactions from an application-supplied SQLite storage adapter.
+\*\* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
 
-Reopen time starts at process launch; recovery times start at network restoration. Electric’s durable outbox is benchmark-owned.
+\*\*\* One run (n=1); run-to-run variability is unknown. The native executor restores all 1,000 transactions from an application-supplied SQLite storage adapter.
+
+Reopen time starts at process launch; recovery times start at network restoration.
 
 [Workload details](./docs/benchmarks.md#offline-recovery) · [Syncular/Turso details](results/reports/tuned-v017-sql/results/reports/campaign-2026-09-08T22-58-56-419Z/DETAILS.md#offline-process-recovery) · [PowerSync details](results/reports/powersync-maintained/results/reports/campaign-2026-09-09T22-08-38-711Z/DETAILS.md#offline-process-recovery) · [Other client details](results/history/2026-09-07-withdrawn-campaign/RETAINED-RESULTS.md#offline-restart) · [Repaired case details](results/reports/coverage-fixes/results/reports/campaign-2026-09-10T07-02-43-467Z/DETAILS.md#offline-process-recovery)
 
@@ -193,11 +199,13 @@ A queues an offline edit; B edits the same task online. Reconnect A and verify a
 | PowerSync | A’s replayed edit retained | 50.44 ms |
 | Turso | A’s replayed edit retained | 90.93 ms |
 | Zero | A’s replayed edit retained | 3821.52 ms |
-| Electric | A’s replayed edit retained | 190.27 ms |
+| Electric | Not supported \* | Not supported \* |
 | Electric + TanStack DB | A’s replayed edit retained | 855.28 ms |
 | Jazz v2 (experimental) | B’s edit retained | 1012.84 ms |
 
-The timings describe different conflict policies. Syncular rejects stale versions; PowerSync and Turso replay A’s title update. Electric, TanStack and Zero apply A’s arriving title update; Jazz retains B’s later-written field.
+\* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
+
+The timings describe different conflict policies. Syncular rejects stale versions; PowerSync and Turso replay A’s title update. TanStack and Zero apply A’s arriving title update; Jazz retains B’s later-written field.
 
 [Workload details](./docs/benchmarks.md#conflicting-edits) · [Syncular/Turso details](results/reports/tuned-v017-sql/results/reports/campaign-2026-09-08T22-58-56-419Z/DETAILS.md#conflicting-edits) · [PowerSync details](results/reports/powersync-maintained/results/reports/campaign-2026-09-09T22-08-38-711Z/DETAILS.md#conflicting-edits) · [Other client details](results/history/2026-09-07-withdrawn-campaign/RETAINED-RESULTS.md#conflict-update-update)
 
@@ -212,11 +220,13 @@ A queues an offline edit; B deletes that task online. Reconnect A and check that
 | PowerSync | Deletion retained | 164.32 ms |
 | Turso | Deletion retained | 80.04 ms |
 | Zero | Deletion retained | 3849.39 ms |
-| Electric | Deletion retained | 504.95 ms |
+| Electric | Not supported \* | Not supported \* |
 | Electric + TanStack DB | Deletion retained | 823.76 ms |
-| Jazz v2 (experimental) | Not established \* | Did not converge \* |
+| Jazz v2 (experimental) | Not established \*\* | Did not converge \*\* |
 
-\* Writer and other clients disagree after acknowledged writes and a 90-second deadline.
+\* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
+
+\*\* Writer and other clients disagree after acknowledged writes and a 90-second deadline.
 
 Syncular rejects the stale write; PowerSync and Turso’s SQL UPDATE leaves the missing row deleted. This tests one ordered race, not every conflict interleaving.
 
@@ -233,11 +243,13 @@ With 2,000 tasks on each reader, measure one live edit reaching every connected 
 | PowerSync | 723.54 ms | 595.21 ms |
 | Turso | 39.08 ms \* | 534.47 ms \* |
 | Zero | 31.46 ms | 79.28 ms |
-| Electric | 17.84 ms | 40.37 ms |
+| Electric | Not supported \*\* | Not supported \*\* |
 | Electric + TanStack DB | 16.33 ms | 32.24 ms |
 | Jazz v2 (experimental) | 153.85 ms | 337.17 ms |
 
 \* One earlier attempt ran out of disk space during 25-reader setup; these medians use the two successful runs.
+
+\*\* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
 
 PowerSync’s observed ranges overlap at five and 25 readers; the lower 25-reader median does not establish a speedup.
 
@@ -254,11 +266,13 @@ Disconnect five or 25 readers, accumulate 100 updates, then restore their connec
 | PowerSync | 36.74 ms | 153.73 ms |
 | Turso | 51.55 ms \* | 119.52 ms \* |
 | Zero | 4279.02 ms | 4331.42 ms |
-| Electric | 2304.59 ms | 3682.57 ms |
+| Electric | Not supported \*\* | Not supported \*\* |
 | Electric + TanStack DB | 1926.60 ms | 3628.66 ms |
 | Jazz v2 (experimental) | 2145.69 ms | 6908.60 ms |
 
 \* One earlier attempt ran out of disk space during 25-reader setup; these medians use the two successful runs.
+
+\*\* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
 
 Retained storage and the maintenance pause affect the environment.
 
@@ -298,9 +312,9 @@ Transfer two 2 MiB objects linked to tasks. Measure upload, an uncached download
 | PowerSync | Not implemented \*\* | Not implemented \*\* | Not implemented \*\* |
 | Turso | Not implemented \*\*\* | Not implemented \*\*\* | Not implemented \*\*\* |
 | Zero | Not implemented \*\*\* | Not implemented \*\*\* | Not implemented \*\*\* |
-| Electric | Not implemented \*\*\* | Not implemented \*\*\* | Not implemented \*\*\* |
+| Electric | Not supported \*\*\*\* | Not supported \*\*\*\* | Not supported \*\*\*\* |
 | Electric + TanStack DB | Not implemented \*\*\* | Not implemented \*\*\* | Not implemented \*\*\* |
-| Jazz v2 (experimental) | Not implemented \*\*\*\* | Not implemented \*\*\*\* | Not implemented \*\*\*\* |
+| Jazz v2 (experimental) | Not implemented \*\*\*\*\* | Not implemented \*\*\*\*\* | Not implemented \*\*\*\*\* |
 
 \* One run (n=1); run-to-run variability is unknown. Early WebSocket frames are now buffered while the server session opens; upload and interrupted-download checks pass.
 
@@ -308,7 +322,9 @@ Transfer two 2 MiB objects linked to tasks. Measure upload, an uncached download
 
 \*\*\* No standalone attachment queue is wired for this adapter; the application can sync file references and use object storage.
 
-\*\*\*\* Jazz 2 alpha has chunked file creation/loading APIs; our adapter returns a placeholder.
+\*\*\*\* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
+
+\*\*\*\*\* Jazz 2 alpha has chunked file creation/loading APIs; our adapter returns a placeholder.
 
 Download recovery retries the full object.
 

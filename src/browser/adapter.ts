@@ -1,3 +1,4 @@
+import { electricWriteScenarios, electricWriteUnsupported } from '../electric-support.ts';
 import { adapterMethods } from '../execution.ts';
 import { getStack } from '../stacks.ts';
 import { createUnsupportedScenarioResult } from '../unsupported.ts';
@@ -11,6 +12,7 @@ export function createBrowserAdapter(stackId: StackId, runtime: ChromiumRuntime,
     const result = createUnsupportedScenarioResult({ implementation: 'browser-case-not-implemented', coverage: 'not-implemented', notes: [`${stackId}/${scenario} is not implemented in the Chromium runtime. Native-host coverage does not establish browser coverage.`] });
     result.metadata.clientRuntime = 'chromium'; return result;
   };
-  if (stackId === 'electric' || stackId === 'zero') adapter.runOnlinePropagation = () => runBrowserCollaboration(stackId, runtime, identity, bundlePath);
+  if (stackId === 'zero') adapter.runOnlinePropagation = () => runBrowserCollaboration(stackId, runtime, identity, bundlePath);
+  if(stackId==='electric')for(const scenario of electricWriteScenarios)adapter[adapterMethods[scenario]]=async()=>({...electricWriteUnsupported(),metadata:{...electricWriteUnsupported().metadata,clientRuntime:'chromium'}});
   return adapter;
 }
