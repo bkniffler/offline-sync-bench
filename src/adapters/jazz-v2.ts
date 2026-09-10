@@ -25,28 +25,30 @@ type JazzScenario =
   | 'online-propagation'
   | 'offline-replay'
   | 'large-offline-queue'
-  | 'local-query';
+  | 'local-query'
+  | 'deep-relationship-query';
 
 async function runJazzScenario(scenario: JazzScenario): Promise<RunnerResult> {
   await ensureStackUp('jazz-v2');
   mkdirSync(tempRoot, { recursive: true });
   const scenarioDir = mkdtempSync(join(tempRoot, `jazz-v2-${scenario}-`));
   try {
-    if (scenario === 'local-query') {
-      const datasetId = `local-${randomUUID()}`;
-      const seed = runProcess('seed-local-query', [datasetId, scenarioDir]);
+    if (scenario === 'local-query' || scenario === 'deep-relationship-query') {
+      const related = scenario === 'deep-relationship-query';
+      const datasetId = `${related ? 'related' : 'local'}-${randomUUID()}`;
+      const seed = runProcess(related ? 'seed' : 'seed-local-query', [datasetId, scenarioDir], related);
       const receipt = seed.result.metadata.seedReceipt as Record<string, JsonValue>;
       if (seed.result.status !== 'completed' || receipt?.pid !== seed.pid) throw new Error('Jazz seeder completion identity mismatch');
       // spawnSync has observed process exit before the query client can start.
       const seeding = { ...receipt, exitCode: seed.exitCode, exitSignal: seed.exitSignal, exitedAt: new Date().toISOString(), exitObservedBeforeReaderSpawn: true };
-      return runProcess(scenario, [datasetId, scenarioDir, JSON.stringify(seeding)]).result;
+      return runProcess(related ? 'read' : scenario, [datasetId, scenarioDir, JSON.stringify(seeding)], related).result;
     }
     return runProcess(scenario, ['', scenarioDir]).result;
   } finally { rmSync(scenarioDir, { recursive: true, force: true }); }
 }
 
-function runProcess(scenario: JazzScenario | 'seed-local-query', args: string[]) {
-  const result = spawnSync('node', ['src/adapters/jazz-v2-runner.ts', scenario, ...args], {
+function runProcess(scenario: JazzScenario | 'seed-local-query' | 'seed' | 'read', args: string[], related = false) {
+  const result = spawnSync('node', [related ? 'src/adapters/jazz-related-runner.ts' : 'src/adapters/jazz-v2-runner.ts', scenario, ...args], {
     cwd: benchmarkRoot,
     encoding: 'utf8',
     timeout: 1_800_000,
@@ -95,10 +97,7 @@ export class JazzV2BenchmarkAdapter implements BenchmarkAdapter {
     return runJazzScenario('local-query');
   }
   async runDeepRelationshipQuery() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Deep relationship queries are not implemented for the Jazz v2 alpha adapter.'],
-    });
+    return runJazzScenario('deep-relationship-query');
   }
   async runPermissionChange() {
     return runJazzAccess();

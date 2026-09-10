@@ -1,0 +1,38 @@
+{
+  "scope": "Diagnostic setup checks, not comparison samples",
+  "operationCounts": {
+    "before": 5980513,
+    "after": 2003,
+    "afterBreakdown": {
+      "PUT": 2002,
+      "CLEAR": 1
+    }
+  },
+  "taskCount": 2000,
+  "firstSyncObservationMs": {
+    "direct": 754.799625,
+    "relay": 754.472625
+  },
+  "fullRowDigest": "ca501808bc66e8f2f4fddaa478f276c78a80378a881cee2ed9d2eee3610a64a2",
+  "conditions": [
+    "Direct and relayed probes ran together using new SQLite files and the existing screen indexes.",
+    "The after probes ran after global-bucket compaction while remaining project buckets were still being compacted. Their times are diagnostic observations, not campaign samples.",
+    "The original offline-replay case was rerun only after all maintenance completed; it passed its full contract.",
+    "The first CLI compactor was interrupted and resumed through the same pinned native compactor with larger deletion batches. No service image or client indexes changed."
+  ],
+  "sha256": {
+    "before-direct.jsonl": "4dcff0db817d68ab5e5652e06af8e92aeec5044584093b702bac91461b6ba53b",
+    "before-relay.jsonl": "bb7ce7b6bc4874099317de9b6f56d7b9af9d27613c11fb1c1a96d01af8cb6831",
+    "after-direct.jsonl": "d9bea3b8fe344e8f2b0573b865da0adc2a52bdfa2789076794cd00283a6fc894",
+    "after-relay.jsonl": "88a973a46b7cf5c9d3b9aea6dfe5f815735454844fef974816a1ede8b3c048c0",
+    "reproduction-before.json": "188228ae9e014bfd752c3022a84d361f7b05356d241bdfdedccd293b9e3fae38",
+    "reproduction-after.json": "26e3dea44922af10a963337bb006de2bc5f76ad2e153f0d802dd66fccd00581d",
+    "compact-large-batches.mjs": "dcbc6223bd020b1018505ab1cef98e71592e61675cfeee6517b8e0a3415f8310",
+    "compaction.log": "e67c7ed42f47900e6bc8734b7a00758700106a2e475981783646ce28c1948c5d",
+    "compaction-large.log": "c666072c94827d92a077f9e53eb678a892a34fc78b96a55bce88f5347561c5df",
+    "compaction-resume.json": "77cb63da69ee4b31084ee363a4674280f9e9d694b547e6a139b715101bd52d24",
+    "global-after.txt": "9e693422359ad7a8352e97ce33e50b1f54dd75411d8ef4621d57baf8357d38c6",
+    "all-buckets-after.txt": "a6628d0cdc1442e11f27b824c28636a892d1a277598a083bae50521c8b7e10da",
+    "checkpoint-marker.json": "5935eb765c4877b75aa9e70ac2a6577d57860821d58b1be9f91dcc0c19d67ece"
+  }
+}

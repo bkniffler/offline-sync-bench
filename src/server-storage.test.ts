@@ -55,3 +55,14 @@ test('storage preparation policy separates profiles while observed allocation re
   (result.metadata.serverStorage as any).policy={...(result.metadata.serverStorage as any).policy,preparation:'fresh volumes'};
   expect(resultProfile(result,campaign).comparisonKey).not.toBe(baseline);
 });
+
+test('compacted PowerSync results cannot pool with untreated history or split on checkpoint timestamps',()=>{
+  const result={stackId:'powersync',scenarioId:'bootstrap',metrics:{},metadata:{}} as unknown as BenchmarkResult;
+  const campaign={source:{sourceHash:'test'},machine:{},images:{},network:{}};
+  const untreated=resultProfile(result,campaign).comparisonKey;
+  result.metadata.fixturePreparation=[{policy:'replication-checkpoint-then-native-compaction-v1',status:'completed',checkpointLsn:'0/123',finishedAt:'2026-09-09T00:00:00Z'}];
+  const compacted=resultProfile(result,campaign).comparisonKey;
+  expect(compacted).not.toBe(untreated);
+  result.metadata.fixturePreparation=[{policy:'replication-checkpoint-then-native-compaction-v1',status:'completed',checkpointLsn:'0/456',finishedAt:'2026-09-09T00:01:00Z'}];
+  expect(resultProfile(result,campaign).comparisonKey).toBe(compacted);
+});

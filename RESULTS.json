@@ -1,19 +1,17 @@
 {
   "schema": "benchmark-source-separated-index-v1",
   "status": "published",
-  "capturedAt": "2026-09-09T11:46:52.454886+00:00",
+  "capturedAt": "2026-09-10T07:22:34.150Z",
   "report": "README.md",
   "summary": "SUMMARY.json",
-  "summarySha256": "f00f4332dd1dcaaaed4b78715d467afbd102e3728d6a3bb9592be6bf53afb872",
+  "summarySha256": "091ca59a6fb39f00f3f18f11e5f1319ad469cfef474e20cf11c89e82c2459f1b",
   "coverage": "COVERAGE.json",
-  "coverageSha256": "05214ed5fd6fb9dd94081976a5fa8848e5282c231335e1704ca0448a8ae8b57e",
-  "attempts": 174,
+  "coverageSha256": "59adcb8e5284bff8d32393055fb633c614f357125f53ded8ed2a40d783a89b9b",
+  "attempts": 177,
   "outcomes": {
-    "completed": 132,
-    "invalid": 21,
-    "timed-out": 9,
-    "unsupported": 9,
-    "failed": 3
+    "completed": 165,
+    "failed": 3,
+    "unsupported": 9
   },
   "sources": [
     {
@@ -31,15 +29,32 @@
       "manifest": "results/reports/tuned-v017-zero/archive/files/RESULTS.json.gz",
       "manifestSha256": "1ba318573a79fc9b16082422be1540050c4fd134f29aebfbaa3a555c8e39d2a6",
       "archiveSha256": "bab7e2a0623f2573ab709171511183fa3cb7f64791c40832496678a8c5128a16"
+    },
+    {
+      "id": "powersync-maintained",
+      "label": "PowerSync with fixture-history maintenance",
+      "root": "results/reports/powersync-maintained",
+      "manifest": "results/reports/powersync-maintained/archive/files/RESULTS.json.gz",
+      "manifestSha256": "423968595cd16b7ca07ae833a1ddae738706a6d644202a64adc63f39e1170176",
+      "archiveSha256": "ce629fadf9e399e65bb9aa288a0b241a130381dea9ea5a64819dbbfc14ba9da4"
+    },
+    {
+      "id": "coverage-fixes",
+      "label": "Six repaired cases (one run each)",
+      "root": "results/reports/coverage-fixes",
+      "manifest": "results/reports/coverage-fixes/archive/files/RESULTS.json.gz",
+      "manifestSha256": "b18971ca48edb432f29b077c1e0f66197c8aa1e9ec510759e8014335e7eb4954",
+      "archiveSha256": "dea254ff49bd61fbcdce7c7042f8d8316933e70ddff4274d870de68d3ccf9b9f"
     }
   ],
-  "scope": "Each component retains its own complete raw manifest, samples, annotations, profiles and provenance. Historical coverage remains separate.",
+  "scope": "Each component retains its complete raw manifest, samples, annotations, profiles and provenance. Coverage selects one source per client/case. The six repaired cases use one predeclared run each (n=1), without an estimate of run-to-run variability. Replaced and development samples are never pooled; unchanged historical selections remain separate.",
   "publicationChecks": "results/diagnostics/final-publication",
   "withdrawnIndex": "results/history/2026-09-09-withdrawn-interim/PRE-CURRENT-INDEX.json",
   "withdrawnIndexSha256": "4bc5e295d3366de7e56a02954c64cd764e8ba90385e0aec48e53af536c946e5b",
   "presentation": "readme-benchmarks-v1",
   "renderer": "scripts/render-publication-summary.ts",
-  "rendererSha256": "58787d8f2b15724a4f7876554f3eaede3c58abb1dfbabd68cd985a8d8e86cf58",
+  "rendererSha256": "7da62082ac3a3b5735abc579384d49f3441246dbd7713ba66468e77ad344acec",
   "documentationHistory": "docs/history/INDEX.json",
-  "historicalReport": "results/history/2026-09-07-withdrawn-campaign/RETAINED-RESULTS.md"
+  "historicalReport": "results/history/2026-09-07-withdrawn-campaign/RETAINED-RESULTS.md",
+  "supersededAttempts": 45
 }

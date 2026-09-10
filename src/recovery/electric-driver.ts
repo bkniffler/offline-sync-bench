@@ -21,16 +21,16 @@ export async function createElectricRecoveryDriver(config: RecoveryClientConfig)
   const initialCache = { id: config.clientId, store: config.dbPath, rows: rows().length, pending: queue().length, reopened: config.reopen === true };
   if (config.reopen ? initialCache.rows === 0 : initialCache.rows !== 0 || initialCache.pending !== 0) { db.close(); throw new Error('Electric application cache initialization differs from lifecycle'); }
   const abort = new AbortController(), started = performance.now();
-  const stream = new ShapeStream({ url: `${config.appBaseUrl}/benchmark/shape/tasks`, params: { userId: config.actorId }, signal: abort.signal,
-    parser: { int8: (value: string) => Number(value) } });
-  const shape = new Shape(stream);
+  let stream: ShapeStream | undefined, shape: Shape | undefined;
+  let unsubscribe: (() => void) | undefined;
+  const remoteRows = () => shape?.currentRows ?? [];
   const upsert = db.query('INSERT INTO recovery_tasks(id,record) VALUES (?,?) ON CONFLICT(id) DO UPDATE SET record=excluded.record');
   const remove = db.query('DELETE FROM recovery_tasks WHERE id = ?');
   let closed = false, failure: string | null = null, updates = 0;
   const apply = db.transaction(() => {
     const pending = new Set(queue().map(row => row.taskId));
     const local = new Map(rows().map(row => [String(row.id), JSON.stringify(row)]));
-    for (const raw of shape.currentRows) {
+    for (const raw of remoteRows()) {
       const row = taskRecord(raw), id = String(row.id), serialized = JSON.stringify(row);
       if (!pending.has(id) && local.get(id) !== serialized) upsert.run(id, serialized);
       local.delete(id);
@@ -38,16 +38,26 @@ export async function createElectricRecoveryDriver(config: RecoveryClientConfig)
     for (const id of local.keys()) if (!pending.has(id)) remove.run(id);
     updates++;
   });
-  const unsubscribe = shape.subscribe(() => { if (!closed) try { apply(); } catch (error) { failure = String(error); } });
+  const connect = () => {
+    if (shape) return shape;
+    stream = new ShapeStream({ url: `${config.appBaseUrl}/benchmark/shape/tasks`, params: { userId: config.actorId }, signal: abort.signal,
+      parser: { int8: (value: string) => Number(value) } });
+    shape = new Shape(stream);
+    unsubscribe = shape.subscribe(() => { if (!closed) try { apply(); } catch (error) { failure = String(error); } });
+    return shape;
+  };
+  // A restored cache must be readable without starting a remote shape snapshot.
+  // Reconnect begins only when the controller calls sync / connectDelivery.
+  if (!config.reopen) connect();
   const delivery = { method: 'electric-shape-application-sqlite', connects: 0, pauses: 0, observations: 0 };
   const attempts: JsonObject[] = [];
   const nativeState = (): JsonObject => ({ ...(config.fanout ? { delivery: { ...delivery } } : {}), method: 'application-sqlite-outbox-electric-shape-v1', store: config.dbPath, cacheId: config.clientId,
-    queue: queue().map(q => ({ ...q })), remoteRows: shape.currentRows.map(row => taskRecord(row) as JsonObject), shapeUpdates: updates,
+    queue: queue().map(q => ({ ...q })), remoteRows: remoteRows().map(row => taskRecord(row) as JsonObject), shapeUpdates: updates,
     attempts: attempts.map(a => ({ ...a })), failure });
   const check = () => { if (closed || failure) throw Object.assign(new Error(`Electric reference cache failed: ${failure ?? 'closed'}`), { evidence: { electricRecovery: closed ? { closed: true } : nativeState() } }); };
   const waitRemote = async (item: Queued, receipt?: JsonObject) => {
     const deadline = performance.now() + 60_000;
-    while (receipt && receipt.disposition !== 'updated' ? shape.currentRows.some(row => row.id === item.taskId) : !shape.currentRows.some(row => row.id === item.taskId && row.title === item.title && Number(row.server_version) === (receipt?.serverVersion ?? 2))) {
+    while (receipt && receipt.disposition !== 'updated' ? remoteRows().some(row => row.id === item.taskId) : !remoteRows().some(row => row.id === item.taskId && row.title === item.title && Number(row.server_version) === (receipt?.serverVersion ?? 2))) {
       check(); if (performance.now() > deadline) throw new Error('Electric reference write visibility timed out');
       await new Promise(resolve => setTimeout(resolve, 5));
     }
@@ -64,7 +74,7 @@ export async function createElectricRecoveryDriver(config: RecoveryClientConfig)
       attempt.txid = receipt.txid!; attempt.serverAcceptedMs = performance.now() - started; attempt.replayed = receipt.replayed === true;
       await waitRemote(item, config.conflicts ? receipt : undefined);
       db.transaction(() => {
-        const row = shape.currentRows.find(row => row.id === item.taskId);
+        const row = remoteRows().find(row => row.id === item.taskId);
         if (row) upsert.run(item.taskId, JSON.stringify(taskRecord(row))); else remove.run(item.taskId);
         db.query('DELETE FROM recovery_outbox WHERE sequence = ?').run(item.sequence);
       })();
@@ -84,9 +94,9 @@ export async function createElectricRecoveryDriver(config: RecoveryClientConfig)
         upsert.run(mutation.id, JSON.stringify(row)); insert.run(mutation.id, mutation.title, randomUUID());
       }
     })(); },
-    sync: async () => { check(); await shape.rows; for (const item of queue()) await upload(item); check(); apply(); },
+    sync: async () => { check(); await connect().rows; for (const item of queue()) await upload(item); check(); apply(); },
     ...(config.fanout ? {
-      connectDelivery: async () => { await shape.rows; check(); delivery.connects++; },
+      connectDelivery: async () => { await connect().rows; check(); delivery.connects++; },
       pauseDelivery: async () => { delivery.pauses++; },
       observeDelivery: async expected => { delivery.observations++; await pollDelivery(expected, async () => { check(); return matchingDeliveryRows(expected, rows()); }); },
     } : {}),
@@ -99,7 +109,7 @@ export async function createElectricRecoveryDriver(config: RecoveryClientConfig)
         db.query("INSERT INTO recovery_outbox(taskId,title,idempotencyKey,operation) VALUES (?,?,?,'delete')").run(taskId, '', randomUUID());
       })();
     },
-    close: async () => { if (closed) return; closed = true; abort.abort(); unsubscribe(); shape.unsubscribeAll(); stream.unsubscribeAll(); db.close(); },
+    close: async () => { if (closed) return; closed = true; abort.abort(); unsubscribe?.(); shape?.unsubscribeAll(); stream?.unsubscribeAll(); db.close(); },
     diagnostics: { localStorage: 'benchmark-sqlite-cache', initialCache, outbox: 'benchmark-owned SQLite transaction with optimistic rows and idempotent HTTP outbox',
       ...(config.conflicts ? { conflictPolicy: 'application SQL UPDATE/DELETE, persisted exact idempotent disposition, missing-row no-op; native Shape proves final visibility' } : {}),
       localCommit: 'application SQLite transaction commit; WAL with synchronous FULL', sync: 'application sequential HTTP uploads plus native Electric Shape visibility before removing each outbox row',

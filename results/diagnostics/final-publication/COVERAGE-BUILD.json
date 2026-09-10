@@ -1,0 +1,11 @@
+{
+  "generatedAt": "2026-09-10T07:23:10.877Z",
+  "scope": "Outcome inventory with source and raw-trial checks; not a performance aggregate or publication gate.",
+  "currentAttempts": 177,
+  "retainedAttempts": 210,
+  "cases": 112,
+  "coverageSha256": "59adcb8e5284bff8d32393055fb633c614f357125f53ded8ed2a40d783a89b9b",
+  "markdownSha256": "8bebd5fbc3f5d16aa98ed56c7f42994d2efe8135c3223660664e9fb54d0ef2b6",
+  "builderSha256": "a4ef48edc2718cddbaade6fbf0723ee162f2f8abd671d1ce7d3a75051dc18b54",
+  "rendererSha256": "148f42202365de007af2794be604b3b995afdd6cf5f40c7131cdaed4c05704f0"
+}

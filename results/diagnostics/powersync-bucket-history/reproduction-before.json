@@ -1,0 +1,80 @@
+{
+  "runId": "2026-09-09T21-43-27-627Z",
+  "resultId": "c7efaacf-91b2-4fa3-b992-c630f59c9b44",
+  "stackId": "powersync",
+  "scenarioId": "offline-replay",
+  "startedAt": "2026-09-09T21:43:27.639Z",
+  "status": "invalid",
+  "finishedAt": "2026-09-09T21:44:42.027Z",
+  "durationMs": 74387.491209,
+  "metrics": {},
+  "notes": [
+    "Invalid measurement: initial writer: canonical recovery setup timed out"
+  ],
+  "metadata": {
+    "stackTitle": "PowerSync",
+    "supportLevel": "native",
+    "benchmarkEnvironment": {
+      "benchmarkRoot": ".",
+      "bunVersion": "1.4.0",
+      "packageManager": "bun@1.3.9",
+      "platform": "darwin",
+      "arch": "arm64",
+      "hostname": "Mac.fritz.box",
+      "cpuModel": "Apple M4",
+      "cpuCount": 10,
+      "totalMemoryMb": 24576
+    },
+    "framework": "PowerSync",
+    "frameworkVersion": "journeyapps/powersync-service@sha256:bf46f66e5dcc8f6a084de02ab51155dfa655bc610aa95009fff1c36f949c0acf",
+    "versionSource": "docker image digest for powersync service",
+    "versionComponents": {
+      "serviceImage": "journeyapps/powersync-service@sha256:bf46f66e5dcc8f6a084de02ab51155dfa655bc610aa95009fff1c36f949c0acf",
+      "nodeSdk": "1.0.0"
+    },
+    "implementation": "benchmark-runner-error",
+    "evidence": {
+      "completedScales": [],
+      "metrics": {},
+      "failedScale": {
+        "stackId": "powersync",
+        "scenario": "offline-replay",
+        "queueSize": 10,
+        "stage": "setup",
+        "seeding": null,
+        "failureTraffic": {
+          "blocked": false,
+          "rejectedConnections": 0,
+          "forwardedConnections": 2,
+          "requestBytes": 1428,
+          "responseBytes": 46168534,
+          "endpoints": {
+            "sync": {
+              "blocked": false,
+              "rejectedConnections": 0,
+              "forwardedConnections": 1,
+              "requestBytes": 1223,
+              "responseBytes": 46167847
+            },
+            "app": {
+              "blocked": false,
+              "rejectedConnections": 0,
+              "forwardedConnections": 1,
+              "requestBytes": 205,
+              "responseBytes": 687
+            }
+          }
+        },
+        "failure": {
+          "recoveryReadiness": {
+            "label": "initial writer",
+            "timeoutMs": 60000,
+            "observations": 0,
+            "lastMismatch": null
+          }
+        }
+      }
+    },
+    "productVersion": "journeyapps/powersync-service@sha256:bf46f66e5dcc8f6a084de02ab51155dfa655bc610aa95009fff1c36f949c0acf"
+  }
+}

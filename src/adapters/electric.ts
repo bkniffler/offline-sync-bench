@@ -1,6 +1,9 @@
+import { indexRelatedScreens } from '../contracts/related-screen-index.ts';
 import { runConflicts } from '../recovery/conflicts.ts';
 import { runFanout } from '../fanout/run.ts';
 import { runRecovery } from '../recovery/run.ts';
+import { runReopen } from '../recovery/reopen.ts';
+import { Shape, ShapeStream } from '@electric-sql/client';
 import { runStartup } from '../startup/run.ts';
 import { runAccess } from '../access/run.ts';
 import { measureCollaboration, collaborationSeed, collaborationWarmup, pollUntil } from '../contracts/collaboration.ts';
@@ -16,8 +19,6 @@ import { getClientStack as getStack } from '../stacks';
 import { createUnsupportedScenarioResult } from '../unsupported';
 import type {
   BenchmarkAdapter,
-  BenchmarkStatus,
-  JsonValue,
   JsonObject,
   TaskRecord,
 } from '../types';
@@ -300,19 +301,36 @@ export class ElectricBenchmarkAdapter implements BenchmarkAdapter {
     return { status: 'completed' as const, ...result, metadata: { ...result.metadata, implementation: 'electric-array-screens-v2' } };
   }
 
-  async runDeepRelationshipQuery(): Promise<{
-    status: BenchmarkStatus;
-    metrics: Record<string, number | null>;
-    notes: string[];
-    metadata: { [key: string]: JsonValue };
-  }> {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: [
-        'Deep relationship querying is not implemented for Electric in this harness yet.',
-      ],
-    });
+  async runDeepRelationshipQuery() {
+    await ensureStackUp('electric');
+    await seedStack('electric', screenSeed('deep-relationship-query'));
+    const abort = new AbortController();
+    const streams = ['tasks', 'projects', 'organizations'].map(table => new ShapeStream({
+      url: `${this.stack.syncBaseUrl}/v1/shape`, params: { table }, subscribe: false,
+      signal: AbortSignal.any([abort.signal, AbortSignal.timeout(120_000)]),
+      parser: { int8: (value: string) => Number(value) },
+    }));
+    const shapes = streams.map(stream => new Shape(stream));
+    try {
+      const [tasks, projects, organizations] = await Promise.all(shapes.map(shape => shape.rows));
+      const data = { tasks: tasks!.map(taskRecord), projects: projects!, organizations: organizations! };
+      const result = await measureScreens('deep-relationship-query', {
+        execution: 'application-processing', readData: () => data,
+        query: indexRelatedScreens(data),
+        diagnostics: { localStorage: 'javascript-map', queryEngine: 'benchmark-array-operations',
+          delivery: 'native Electric Shape snapshots for tasks, projects and organizations',
+          joins: 'application joins with project/org lookup maps and task ID order index; aggregation computed per query',
+          indexBuild: 'before timing, alongside snapshot preparation' },
+      });
+      return { status: 'completed' as const, ...result, metadata: { ...result.metadata, implementation: 'electric-related-screens-v2' } };
+    } finally {
+      abort.abort();
+      shapes.forEach(shape => shape.unsubscribeAll());
+      streams.forEach(stream => stream.unsubscribeAll());
+    }
   }
+
+  async runReplicaReopen() { return runReopen('electric'); }
 
   async runPermissionChange() { return runAccess('electric'); }
 

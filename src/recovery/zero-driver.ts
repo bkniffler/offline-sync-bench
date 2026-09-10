@@ -1,3 +1,4 @@
+import { createZeroSQLiteStore } from './zero-sqlite-store.ts';
 import { matchingDeliveryRows, pollDelivery } from '../fanout/observe.ts';
 import { SignJWT } from 'jose';
 import { Zero, type MutatorResult } from '@rocicorp/zero';
@@ -10,21 +11,21 @@ import type { RecoveryClientConfig, RecoveryDriver } from './protocol.ts';
 type Status = 'pending' | 'success' | 'error';
 type Receipt = { taskId: string; client: Status; server: Status };
 export async function createZeroRecoveryDriver(config: RecoveryClientConfig): Promise<RecoveryDriver> {
-  if (config.reopen) throw new Error('The Zero memory profile cannot reopen a process-persistent replica or queue');
+  if (config.reopen && !config.persistentZero) throw new Error('The Zero memory profile cannot reopen a process-persistent replica or queue');
   const auth = await new SignJWT({}).setProtectedHeader({ alg: 'HS256' }).setIssuedAt()
     .setSubject(config.actorId).setExpirationTime('10m').sign(new TextEncoder().encode('benchsecret'));
   const zero = new Zero({ userID: config.actorId, auth, cacheURL: config.syncBaseUrl,
-    kvStore: 'mem', logLevel: 'error', schema, mutators, storageKey: config.clientId });
+    kvStore: config.persistentZero ? createZeroSQLiteStore(config.dbPath) : 'mem', logLevel: 'error', schema, mutators, storageKey: config.clientId });
   const all = zero.materialize(queries.tasks.all());
   const screen = zero.materialize(queries.tasks.startupScreen({ projectId: screenProjectId, ownerId: screenOwnerId }));
   const initialized = performance.now();
-  const initialCache = { id: config.clientId, nativeClientId: zero.clientID, storageKey: zero.storageKey, kvStore: 'mem', rows: all.data.length };
+  const initialCache = { id: config.clientId, nativeClientId: zero.clientID, storageKey: zero.storageKey, kvStore: config.persistentZero ? 'native-sqlite-store' : 'mem', rows: all.data.length };
   const delivery = { method: 'zero-native-materialized-stream', connects: 0, pauses: 0, observations: 0 };
   const receipts: Receipt[] = [], errors: JsonObject[] = [], connections: JsonObject[] = [], rounds: JsonObject[] = [];
   const serverWaiters: Promise<void>[] = [];
   let allState = 'unknown', screenState = 'unknown', wrote = false, closed = false;
   const state = (): JsonObject => ({ ...(config.fanout ? { delivery: { ...delivery } } : {}), method: 'native-mutation-promises-v1', nativeQueueCount: null,
-    nativeClientId: zero.clientID, storageKey: zero.storageKey, kvStore: 'mem',
+    nativeClientId: zero.clientID, storageKey: zero.storageKey, kvStore: config.persistentZero ? 'native-sqlite-store' : 'mem',
     acceptedLocalTaskIds: receipts.filter(r => r.client === 'success').map(r => r.taskId).sort(),
     pendingTaskIds: receipts.filter(r => r.server === 'pending').map(r => r.taskId).sort(),
     receipts: receipts.map(r => ({ ...r })), mutationErrors: [...errors],
@@ -64,6 +65,13 @@ export async function createZeroRecoveryDriver(config: RecoveryClientConfig): Pr
     const server = settle('server'); void server.catch(() => {}); serverWaiters.push(server);
     return settle('client');
   };
+  if (config.reopen) {
+    const deadline = performance.now() + 30_000;
+    while (!all.data.length || !screen.data.length) {
+      if (performance.now() >= deadline) throw fault('Zero persistent local hydration timed out');
+      await new Promise(resolve => setTimeout(resolve, 5));
+    }
+  }
   return {
     rows: async () => all.data.map(taskRecord),
     firstScreen: async () => screen.data.map(row => ({ id: row.id, title: row.title, completed: Number(row.completed) })),
@@ -98,10 +106,10 @@ export async function createZeroRecoveryDriver(config: RecoveryClientConfig): Pr
       // actual rejected connections at the gate and unchanged remote data.
       await Promise.race([new Promise(resolve => setTimeout(resolve, 11_000)), fatal]); check();
     },
-    close: async () => { if (closed) return; closed = true; unsubscribe(); all.destroy(); screen.destroy(); await zero.close(); },
-    diagnostics: { localStorage: 'zero-memory', persistence: 'none; no process durability claim', initialCache,
+    close: async () => { if (closed) return; closed = true; unsubscribe(); await zero.close(); all.destroy(); screen.destroy(); },
+    diagnostics: { localStorage: config.persistentZero ? 'zero-native-sqlite-store' : 'zero-memory', persistence: config.persistentZero ? 'Zero native persistent DAG, indexes and SQLiteStore through a Bun SQLite platform delegate, WAL with synchronous FULL' : 'none; no process durability claim', initialCache,
       ...(config.conflicts ? { conflictWritePath: 'existing tasks.update: title-only patch, absent row ignored; tasks.remove: native keyed delete; server_version remains unchanged' } : {}),
-      outbox: 'native Zero mutations in a live memory-backed client; no harness replay or persistent outbox',
+      outbox: config.persistentZero ? 'Zero owns mutation log and replay in its native DAG; this reopen case has no pending writes' : 'native Zero mutations in a live memory-backed client; no harness replay or persistent outbox',
       pendingObservation: 'issued native mutation.server promises not yet settled; aggregate native queue counter unavailable',
       localCommit: 'successful mutation.client receipt', serverAcceptance: 'successful mutation.server receipt',
       sync: 'native materialized queries and mutation receipts; SDK transport owns reconnect timing',

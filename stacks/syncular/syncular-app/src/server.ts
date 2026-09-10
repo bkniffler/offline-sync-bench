@@ -1,3 +1,4 @@
+import { PendingRealtimeSession } from './realtime-session.ts';
 /**
  * Syncular v2 bench sync server — one Bun process serving
  * - POST /api/sync + GET /api/segments/:id + /api/blobs/* via server-hono,
@@ -21,7 +22,6 @@ import {
   createRealtimeHub,
   MemorySegmentStore,
   PostgresFanout,
-  type RealtimeSession,
   type ResolveScopes,
   S3BlobStore,
   s3PresignedBlobUploads,
@@ -146,7 +146,7 @@ app.route('/api', syncularHono as unknown as Hono);
 interface SocketData {
   clientId: string;
   actorId: string;
-  session?: RealtimeSession;
+  session?: PendingRealtimeSession;
 }
 
 const server = Bun.serve<SocketData, never>({
@@ -171,6 +171,8 @@ const server = Bun.serve<SocketData, never>({
   },
   websocket: {
     open(ws) {
+      const pending = new PendingRealtimeSession(() => ws.close(1009, 'handshake queue limit'));
+      ws.data.session = pending;
       hub
         .connect({
           partition: PARTITION,
@@ -182,16 +184,12 @@ const server = Bun.serve<SocketData, never>({
           closeSocket: () => ws.close(1008, 'protocol violation (§8.7)'),
         })
         .then((session) => {
-          ws.data.session = session;
+          pending.ready(session);
         })
-        .catch(() => ws.close(1011, 'realtime connect failed'));
+        .catch(() => { pending.close(); ws.close(1011, 'realtime connect failed'); });
     },
     message(ws, message) {
-      if (typeof message === 'string') {
-        ws.data.session?.handleMessage(message);
-      } else {
-        ws.data.session?.handleBinary(new Uint8Array(message));
-      }
+      ws.data.session?.receive(typeof message === 'string' ? message : new Uint8Array(message));
     },
     close(ws) {
       ws.data.session?.close();

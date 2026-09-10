@@ -1,4 +1,5 @@
 import { captureScreenPlans } from '../contracts/screen-indexes.ts';
+import { preparePowerSyncFixture, takePowerSyncPreparations } from '../powersync-preparation.ts';
 import { measureCollaboration, collaborationSeed, pollUntil } from '../contracts/collaboration.ts';
 import { measureScreens, screenSeed, screenQueries, waitForScreenFixture, type ScreenCase, type Row } from '../contracts/screens.ts';
 import { mkdir, mkdtemp, rm } from 'node:fs/promises';
@@ -106,10 +107,16 @@ if (
   );
 }
 
-const result = scenario === 'online-propagation' ? await runOnlinePropagation()
-  : scenario === 'local-query' ? await runLocalQuery() : await runDeepRelationshipQuery();
-
-await writeResultAndExit(result);
+try {
+  const result = scenario === 'online-propagation' ? await runOnlinePropagation()
+    : scenario === 'local-query' ? await runLocalQuery() : await runDeepRelationshipQuery();
+  await writeResultAndExit(result);
+} catch (error) {
+  const { failureStatus } = await import('../execution.ts');
+  await writeResultAndExit({ status: failureStatus(error), metrics: {}, notes: [String(error)],
+    metadata: { fixturePreparation: takePowerSyncPreparations(),
+      ...(error instanceof Error && 'evidence' in error ? { evidence: error.evidence as JsonValue } : {}) } });
+}
 
 }
 
@@ -189,7 +196,7 @@ async function runOnlinePropagation(): Promise<RunnerResult> {
       observe: (title, signal) => pollUntil(async () => (await reader.db.getOptional<{ title: string }>('SELECT title FROM tasks WHERE id = ?', [taskId]))?.title === title, signal),
       diagnostics: { localCommit: 'local SQL execute completion', serverAccepted: 'successful upload response from mutation backend', reader: 'SDK continuous sync, 1ms local SQL polling', localStorage: 'powersync-node-sqlite-file' },
     });
-    return { status: 'completed', ...result, metadata: { ...result.metadata, implementation: 'powersync-collaboration-v2' } };
+    return { status: 'completed', ...result, metadata: { ...result.metadata, fixturePreparation: takePowerSyncPreparations(), implementation: 'powersync-collaboration-v2' } };
   } finally { acceptedWrites.clear(); await writer.destroy(); await reader.destroy(); }
 }
 
@@ -209,7 +216,7 @@ async function runScreens(scenario: ScreenCase): Promise<RunnerResult> {
       query: name => session.db.getAll<Row>(screenQueries[name]),
       diagnostics: { queries: screenQueries, localStorage: 'powersync-node-sqlite-file', queryPlans: await captureScreenPlans(scenario, sql => session.db.getAll<Row>(sql)) },
     });
-    return { status: 'completed', ...result, metadata: { ...result.metadata, fixtureReadiness, implementation: 'powersync-screens-v2' } };
+    return { status: 'completed', ...result, metadata: { ...result.metadata, fixturePreparation: takePowerSyncPreparations(), fixtureReadiness, implementation: 'powersync-screens-v2' } };
   } finally { await session.destroy(); }
 }
 
@@ -304,6 +311,8 @@ async function seedStack(options: {
   if (!response.ok) {
     throw new Error(`PowerSync seed failed: ${response.status} ${response.statusText}`);
   }
+  await response.json();
+  await preparePowerSyncFixture();
 }
 
 async function getFixtures(): Promise<StackFixtures> {

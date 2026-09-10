@@ -7,7 +7,7 @@ import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { type JazzClient, toWriteRecord, type QueryInput } from 'jazz-tools';
 import { deploy } from 'jazz-tools/dev';
-import { app, appId, adminSecret, backendSecret, permissions, productVersion, createJazzNativeClient, queryTasks, jazzMembershipMigration, type TaskRow } from './jazz-native.ts';
+import { app, appId, adminSecret, backendSecret, permissions, productVersion, createJazzNativeClient, queryTasks, jazzSchemaMigration, type TaskRow } from './jazz-native.ts';
 import { validateJazzDeployment } from '../contracts/jazz-deployment.ts';
 import { startupScaleCatalog, validateStartupSnapshot } from '../contracts/startup.ts';
 import { average, CpuSampler, MemorySampler, percentile, round } from '../metrics.ts';
@@ -79,7 +79,7 @@ async function main(): Promise<RunnerResult> {
     adminSecret,
     schema: app.wasmSchema,
     permissions,
-    migration: jazzMembershipMigration,
+    migration: jazzSchemaMigration,
   });
   validateJazzDeployment(deployment);
 

@@ -55,3 +55,13 @@ test('startup campaign scales are declared, ordered and checked against actual r
   expect(() => validateConfiguredParameters(result)).toThrow('startup sizes');
   expect(() => validateConfiguredParameters({ ...result, metadata: { ...result.metadata, startupSizes: [1000] } }, { startupSizes: sizes })).toThrow('startup sizes');
 });
+
+
+test('single publication run requires explicit disclosure; selected pairs exclude unrequested cases', () => {
+  const selected: CampaignConfig = { ...config, trials: 1, replication: 'single-run', cases: [{ stackId: 'electric', scenarioId: 'deep-relationship-query' }] };
+  expect(planCampaign(selected)).toEqual([{ stackId: 'electric', scenarioId: 'deep-relationship-query', trial: 1 }]);
+  expect(() => planCampaign({ ...selected, cases: [] })).toThrow('selected cases');
+  expect(() => planCampaign({ ...selected, cases: [...selected.cases!, ...selected.cases!] })).toThrow('selected cases');
+  expect(() => planCampaign({ ...selected, cases: [{ stackId: 'zero', scenarioId: 'local-query' }] })).toThrow('selected cases');
+  expect(() => planCampaign({ ...selected, trials: 3 })).toThrow('exactly one');
+});

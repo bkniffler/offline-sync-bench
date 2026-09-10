@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "purpose": "publication",
+  "seed": 20260910,
+  "trials": 1,
+  "replication": "single-run",
+  "trialTimeoutMs": 1800000,
+  "stacks": [
+    "electric",
+    "jazz-v2",
+    "zero",
+    "electric-tanstack",
+    "syncular-rust"
+  ],
+  "scenarios": [
+    "deep-relationship-query",
+    "replica-reopen",
+    "offline-restart",
+    "blob-flow"
+  ],
+  "cases": [
+    {
+      "stackId": "electric",
+      "scenarioId": "deep-relationship-query"
+    },
+    {
+      "stackId": "electric",
+      "scenarioId": "replica-reopen"
+    },
+    {
+      "stackId": "jazz-v2",
+      "scenarioId": "deep-relationship-query"
+    },
+    {
+      "stackId": "zero",
+      "scenarioId": "replica-reopen"
+    },
+    {
+      "stackId": "electric-tanstack",
+      "scenarioId": "offline-restart"
+    },
+    {
+      "stackId": "syncular-rust",
+      "scenarioId": "blob-flow"
+    }
+  ],
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Run exactly one independent attempt for each of the six selected repaired cases. Retain every outcome, including failures; no selective retries and no pooling with development checks or previous campaigns. Label these measurements n=1: run-to-run variability is unknown. Retain persistent server volumes and run cases sequentially."
+}

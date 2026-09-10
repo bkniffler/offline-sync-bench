@@ -35,8 +35,14 @@ export function validateElectricRecoveryState(stackId: 'electric' | 'electric-ta
   }
   if (JSON.stringify(queueIds.sort()) !== JSON.stringify(accepted ? [] : ids)) throw new ContractError('Electric recovery queued task identities differ');
   if (tanstack) {
-    if (native.queueStore !== 'fake-indexeddb-memory' || !Array.isArray(native.errors) || native.errors.length || !Array.isArray(native.issued)
-      || JSON.stringify(native.issued.map(i => (i as JsonObject).taskId).sort()) !== JSON.stringify(reader ? [] : ids)
+    if (!['fake-indexeddb-memory', 'sqlite-full-sync'].includes(String(native.queueStore)) || !Array.isArray(native.errors) || native.errors.length || !Array.isArray(native.issued)) throw new ContractError('TanStack native commit receipts differ');
+    if (reopened) {
+      const restored = native.restoredTransactions as JsonObject[];
+      if (native.queueStore !== 'sqlite-full-sync' || native.issued.length || !Array.isArray(restored)
+        || JSON.stringify(restored.flatMap(tx => tx.taskIds as string[]).sort()) !== JSON.stringify(ids)
+        || new Set(restored.map(tx => tx.id)).size !== ids.length
+        || restored.some(tx => typeof tx.id !== 'string' || typeof tx.idempotencyKey !== 'string' || (!accepted && !queue.some(q => q.id === tx.id && q.idempotencyKey === tx.idempotencyKey)))) throw new ContractError('TanStack native restoration receipts differ');
+    } else if (JSON.stringify(native.issued.map(i => (i as JsonObject).taskId).sort()) !== JSON.stringify(reader ? [] : ids)
       || native.issued.some(i => { const r = i as JsonObject; return r.settled !== accepted || (!accepted && !transactionIds.has(String(r.id))); })) throw new ContractError('TanStack native commit receipts differ');
   } else if (native.failure !== null) throw new ContractError('Electric reference cache application failed');
   const attempts = native.attempts as JsonObject[];

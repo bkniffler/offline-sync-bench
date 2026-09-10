@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { deploy } from 'jazz-tools/dev';
 import { toWriteRecord, transformRows } from 'jazz-tools';
-import { app, appId, adminSecret, productVersion, jazzMembershipMigration } from '../adapters/jazz-native.ts';
+import { app, appId, adminSecret, productVersion, jazzSchemaMigration } from '../adapters/jazz-native.ts';
 import { validateJazzDeployment } from '../contracts/jazz-deployment.ts';
 import { accessRows, accessProfile, accessProjects, validateAccessState } from '../contracts/access.ts';
 import { canonicalJazzAccessRows, createJazzAccessClient, jazzAccessIdentity, jazzAccessLocal, jazzAccessPermissions } from './jazz-native.ts';
@@ -9,7 +9,7 @@ import type { RecoveryClientConfig, RecoveryDriver } from '../recovery/protocol.
 import type { JsonObject } from '../types.ts';
 
 export async function createJazzAccessAdmin(config: RecoveryClientConfig): Promise<RecoveryDriver> {
-  const deployment = await deploy({ appId, serverUrl: config.syncBaseUrl, adminSecret, schema: app.wasmSchema, permissions: jazzAccessPermissions, migration: jazzMembershipMigration });
+  const deployment = await deploy({ appId, serverUrl: config.syncBaseUrl, adminSecret, schema: app.wasmSchema, permissions: jazzAccessPermissions, migration: jazzSchemaMigration });
   validateJazzDeployment(deployment);
   const native = createJazzAccessClient(config, true); native.connect();
   let revokeId = '', revoked = false;

@@ -30,10 +30,13 @@ labels = {'Syncular JS': 'syncular', 'Syncular Rust': 'syncular-rust', 'PowerSyn
           'Zero': 'zero', 'Electric': 'electric',
           'Electric + TanStack DB': 'electric-tanstack', 'Jazz v2 (experimental)': 'jazz-v2'}
 groups = {}
+selected_sources = {(c['stack'], c['scenario']): c['source'] for c in coverage['cases']}
 for source in config['sources']:
     raw = gzip.decompress(Path(source['manifest']).read_bytes())
     assert sha(raw) == source['manifestSha256']
     for a in json.loads(raw)['attempts']:
+        if selected_sources[a['stackId'], a['scenarioId']] != source['id']:
+            continue
         groups.setdefault((a['stackId'], a['scenarioId']), []).append((a['trial'], a['result']))
 history = next(s for s in coverage['sources'] if s['id'] == 'retained-history')
 assert sha(Path(history['archive']).read_bytes()) == history['archiveSha256']
@@ -50,13 +53,29 @@ with tarfile.open(history['archive']) as archive:
             result = json.loads(raw)
             assert (result['resultId'], result['status']) == (a['resultId'], a['outcome'])
             groups[key].append((a['trial'], result))
+timeout_review = json.loads(Path('results/diagnostics/final-publication/TIMEOUT-REVIEW.json').read_text())
+assert timeout_review['coverageSha256'] == sha(Path('COVERAGE.json').read_bytes())
+timeout_labels = {
+    'cold-startup-deadline-confirmed; displayed-warm-case-not-reached': 'Not reached',
+    'convergence-deadline-confirmed-with-divergent-client-snapshots': 'Did not converge',
+    'native-cache-purge-deadline-confirmed': 'Purge timed out',
+    'native-sync-deadline-during-setup; no-transfer-attempted': 'Setup timed out',
+}
+reviewed_labels = {r['resultId']: timeout_labels[r['classification']] for r in timeout_review['reviews']}
+gap_bytes = Path(config['coverageReview']).read_bytes()
+assert sha(gap_bytes) == config['coverageReviewSha256']
+gap_review = json.loads(gap_bytes)
+assert gap_review['coverageSha256'] == sha(Path('COVERAGE.json').read_bytes())
+gap_labels = {(c['stack'], c['scenario']): c for c in gap_review['cases']}
 page = Path('README.md').read_text()
 sections = re.split(r'^### ', page, flags=re.M)[1:]
 assert len(sections) == len(metrics)
-cells = timings = 0
+cells = timings = footnoted_cells = 0
 for section, (scenario, keys) in zip(sections, metrics):
     rows = [line for line in section.splitlines() if line.startswith('| ')][2:]
     assert [row.split('|')[1].strip() for row in rows] == list(labels)
+    footnotes = dict(re.findall(r'^((?:\\\*)+) (.+)$', section, flags=re.M))
+    used_markers = set()
     stacks = set()
     for row in rows:
         values = [v.strip() for v in row.split('|')[1:-1]]
@@ -74,17 +93,41 @@ for section, (scenario, keys) in zip(sections, metrics):
             if eligible:
                 assert values[1] == outcome[latest['metadata']['policy']['outcome']]
         for metric, displayed in zip(keys, values[-len(keys):]):
+            marker = re.search(r' ((?:\\\*)+)$', displayed)
+            if marker:
+                assert marker[1] in footnotes, (scenario, stack, 'Missing footnote', displayed)
+                used_markers.add(marker[1])
+                footnoted_cells += 1
+                displayed = displayed[:marker.start()]
             samples = [r['metrics'].get(metric) for r in passed]
             if eligible and samples and all(isinstance(v, (int, float)) for v in samples):
                 median = statistics.median(samples)
                 expected = f'{median:.3f}' if median < 1 else f'{median:.2f}'
+                if median == 0 and metric.endswith('_query_p50_ms'):
+                    for r in passed:
+                        operations=sorted(r['metadata']['samples'][metric.removesuffix('_query_p50_ms')])
+                        assert 0 <= operations[(len(operations)-1)//2] < 0.005
+                    expected='<0.005'
                 failed = any(r['status'] in ('failed', 'timed-out', 'invalid') for r in trials)
-                assert displayed == expected + ' ms' + (' *' if failed else ''), (stack, scenario, metric, displayed, expected)
+                single_run = selected_sources[stack, scenario] == 'coverage-fixes'
+                if single_run:
+                    assert len(trials) == 1 and 'n=1' in footnotes.get(marker[1] if marker else '', '')
+                assert bool(marker) == (failed or single_run), (stack, scenario, 'Earlier failure needs a footnote')
+                assert displayed == expected + ' ms', (stack, scenario, metric, displayed, expected)
                 timings += 1
             else:
+                assert marker, (stack, scenario, 'Missing result needs a footnote')
+                if latest['status'] == 'timed-out':
+                    assert displayed == reviewed_labels[latest['resultId']], (stack, scenario, displayed)
+                elif latest['status'] == 'unsupported':
+                    assert displayed == gap_labels[stack, scenario]['label'], (stack, scenario, displayed)
+                elif latest['status'] == 'completed':
+                    assert gap_labels[stack, scenario]['metric'] == metric
+                    assert displayed == gap_labels[stack, scenario]['label'], (stack, scenario, displayed)
                 assert not re.match(r'^\d', displayed), (stack, scenario, metric, displayed)
             cells += 1
-receipt = {'status': 'verified', 'sections': len(sections), 'clientRows': 112, 'cells': cells, 'numericalTimings': timings,
-           'currentAttempts': 174, 'historicalAttempts': 230, 'readmeSha256': sha(page.encode()), 'auditorSha256': sha(Path(__file__).read_bytes())}
+    assert used_markers == set(footnotes), (scenario, 'Unused footnote')
+receipt = {'status': 'verified', 'sections': len(sections), 'clientRows': 112, 'cells': cells, 'numericalTimings': timings, 'footnotedCells': footnoted_cells,
+           'currentAttempts': coverage['currentAttempts'], 'historicalAttempts': coverage['retainedAttempts'], 'readmeSha256': sha(page.encode()), 'auditorSha256': sha(Path(__file__).read_bytes())}
 Path('results/diagnostics/final-publication/README-TABLE-AUDIT.json').write_text(json.dumps(receipt, indent=2) + '\n')
 print(json.dumps(receipt))

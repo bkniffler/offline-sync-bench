@@ -1,0 +1,241 @@
+{
+  "format": "benchmark-publication-archive-v1",
+  "campaignId": "campaign-2026-09-10T07-02-43-467Z",
+  "files": [
+    {
+      "path": "RESULTS.json",
+      "archive": "archive/files/RESULTS.json.gz",
+      "bytes": 8458754,
+      "sha256": "b18971ca48edb432f29b077c1e0f66197c8aa1e9ec510759e8014335e7eb4954",
+      "compressedBytes": 588050,
+      "compressedSha256": "f1f15185e66db4aca44df1f5304a67c05dcf362f83c776e48caa6eb71b2d8bcb",
+      "mode": 420
+    },
+    {
+      "path": "RESULTS.md",
+      "archive": "archive/files/RESULTS.md.gz",
+      "bytes": 9947,
+      "sha256": "950d8c914d82ccee11deab88b3d4b4e962898ea4d9d6b7325072b0fe1a92286b",
+      "compressedBytes": 3645,
+      "compressedSha256": "9d1c9d95e87362b7f3e5c64a8a39fcf5389d13a6abd28d4b763d3b1451462362",
+      "mode": 420
+    },
+    {
+      "path": "docs/methodology.md",
+      "archive": "archive/files/docs/methodology.md.gz",
+      "bytes": 656,
+      "sha256": "8f88798594ec35c80aa1bc7a6a97af2662967361507cb30a916c48695fbb786b",
+      "compressedBytes": 421,
+      "compressedSha256": "2932277e0b2802540969c7fbb13e46f04c516886bc98954546e6a63a21244eee",
+      "mode": 420
+    },
+    {
+      "path": "evidence/offline-reopen.json",
+      "archive": "archive/files/evidence/offline-reopen.json.gz",
+      "bytes": 2636,
+      "sha256": "0287d2c036b239c035614490b6ef12e2cd298bbeb511458b181586fc2e1fcdf9",
+      "compressedBytes": 1135,
+      "compressedSha256": "12d85f3e83739665ffd428542f7c319d9d3c8064184f616bcb17a229decf1595",
+      "mode": 420
+    },
+    {
+      "path": "evidence/queued-crash-recovery.json",
+      "archive": "archive/files/evidence/queued-crash-recovery.json.gz",
+      "bytes": 2052,
+      "sha256": "a339cc97c70672d3df5d1980a6864ced8c18028808d19bcf1ad227c593d78068",
+      "compressedBytes": 996,
+      "compressedSha256": "25a1a3c660368e29d2ce0f9543771e5a0772eca9c1684a326ccf83c59d056742",
+      "mode": 420
+    },
+    {
+      "path": "evidence/related-records.json",
+      "archive": "archive/files/evidence/related-records.json.gz",
+      "bytes": 3227,
+      "sha256": "2af3a74cfc49d281a626cafe7b8afe633579c0283727e095948d843711182df4",
+      "compressedBytes": 1244,
+      "compressedSha256": "be1fbfeef327a3c1303b7d9028d627898cbba755eccd3e8405dbebaac69fef95",
+      "mode": 420
+    },
+    {
+      "path": "evidence/rust-attachments.json",
+      "archive": "archive/files/evidence/rust-attachments.json.gz",
+      "bytes": 3592,
+      "sha256": "bee82cf65e74a66961a2a8c16704ecaa1d3fb972022c76ac8c112121fcf38f95",
+      "compressedBytes": 1316,
+      "compressedSha256": "5a489e32319313ad7310a6b28f3906c99164dbfa3fd15095f8def78cc1c41375",
+      "mode": 420
+    },
+    {
+      "path": "results/configurations/f2cc8533f8d71f393d510d79a4e9eccd51a45849aa1f10796a76e8f5ac4ca727/CONFIGURATION.json",
+      "archive": "archive/files/results/configurations/f2cc8533f8d71f393d510d79a4e9eccd51a45849aa1f10796a76e8f5ac4ca727/CONFIGURATION.json.gz",
+      "bytes": 71556,
+      "sha256": "7f346fcb9dd841b64d0b3e99d736c1af72619795a8568a6dfab2a040898139df",
+      "compressedBytes": 7851,
+      "compressedSha256": "8f6ae38d8e17d2a1918f4e81466e1c75ce2c86c1046b967ca34b055aeecb22d5",
+      "mode": 420
+    },
+    {
+      "path": "results/dependencies/8fcfee81dbc5a09251577cb486a4540bd61c224166ba85b347284c442ed6472e/DEPENDENCIES.json",
+      "archive": "archive/files/results/dependencies/8fcfee81dbc5a09251577cb486a4540bd61c224166ba85b347284c442ed6472e/DEPENDENCIES.json.gz",
+      "bytes": 31072961,
+      "sha256": "8bad40126d1d04290af05bd8458733d73e88f3c9231db1f0ff9d9231f3490edd",
+      "compressedBytes": 5552578,
+      "compressedSha256": "97f02310d8c10cd041c185e6d0026a6fe592d9f38fed3a7ca8e72655e3342742",
+      "mode": 420
+    },
+    {
+      "path": "results/history/2026-09-05/README.md",
+      "archive": "archive/files/results/history/2026-09-05/README.md.gz",
+      "bytes": 201,
+      "sha256": "d641640a5e9c67ff6fe6c70a1f24dedac502f798cee7c106ee12683c2d13c8f0",
+      "compressedBytes": 162,
+      "compressedSha256": "839f429b6d1db2f94f72c133ca3747ddf4770c71b28a174795b755f580ca86c7",
+      "mode": 420
+    },
+    {
+      "path": "results/reports/campaign-2026-09-10T07-02-43-467Z/DETAILS.md",
+      "archive": "archive/files/results/reports/campaign-2026-09-10T07-02-43-467Z/DETAILS.md.gz",
+      "bytes": 11357,
+      "sha256": "be6d2fb72dcbb78780b89141ad525956221252842804ca105a2f41ab5c8411b2",
+      "compressedBytes": 4168,
+      "compressedSha256": "81a45dc70c2a1edc27814b92dcb9f45923c824f7f0e2a3fa023d1271f88c6e24",
+      "mode": 420
+    },
+    {
+      "path": "results/reports/campaign-2026-09-10T07-02-43-467Z/TRIALS.json",
+      "archive": "archive/files/results/reports/campaign-2026-09-10T07-02-43-467Z/TRIALS.json.gz",
+      "bytes": 2865,
+      "sha256": "75b7a5fd71ec9d92eb0a85fd493e916f14ec9434ca985d8774150deb076f6ed5",
+      "compressedBytes": 613,
+      "compressedSha256": "4a0045cac3ad8e038e6f867eca60d15a6c5f846e2fded6fb050720908861a968",
+      "mode": 420
+    },
+    {
+      "path": "results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0001-zero-replica-reopen.json",
+      "archive": "archive/files/results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0001-zero-replica-reopen.json.gz",
+      "bytes": 18738,
+      "sha256": "2f56a841ec0dda3a4ceb9d092248735dff92c180c2b0367246b08eb399d9517a",
+      "compressedBytes": 4557,
+      "compressedSha256": "da1a4ba63430aacb901ceee0964098afa96898761d2f2d39c4df6b94e11a19ea",
+      "mode": 420
+    },
+    {
+      "path": "results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0001-zero-replica-reopen.json.log",
+      "archive": "archive/files/results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0001-zero-replica-reopen.json.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressedBytes": 20,
+      "compressedSha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "mode": 420
+    },
+    {
+      "path": "results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0002-electric-deep-relationship-query.json",
+      "archive": "archive/files/results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0002-electric-deep-relationship-query.json.gz",
+      "bytes": 16493,
+      "sha256": "c36546ab60193bcdbf1c69d1894dc2a560464dd356e9dadfc928e0997720d321",
+      "compressedBytes": 4137,
+      "compressedSha256": "3f5a3e6ad552506fd7ca213d1f640d7b4e315b915d26bc980f36c51f57072774",
+      "mode": 420
+    },
+    {
+      "path": "results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0002-electric-deep-relationship-query.json.log",
+      "archive": "archive/files/results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0002-electric-deep-relationship-query.json.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressedBytes": 20,
+      "compressedSha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "mode": 420
+    },
+    {
+      "path": "results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0003-syncular-rust-blob-flow.json",
+      "archive": "archive/files/results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0003-syncular-rust-blob-flow.json.gz",
+      "bytes": 41403,
+      "sha256": "d15e16022077042e80f1f08834648525b90d2204e907c24d4e1461d2e4c804cd",
+      "compressedBytes": 7908,
+      "compressedSha256": "7e34e78244aacbfe835aeae626f617075d5867a7e4a533410c68d3d415986f03",
+      "mode": 420
+    },
+    {
+      "path": "results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0003-syncular-rust-blob-flow.json.log",
+      "archive": "archive/files/results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0003-syncular-rust-blob-flow.json.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressedBytes": 20,
+      "compressedSha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "mode": 420
+    },
+    {
+      "path": "results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0004-electric-tanstack-offline-restart.json",
+      "archive": "archive/files/results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0004-electric-tanstack-offline-restart.json.gz",
+      "bytes": 4370655,
+      "sha256": "64e6f82d74a5e01cc7302d0aaff70821970f720cb5d4a4c89e663cafa2158684",
+      "compressedBytes": 395533,
+      "compressedSha256": "5a88dc229b4b888861cb47abb8c15411c8aef7f3f500bb1a18558ecb6c67bbeb",
+      "mode": 420
+    },
+    {
+      "path": "results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0004-electric-tanstack-offline-restart.json.log",
+      "archive": "archive/files/results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0004-electric-tanstack-offline-restart.json.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressedBytes": 20,
+      "compressedSha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "mode": 420
+    },
+    {
+      "path": "results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0005-jazz-v2-deep-relationship-query.json",
+      "archive": "archive/files/results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0005-jazz-v2-deep-relationship-query.json.gz",
+      "bytes": 2460390,
+      "sha256": "219a56ac9c6202988880653b9a16e25acfa9f6dc60717a8b608186e0b36ad323",
+      "compressedBytes": 149461,
+      "compressedSha256": "1fdd755957a26ef5d294baa8d10bdc394c8ab0ff43c166ccd20ba2b527e49dea",
+      "mode": 420
+    },
+    {
+      "path": "results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0005-jazz-v2-deep-relationship-query.json.log",
+      "archive": "archive/files/results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0005-jazz-v2-deep-relationship-query.json.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressedBytes": 20,
+      "compressedSha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "mode": 420
+    },
+    {
+      "path": "results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0006-electric-replica-reopen.json",
+      "archive": "archive/files/results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0006-electric-replica-reopen.json.gz",
+      "bytes": 17439,
+      "sha256": "0ac24e268decb20c341a7000d08451fa54f3ef5f4b3f414b62e41d6e88c2283b",
+      "compressedBytes": 4284,
+      "compressedSha256": "bd2a963c3b62daefb6ac7eb1ff27228701c9114b29761742e1dc780570d17dd9",
+      "mode": 420
+    },
+    {
+      "path": "results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0006-electric-replica-reopen.json.log",
+      "archive": "archive/files/results/reports/campaign-2026-09-10T07-02-43-467Z/trials/0006-electric-replica-reopen.json.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressedBytes": 20,
+      "compressedSha256": "ac73670af3abed54ac6fb4695131f4099be9fbe39d6076c5d0264a6bbdae9d83",
+      "mode": 420
+    },
+    {
+      "path": "results/rust-builds/e645329c84878725f07229e518cc446595be13285f01661d9b2f9dd8af651c91/RUST-BUILD.json",
+      "archive": "archive/files/results/rust-builds/e645329c84878725f07229e518cc446595be13285f01661d9b2f9dd8af651c91/RUST-BUILD.json.gz",
+      "bytes": 21926800,
+      "sha256": "3b59aa05550912b9f5e96531d59431fef50394f287a49cf1ce072406c0b319e5",
+      "compressedBytes": 2552968,
+      "compressedSha256": "9742c8d32c7bd181f327dc4e4761ca84b78fdf10194c0ed02d6502083f20a358",
+      "mode": 420
+    },
+    {
+      "path": "results/sources/2fc51c484824652b8174015fa3b04f1796102e8c4761db1092ad38b78c32d1fc/SOURCE.json",
+      "archive": "archive/files/results/sources/2fc51c484824652b8174015fa3b04f1796102e8c4761db1092ad38b78c32d1fc/SOURCE.json.gz",
+      "bytes": 2250443,
+      "sha256": "faf9975240a2391aa78df80ce4636a34c6608ea6ced386f8815b02e1f010f971",
+      "compressedBytes": 669961,
+      "compressedSha256": "00192b233f30729394881df462300cabf00d8a4d689c60570fce904ec0d04ea4",
+      "mode": 420
+    }
+  ],
+  "scope": "Lossless packaging only. Benchmark contracts, provenance and reviewed annotations must pass publishCampaign before packaging."
+}

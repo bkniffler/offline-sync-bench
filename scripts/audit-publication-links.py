@@ -47,8 +47,8 @@ while queue:
             queue.append(linked)
         else:
             seen.add(linked)
-for kind in ['sql', 'zero']:
-    seen.update(p.resolve() for p in Path(f'results/reports/tuned-v017-{kind}').rglob('*') if p.is_file())
+for source in json.loads(Path('SUMMARY.json').read_text())['sources']:
+    seen.update(p.resolve() for p in Path(source['root']).rglob('*') if p.is_file())
 for folder in ['results/diagnostics/final-publication', 'results/reports/tuned-v017-current',
                'results/reports/tuned-v017-zero-current']:
     seen.update(p.resolve() for p in Path(folder).rglob('*') if p.is_file())

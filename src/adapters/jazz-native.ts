@@ -19,7 +19,7 @@ export interface TaskRow {
   updated_at: Date;
 }
 
-const schema = {
+const previousSchema = {
   memberships: s.table({ dataset_id: s.string(), project_id: s.string(), user_id: s.string() })
     .indexOnly(['dataset_id', 'project_id', 'user_id']),
   tasks: s
@@ -44,9 +44,22 @@ const schema = {
       'updated_at',
     ]),
 };
+const schema = {
+  ...previousSchema,
+  related_organizations: s.table({ dataset_id: s.string(), external_id: s.string(), name: s.string() })
+    .indexOnly(['dataset_id', 'external_id']),
+  related_projects: s.table({ dataset_id: s.string(), external_id: s.string(), organization_id: s.ref('related_organizations'), name: s.string() })
+    .indexOnly(['dataset_id', 'external_id', 'organization_id']),
+  related_tasks: s.table({ dataset_id: s.string(), external_id: s.string(), project_id: s.ref('related_projects'),
+    org_id: s.string(), project_external_id: s.string(), owner_id: s.string(), title: s.string(), completed: s.boolean(), server_version: s.int() })
+    .indexOnly(['dataset_id', 'external_id', 'project_id', 'project_external_id', 'owner_id', 'completed']),
+};
 export const app = s.defineApp(schema);
-export const jazzMembershipMigration = s.defineMigration({ from: { tasks: schema.tasks }, to: schema, createTables: { memberships: true } });
+export const jazzSchemaMigration = s.defineMigration({ from: previousSchema, to: schema, createTables: { related_organizations: true, related_projects: true, related_tasks: true } });
 export const permissions = definePermissions(app, ({ policy }) => {
+  for (const table of [policy.related_organizations, policy.related_projects, policy.related_tasks]) {
+    table.allowRead.always(); table.allowInsert.always(); table.allowUpdate.always(); table.allowDelete.always();
+  }
   policy.memberships.allowRead.always();
   policy.memberships.allowInsert.always();
   policy.memberships.allowUpdate.always();

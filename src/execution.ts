@@ -12,6 +12,7 @@ import { validateCollaborationResult, validateScreenResult } from './contracts/r
 import { validateBrowserResult } from './browser/validation.ts';
 import { parseClientRouting, routingVariable } from './network/routing.ts';
 import { randomUUID } from 'node:crypto';
+import { takePowerSyncPreparations } from './powersync-preparation.ts';
 import { ContractError } from './contracts/screens.ts';
 import type { BenchmarkAdapter, BenchmarkResult, BenchmarkRunContext, BenchmarkStatus, ScenarioId } from './types.ts';
 
@@ -57,6 +58,7 @@ export function validateResult(result: Pick<BenchmarkResult, 'scenarioId' | 'sta
 
 /** One measurement boundary for success and failure, including adapter setup. */
 export async function executeBenchmark(context: BenchmarkRunContext, adapter: BenchmarkAdapter, scenarioId: ScenarioId): Promise<BenchmarkResult> {
+  if (adapter.stack.id === 'powersync') takePowerSyncPreparations();
   const startedAt = new Date().toISOString();
   const started = performance.now();
   const identity = { runId: context.runId, resultId: randomUUID(), stackId: adapter.stack.id, scenarioId, startedAt };
@@ -66,6 +68,7 @@ export async function executeBenchmark(context: BenchmarkRunContext, adapter: Be
     const method = adapter[adapterMethods[scenarioId]];
     const outcome = method ? await method.call(adapter) : createUnsupportedScenarioResult({ implementation: 'missing-adapter-case', notes: [`${scenarioId} is not implemented for this adapter; no product capability conclusion is implied.`] });
     Object.assign(outcome.metadata, routingMetadata);
+    if (adapter.stack.id === 'powersync') outcome.metadata.fixturePreparation ??= takePowerSyncPreparations();
     outcome.metadata.coverage ??= { status: outcome.status === 'unsupported' ? 'not-implemented' : 'implemented', reason: outcome.status === 'unsupported' ? outcome.notes.join(' ') : 'Adapter executed this case.' };
     const result = { ...identity, ...outcome, finishedAt: new Date().toISOString(), durationMs: performance.now() - started };
     try { validateResult(result); }
@@ -80,7 +83,7 @@ export async function executeBenchmark(context: BenchmarkRunContext, adapter: Be
     return result;
   } catch (error) {
     return { ...identity, status: failureStatus(error), finishedAt: new Date().toISOString(), durationMs: performance.now() - started,
-      metrics: {}, notes: [error instanceof Error ? error.message : String(error)], metadata: { ...routingMetadata, implementation: 'benchmark-runner-error', ...(error instanceof Error && 'evidence' in error ? { evidence: error.evidence as import('./types.ts').JsonObject } : {}) } };
+      metrics: {}, notes: [error instanceof Error ? error.message : String(error)], metadata: { ...routingMetadata, ...(adapter.stack.id === 'powersync' ? { fixturePreparation: takePowerSyncPreparations() } : {}), implementation: 'benchmark-runner-error', ...(error instanceof Error && 'evidence' in error ? { evidence: error.evidence as import('./types.ts').JsonObject } : {}) } };
   }
 }
 

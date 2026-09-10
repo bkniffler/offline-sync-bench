@@ -1,0 +1,18 @@
+{
+  "observationWindow": "2026-09-09 21:42\u201321:45 UTC; exact query timestamps were not saved",
+  "sourceRevision": "dd376f7",
+  "sourceTaskCount": 2000,
+  "globalBucket": "2#global[]",
+  "operations": {
+    "PUT": 2996526,
+    "REMOVE": 2983987
+  },
+  "sdkTargetOperations": 5980513,
+  "reproduction": {
+    "resultId": "c7efaacf-91b2-4fa3-b992-c630f59c9b44",
+    "scenario": "offline-replay",
+    "status": "invalid",
+    "note": "initial writer: canonical recovery setup timed out"
+  },
+  "probeCaveat": "The original probe mislabeled return from waitForStatus on abort as firstSync. Both hasSynced=false progress and final zero rows show it was a deadline, not synchronization. The after probe checks hasSynced explicitly and validates every task."
+}

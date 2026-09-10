@@ -1,3 +1,4 @@
+import { createSQLiteOutbox } from './sqlite-outbox.ts';
 import { validateElectricConflictReceipt } from '../contracts/electric-conflict-receipt.ts';
 import { matchingDeliveryRows, pollDelivery } from '../fanout/observe.ts';
 import Database from 'better-sqlite3';
@@ -13,7 +14,7 @@ import type { RecoveryClientConfig, RecoveryDriver } from './protocol.ts';
 interface Task extends Row { id: string; title: string; completed: boolean; server_version: number }
 const ordered = (rows: Row[]) => rows.map(taskRecord).sort((a,b) => String(a.id).localeCompare(String(b.id)));
 export async function createTanStackRecoveryDriver(config: RecoveryClientConfig): Promise<RecoveryDriver> {
-  if (!config.appBaseUrl || config.reopen) throw new Error('TanStack recovery requires an application route and a live process; fake-indexeddb cannot reopen a queue');
+  if (!config.appBaseUrl || (config.reopen && !config.durableOutbox)) throw new Error('TanStack reopen requires a persistent outbox and application route');
   const database = new Database(config.dbPath), abort = new AbortController();
   const collectionId = `${config.clientId}-tasks`, outboxId = `${config.clientId}-outbox`;
   const options = persistedCollectionOptions<Task, string | number, never, ElectricCollectionUtils<Task>>({
@@ -27,7 +28,7 @@ export async function createTanStackRecoveryDriver(config: RecoveryClientConfig)
   const persisted = async () => (await persistence.scanRows!(collectionId)).map(row => row.value);
   const tasks = createCollection<Task, string | number, ElectricCollectionUtils<Task>>(options);
   const initialCache = { collectionId, outboxId, store: config.dbPath, activeRows: tasks.size, persistedRows: (await persisted()).length };
-  const storage = new IndexedDBAdapter(outboxId, 'transactions');
+  const storage = config.durableOutbox ? createSQLiteOutbox(database, outboxId) : new IndexedDBAdapter(outboxId, 'transactions');
   const delivery = { method: 'tanstack-native-electric-stream', connects: 0, pauses: 0, observations: 0 };
   const started = performance.now(), attempts: JsonObject[] = [], errors: string[] = [];
   const issued: { id: string; taskId: string; settled: boolean; operation?: string }[] = [], commits: Promise<unknown>[] = [];
@@ -66,7 +67,16 @@ export async function createTanStackRecoveryDriver(config: RecoveryClientConfig)
     jitter: false,
   });
   await executor.waitForInit();
-  if (!executor.isOfflineEnabled || initialCache.activeRows || initialCache.persistedRows || (await executor.peekOutbox()).length) throw new Error('TanStack recovery client is not fresh or offline executor unavailable');
+  if (!executor.isOfflineEnabled || (!config.reopen && (initialCache.activeRows || initialCache.persistedRows || (await executor.peekOutbox()).length)) || (config.reopen && !initialCache.persistedRows)) throw new Error('TanStack recovery initialization differs from lifecycle');
+  const restoredTransactions = config.reopen ? (await executor.peekOutbox()).map(tx => ({ id: tx.id, idempotencyKey: tx.idempotencyKey, taskIds: tx.mutations.map(m => String(m.key)) })) : [];
+  if (config.reopen) {
+    tasks.startSyncImmediate();
+    const deadline = performance.now() + 30_000;
+    while (tasks.size !== initialCache.persistedRows) {
+      if (performance.now() >= deadline) throw new Error('TanStack persisted recovery hydration timed out');
+      await new Promise(resolve => setTimeout(resolve, 5));
+    }
+  }
   const check = () => { if (closed || errors.length) throw Object.assign(new Error(`TanStack recovery failed: ${errors.join('; ') || 'closed'}`), { evidence: { tanstackRecovery: { errors: [...errors], attempts: [...attempts] } } }); };
   const wait = async (predicate: () => Promise<boolean>, label: string) => {
     const deadline = performance.now() + 90_000;
@@ -87,7 +97,7 @@ export async function createTanStackRecoveryDriver(config: RecoveryClientConfig)
     firstScreen: async () => arrayScreenQuery('list', { tasks: tasks.toArray }),
     pending: async () => (await executor.peekOutbox()).length,
     read: async () => { if (config.fanout) await wait(async () => hash(ordered(await persisted())) === hash(ordered(tasks.toArray)), 'local cache snapshot'); const outbox = await queue(); return { rows: tasks.toArray.map(taskRecord), pending: outbox.length, rejected: errors.length, conflicts: null,
-      nativeState: { ...(config.fanout ? { delivery: { ...delivery } } : {}), method: 'tanstack-native-outbox-v1', collectionId, outboxId, store: config.dbPath, queueStore: 'fake-indexeddb-memory',
+      nativeState: { ...(config.fanout ? { delivery: { ...delivery } } : {}), method: 'tanstack-native-outbox-v1', collectionId, outboxId, store: config.dbPath, queueStore: config.durableOutbox ? 'sqlite-full-sync' : 'fake-indexeddb-memory', restoredTransactions,
         outbox, issued: issued.map(i => ({ ...i })), schedulerPending: executor.getPendingCount(), schedulerRunning: executor.getRunningCount(),
         persistedRows: (await persisted()).map(row => taskRecord(row) as JsonObject), attempts: attempts.map(a => ({ ...a })), errors: [...errors] } }; },
     write: async mutations => {
@@ -123,11 +133,11 @@ export async function createTanStackRecoveryDriver(config: RecoveryClientConfig)
       await commit(tx, taskId, 'delete');
     },
     close: async () => { if (closed) return; closed = true; executor.dispose(); abort.abort(); await tasks.cleanup(); if (database.open) database.close(); },
-    diagnostics: { localStorage: 'tanstack-node-sqlite-cache', initialCache, outbox: 'official offline-transactions IndexedDBAdapter using fake-indexeddb in Node memory',
+    diagnostics: { localStorage: 'tanstack-node-sqlite-cache', initialCache, outbox: config.durableOutbox ? 'native offline-transactions executor with application SQLite StorageAdapter (WAL, synchronous FULL)' : 'official offline-transactions IndexedDBAdapter using fake-indexeddb in Node memory',
       ...(config.conflicts ? { conflictPolicy: 'application SQL UPDATE/DELETE with exact persisted disposition; awaitTxId only for row changes; no-op commit still requires full independent convergence' } : {}),
       localCommit: config.fanout || config.conflictRole === 'peer' ? 'fanout write completion includes native commit, server acceptance and shape visibility; no isolated local commit timing' : 'all issued native transactions visible in peekOutbox and optimistic collection; commit promises still pending',
       sync: 'native commit completion after HTTP transaction receipt and Electric awaitTxId; complete persisted/active equality',
       connectivity: 'always-online Node detector; SDK retries actual failed requests; jitter false; one leader for each isolated outbox',
-      persistence: 'SQLite cache persists confirmed data; offline queue has no process durability', authorization: 'application scoped shape and benchmark mutation endpoint' },
+      persistence: config.durableOutbox ? 'confirmed cache and native serialized outbox persist in the same SQLite file; SDK restores optimism and replays' : 'SQLite cache persists confirmed data; offline queue has no process durability', authorization: 'application scoped shape and benchmark mutation endpoint' },
   };
 }

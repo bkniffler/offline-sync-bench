@@ -1,0 +1,433 @@
+{
+  "scope": "Every current skipped/failed case plus missing local-commit cells and earlier Turso failures: 22 client/case entries. Immutable trial statuses remain unchanged. Six repaired cases have explicit publication or development dispositions below.",
+  "coverageSha256": "59adcb8e5284bff8d32393055fb633c614f357125f53ded8ed2a40d783a89b9b",
+  "policy": "Missing adapters, inconvenient runtime choices and setup failures are work to do, not product limitations. Only a documented lack of an equivalent workload or an inapplicable milestone justifies omission.",
+  "cases": [
+    {
+      "stack": "electric",
+      "scenario": "deep-relationship-query",
+      "metric": null,
+      "disposition": "published-single-run",
+      "label": "Measured",
+      "reason": "The repaired implementation passed its complete workload and output checks in one predeclared publication run (n=1). Run-to-run variability is unknown.",
+      "nextStep": "Retain the single-run caveat; investigate costs separately before any further campaign.",
+      "evidence": [
+        "src/adapters/electric.ts",
+        "src/contracts/screens.ts",
+        "results/diagnostics/coverage-fixes/VERIFICATION.json",
+        "results/reports/coverage-fixes/RESULTS.json"
+      ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "deep-relationship-query",
+      "metric": null,
+      "disposition": "published-single-run",
+      "label": "Measured",
+      "reason": "The repaired implementation passed its complete workload and output checks in one predeclared publication run (n=1). Run-to-run variability is unknown.",
+      "nextStep": "Retain the single-run caveat; investigate costs separately before any further campaign.",
+      "evidence": [
+        "src/adapters/jazz-native.ts",
+        "node_modules/jazz-tools/dist/typed-app.d.ts",
+        "results/diagnostics/coverage-fixes/VERIFICATION.json",
+        "results/reports/coverage-fixes/RESULTS.json"
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "replica-reopen",
+      "metric": null,
+      "disposition": "published-single-run",
+      "label": "Measured",
+      "reason": "The repaired implementation passed its complete workload and output checks in one predeclared publication run (n=1). Run-to-run variability is unknown.",
+      "nextStep": "Retain the single-run caveat; investigate costs separately before any further campaign.",
+      "evidence": [
+        "src/recovery/electric-driver.ts",
+        "src/recovery/reopen.ts",
+        "results/diagnostics/coverage-fixes/VERIFICATION.json",
+        "results/reports/coverage-fixes/RESULTS.json"
+      ]
+    },
+    {
+      "stack": "zero",
+      "scenario": "replica-reopen",
+      "metric": null,
+      "disposition": "published-single-run",
+      "label": "Measured",
+      "reason": "The repaired implementation passed its complete workload and output checks in one predeclared publication run (n=1). Run-to-run variability is unknown.",
+      "nextStep": "Retain the single-run caveat; investigate costs separately before any further campaign.",
+      "evidence": [
+        "src/browser/client-entry.ts",
+        "node_modules/@rocicorp/zero/out/zero-client/src/client/options.d.ts",
+        "results/diagnostics/coverage-fixes/VERIFICATION.json",
+        "results/reports/coverage-fixes/RESULTS.json"
+      ]
+    },
+    {
+      "stack": "electric-tanstack",
+      "scenario": "offline-restart",
+      "metric": null,
+      "disposition": "published-single-run",
+      "label": "Measured",
+      "reason": "The repaired implementation passed its complete workload and output checks in one predeclared publication run (n=1). Run-to-run variability is unknown.",
+      "nextStep": "Retain the single-run caveat; investigate costs separately before any further campaign.",
+      "evidence": [
+        "src/recovery/tanstack-driver.ts",
+        "node_modules/@tanstack/offline-transactions/src/types.ts",
+        "results/diagnostics/coverage-fixes/VERIFICATION.json",
+        "results/reports/coverage-fixes/RESULTS.json"
+      ]
+    },
+    {
+      "stack": "zero",
+      "scenario": "offline-restart",
+      "metric": null,
+      "disposition": "diagnose",
+      "label": "Needs persistent test",
+      "reason": "Memory storage explains the current skip, but IndexedDB alone does not prove immediate crash durability. Zero limits offline writes by connection state.",
+      "nextStep": "Probe the canonical short-outage workload with native IndexedDB and forced process death; inspect native queue survival and client receipts without app-level replay or an extended disconnect timeout.",
+      "evidence": [
+        "src/recovery/zero-driver.ts",
+        "src/browser/client-entry.ts",
+        "https://zero.rocicorp.dev/docs/connection"
+      ]
+    },
+    {
+      "stack": "powersync",
+      "scenario": "blob-flow",
+      "metric": null,
+      "disposition": "implement",
+      "label": "Not implemented",
+      "reason": "The installed Node SDK includes an attachment queue and filesystem storage; a local 2 MiB staging/reopen probe passes.",
+      "nextStep": "Wire AttachmentQueue to the shared object store and metadata references, then validate upload, fresh download and interrupted-download recovery. Declare the helper experimental.",
+      "evidence": [
+        "node_modules/@powersync/common/lib/attachments/AttachmentQueue.d.ts",
+        "node_modules/@powersync/node/lib/attachments/NodeFileSystemAdapter.d.ts",
+        "results/diagnostics/final-publication/CAPABILITY-PROBE.json",
+        "https://docs.powersync.com/client-sdks/advanced/attachments"
+      ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "blob-flow",
+      "metric": null,
+      "disposition": "implement",
+      "label": "Not implemented",
+      "reason": "Jazz 2 alpha has chunked file creation/loading APIs; our adapter returns a placeholder.",
+      "nextStep": "Add files/file_parts schema and native file operations; verify exact bytes and recovery with fresh native stores. Express milestones by observable bytes and native durability rather than S3-specific requests.",
+      "evidence": [
+        "node_modules/jazz-tools/dist/runtime/db.d.ts",
+        "node_modules/jazz-tools/dist/runtime/file-storage.d.ts",
+        "results/diagnostics/final-publication/CAPABILITY-PROBE.json"
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "blob-flow",
+      "metric": null,
+      "disposition": "implement-application-path",
+      "label": "Not implemented",
+      "reason": "No standalone attachment queue is wired for this adapter; the application can sync file references and use object storage.",
+      "nextStep": "Implement one shared application-owned object-transfer queue, with each product syncing metadata. Separate product-owned versus application-owned transfer machinery; do not imply native attachment support.",
+      "evidence": [
+        "src/adapters/electric.ts",
+        "src/contracts/attachments.ts",
+        "src/attachments/run.ts"
+      ]
+    },
+    {
+      "stack": "electric-tanstack",
+      "scenario": "blob-flow",
+      "metric": null,
+      "disposition": "implement-application-path",
+      "label": "Not implemented",
+      "reason": "No standalone attachment queue is wired for this adapter; the application can sync file references and use object storage.",
+      "nextStep": "Implement one shared application-owned object-transfer queue, with each product syncing metadata. Separate product-owned versus application-owned transfer machinery; do not imply native attachment support.",
+      "evidence": [
+        "src/adapters/electric-tanstack.ts",
+        "src/contracts/attachments.ts",
+        "src/attachments/run.ts"
+      ]
+    },
+    {
+      "stack": "zero",
+      "scenario": "blob-flow",
+      "metric": null,
+      "disposition": "implement-application-path",
+      "label": "Not implemented",
+      "reason": "No standalone attachment queue is wired for this adapter; the application can sync file references and use object storage.",
+      "nextStep": "Implement one shared application-owned object-transfer queue, with each product syncing metadata. Separate product-owned versus application-owned transfer machinery; do not imply native attachment support.",
+      "evidence": [
+        "src/adapters/zero.ts",
+        "src/contracts/attachments.ts",
+        "src/attachments/run.ts"
+      ]
+    },
+    {
+      "stack": "turso",
+      "scenario": "blob-flow",
+      "metric": null,
+      "disposition": "implement-application-path",
+      "label": "Not implemented",
+      "reason": "No standalone attachment queue is wired for this adapter; the application can sync file references and use object storage.",
+      "nextStep": "Implement one shared application-owned object-transfer queue, with each product syncing metadata. Separate product-owned versus application-owned transfer machinery; do not imply native attachment support.",
+      "evidence": [
+        "src/adapters/turso.ts",
+        "src/contracts/attachments.ts",
+        "src/attachments/run.ts"
+      ]
+    },
+    {
+      "stack": "turso",
+      "scenario": "permission-change",
+      "metric": null,
+      "disposition": "not-equivalent",
+      "label": "No equivalent",
+      "reason": "The pinned local sync server exposes database replication, not per-actor row revocation while retaining other actors and server data. Lazy page fetching is not authorization filtering.",
+      "nextStep": "Keep this exact native revocation contract unavailable. Database-per-user or an application purge would change the contract and must be a separately labeled workload.",
+      "evidence": [
+        "src/adapters/turso.ts",
+        "src/contracts/access.ts",
+        "https://docs.turso.tech/sync/local-sync-server",
+        "https://docs.turso.tech/sync/partial"
+      ]
+    },
+    {
+      "stack": "electric",
+      "scenario": "online-propagation",
+      "metric": "local_commit_p50_ms",
+      "disposition": "not-applicable",
+      "label": "Not applicable",
+      "reason": "This direct-to-server write path performs no local commit.",
+      "nextStep": "Keep this milestone absent for the direct-write profile; a SQLite outbox profile can measure it separately without claiming native Electric persistence.",
+      "evidence": [
+        "src/adapters/electric.ts",
+        "src/recovery/electric-driver.ts",
+        "https://electric.ax/docs/sync/guides/writes"
+      ]
+    },
+    {
+      "stack": "electric-tanstack",
+      "scenario": "online-propagation",
+      "metric": "local_commit_p50_ms",
+      "disposition": "implement-milestone",
+      "label": "Not measured",
+      "reason": "The adapter deliberately disables localCommit even though the collection exposes the optimistic local update; that is not a durable queue receipt.",
+      "nextStep": "Measure a local-visible milestone consistently for all clients, or use the durable native executor/storage path for local commit. Never use isPersisted, which includes remote settlement, as local-only time.",
+      "evidence": [
+        "src/adapters/electric-tanstack-runner.ts",
+        "src/contracts/collaboration.ts",
+        "node_modules/@tanstack/db/src/transactions.ts"
+      ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "bootstrap",
+      "metric": null,
+      "disposition": "diagnose",
+      "label": "Not reached",
+      "reason": "Cold 100k startup exceeded 90 seconds; warm startup was never reached.",
+      "nextStep": "Run warm and cold as independent cases. Diagnose count-query materialization, ingestion and retained server history before changing a uniform deadline.",
+      "evidence": [
+        "results/diagnostics/final-publication/TIMEOUT-REVIEW.json",
+        "docs/investigations/tuned-publication-failures.md"
+      ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "conflict-update-delete",
+      "metric": null,
+      "disposition": "diagnose",
+      "label": "Did not converge",
+      "reason": "Writer and other clients disagree after acknowledged writes and a 90-second deadline.",
+      "nextStep": "Trace the target tombstone, reconnection and native subscriptions. Retain failure until all clients agree; do not force an assumed winner.",
+      "evidence": [
+        "results/diagnostics/final-publication/TIMEOUT-REVIEW.json",
+        "docs/investigations/tuned-publication-failures.md"
+      ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "permission-change",
+      "metric": null,
+      "disposition": "diagnose",
+      "label": "Purge timed out",
+      "reason": "The 60,000 ms purge deadline expires: online queries hide revoked rows but local storage retains them; reconnect also leaves queries stale. Fresh-client authorization passes.",
+      "nextStep": "Separate query visibility from native purge, and investigate reconnect/subscription behavior. Keep the observed failure, not a skipped case.",
+      "evidence": [
+        "results/diagnostics/final-publication/TIMEOUT-REVIEW.json",
+        "docs/investigations/tuned-publication-failures.md"
+      ]
+    },
+    {
+      "stack": "syncular-rust",
+      "scenario": "blob-flow",
+      "metric": null,
+      "disposition": "published-single-run",
+      "label": "Measured",
+      "reason": "The repaired implementation passed its complete workload and output checks in one predeclared publication run (n=1). Run-to-run variability is unknown.",
+      "nextStep": "Retain the single-run caveat; investigate costs separately before any further campaign.",
+      "evidence": [
+        "results/diagnostics/final-publication/TIMEOUT-REVIEW.json",
+        "docs/investigations/tuned-publication-failures.md",
+        "results/diagnostics/coverage-fixes/VERIFICATION.json",
+        "results/reports/coverage-fixes/RESULTS.json"
+      ]
+    },
+    {
+      "stack": "turso",
+      "scenario": "replica-reopen",
+      "metric": null,
+      "disposition": "retain-success-with-failure-note",
+      "label": "Measured",
+      "reason": "One prior setup connection failed; two runs succeeded.",
+      "nextStep": "Keep the failure in the record; capture both endpoints before assigning a cause.",
+      "evidence": [
+        "docs/investigations/tuned-publication-failures.md"
+      ]
+    },
+    {
+      "stack": "turso",
+      "scenario": "connected-fanout",
+      "metric": null,
+      "disposition": "retain-success-with-failure-note",
+      "label": "Measured",
+      "reason": "One prior attempt ran out of disk during 25-reader setup; two runs succeeded.",
+      "nextStep": "Add a preflight disk budget and bounded artifact retention outside measurements.",
+      "evidence": [
+        "docs/investigations/tuned-publication-failures.md"
+      ]
+    },
+    {
+      "stack": "turso",
+      "scenario": "reconnect-storm",
+      "metric": null,
+      "disposition": "retain-success-with-failure-note",
+      "label": "Measured",
+      "reason": "One prior attempt ran out of disk during 25-reader setup; two runs succeeded.",
+      "nextStep": "Add a preflight disk budget and bounded artifact retention outside measurements.",
+      "evidence": [
+        "docs/investigations/tuned-publication-failures.md"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "path": "docs/investigations/tuned-publication-failures.md",
+      "sha256": "1cf705cff022060e25526e0c9af5905b6c301f34e017b931f27b82ef4384c878"
+    },
+    {
+      "path": "node_modules/@powersync/common/lib/attachments/AttachmentQueue.d.ts",
+      "sha256": "6cbe3f5489c6c2a69aba39233169281847bfad6f2c4e7c3a6ce3e9016b9ce8b0"
+    },
+    {
+      "path": "node_modules/@powersync/node/lib/attachments/NodeFileSystemAdapter.d.ts",
+      "sha256": "a83a6c88c782eaff50bfee88222dc8ce328d7dff7d5b1e06c596ca408cafcacf"
+    },
+    {
+      "path": "node_modules/@rocicorp/zero/out/zero-client/src/client/options.d.ts",
+      "sha256": "c479a5eaf77751835d3464e50cc8e773359daf6bbc8cedb5878fe2ebf7ff939e"
+    },
+    {
+      "path": "node_modules/@tanstack/db/src/transactions.ts",
+      "sha256": "1facd7eb31f93ff0e9f622f81b09bbbc056e735ae3ad18a971a31c23f051be46"
+    },
+    {
+      "path": "node_modules/@tanstack/offline-transactions/src/types.ts",
+      "sha256": "2c0e501b98a0fc0dee9aa9fb14efee79d389ee894a77f93310f436cee3fc3a8a"
+    },
+    {
+      "path": "node_modules/jazz-tools/dist/runtime/db.d.ts",
+      "sha256": "7fff062fb1af65a2d860eb8524bebbb8f41dabeee875ae14b3db6fdbda9cf58f"
+    },
+    {
+      "path": "node_modules/jazz-tools/dist/runtime/file-storage.d.ts",
+      "sha256": "8540b45b404a84446700c3c645050e9b7c07c920c3f2dedd031ede1cbd730603"
+    },
+    {
+      "path": "node_modules/jazz-tools/dist/typed-app.d.ts",
+      "sha256": "cd82d97a9f1c1e9d52a44eb1e50e8bb6f6c1231365dab85eaf35dffde115db45"
+    },
+    {
+      "path": "results/diagnostics/coverage-fixes/VERIFICATION.json",
+      "sha256": "f77dc2fd3e09888a3cf355f8ca1bfa29475e68e6ac61f1f5a9bae170fbbbc913"
+    },
+    {
+      "path": "results/diagnostics/final-publication/CAPABILITY-PROBE.json",
+      "sha256": "068e68629494ff25d03fa10d6a128f8e9fafc113b9e668e7dd0eab22574b0ee2"
+    },
+    {
+      "path": "results/diagnostics/final-publication/TIMEOUT-REVIEW.json",
+      "sha256": "3c31d773da82e2d423fdc7ab8972435be3ceb686e697f04f8786dd2c88001dc3"
+    },
+    {
+      "path": "results/reports/coverage-fixes/RESULTS.json",
+      "sha256": "2b1d8c0b35bfb2155a4c41e875e08b8935e59a090d21910676118e88dd755b21"
+    },
+    {
+      "path": "src/adapters/electric-tanstack-runner.ts",
+      "sha256": "3004613e2737c4b1c925944f09a91b603bf400fc2ddbb0e9b084050584ef0eb5"
+    },
+    {
+      "path": "src/adapters/electric-tanstack.ts",
+      "sha256": "27f7147b1af461deca76852ec8fc99f7fc54b9c19d8f2dbf01fb35a9eb5c1792"
+    },
+    {
+      "path": "src/adapters/electric.ts",
+      "sha256": "2ddda9635b2750fc449e0dcb7cdcac5e845a72368078ab4403390a3d13f360bd"
+    },
+    {
+      "path": "src/adapters/jazz-native.ts",
+      "sha256": "ffd3bc9f45b0303a6bfada88f152bcda60760782de7bbcede544f51801389e2e"
+    },
+    {
+      "path": "src/adapters/turso.ts",
+      "sha256": "4d4a5f0792ea99c6e7fe7feea01d083c20d92b3d7cfe25ebb5be006aeb2a257c"
+    },
+    {
+      "path": "src/adapters/zero.ts",
+      "sha256": "14ba9ab4192aa22c94299addeffe4f4f6feb4abba99764af171dc78d3037b755"
+    },
+    {
+      "path": "src/attachments/run.ts",
+      "sha256": "b630eefafe84fb139837a7ef155941094b6910cc005046400ad3a4ef353648f0"
+    },
+    {
+      "path": "src/browser/client-entry.ts",
+      "sha256": "e0bb0d73030dd350f26670a78e22c8b208692e0bbb315a2810a4d9c8594c175d"
+    },
+    {
+      "path": "src/contracts/access.ts",
+      "sha256": "f9756cefced19a19c59a08764e2d7c1d0ca6eafe166b9600ba32e12e07e4d0fe"
+    },
+    {
+      "path": "src/contracts/attachments.ts",
+      "sha256": "dee81d846120743d9d1aceb6b9dc257e9dc9c98fe5d50d90b60eaf19d97e7207"
+    },
+    {
+      "path": "src/contracts/collaboration.ts",
+      "sha256": "9b407a68c64d5e034ac529fc7122f6ede98f7e2693bac79e427e502b2048c180"
+    },
+    {
+      "path": "src/contracts/screens.ts",
+      "sha256": "f0156961e24bee513c27dbe1c86fd418c72ec6f422829626f59349eafdc184a7"
+    },
+    {
+      "path": "src/recovery/electric-driver.ts",
+      "sha256": "343efd0abd5627ebf9675cb908f3dd7b976b5c1912e42258a089e853f575110c"
+    },
+    {
+      "path": "src/recovery/reopen.ts",
+      "sha256": "7d9152999e3f1847b3fc119ddcf55e39e7f7db7543af56f6b7828c682bc8763e"
+    },
+    {
+      "path": "src/recovery/tanstack-driver.ts",
+      "sha256": "83c180c3e85a3a0d9e7f4d64e567ed7d1730af06882c979740218ef1eb04d11b"
+    },
+    {
+      "path": "src/recovery/zero-driver.ts",
+      "sha256": "fd8d3bcc39414015511bd30074802ee759f11849dc6d86ab8be89d2f7d4ec3fc"
+    }
+  ],
+  "optionalBrowserRuntime": "src/browser/adapter.ts implements only Electric and Zero collaboration; other Chromium combinations are implementation gaps and are not claimed as tested product limitations. The native Rust executable is not a browser SDK."
+}

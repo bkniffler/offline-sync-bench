@@ -20,6 +20,8 @@ export interface RecoveryClientConfig {
   recovery?: boolean;
   startup?: boolean;
   reopen?: boolean;
+  durableOutbox?: boolean;
+  persistentZero?: boolean;
   datasetId?: string;
   attachments?: boolean;
   blobDownloadProxy?: import('../attachments/transfer-gate.ts').BlobDownloadProxy;

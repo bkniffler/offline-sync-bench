@@ -21,14 +21,16 @@ import { ensureStackUp } from './stack-manager.ts';
 import type { BenchmarkResult, JsonObject, ScenarioId, StackId } from './types.ts';
 import { networkTrialEnvironment, validateNetworkProfile, withTrialNetwork } from './network/campaign.ts';
 
-export interface CampaignConfig { version: 1; purpose: 'smoke' | 'publication' | 'diagnostic'; seed: number; trials: number; trialTimeoutMs: number; stacks: StackId[]; scenarios: ScenarioId[]; network: JsonObject; stoppingRule: string; runtime?: ClientRuntime; parameters?: { clientCounts?: number[]; startupSizes?: number[]; recoveryOutageMs?: number } }
+export interface CampaignConfig { version: 1; purpose: 'smoke' | 'publication' | 'diagnostic'; seed: number; trials: number; trialTimeoutMs: number; stacks: StackId[]; scenarios: ScenarioId[]; network: JsonObject; stoppingRule: string; runtime?: ClientRuntime; cases?: Array<{ stackId: StackId; scenarioId: ScenarioId }>; replication?: 'single-run'; parameters?: { clientCounts?: number[]; startupSizes?: number[]; recoveryOutageMs?: number } }
 export function validateCampaign(config: CampaignConfig): void {
   if (config.version !== 1 || !['smoke', 'publication', 'diagnostic'].includes(config.purpose)) throw new Error('Invalid campaign version or purpose');
   for (const [label, value] of [['seed', config.seed], ['trials', config.trials], ['trialTimeoutMs', config.trialTimeoutMs]] as const) if (!Number.isSafeInteger(value) || value < 1) throw new Error(`Invalid ${label}`);
-  if (config.purpose === 'publication' && config.trials < 3) throw new Error('Publication requires at least three independent trials');
+  if (config.replication !== undefined && (config.replication !== 'single-run' || config.trials !== 1)) throw new Error('Single-run disclosure requires exactly one trial');
+  if (config.purpose === 'publication' && config.trials < 3 && config.replication !== 'single-run') throw new Error('Publication requires at least three independent trials');
   if (!config.stoppingRule?.trim()) throw new Error('Campaign requires a predeclared stopping rule');
   if (!config.stacks?.length || new Set(config.stacks).size !== config.stacks.length || config.stacks.some(id => !stacks.some(s => s.id === id))) throw new Error('Invalid or duplicate stacks');
   if (!config.scenarios?.length || new Set(config.scenarios).size !== config.scenarios.length || config.scenarios.some(id => !(id in adapterMethods))) throw new Error('Invalid or duplicate scenarios');
+  if (config.cases !== undefined && (!Array.isArray(config.cases) || !config.cases.length || config.cases.some(c => !c || !config.stacks.includes(c.stackId) || !config.scenarios.includes(c.scenarioId)) || new Set(config.cases.map(c => `${c.stackId}/${c.scenarioId}`)).size !== config.cases.length)) throw new Error('Invalid or duplicate selected cases');
   const counts = config.parameters?.clientCounts;
   if (config.parameters && Object.keys(config.parameters).some(key => !['clientCounts', 'startupSizes', 'recoveryOutageMs'].includes(key)) || counts !== undefined && (!Array.isArray(counts) || !counts.length || new Set(counts).size !== counts.length || counts.some(n => !Number.isSafeInteger(n) || n < 2 || n > 1000))) throw new Error('Invalid campaign client-count parameters');
   if (config.parameters?.startupSizes !== undefined) validateStartupSizes(config.parameters.startupSizes);
@@ -39,7 +41,7 @@ export function validateCampaign(config: CampaignConfig): void {
 }
 export function planCampaign(config: CampaignConfig) {
   validateCampaign(config);
-  const cases = config.stacks.flatMap(stackId => config.scenarios.map(scenarioId => ({ stackId, scenarioId })));
+  const cases = config.cases ?? config.stacks.flatMap(stackId => config.scenarios.map(scenarioId => ({ stackId, scenarioId })));
   return Array.from({ length: config.trials }, (_, trial) => shuffled(cases, config.seed + trial).map(entry => ({ ...entry, trial: trial + 1 }))).flat();
 }
 export function validateConfiguredParameters(result: BenchmarkResult, parameters?: CampaignConfig['parameters']): void {

@@ -28,15 +28,11 @@ Query 100,000 tasks across four projects. **Project detail** returns the first 1
 
 | Client | Project detail | Organization dashboard |
 | --- | ---: | ---: |
-| Electric | Unavailable | Unavailable |
 | Electric + TanStack DB | 130.62 ms (127.53 ms–143.72 ms; n=4) | 567.16 ms (564.35 ms–600.59 ms; n=4) |
-| Jazz v2 (experimental) | Unavailable | Unavailable |
 
 
 
-- **Electric**: unspecified; unspecified. Outcomes: trial 1: unsupported, trial 2: unsupported, trial 3: unsupported, trial 4: unsupported.
 - **Electric + TanStack DB**: tanstack-sqlite-persistence; native-reactive-query. Outcomes: trial 1: completed, trial 2: completed, trial 3: completed, trial 4: completed.
-- **Jazz v2 (experimental)**: unspecified; unspecified. Outcomes: trial 1: unsupported, trial 2: unsupported, trial 3: unsupported, trial 4: unsupported.
 
 ## bootstrap
 
@@ -46,8 +42,10 @@ Download data into a fresh client. These results use 100,000 tasks and warm serv
 | --- | ---: | ---: |
 | Electric | 376.61 ms (357.24 ms–382.75 ms; n=5) | 379.25 ms (359.74 ms–385.51 ms; n=5) |
 | Electric + TanStack DB | 7908.41 ms (7528.03 ms–10875.02 ms; n=4) | 8076.20 ms (7668.44 ms–11303.35 ms; n=4) |
-| Jazz v2 (experimental) | Timed out | Timed out |
+| Jazz v2 (experimental) | Not reached \* | Not reached \* |
 | Zero | 2078.49 ms (1923.18 ms–2144.32 ms; n=4) | 2089.18 ms (1929.93 ms–2154.82 ms; n=4) |
+
+\* Cold 100k startup exceeded 90 seconds; warm startup was never reached.
 
 Electric and Zero load memory caches, so their “Complete local dataset” does not establish a persistent offline copy.
 
@@ -62,17 +60,13 @@ Open an existing 2,000-task store in a new process with the network blocked. Mea
 
 | Client | First correct screen | All rows available |
 | --- | ---: | ---: |
-| Electric | Unavailable | Unavailable |
 | Electric + TanStack DB | 151.00 ms (145.62 ms–160.59 ms; n=4) | 159.19 ms (152.89 ms–169.36 ms; n=4) |
 | Jazz v2 (experimental) | 134.94 ms (131.10 ms–379.75 ms; n=4) | 166.01 ms (161.58 ms–490.82 ms; n=4) |
-| Zero | Unavailable | Unavailable |
 
-Electric and Zero have no eligible persistent-reopen path in these tested configurations.
 
-- **Electric**: unspecified; unspecified. Outcomes: trial 1: unsupported, trial 2: unsupported, trial 3: unsupported, trial 4: unsupported.
+
 - **Electric + TanStack DB**: tanstack-node-sqlite-cache; unspecified. Outcomes: trial 1: completed, trial 2: completed, trial 3: completed, trial 4: completed.
 - **Jazz v2 (experimental)**: jazz-napi-sqlite-file; unspecified. Outcomes: trial 1: completed, trial 2: completed, trial 3: completed, trial 4: completed.
-- **Zero**: unspecified; unspecified. Outcomes: trial 1: unsupported, trial 2: unsupported, trial 3: unsupported, trial 4: unsupported.
 
 ## online-propagation
 
@@ -80,10 +74,14 @@ Make 50 title edits with 200 tasks loaded on independent writer and reader clien
 
 | Client | Local commit | Server accepted | Reader visible |
 | --- | ---: | ---: | ---: |
-| Electric | — | 1.58 ms (1.34 ms–2.43 ms; n=4) | 2.22 ms (2.05 ms–3.44 ms; n=4) |
-| Electric + TanStack DB | — | 3.00 ms (2.34 ms–3.28 ms; n=4) | 5.24 ms (4.66 ms–5.74 ms; n=4) |
+| Electric | Not applicable \* | 1.58 ms (1.34 ms–2.43 ms; n=4) | 2.22 ms (2.05 ms–3.44 ms; n=4) |
+| Electric + TanStack DB | Not measured \*\* | 3.00 ms (2.34 ms–3.28 ms; n=4) | 5.24 ms (4.66 ms–5.74 ms; n=4) |
 | Jazz v2 (experimental) | 0.320 ms (0.280 ms–0.360 ms; n=4) | 8.54 ms (8.01 ms–8.68 ms; n=4) | 9.11 ms (9.02 ms–9.40 ms; n=4) |
 | Zero | 0.360 ms (0.340 ms–0.410 ms; n=5) | 15.14 ms (14.70 ms–19.54 ms; n=5) | 15.65 ms (14.32 ms–19.80 ms; n=5) |
+
+\* This direct-to-server write path performs no local commit.
+
+\*\* The adapter deliberately disables localCommit even though the collection exposes the optimistic local update; that is not a durable queue receipt.
 
 
 
@@ -135,14 +133,14 @@ Queue 1,000 writes, kill the writer process, reopen the same store offline, then
 | Client | Reopen offline | Queue completed | Reader visible |
 | --- | ---: | ---: | ---: |
 | Electric | 29.33 ms (28.67 ms–29.68 ms; n=4) | 16433.91 ms (8510.68 ms–23892.80 ms; n=4) | 16431.58 ms (8511.70 ms–23889.62 ms; n=4) |
-| Electric + TanStack DB | Unavailable | Unavailable | Unavailable |
 | Jazz v2 (experimental) | 195.26 ms (191.77 ms–197.02 ms; n=4) | 11780.65 ms (10797.98 ms–18515.98 ms; n=4) | 10728.40 ms (7508.49 ms–11658.75 ms; n=4) |
-| Zero | Unavailable | Unavailable | Unavailable |
+| Zero | Needs persistent test \* | Needs persistent test \* | Needs persistent test \* |
 
-Electric’s durable outbox is benchmark-owned. TanStack and Zero use memory queues here and cannot establish crash recovery.
+\* Memory storage explains the current skip, but IndexedDB alone does not prove immediate crash durability. Zero limits offline writes by connection state.
+
+Electric’s durable outbox is benchmark-owned.
 
 - **Electric**: benchmark-sqlite-cache; unspecified. Outcomes: trial 1: completed, trial 2: completed, trial 3: completed, trial 4: completed.
-- **Electric + TanStack DB**: unspecified; unspecified. Outcomes: trial 1: unsupported, trial 2: unsupported, trial 3: unsupported, trial 4: unsupported.
 - **Jazz v2 (experimental)**: jazz-napi-sqlite-file; unspecified. Outcomes: trial 1: completed, trial 2: completed, trial 3: completed, trial 4: completed.
 - **Zero**: unspecified; unspecified. Outcomes: trial 1: unsupported, trial 2: unsupported, trial 3: unsupported, trial 4: unsupported.
 
@@ -172,10 +170,12 @@ A queues an offline edit; B deletes that task online. Reconnect A and check that
 | --- | --- | ---: |
 | Electric | Deletion retained | 504.95 ms (213.16 ms–652.94 ms; n=4) |
 | Electric + TanStack DB | Deletion retained | 823.76 ms (816.20 ms–846.93 ms; n=4) |
-| Jazz v2 (experimental) | Not established | Timed out |
+| Jazz v2 (experimental) | Not established \* | Did not converge \* |
 | Zero | Deletion retained | 3849.39 ms (3810.56 ms–3884.87 ms; n=4) |
 
-Jazz timed out without establishing deletion retention.
+\* Writer and other clients disagree after acknowledged writes and a 90-second deadline.
+
+
 
 - **Electric**: benchmark-sqlite-cache; unspecified. Outcomes: trial 1: completed, trial 2: completed, trial 3: completed, trial 4: completed.
 - **Electric + TanStack DB**: tanstack-node-sqlite-cache; unspecified. Outcomes: trial 1: completed, trial 2: completed, trial 3: completed, trial 4: completed.
@@ -226,10 +226,12 @@ Revoke access to one of two 500-task projects. Measure removal of unauthorized r
 | --- | ---: | ---: |
 | Electric | 42.41 ms (24.34 ms–49.63 ms; n=5) | 46.46 ms (20.82 ms–62.29 ms; n=5) |
 | Electric + TanStack DB | 53.77 ms (43.64 ms–87.09 ms; n=5) | 63.64 ms (51.39 ms–68.34 ms; n=5) |
-| Jazz v2 (experimental) | Timed out | Timed out |
+| Jazz v2 (experimental) | Purge timed out \* | Purge timed out \* |
 | Zero | 67.46 ms (53.80 ms–75.97 ms; n=4) | 5028.48 ms (4999.71 ms–5231.74 ms; n=4) |
 
-Electric and TanStack rebuild the application cache; Zero invalidates its native memory cache. These provide different guarantees from persistent native purge. Jazz timed out.
+\* The 60,000 ms purge deadline expires: online queries hide revoked rows but local storage retains them; reconnect also leaves queries stale. Fresh-client authorization passes.
+
+Electric and TanStack rebuild the application cache; Zero invalidates its native memory cache. These provide different guarantees from persistent native purge.
 
 - **Electric**: electric-shape-memory; unspecified. Outcomes: trial 1: completed, trial 2: completed, trial 3: completed, trial 4: completed, trial 5: completed.
 - **Electric + TanStack DB**: tanstack-node-sqlite-cache; unspecified. Outcomes: trial 1: completed, trial 2: completed, trial 3: completed, trial 4: completed, trial 5: completed.
@@ -242,10 +244,14 @@ Transfer two 2 MiB objects linked to tasks. Measure upload, an uncached download
 
 | Client | Upload | Fresh download | Download retry |
 | --- | ---: | ---: | ---: |
-| Electric | Unavailable | Unavailable | Unavailable |
-| Electric + TanStack DB | Unavailable | Unavailable | Unavailable |
-| Jazz v2 (experimental) | Unavailable | Unavailable | Unavailable |
-| Zero | Unavailable | Unavailable | Unavailable |
+| Electric | Not implemented \* | Not implemented \* | Not implemented \* |
+| Electric + TanStack DB | Not implemented \* | Not implemented \* | Not implemented \* |
+| Jazz v2 (experimental) | Not implemented \*\* | Not implemented \*\* | Not implemented \*\* |
+| Zero | Not implemented \* | Not implemented \* | Not implemented \* |
+
+\* No standalone attachment queue is wired for this adapter; the application can sync file references and use object storage.
+
+\*\* Jazz 2 alpha has chunked file creation/loading APIs; our adapter returns a placeholder.
 
 
 

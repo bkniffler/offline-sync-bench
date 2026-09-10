@@ -1,0 +1,5 @@
+{"mode":"relay","atMs":182.05487499999998,"event":"initialized","data":{}}
+{"mode":"relay","atMs":368.124584,"event":"connected","data":{}}
+{"mode":"relay","atMs":754.472625,"event":"firstSync","data":{"hasSynced":true,"rows":{"n":2000}}}
+{"mode":"relay","atMs":776.398375,"event":"validation","data":{"digest":"ca501808bc66e8f2f4fddaa478f276c78a80378a881cee2ed9d2eee3610a64a2","taskCount":2000}}
+{"mode":"relay","atMs":789.36175,"event":"closed","data":{}}

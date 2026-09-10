@@ -11,6 +11,7 @@ import {
   table,
 } from '@rocicorp/zero';
 import postgres from 'postgres';
+import { preparePowerSyncFixture } from './powersync-preparation.ts';
 import { benchmarkRoot, tempRoot } from './paths';
 import { getStack } from './stacks';
 import type {
@@ -558,6 +559,7 @@ export async function seedStack(
     body: JSON.stringify(seedOptions),
   });
   if (response.async !== true) {
+    if (stackId === 'powersync') await preparePowerSyncFixture();
     return response.stats as StackStats;
   }
   // Async seeding (syncular: engine-mediated writes outlive fetch timeouts

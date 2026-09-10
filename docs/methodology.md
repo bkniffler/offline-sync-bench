@@ -6,9 +6,9 @@ The [README](../README.md#latest-results) shows the latest numbers. [Benchmark d
 
 We compare application outcomes: the same expected records, query output, timing boundary and required guarantees. Different supported implementations can deliver that outcome, but the result identifies the client runtime, storage, query execution, subscriptions and server/network configuration.
 
-SQL, native reactive queries and JavaScript processing are distinct execution paths. Electric's benchmark-owned outbox establishes application behavior, not product-provided queue durability. Experimental Jazz, browser clients and incompatible access/conflict guarantees remain separate. Zero's current screen numbers come from a separate campaign; no samples are pooled across campaigns. There is no overall product score.
+SQL, native reactive queries and JavaScript processing are distinct execution paths. Electric's benchmark-owned outbox establishes application behavior, not product-provided queue durability. Experimental Jazz, browser clients and incompatible access/conflict guarantees remain separate. Zero's current screens and PowerSync's current results come from separate campaigns; no samples are pooled across campaigns. There is no overall product score.
 
-The current collection uses Syncular JS/Rust 0.17.0, three attempts per changed case, fresh processes and seeded randomized order. A failed attempt counts toward that limit. Electric, TanStack, Jazz and unchanged Zero cases use retained September 7 results; their companion report identifies that collection. The earlier untuned SQL and array-based Zero screen comparisons were withdrawn.
+The current collection uses Syncular JS/Rust 0.17.0, up to three attempts per changed case, fresh processes and seeded randomized order. A failed attempt counts toward that limit. The six repaired cases in `publication-coverage-fixes.json` use one predeclared run each (n=1), with no estimate of run-to-run variability. Unchanged Electric, TanStack, Jazz and Zero cases use retained September 7 results; their companion report identifies that collection. The earlier untuned SQL and array-based Zero screen comparisons were withdrawn.
 
 ## Timing and correctness
 
@@ -22,7 +22,7 @@ Local commit, server acceptance and reader visibility answer different questions
 
 ## Conditions and limits
 
-The current runs use local services on one Apple M4 host. SQL screen indexes match the measured queries. Syncular's query/collaboration paths use in-memory SQL; PowerSync and Turso use file-backed stores. Startup uses the declared fresh local stores, with server data and OS caches retained. Restarting a service does not establish a cold machine.
+The current runs use local services on one Apple M4 host. SQL screen indexes match the measured queries. Syncular's query/collaboration paths use in-memory SQL; PowerSync and Turso use file-backed stores. Startup uses the declared fresh local stores, with server data and OS caches retained. PowerSync's replacement campaign waits for fixture replication and compacts bucket history before client timing. Restarting a service does not establish a cold machine.
 
 External samplers record client process trees and declared workload windows. Polling can miss short peaks, CPU counters have limited resolution, and summed RSS can double-count shared pages. HTTP payload counts and TCP-relay counts have different scopes; neither is automatically total wire traffic. The [meter experiment](../results/diagnostics/http-meter-audit.json) measures instrumentation overhead within its recorded scope.
 

@@ -1,0 +1,4 @@
+{"level":"info","message":"Successfully registered Module Core.","timestamp":"2026-09-09T21:45:23.758Z"}
+{"level":"info","message":"Compacting storage for all buckets...","timestamp":"2026-09-09T21:45:23.759Z"}
+{"level":"info","message":"Collecting PowerSync configuration from File: /config/service.yaml","timestamp":"2026-09-09T21:45:23.760Z"}
+[32minfo[39m: Configured logger with level "warn" and format "text"

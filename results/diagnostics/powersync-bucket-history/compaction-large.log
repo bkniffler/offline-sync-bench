@@ -1,0 +1,5 @@
+{"level":"info","message":"Successfully registered Module Core.","timestamp":"2026-09-09T22:01:13.860Z"}
+{"level":"info","message":"Collecting PowerSync configuration from File: /config/service.yaml","timestamp":"2026-09-09T22:01:13.861Z"}
+[32minfo[39m: Configured logger with level "warn" and format "text"
+{"event":"start","at":"2026-09-09T22:01:14.390Z","clearBatchLimit":250000}
+{"event":"complete","at":"2026-09-09T22:07:24.914Z"}

@@ -5,9 +5,10 @@ import type { BenchmarkResult, JsonObject } from '../types.ts';
 
 export const REOPEN_CONTRACT = 'persisted-replica-reopen-v1';
 export const reopenProfile = { client: 'fresh-process', storage: 'existing-product-file', network: 'blocked-before-reopen', osFileCache: 'not-cleared-after-bootstrap', pendingWrites: 'empty' };
+export const zeroReopenProfile = { ...reopenProfile, storage: 'existing-native-sqlite-store-directory' };
 export function validateReopenResult(result: Pick<BenchmarkResult, 'scenarioId' | 'metrics' | 'metadata'> & Partial<Pick<BenchmarkResult, 'stackId'>>): void {
   const { metadata, metrics } = result;
-  if (result.scenarioId !== 'replica-reopen' || metadata.workloadContract !== REOPEN_CONTRACT || hash(metadata.fixture) !== hash(recoverySeed) || hash(metadata.reopenProfile) !== hash(reopenProfile)) throw new ContractError('Replica reopen contract mismatch');
+  if (result.scenarioId !== 'replica-reopen' || metadata.workloadContract !== REOPEN_CONTRACT || hash(metadata.fixture) !== hash(recoverySeed) || hash(metadata.reopenProfile) !== hash(result.stackId === 'zero' ? zeroReopenProfile : reopenProfile)) throw new ContractError('Replica reopen contract mismatch');
   const rows = fixtureTasks(recoverySeed), digest = assertRows('expected', rows, rows);
   const screen = arrayScreenQuery('list', { tasks: rows });
   const validation = metadata.validation as JsonObject;

@@ -17,6 +17,22 @@
       "manifest": "results/reports/tuned-v017-zero/archive/files/RESULTS.json.gz",
       "manifestSha256": "1ba318573a79fc9b16082422be1540050c4fd134f29aebfbaa3a555c8e39d2a6",
       "archiveSha256": "bab7e2a0623f2573ab709171511183fa3cb7f64791c40832496678a8c5128a16"
+    },
+    {
+      "id": "powersync-maintained",
+      "label": "PowerSync with fixture-history maintenance",
+      "root": "results/reports/powersync-maintained",
+      "manifest": "results/reports/powersync-maintained/archive/files/RESULTS.json.gz",
+      "manifestSha256": "423968595cd16b7ca07ae833a1ddae738706a6d644202a64adc63f39e1170176",
+      "archiveSha256": "ce629fadf9e399e65bb9aa288a0b241a130381dea9ea5a64819dbbfc14ba9da4"
+    },
+    {
+      "id": "coverage-fixes",
+      "label": "Six repaired cases (one run each)",
+      "root": "results/reports/coverage-fixes",
+      "manifest": "results/reports/coverage-fixes/archive/files/RESULTS.json.gz",
+      "manifestSha256": "b18971ca48edb432f29b077c1e0f66197c8aa1e9ec510759e8014335e7eb4954",
+      "archiveSha256": "dea254ff49bd61fbcdce7c7042f8d8316933e70ddff4274d870de68d3ccf9b9f"
     }
   ],
   "findings": [
@@ -29,8 +45,12 @@
       "annotation": "collaboration-milestones"
     },
     {
-      "source": "tuned-sql",
-      "annotation": "startup-readiness"
+      "source": "powersync-maintained",
+      "annotation": "powersync-maintained-startup"
+    },
+    {
+      "source": "powersync-maintained",
+      "annotation": "powersync-crash-recovery"
     },
     {
       "source": "tuned-zero",
@@ -38,8 +58,10 @@
     }
   ],
   "coverage": "COVERAGE.json",
-  "coverageSha256": "05214ed5fd6fb9dd94081976a5fa8848e5282c231335e1704ca0448a8ae8b57e",
+  "coverageSha256": "59adcb8e5284bff8d32393055fb633c614f357125f53ded8ed2a40d783a89b9b",
   "coverageMarkdown": "COVERAGE.md",
-  "coverageMarkdownSha256": "3102ddc3e21635a2481cd764c1037a7ad6d08486147423dda7d325ca4b767365",
-  "presentation": "readme-benchmarks-v1"
+  "coverageMarkdownSha256": "8bebd5fbc3f5d16aa98ed56c7f42994d2efe8135c3223660664e9fb54d0ef2b6",
+  "presentation": "readme-benchmarks-v1",
+  "coverageReview": "results/diagnostics/final-publication/COVERAGE-REVIEW.json",
+  "coverageReviewSha256": "fbf48865d0da15d781402f2956e678d3eba5c0a4955b14ba043412cc073dfd76"
 }

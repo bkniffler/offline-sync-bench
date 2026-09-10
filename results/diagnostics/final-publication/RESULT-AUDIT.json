@@ -1,6 +1,6 @@
 {
   "status": "verified",
-  "scope": "Both published manifests, all compressed/original archive bytes, raw trials/logs, full publication contracts, annotations, independent-trial summaries, chart values and main-report structure. Link/Git and visual reviews have separate receipts.",
+  "scope": "All published manifests, all compressed/original archive bytes, raw trials/logs, full publication contracts, annotations, independent-trial summaries, chart values and main-report structure. Outcomes below include superseded samples; the coverage index selects current samples. Link/Git reviews have separate receipts.",
   "records": [
     {
       "campaignId": "campaign-2026-09-08T22-58-56-419Z",
@@ -84,17 +84,91 @@
         }
       },
       "artifactCount": 63
+    },
+    {
+      "campaignId": "campaign-2026-09-09T22-08-38-711Z",
+      "sourceHash": "210b590c47cb9b3420db5248da6bb7c300fa6d9a5b9ff357441fa2b9841e0217",
+      "attempts": 42,
+      "groups": 14,
+      "annotations": 3,
+      "caseOutcomes": {
+        "offline-restart": {
+          "completed": 3
+        },
+        "conflict-update-update": {
+          "completed": 3
+        },
+        "local-query": {
+          "completed": 3
+        },
+        "offline-replay": {
+          "completed": 3
+        },
+        "blob-flow": {
+          "unsupported": 3
+        },
+        "connected-fanout": {
+          "completed": 3
+        },
+        "large-offline-queue": {
+          "completed": 3
+        },
+        "conflict-update-delete": {
+          "completed": 3
+        },
+        "bootstrap": {
+          "completed": 3
+        },
+        "permission-change": {
+          "completed": 3
+        },
+        "deep-relationship-query": {
+          "completed": 3
+        },
+        "reconnect-storm": {
+          "completed": 3
+        },
+        "replica-reopen": {
+          "completed": 3
+        },
+        "online-propagation": {
+          "completed": 3
+        }
+      },
+      "artifactCount": 115
+    },
+    {
+      "campaignId": "campaign-2026-09-10T07-02-43-467Z",
+      "sourceHash": "2fc51c484824652b8174015fa3b04f1796102e8c4761db1092ad38b78c32d1fc",
+      "attempts": 6,
+      "groups": 6,
+      "annotations": 4,
+      "caseOutcomes": {
+        "replica-reopen": {
+          "completed": 2
+        },
+        "deep-relationship-query": {
+          "completed": 2
+        },
+        "blob-flow": {
+          "completed": 1
+        },
+        "offline-restart": {
+          "completed": 1
+        }
+      },
+      "artifactCount": 26
     }
   ],
   "outcomes": {
-    "completed": 132,
+    "completed": 177,
     "invalid": 21,
     "timed-out": 9,
-    "unsupported": 9,
+    "unsupported": 12,
     "failed": 3
   },
-  "metricSummaries": 991,
-  "artifacts": 996,
+  "metricSummaries": 1392,
+  "artifacts": 1137,
   "charts": [
     {
       "id": "tuned-local-screens",
@@ -122,10 +196,10 @@
     }
   ],
   "main": {
-    "wordCount": 2579,
-    "sha256": "6caf8d8bd2014cdb51f78c2d65a689e6a49882886011a4b763ea5061b14c27df",
+    "wordCount": 3038,
+    "sha256": "07f445305d73caeb2f3dfe5a00a7b00d3d633657835bac84e22b7d6bf3dfbafe",
     "presentation": "readme-benchmarks-v1",
-    "reviewedAnnotations": 4
+    "reviewedAnnotations": 5
   },
-  "auditorSha256": "ea42b2ec500b58549b7eef3ab064674ccaec4d566ff0b2a36639c42591ebafe7"
+  "auditorSha256": "8a2cf88a4c5a35e349b97755bdddb0940aca1b26550934a0616c63c51dbc6612"
 }

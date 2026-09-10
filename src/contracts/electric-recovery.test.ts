@@ -17,6 +17,18 @@ for (const stack of ['electric', 'electric-tanstack'] as const) test(`${stack} r
   const state = { rows: final, pending: 10, rejected: null, conflicts: null, nativeState: native };
   const compact = validateElectricRecoveryState(stack, state, changes, false);
   expect(compact.auxiliaryRows).toBe(2_000);
+  if (tanstack) {
+    const restored = structuredClone(state);
+    restored.nativeState.queueStore = 'sqlite-full-sync';
+    restored.nativeState.issued = [];
+    restored.nativeState.restoredTransactions = restored.nativeState.outbox.map((tx: any) => ({ id: tx.id, idempotencyKey: tx.idempotencyKey, taskIds: tx.mutations.map((m: any) => m.taskId) }));
+    expect(() => validateElectricRecoveryState(stack, restored, changes, false, true)).not.toThrow();
+    const volatile = structuredClone(restored); volatile.nativeState.queueStore = 'fake-indexeddb-memory';
+    expect(() => validateElectricRecoveryState(stack, volatile, changes, false, true)).toThrow('restoration');
+    const wrongIdentity = structuredClone(restored); wrongIdentity.nativeState.restoredTransactions[0].idempotencyKey = 'replacement-key';
+    expect(() => validateElectricRecoveryState(stack, wrongIdentity, changes, false, true)).toThrow('restoration');
+  }
+
   const field = tanstack ? 'persistedRows' : 'remoteRows';
   const wrongRows = structuredClone(state); wrongRows.nativeState[field][1_999].title = 'corrupt untouched row';
   expect(() => validateElectricRecoveryState(stack, wrongRows, changes, false)).toThrow('row 1999');

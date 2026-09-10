@@ -1,0 +1,5 @@
+{"mode":"direct","atMs":184.58454099999997,"event":"initialized","data":{}}
+{"mode":"direct","atMs":360.09299999999996,"event":"connected","data":{}}
+{"mode":"direct","atMs":754.799625,"event":"firstSync","data":{"hasSynced":true,"rows":{"n":2000}}}
+{"mode":"direct","atMs":778.434166,"event":"validation","data":{"digest":"ca501808bc66e8f2f4fddaa478f276c78a80378a881cee2ed9d2eee3610a64a2","taskCount":2000}}
+{"mode":"direct","atMs":790.172541,"event":"closed","data":{}}

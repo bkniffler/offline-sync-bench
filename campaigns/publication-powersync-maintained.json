@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "purpose": "publication",
+  "seed": 20260909,
+  "trials": 3,
+  "trialTimeoutMs": 900000,
+  "stacks": [
+    "powersync"
+  ],
+  "scenarios": [
+    "bootstrap",
+    "replica-reopen",
+    "online-propagation",
+    "offline-replay",
+    "large-offline-queue",
+    "offline-restart",
+    "conflict-update-update",
+    "conflict-update-delete",
+    "local-query",
+    "deep-relationship-query",
+    "connected-fanout",
+    "reconnect-storm",
+    "permission-change",
+    "blob-flow"
+  ],
+  "network": {
+    "id": "local-loopback",
+    "injectedLatencyMs": 0,
+    "injectedLossPct": 0
+  },
+  "stoppingRule": "Run exactly three independent attempts per PowerSync case, including failures and unavailable cases. Replace the prior PowerSync campaign as a whole; never pool its samples with these runs. Wait for fixture replication and run native bucket compaction before opening measured clients. Retain persistent server volumes. No selective retries. Report medians and observed ranges."
+}

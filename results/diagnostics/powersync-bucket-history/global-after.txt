@@ -1,0 +1,6 @@
+ bucket_name |  op   | count 
+-------------+-------+-------
+ 2#global[]  | CLEAR |     1
+ 2#global[]  | PUT   |  2002
+(2 rows)
+

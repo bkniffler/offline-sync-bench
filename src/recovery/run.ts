@@ -20,7 +20,6 @@ import { validateJazzRecoveryState } from '../contracts/jazz-recovery.ts';
 
 async function measureScale(stackId: StackId, scenario: RecoveryCase, count: number) {
   const jazz = stackId === 'jazz-v2', zero = stackId === 'zero', electric = ['electric', 'electric-tanstack'].includes(stackId);
-  if (stackId === 'electric-tanstack' && scenario === 'offline-restart') throw new ContractError('TanStack Node memory outbox cannot satisfy offline restart');
   if (zero && scenario === 'offline-restart') throw new ContractError('Zero memory storage cannot satisfy offline restart');
   await mkdir(tempRoot, { recursive: true });
   const dir = await mkdtemp(join(tempRoot, 'recovery-'));
@@ -39,7 +38,7 @@ async function measureScale(stackId: StackId, scenario: RecoveryCase, count: num
     evidence.seeding = seeding;
     if (!jazz) await seedStack(stackId, recoverySeed);
     await gate.start();
-    const writerConfig = { stackId, ...(jazz || zero || electric ? { recovery: true } : {}), ...(jazz ? { datasetId: String(seeding!.datasetId) } : {}), clientId: randomUUID(), actorId: 'org-1-user-1', projectId: 'org-1-project-1', dbPath: join(dir, 'writer.sqlite'), syncBaseUrl: gate.url('sync')!, appBaseUrl: gate.url('app') };
+    const writerConfig = { stackId, ...(stackId === 'electric-tanstack' && scenario === 'offline-restart' ? { durableOutbox: true } : {}), ...(jazz || zero || electric ? { recovery: true } : {}), ...(jazz ? { datasetId: String(seeding!.datasetId) } : {}), clientId: randomUUID(), actorId: 'org-1-user-1', projectId: 'org-1-project-1', dbPath: join(dir, 'writer.sqlite'), syncBaseUrl: gate.url('sync')!, appBaseUrl: gate.url('app') };
     writer = new RecoveryProcess(runtime);
     await writer.open(writerConfig);
     reader = new RecoveryProcess(runtime);
@@ -127,7 +126,7 @@ async function measureScale(stackId: StackId, scenario: RecoveryCase, count: num
     const finalWriter = await writer.read();
     const finalWriterDigest = validateRecoveryState('converged writer', finalWriter, mutations, 'empty');
     if (jazz) finalWriter.nativeState = validateJazzRecoveryState(finalWriter, mutations, true);
-    if (electric) finalWriter.nativeState = electricState(finalWriter, mutations, true);
+    if (electric) finalWriter.nativeState = electricState(finalWriter, mutations, true, stackId === 'electric-tanstack' && scenario === 'offline-restart');
     if (zero) validateZeroRecoveryState(finalWriter.nativeState, mutations.map(m => m.id), true);
     const finalReader = await reader.read();
     const finalReaderDigest = validateRecoveryState('converged reader', finalReader, mutations, 'empty');
@@ -188,7 +187,8 @@ export async function runRecovery(stackId: StackId, scenario: RecoveryCase) {
     'Restoration follows a predeclared absolute deadline from gate blocking. All offline checks must finish first; missed deadlines invalidate the attempt. Adapter-native probes remain explicit and do not determine restoration time. TCP event times use the controller clock and are not SDK state events.',
     'Queue drain and second-client visibility are timestamped independently from network restoration using the parent clock, including worker IPC receipt. All 2,000 records are validated before and after replay.',
     ...(stackId === 'electric' ? ['Electric recovery is an application reference implementation: a benchmark-owned SQLite cache and outbox, idempotent HTTP uploads and native Shape delivery. Persisted recovery establishes this application’s behavior, not a native Electric queue.'] : []),
-    ...(stackId === 'electric-tanstack' ? ['TanStack uses its native offline transaction executor and serialized IndexedDB outbox. The Node fake-indexeddb queue is in memory, separately from the SQLite confirmed-data cache. No process-durability claim is made for pending writes. Native retry requests traverse the same gated application route as shape delivery.'] : []),
+    ...(stackId === 'electric-tanstack' && scenario === 'offline-restart' ? ['TanStack uses its native offline transaction executor with a durable SQLite StorageAdapter. Local acknowledgment requires the serialized queue to be committed with synchronous FULL; after SIGKILL, the SDK restores optimistic edits and retries uploads from that queue. The storage adapter is application-owned.'] : []),
+    ...(stackId === 'electric-tanstack' && scenario !== 'offline-restart' ? ['TanStack uses its native offline transaction executor and serialized IndexedDB outbox. The Node fake-indexeddb queue is in memory, separately from the SQLite confirmed-data cache. No process-durability claim is made for pending writes. Native retry requests traverse the same gated application route as shape delivery.'] : []),
     ...(stackId === 'zero' ? ['Zero uses a live memory-backed client and its native mutation.client/server promises. Pending counts cover only this trial’s issued mutations; the aggregate native queue counter is unavailable. The SDK owns reconnect and replay. This profile makes no process-durability claim.'] : []),
     ...(stackId === 'jazz-v2' ? ['Jazz reports pending application rows by comparing native local and deferred edge-durable views; the aggregate native queue count remains unavailable. Reopen receives only the original store/configuration. Complete local and edge snapshots are validated before and after reconnect, with independent reader convergence. Historical batch receipts are not used as a completion signal. The backend-secret profile remains experimental and makes no end-user authorization claim.'] : []),
     'Resource samples cover the complete outage from before blocking through queue construction, offline validation, the declared wait, replay and crash recovery where applicable. Initial client/fixture setup is excluded. Scales use fresh clients and stores; campaign trials are independent repetitions.',

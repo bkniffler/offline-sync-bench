@@ -23,7 +23,7 @@ export function validateRecoveryState(label: string, state: RecoveryState, mutat
 
 export function recoveryGuarantees(stackId: StackId | undefined, scenario: RecoveryCase) {
   return { localStore: stackId === 'zero' ? 'memory' : 'persistent-file',
-    queueStore: ['zero', 'electric-tanstack'].includes(String(stackId)) ? 'memory' : 'persistent-file',
+    queueStore: (stackId === 'zero' || (stackId === 'electric-tanstack' && scenario !== 'offline-restart')) ? 'memory' : 'persistent-file',
     offlineQueue: stackId === 'electric' ? 'benchmark-managed' : 'product-managed',
     restart: scenario === 'offline-restart' ? 'SIGKILL-and-reopen-offline' : 'live-process-replay' };
 }

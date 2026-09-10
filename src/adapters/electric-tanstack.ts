@@ -75,7 +75,7 @@ export class ElectricTanStackBenchmarkAdapter implements BenchmarkAdapter {
   }
 
   async runOfflineRestart() {
-    return createUnsupportedScenarioResult({ implementation: 'electric-tanstack-node-restart', coverage: 'unsupported-tested-configuration', notes: ['The current Node offline executor uses fake-indexeddb, whose queue is in process memory. SQLite collection persistence does not make that executor queue survive process termination. A browser IndexedDB profile remains to be implemented.'] });
+    return runRecovery('electric-tanstack', 'offline-restart');
   }
 
   async runOfflineReplay() {

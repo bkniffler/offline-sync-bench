@@ -1,0 +1,492 @@
+{
+  "scope": "All 14 timed-out attempts selected by current COVERAGE.json, including retained Jazz results; superseded PowerSync attempts remain covered by the existing maintenance investigation.",
+  "method": "Archived raw results, captured logs, checksum-verified deadline source and final snapshots; no benchmark reruns or raw status changes.",
+  "coverageSha256": "59adcb8e5284bff8d32393055fb633c614f357125f53ded8ed2a40d783a89b9b",
+  "sourceChecks": [
+    {
+      "sourceHash": "f6d23b446229ead3546f0e49c869e5150500c559446dfe349cb0e17e2cd8198b",
+      "path": "src/recovery/startup-observer.ts",
+      "sha256": "bfac29009a7d9aa91224290f3f7605f32179e239eb30277e90ad98c6055f5b27"
+    },
+    {
+      "sourceHash": "f6d23b446229ead3546f0e49c869e5150500c559446dfe349cb0e17e2cd8198b",
+      "path": "src/recovery/worker.ts",
+      "sha256": "b59a8a25e700e9f0ae5554e71c9afee159a19a72c822444f3399fcf03b7644a2"
+    },
+    {
+      "sourceHash": "f6d23b446229ead3546f0e49c869e5150500c559446dfe349cb0e17e2cd8198b",
+      "path": "src/access/jazz-run.ts",
+      "sha256": "14f4a11002af0b4d26f845c05d4d705f93126d1812d197239fa1afbfb4157d4e"
+    },
+    {
+      "sourceHash": "f6d23b446229ead3546f0e49c869e5150500c559446dfe349cb0e17e2cd8198b",
+      "path": "src/recovery/conflicts.ts",
+      "sha256": "0172481b7aef323272d22a2249f1404e0b5a88a2e5ea8e9c0cfe336be678c222"
+    },
+    {
+      "path": "results/diagnostics/tuned-v017-publication-failures/campaign-2026-09-08T22-58-56-419Z/0030/source-3-native_transport.rs.txt",
+      "sha256": "623a764f01999b6d6787fb3664488677a4787ad977b6bf8e2746add07f7f6f75"
+    }
+  ],
+  "reviews": [
+    {
+      "stack": "jazz-v2",
+      "scenario": "bootstrap",
+      "trial": 1,
+      "resultId": "00476792-7aa5-4c5b-b3bb-c6b913d09e52",
+      "recordedStatus": "timed-out",
+      "durationMs": 553874.5612499999,
+      "provenance": {
+        "archive": "results/history/2026-09-07-withdrawn-campaign/campaign.tar.gz",
+        "member": ".results/campaign-2026-09-07T07-13-19-779Z/0080-jazz-v2-bootstrap.json",
+        "sha256": "a95d3fae26918e013144c8e5b73deed85546e1ba99110db55074f4ed58ba7e31",
+        "logBytes": 0,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "classification": "cold-startup-deadline-confirmed; displayed-warm-case-not-reached",
+      "deadlineMs": 90000,
+      "elapsedMs": 90022.722792,
+      "lastCount": {
+        "startMs": 78862.606792,
+        "durationMs": 3884.596332999994,
+        "rows": 79360
+      },
+      "warm100000Attempted": false,
+      "limitation": "Incomplete materialization is confirmed; the contribution of native transport, query overhead and retained storage is not isolated."
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "bootstrap",
+      "trial": 2,
+      "resultId": "073c74a8-2bd8-4f9d-b5c3-aa43b40a0a75",
+      "recordedStatus": "timed-out",
+      "durationMs": 741460.305083,
+      "provenance": {
+        "archive": "results/history/2026-09-07-withdrawn-campaign/campaign.tar.gz",
+        "member": ".results/campaign-2026-09-07T07-13-19-779Z/0221-jazz-v2-bootstrap.json",
+        "sha256": "4bf4909c3bbdd5e75c67525f6e3c2eb1876e4e62cca4534523348b19b10d374a",
+        "logBytes": 0,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "classification": "cold-startup-deadline-confirmed; displayed-warm-case-not-reached",
+      "deadlineMs": 90000,
+      "elapsedMs": 90006.988416,
+      "lastCount": {
+        "startMs": 84627.265833,
+        "durationMs": 2505.7033749999973,
+        "rows": 69120
+      },
+      "warm100000Attempted": false,
+      "limitation": "Incomplete materialization is confirmed; the contribution of native transport, query overhead and retained storage is not isolated."
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "bootstrap",
+      "trial": 3,
+      "resultId": "5aee4adb-a644-46ec-a665-5a847c2aed02",
+      "recordedStatus": "timed-out",
+      "durationMs": 470448.63687499997,
+      "provenance": {
+        "archive": "results/history/2026-09-07-withdrawn-campaign/campaign.tar.gz",
+        "member": ".results/campaign-2026-09-07T07-13-19-779Z/0257-jazz-v2-bootstrap.json",
+        "sha256": "3dafe3b775b8c823ed71463b3b3a7a36db7388c663e1020bba3747e4e82da0c6",
+        "logBytes": 0,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "classification": "cold-startup-deadline-confirmed; displayed-warm-case-not-reached",
+      "deadlineMs": 90000,
+      "elapsedMs": 90008.684792,
+      "lastCount": {
+        "startMs": 82370.004209,
+        "durationMs": 3705.903707999998,
+        "rows": 85165
+      },
+      "warm100000Attempted": false,
+      "limitation": "Incomplete materialization is confirmed; the contribution of native transport, query overhead and retained storage is not isolated."
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "bootstrap",
+      "trial": 4,
+      "resultId": "10ba441a-6a8c-487c-bae0-15a8842e077f",
+      "recordedStatus": "timed-out",
+      "durationMs": 441654.078916,
+      "provenance": {
+        "archive": "results/history/2026-09-07-withdrawn-campaign/campaign.tar.gz",
+        "member": ".results/campaign-2026-09-07T07-13-19-779Z/0364-jazz-v2-bootstrap.json",
+        "sha256": "d4c13f0655d6dcfe04d4161610d9baeb07b4409f47b1a1ef10356066dbff2efc",
+        "logBytes": 0,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "classification": "cold-startup-deadline-confirmed; displayed-warm-case-not-reached",
+      "deadlineMs": 90000,
+      "elapsedMs": 90005.749875,
+      "lastCount": {
+        "startMs": 80476.864708,
+        "durationMs": 4567.0320000000065,
+        "rows": 87185
+      },
+      "warm100000Attempted": false,
+      "limitation": "Incomplete materialization is confirmed; the contribution of native transport, query overhead and retained storage is not isolated."
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "bootstrap",
+      "trial": 5,
+      "resultId": "155af2c5-b45e-449e-b0f1-57942c71c66c",
+      "recordedStatus": "timed-out",
+      "durationMs": 539141.1147500001,
+      "provenance": {
+        "archive": "results/history/2026-09-07-withdrawn-campaign/campaign.tar.gz",
+        "member": ".results/campaign-2026-09-07T07-13-19-779Z/0449-jazz-v2-bootstrap.json",
+        "sha256": "7ca656a51912b3b2f729d14a46770dd02f250b494c56b253978d0d57b34100a0",
+        "logBytes": 0,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "classification": "cold-startup-deadline-confirmed; displayed-warm-case-not-reached",
+      "deadlineMs": 90000,
+      "elapsedMs": 90022.954541,
+      "lastCount": {
+        "startMs": 83695.49416599999,
+        "durationMs": 2671.969542000006,
+        "rows": 65792
+      },
+      "warm100000Attempted": false,
+      "limitation": "Incomplete materialization is confirmed; the contribution of native transport, query overhead and retained storage is not isolated."
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "conflict-update-delete",
+      "trial": 1,
+      "resultId": "928c0980-6593-47f2-bb5f-59f060d79a1e",
+      "recordedStatus": "timed-out",
+      "durationMs": 113522.840958,
+      "provenance": {
+        "archive": "results/history/2026-09-07-withdrawn-campaign/campaign.tar.gz",
+        "member": ".results/campaign-2026-09-07T07-13-19-779Z/0100-jazz-v2-conflict-update-delete.json",
+        "sha256": "9fda3ba9b486b36115cfcd38b68de43ae561111c95b2ebbdf57373aa38a41434",
+        "logBytes": 0,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "classification": "convergence-deadline-confirmed-with-divergent-client-snapshots",
+      "deadlineMs": 90000,
+      "targetByClient": {
+        "writer": [
+          {
+            "id": "org-1-project-1-task-000001",
+            "org_id": "org-1",
+            "project_id": "org-1-project-1",
+            "owner_id": "org-1-user-1",
+            "title": "conflict-offline-writer",
+            "completed": 1,
+            "server_version": 2
+          }
+        ],
+        "peer": [],
+        "observer": []
+      },
+      "limitation": "Deadline throw site and post-failure snapshots establish disagreement. No per-observation elapsed receipt or transport trace identifies the underlying cause; the expected native deletion policy remains unverified."
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "conflict-update-delete",
+      "trial": 2,
+      "resultId": "8f016997-596b-4019-be01-81e8b54943aa",
+      "recordedStatus": "timed-out",
+      "durationMs": 112977.73720799999,
+      "provenance": {
+        "archive": "results/history/2026-09-07-withdrawn-campaign/campaign.tar.gz",
+        "member": ".results/campaign-2026-09-07T07-13-19-779Z/0153-jazz-v2-conflict-update-delete.json",
+        "sha256": "392406ef923ef5e63d151cbbbf8093f292a5d40072b55a3a17c0511d2bec4856",
+        "logBytes": 0,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "classification": "convergence-deadline-confirmed-with-divergent-client-snapshots",
+      "deadlineMs": 90000,
+      "targetByClient": {
+        "writer": [
+          {
+            "id": "org-1-project-1-task-000001",
+            "org_id": "org-1",
+            "project_id": "org-1-project-1",
+            "owner_id": "org-1-user-1",
+            "title": "conflict-offline-writer",
+            "completed": 1,
+            "server_version": 2
+          }
+        ],
+        "peer": [],
+        "observer": []
+      },
+      "limitation": "Deadline throw site and post-failure snapshots establish disagreement. No per-observation elapsed receipt or transport trace identifies the underlying cause; the expected native deletion policy remains unverified."
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "conflict-update-delete",
+      "trial": 3,
+      "resultId": "e41e705c-ec2d-4ac6-96c2-9e9544a5260d",
+      "recordedStatus": "timed-out",
+      "durationMs": 114044.045875,
+      "provenance": {
+        "archive": "results/history/2026-09-07-withdrawn-campaign/campaign.tar.gz",
+        "member": ".results/campaign-2026-09-07T07-13-19-779Z/0278-jazz-v2-conflict-update-delete.json",
+        "sha256": "fcabfd97545c0071a260cfa7780384bbb9e6574b2e98328d4f7a7b9417d777c8",
+        "logBytes": 0,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "classification": "convergence-deadline-confirmed-with-divergent-client-snapshots",
+      "deadlineMs": 90000,
+      "targetByClient": {
+        "writer": [
+          {
+            "id": "org-1-project-1-task-000001",
+            "org_id": "org-1",
+            "project_id": "org-1-project-1",
+            "owner_id": "org-1-user-1",
+            "title": "conflict-offline-writer",
+            "completed": 1,
+            "server_version": 2
+          }
+        ],
+        "peer": [],
+        "observer": []
+      },
+      "limitation": "Deadline throw site and post-failure snapshots establish disagreement. No per-observation elapsed receipt or transport trace identifies the underlying cause; the expected native deletion policy remains unverified."
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "conflict-update-delete",
+      "trial": 4,
+      "resultId": "5f652877-01f5-41b6-9c42-73946b25a756",
+      "recordedStatus": "timed-out",
+      "durationMs": 113629.97033299999,
+      "provenance": {
+        "archive": "results/history/2026-09-07-withdrawn-campaign/campaign.tar.gz",
+        "member": ".results/campaign-2026-09-07T07-13-19-779Z/0448-jazz-v2-conflict-update-delete.json",
+        "sha256": "a75db7ca7e82419132c43a643b9bcd84a6f189bfdb9ecf9c9411a423bbaa6568",
+        "logBytes": 0,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "classification": "convergence-deadline-confirmed-with-divergent-client-snapshots",
+      "deadlineMs": 90000,
+      "targetByClient": {
+        "writer": [
+          {
+            "id": "org-1-project-1-task-000001",
+            "org_id": "org-1",
+            "project_id": "org-1-project-1",
+            "owner_id": "org-1-user-1",
+            "title": "conflict-offline-writer",
+            "completed": 1,
+            "server_version": 2
+          }
+        ],
+        "peer": [],
+        "observer": []
+      },
+      "limitation": "Deadline throw site and post-failure snapshots establish disagreement. No per-observation elapsed receipt or transport trace identifies the underlying cause; the expected native deletion policy remains unverified."
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "conflict-update-delete",
+      "trial": 5,
+      "resultId": "6418f787-2d33-4dc8-976c-29f1b5d2e6a7",
+      "recordedStatus": "timed-out",
+      "durationMs": 116774.988708,
+      "provenance": {
+        "archive": "results/history/2026-09-07-withdrawn-campaign/campaign.tar.gz",
+        "member": ".results/campaign-2026-09-07T07-13-19-779Z/0464-jazz-v2-conflict-update-delete.json",
+        "sha256": "94ed5817c16639070b599dc1da585c7dd4192b7b4b5635ee3ab59179f9a42d1c",
+        "logBytes": 0,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "classification": "convergence-deadline-confirmed-with-divergent-client-snapshots",
+      "deadlineMs": 90000,
+      "targetByClient": {
+        "writer": [
+          {
+            "id": "org-1-project-1-task-000001",
+            "org_id": "org-1",
+            "project_id": "org-1-project-1",
+            "owner_id": "org-1-user-1",
+            "title": "conflict-offline-writer",
+            "completed": 1,
+            "server_version": 2
+          }
+        ],
+        "peer": [],
+        "observer": []
+      },
+      "limitation": "Deadline throw site and post-failure snapshots establish disagreement. No per-observation elapsed receipt or transport trace identifies the underlying cause; the expected native deletion policy remains unverified."
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "permission-change",
+      "trial": 1,
+      "resultId": "9e665b2e-c38e-4210-8188-30ff6716552f",
+      "recordedStatus": "timed-out",
+      "durationMs": 158099.86200000002,
+      "provenance": {
+        "archive": "results/history/2026-09-07-withdrawn-campaign/campaign.tar.gz",
+        "member": ".results/campaign-2026-09-07T07-13-19-779Z/0088-jazz-v2-permission-change.json",
+        "sha256": "f65daeffd06943afa888f6baccdba4617ad9f3fb904984892a52602c8398c99d",
+        "logBytes": 0,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "classification": "native-cache-purge-deadline-confirmed",
+      "deadlineMs": 60000,
+      "modes": [
+        {
+          "mode": "online",
+          "elapsedMs": 60031.49120799999,
+          "finalRows": {
+            "cachedRows": 1000,
+            "viewRows": 500,
+            "subscriptionRows": 500
+          },
+          "freshAuthorizedRows": 500,
+          "unaffectedRows": 1000
+        },
+        {
+          "mode": "offline-reconnect",
+          "elapsedMs": 60039.126667000004,
+          "finalRows": {
+            "cachedRows": 1000,
+            "viewRows": 1000,
+            "subscriptionRows": 1000
+          },
+          "freshAuthorizedRows": 500,
+          "unaffectedRows": 1000
+        }
+      ],
+      "limitation": "Online scoped queries removed revoked rows, while raw cached rows remained. Reconnected views also remained stale. Fresh-client authorization passed. This establishes failure of the tested purge contract, not failure of all authorization or a proven product root cause."
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "permission-change",
+      "trial": 2,
+      "resultId": "e8eebdcf-421f-4825-a5ae-d3997c91e720",
+      "recordedStatus": "timed-out",
+      "durationMs": 158261.1625,
+      "provenance": {
+        "archive": "results/history/2026-09-07-withdrawn-campaign/campaign.tar.gz",
+        "member": ".results/campaign-2026-09-07T07-13-19-779Z/0162-jazz-v2-permission-change.json",
+        "sha256": "5e964c05bd52526f071591d14d62a527a6251bb2f54be6af588e99afbf022fe4",
+        "logBytes": 0,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "classification": "native-cache-purge-deadline-confirmed",
+      "deadlineMs": 60000,
+      "modes": [
+        {
+          "mode": "online",
+          "elapsedMs": 60060.879667,
+          "finalRows": {
+            "cachedRows": 1000,
+            "viewRows": 500,
+            "subscriptionRows": 500
+          },
+          "freshAuthorizedRows": 500,
+          "unaffectedRows": 1000
+        },
+        {
+          "mode": "offline-reconnect",
+          "elapsedMs": 60023.83591699999,
+          "finalRows": {
+            "cachedRows": 1000,
+            "viewRows": 1000,
+            "subscriptionRows": 1000
+          },
+          "freshAuthorizedRows": 500,
+          "unaffectedRows": 1000
+        }
+      ],
+      "limitation": "Online scoped queries removed revoked rows, while raw cached rows remained. Reconnected views also remained stale. Fresh-client authorization passed. This establishes failure of the tested purge contract, not failure of all authorization or a proven product root cause."
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "permission-change",
+      "trial": 3,
+      "resultId": "27d5c35d-7037-4e6b-b64c-a89ff36bf9b9",
+      "recordedStatus": "timed-out",
+      "durationMs": 170706.31979200002,
+      "provenance": {
+        "archive": "results/history/2026-09-07-withdrawn-campaign/campaign.tar.gz",
+        "member": ".results/campaign-2026-09-07T07-13-19-779Z/0283-jazz-v2-permission-change.json",
+        "sha256": "ac8f628e7fdd738c4457be47aa75612fdaa0f5e46c4958fa0ea58b893f4bf9f6",
+        "logBytes": 0,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "classification": "native-cache-purge-deadline-confirmed",
+      "deadlineMs": 60000,
+      "modes": [
+        {
+          "mode": "online",
+          "elapsedMs": 60021.481042,
+          "finalRows": {
+            "cachedRows": 1000,
+            "viewRows": 500,
+            "subscriptionRows": 500
+          },
+          "freshAuthorizedRows": 500,
+          "unaffectedRows": 1000
+        },
+        {
+          "mode": "offline-reconnect",
+          "elapsedMs": 60242.761750000005,
+          "finalRows": {
+            "cachedRows": 1000,
+            "viewRows": 1000,
+            "subscriptionRows": 1000
+          },
+          "freshAuthorizedRows": 500,
+          "unaffectedRows": 1000
+        }
+      ],
+      "limitation": "Online scoped queries removed revoked rows, while raw cached rows remained. Reconnected views also remained stale. Fresh-client authorization passed. This establishes failure of the tested purge contract, not failure of all authorization or a proven product root cause."
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "permission-change",
+      "trial": 4,
+      "resultId": "8a684f5e-35ac-4e44-abe1-854ccddc67a3",
+      "recordedStatus": "timed-out",
+      "durationMs": 156862.102291,
+      "provenance": {
+        "archive": "results/history/2026-09-07-withdrawn-campaign/campaign.tar.gz",
+        "member": ".results/campaign-2026-09-07T07-13-19-779Z/0377-jazz-v2-permission-change.json",
+        "sha256": "b76fd6bfaa6e6cd6501e4361490c92e3d785e358b32b4f6e28c428fd29cc67a4",
+        "logBytes": 0,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "classification": "native-cache-purge-deadline-confirmed",
+      "deadlineMs": 60000,
+      "modes": [
+        {
+          "mode": "online",
+          "elapsedMs": 60058.185875,
+          "finalRows": {
+            "cachedRows": 1000,
+            "viewRows": 500,
+            "subscriptionRows": 500
+          },
+          "freshAuthorizedRows": 500,
+          "unaffectedRows": 1000
+        },
+        {
+          "mode": "offline-reconnect",
+          "elapsedMs": 60013.08799999999,
+          "finalRows": {
+            "cachedRows": 1000,
+            "viewRows": 1000,
+            "subscriptionRows": 1000
+          },
+          "freshAuthorizedRows": 500,
+          "unaffectedRows": 1000
+        }
+      ],
+      "limitation": "Online scoped queries removed revoked rows, while raw cached rows remained. Reconnected views also remained stale. Fresh-client authorization passed. This establishes failure of the tested purge contract, not failure of all authorization or a proven product root cause."
+    }
+  ],
+  "auditorSha256": "67f2d9b81a7e30737db86a5870576e5838aae7531fea0383dc9b857bb60dc119"
+}

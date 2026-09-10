@@ -42,7 +42,7 @@ export function validateRecoveryResult(result: Pick<BenchmarkResult, 'scenarioId
         validateElectricRecoveryState(stackId, { rows: [], pending: accepted ? 0 : size!, rejected: null, conflicts: null, nativeState: native }, changes, accepted, reopened, reader, true);
       };
       check(scale.nativeInitial, [], true); check(scale.nativeReaderInitial, [], true);
-      check(scale.nativeBefore, mutations, false); check(scale.nativeState, mutations, true); check(scale.nativeReader, mutations, true, false, true);
+      check(scale.nativeBefore, mutations, false); check(scale.nativeState, mutations, true, tanstack && scenarioId === 'offline-restart'); check(scale.nativeReader, mutations, true, false, true);
       const clients = scale.clients as JsonObject, writer = clients?.writerCache as JsonObject, reader = clients?.readerCache as JsonObject;
       if (scale.pendingBefore !== size || ['writerInitialPid', 'writerFinalPid', 'readerPid'].some(key => !Number.isSafeInteger(clients?.[key]) || Number(clients[key]) < 1)
         || clients.readerPid === clients.writerInitialPid || clients.readerPid === clients.writerFinalPid
@@ -56,8 +56,13 @@ export function validateRecoveryResult(result: Pick<BenchmarkResult, 'scenarioId
       if (scenarioId === 'offline-restart') {
         const restart = scale.restart as JsonObject, restored = restart?.nativeState as JsonObject;
         check(restored, mutations, false, true);
-        if (restored.store !== writer.store || restored.cacheId !== writer.id || JSON.stringify(restored.queue) !== JSON.stringify((scale.nativeBefore as JsonObject).queue)
+        const before = scale.nativeBefore as JsonObject;
+        const identities = (state: JsonObject) => (state.outbox as JsonObject[]).map(tx => ({ id: tx.id, idempotencyKey: tx.idempotencyKey, mutations: tx.mutations })).sort((a,b) => String(a.id).localeCompare(String(b.id)));
+        if (restored.store !== writer.store || (tanstack
+          ? restored.collectionId !== writer.collectionId || restored.outboxId !== writer.outboxId || before.queueStore !== 'sqlite-full-sync' || restored.queueStore !== 'sqlite-full-sync' || JSON.stringify((scale.nativeState as JsonObject).restoredTransactions) !== JSON.stringify(restored.restoredTransactions) || JSON.stringify(identities(restored)) !== JSON.stringify(identities(before))
+          : restored.cacheId !== writer.id || JSON.stringify(restored.queue) !== JSON.stringify(before.queue))
           || restart.oldPid !== clients.writerInitialPid || restart.newPid !== clients.writerFinalPid) throw new ContractError('Electric reference restart lost stored queue identities');
+
       } else if (clients.writerInitialPid !== clients.writerFinalPid) throw new ContractError('Electric live writer process changed');
     }
     if (result.stackId === 'zero') {

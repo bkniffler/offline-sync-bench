@@ -1,3 +1,4 @@
+import { runReopen } from '../recovery/reopen.ts';
 import { runFanout } from '../fanout/run.ts';
 import { runAccess } from '../access/run.ts';
 import { runConflicts } from '../recovery/conflicts.ts';
@@ -58,6 +59,8 @@ function runZeroScenario(
 
 export class ZeroBenchmarkAdapter implements BenchmarkAdapter {
   readonly stack = getStack('zero');
+
+  async runReplicaReopen() { return runReopen('zero'); }
 
   async runBootstrap() {
     return runStartup('zero');
