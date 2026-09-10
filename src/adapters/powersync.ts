@@ -1,3 +1,4 @@
+import { runNativeFiles } from '../attachments/native-run.ts';
 import { ensureStackUp } from '../stack-manager.ts';
 import { runAccess } from '../access/run.ts';
 import { runFanout } from '../fanout/run.ts';
@@ -99,10 +100,5 @@ export class PowerSyncBenchmarkAdapter implements BenchmarkAdapter {
     return runAccess('powersync');
   }
 
-  async runBlobFlow() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Blob flow benchmarking is not implemented for PowerSync in this harness yet.'],
-    });
-  }
+  async runBlobFlow() { return runNativeFiles('powersync'); }
 }

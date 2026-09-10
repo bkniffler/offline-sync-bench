@@ -1,3 +1,4 @@
+import { noNativeAttachmentsReason } from '../native-support.ts';
 import { runReopen } from '../recovery/reopen.ts';
 import { runFanout } from '../fanout/run.ts';
 import { runAccess } from '../access/run.ts';
@@ -104,8 +105,9 @@ export class ZeroBenchmarkAdapter implements BenchmarkAdapter {
 
   async runBlobFlow() {
     return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Blob flow benchmarking is not implemented for Zero in this harness yet.'],
+      implementation: 'no-native-attachment-storage',
+      coverage: 'unsupported-tested-configuration',
+      notes: [noNativeAttachmentsReason],
     });
   }
 }

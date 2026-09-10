@@ -7,7 +7,8 @@ export function renderPublicationCoverage(coverage:any):string {
  for(const input of coverage.cases){
   const key=`${input.stack}/${input.scenario}`;assert(!records.has(key),'Duplicate coverage slot');
   const replacement=coverage.supersededCases?.some((c:any)=>c.stack===input.stack&&c.scenario===input.scenario);
-  const expected=replacement?'coverage-fixes':input.stack==='powersync'&&coverage.sources.some((s:any)=>s.id==='powersync-maintained')?'powersync-maintained':['syncular','syncular-rust','powersync','turso'].includes(input.stack)?'tuned-sql':input.stack==='zero'&&['local-query','deep-relationship-query'].includes(input.scenario)?'tuned-zero':'retained-history';
+  const nativeFiles=input.scenario==='blob-flow'&&['powersync','jazz-v2'].includes(input.stack)&&coverage.sources.some((s:any)=>s.id==='native-files');
+  const expected=nativeFiles?'native-files':replacement?'coverage-fixes':input.stack==='powersync'&&coverage.sources.some((s:any)=>s.id==='powersync-maintained')?'powersync-maintained':['syncular','syncular-rust','powersync','turso'].includes(input.stack)?'tuned-sql':input.stack==='zero'&&['local-query','deep-relationship-query'].includes(input.scenario)?'tuned-zero':'retained-history';
   assert.equal(input.source,expected,'Unexpected source for coverage slot');
   const attempts=[...input.attempts].sort((a:any,b:any)=>a.trial-b.trial);const historical=expected==='retained-history';
   const last=attempts.at(-1);const failedAttempts=attempts.filter(a=>['failed','invalid','timed-out'].includes(a.outcome)).length;
@@ -28,6 +29,6 @@ export function renderPublicationCoverage(coverage:any):string {
    return [...counts].map(([label,n])=>`${n} ${label}`).join('; ')+(items.every(i=>i.historical)?' H':'')+(failed?`; ${failed} failed attempt${failed===1?'':'s'}`:'');
   });lines.push(`| ${suite.title} | ${cells.join(' | ')} |`);
  }
- lines.push('','Cells summarize the latest outcome per case; replacement cases remain pending until their declared attempts are recorded. Failed-attempt counts include earlier failures. H cases retain their original attempts and are not new tuned comparisons. Jazz v2 remains experimental. Unavailable coverage makes no claim about product capabilities.','', 'Excluded client-write workflows are marked Not supported; old attempts remain retained for audit, not displayed as product timings. This combines coverage only. Timings, annotations and uncertainty stay with their source campaign. [Source and trial identities](./COVERAGE.json).','');
+ lines.push('','Cells summarize the latest outcome per case; replacement cases remain pending until their declared attempts are recorded. Failed-attempt counts include earlier failures. H cases retain their original attempts and are not new tuned comparisons. Jazz v2 remains experimental. Unavailable coverage makes no claim about product capabilities.','', 'Features without native support are marked Not supported; old attempts remain retained for audit, not displayed as product timings. This combines coverage only. Timings, annotations and uncertainty stay with their source campaign. [Source and trial identities](./COVERAGE.json).','');
  return lines.join('\n');
 }

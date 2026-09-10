@@ -158,17 +158,30 @@
         }
       },
       "artifactCount": 26
+    },
+    {
+      "campaignId": "campaign-2026-09-10T11-43-03-468Z",
+      "sourceHash": "ffe73aa8bfe7511de9ceb2274ba36c468ea7c1ce8047ea512fb24063f7dd6d18",
+      "attempts": 2,
+      "groups": 2,
+      "annotations": 3,
+      "caseOutcomes": {
+        "blob-flow": {
+          "completed": 2
+        }
+      },
+      "artifactCount": 16
     }
   ],
   "outcomes": {
-    "completed": 177,
+    "completed": 179,
     "invalid": 21,
     "timed-out": 9,
     "unsupported": 12,
     "failed": 3
   },
-  "metricSummaries": 1392,
-  "artifacts": 1137,
+  "metricSummaries": 1402,
+  "artifacts": 1153,
   "charts": [
     {
       "id": "tuned-local-screens",
@@ -196,10 +209,10 @@
     }
   ],
   "main": {
-    "wordCount": 3210,
-    "sha256": "1dc7faa11d09fdee52ad6ed5e0fac50bf71c72b07849930e7765c61ac6fdd6e6",
+    "wordCount": 3261,
+    "sha256": "ed127fc38f6bb8c9abfc6e4df9c361601e3abcb199001ac4656bf5d09862c7ec",
     "presentation": "readme-benchmarks-v1",
     "reviewedAnnotations": 5
   },
-  "auditorSha256": "8a2cf88a4c5a35e349b97755bdddb0940aca1b26550934a0616c63c51dbc6612"
+  "auditorSha256": "eeab9a63db394eee1607cfe64c040afa6a86260abea77b1f15a2551cfecffbab"
 }

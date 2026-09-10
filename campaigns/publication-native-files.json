@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "purpose": "publication",
+  "seed": 20260910,
+  "trials": 1,
+  "replication": "single-run",
+  "trialTimeoutMs": 600000,
+  "stacks": ["powersync", "jazz-v2", "syncular"],
+  "scenarios": ["blob-flow"],
+  "cases": [
+    { "stackId": "powersync", "scenarioId": "blob-flow" },
+    { "stackId": "jazz-v2", "scenarioId": "blob-flow" }
+  ],
+  "network": { "id": "local-loopback", "injectedLatencyMs": 0, "injectedLossPct": 0 },
+  "stoppingRule": "Run exactly one independent attempt for PowerSync native attachments and one for Jazz native files, sequentially. Syncular is included only to capture the shared MinIO service configuration; it has no trial in this campaign. Keep every outcome, including failures, without selective retries. Do not pool development checks or prior attempts. Label measurements n=1 and describe native staging, transfer and retry boundaries. No application-owned attachment queue is measured."
+}

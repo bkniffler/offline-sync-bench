@@ -259,19 +259,15 @@ Transfer two 2 MiB objects linked to tasks. Measure upload, an uncached download
 | Client | Upload | Fresh download | Download retry |
 | --- | ---: | ---: | ---: |
 | Electric | Not supported \* | Not supported \* | Not supported \* |
-| Electric + TanStack DB | Not implemented \*\* | Not implemented \*\* | Not implemented \*\* |
-| Jazz v2 (experimental) | Not implemented \*\*\* | Not implemented \*\*\* | Not implemented \*\*\* |
-| Zero | Not implemented \*\* | Not implemented \*\* | Not implemented \*\* |
+| Electric + TanStack DB | Not supported \*\* | Not supported \*\* | Not supported \*\* |
+| Zero | Not supported \*\* | Not supported \*\* | Not supported \*\* |
 
 \* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
 
-\*\* No standalone attachment queue is wired for this adapter; the application can sync file references and use object storage.
-
-\*\*\* Jazz 2 alpha has chunked file creation/loading APIs; our adapter returns a placeholder.
+\*\* This library has no native attachment storage and transfer API. An application-provided uploader is outside this benchmark.
 
 
 
 - **Electric**: unspecified; unspecified. Outcomes: trial 1: unsupported, trial 2: unsupported, trial 3: unsupported, trial 4: unsupported.
 - **Electric + TanStack DB**: unspecified; unspecified. Outcomes: trial 1: unsupported, trial 2: unsupported, trial 3: unsupported, trial 4: unsupported.
-- **Jazz v2 (experimental)**: unspecified; unspecified. Outcomes: trial 1: unsupported, trial 2: unsupported, trial 3: unsupported, trial 4: unsupported.
 - **Zero**: unspecified; unspecified. Outcomes: trial 1: unsupported, trial 2: unsupported, trial 3: unsupported, trial 4: unsupported.

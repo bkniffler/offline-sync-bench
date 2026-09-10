@@ -1,0 +1,52 @@
+{
+  "status": "verified",
+  "scope": "Native attachment implementation and report admission; development checks are not publication samples.",
+  "publishedCampaign": "campaign-2026-09-10T11-43-03-468Z",
+  "publishedSourceHash": "ffe73aa8bfe7511de9ceb2274ba36c468ea7c1ce8047ea512fb24063f7dd6d18",
+  "publishedRunsPerCase": 1,
+  "collectionAttemptsPerCase": 3,
+  "earlierCollections": [
+    {
+      "campaignId": "campaign-2026-09-10T11-36-01-080Z",
+      "disposition": "invalid; relay implementation changed after the prefix-flush regression failed; excluded"
+    },
+    {
+      "campaignId": "campaign-2026-09-10T11-38-56-943Z",
+      "disposition": "completed transfer checks, ineligible resource profile; excluded and not pooled"
+    }
+  ],
+  "correctness": [
+    "Two deterministic 2 MiB hashes per SDK",
+    "Independent fresh processes and empty stores",
+    "PowerSync native upload/download queue states and real truncated HTTP response",
+    "Jazz native part manifests, blocked TCP connection and rejected incomplete local file",
+    "Native SDK recovery produces complete expected bytes"
+  ],
+  "repairs": {
+    "powersyncReplication": "File-reference table added to PostgreSQL publication; active service rules verified before fixture preparation.",
+    "powersyncSigningKeys": "JWKS thumbprint-derived kid changes when the development issuer key changes, avoiding cached-key signature failures.",
+    "downloadRelay": "ServerResponse.end flushes queued prefix bytes before closing; direct socket termination sometimes dropped the last 8 KiB. Intentional upstream aborts no longer destroy the downstream socket.",
+    "reportProfile": "Native file contract registers per-phase external resource samples and protocol-specific guarantees."
+  },
+  "tests": {
+    "suite": {
+      "passed": 331,
+      "failed": 0,
+      "expects": 1493,
+      "files": 64,
+      "logSha256": "1dde711334af3c9d299469a9e2918c8505548adcc69d67160eb3524e5774fbb0"
+    },
+    "relayRepeatedCheck": {
+      "passed": 10,
+      "failed": 0,
+      "logSha256": "847052beed4529f6347341d9faa86d3a465f6dda0d904657ac370b581647f738"
+    },
+    "typecheck": "passed"
+  },
+  "postCollectionChanges": {
+    "files": [
+      "src/contracts/native-files.test.ts"
+    ],
+    "reason": "Complete the typed unit-test fixture identity; no adapter, contract, transport or measurement implementation changed after this collection."
+  }
+}

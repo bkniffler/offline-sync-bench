@@ -30,7 +30,7 @@ export class BlobTransferGate {
         attempt.status = source.statusCode ?? 0;
         attempt.contentLength = source.headers['content-length'] === undefined ? null : Number(source.headers['content-length']);
         response.writeHead(source.statusCode ?? 502, { ...source.headers, connection: 'close' });
-        source.on('error', () => response.destroy());
+        source.on('error', () => { if (!attempt.interrupted) response.destroy(); });
         source.on('aborted', () => { if (!attempt.interrupted) response.destroy(); });
         source.on('data', (bytes: Buffer) => {
           attempt.upstreamBodyBytes += bytes.length;
@@ -43,13 +43,18 @@ export class BlobTransferGate {
             source.pause();
             // Flush this prefix onto the downstream socket, then terminate it
             // without sending the remaining body or a successful response end.
-            response.write(sent, () => { response.socket?.end(); upstream.destroy(); source.destroy(); });
+            // End through ServerResponse so queued body chunks flush before FIN.
+            // The declared full Content-Length remains unchanged: clients see
+            // a truncated body, not a successful shorter object.
+            response.end(sent, () => { upstream.destroy(); source.destroy(); });
           } else if (!response.write(sent)) { source.pause(); response.once('drain', () => source.resume()); }
         });
         source.on('end', () => { if (!attempt.interrupted) { attempt.completed = true; response.end(); } });
       });
       upstream.on('socket', socket => this.#track(socket));
-      upstream.on('error', () => response.destroy());
+      // Deliberately aborting upstream must not destroy the downstream socket
+      // while its final prefix is still flushing.
+      upstream.on('error', () => { if (!attempt.interrupted) response.destroy(); });
       response.on('close', () => upstream.destroy());
       incoming.on('aborted', () => upstream.destroy());
       upstream.end();

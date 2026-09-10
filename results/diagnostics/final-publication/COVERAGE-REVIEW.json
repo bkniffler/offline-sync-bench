@@ -1,7 +1,7 @@
 {
-  "scope": "Every current skipped/failed case plus missing local-commit cells and earlier Turso failures: 29 client/case entries. Immutable trial statuses remain unchanged. Six repaired cases have explicit publication or development dispositions below.",
-  "coverageSha256": "0464ab48467761d3f61923eeef0694b82cee51373f0c5ef36ed404477cdf6a0b",
-  "policy": "Missing adapters, inconvenient runtime choices and setup failures are work to do, not product limitations. Only a documented lack of an equivalent workload or an inapplicable milestone justifies omission.",
+  "scope": "Every current skipped/failed case plus missing local-commit cells and earlier Turso failures: 29 client/case entries. Immutable trial statuses remain unchanged. Repaired cases have explicit publication or development dispositions below.",
+  "coverageSha256": "7c63ae9435524fa628d978daee0e75ec76cc4b51dc036f20bce36ea413daf5c8",
+  "policy": "Benchmark SDK-native features only; do not implement application-owned substitutes for absent features. Missing adapters, inconvenient runtime choices and setup failures are work to do, not product limitations. Only a documented lack of an equivalent workload or an inapplicable milestone justifies omission.",
   "cases": [
     {
       "stack": "electric",
@@ -96,29 +96,30 @@
       "stack": "powersync",
       "scenario": "blob-flow",
       "metric": null,
-      "disposition": "implement",
-      "label": "Not implemented",
-      "reason": "The installed Node SDK includes an attachment queue and filesystem storage; a local 2 MiB staging/reopen probe passes.",
-      "nextStep": "Wire AttachmentQueue to the shared object store and metadata references, then validate upload, fresh download and interrupted-download recovery. Declare the helper experimental.",
+      "disposition": "published-single-run",
+      "label": "Measured",
+      "reason": "Native attachment upload, fresh download and interrupted-download recovery pass complete byte/hash checks in one predeclared run (n=1). SDK-specific timing and retry boundaries are documented below the table.",
+      "nextStep": "Retain native-path and single-run caveats.",
       "evidence": [
-        "node_modules/@powersync/common/lib/attachments/AttachmentQueue.d.ts",
-        "node_modules/@powersync/node/lib/attachments/NodeFileSystemAdapter.d.ts",
-        "results/diagnostics/final-publication/CAPABILITY-PROBE.json",
-        "https://docs.powersync.com/client-sdks/advanced/attachments"
+        "src/attachments/native-run.ts",
+        "src/attachments/native-worker.ts",
+        "src/contracts/native-files.ts",
+        "results/reports/native-files/RESULTS.json"
       ]
     },
     {
       "stack": "jazz-v2",
       "scenario": "blob-flow",
       "metric": null,
-      "disposition": "implement",
-      "label": "Not implemented",
-      "reason": "Jazz 2 alpha has chunked file creation/loading APIs; our adapter returns a placeholder.",
-      "nextStep": "Add files/file_parts schema and native file operations; verify exact bytes and recovery with fresh native stores. Express milestones by observable bytes and native durability rather than S3-specific requests.",
+      "disposition": "published-single-run",
+      "label": "Measured",
+      "reason": "Native attachment upload, fresh download and interrupted-download recovery pass complete byte/hash checks in one predeclared run (n=1). SDK-specific timing and retry boundaries are documented below the table.",
+      "nextStep": "Retain native-path and single-run caveats.",
       "evidence": [
-        "node_modules/jazz-tools/dist/runtime/db.d.ts",
-        "node_modules/jazz-tools/dist/runtime/file-storage.d.ts",
-        "results/diagnostics/final-publication/CAPABILITY-PROBE.json"
+        "src/attachments/native-run.ts",
+        "src/attachments/native-worker.ts",
+        "src/contracts/native-files.ts",
+        "results/reports/native-files/RESULTS.json"
       ]
     },
     {
@@ -128,54 +129,57 @@
       "disposition": "not-supported",
       "label": "Not supported",
       "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.",
-      "nextStep": "Keep Electric read-only; do not add a benchmark-owned write path.",
+      "nextStep": "Keep features without native support excluded; do not add application-owned substitutes.",
       "evidence": [
         "src/adapters/electric.ts",
         "src/contracts/attachments.ts",
         "src/attachments/run.ts",
-        "src/electric-support.ts"
+        "src/native-support.ts"
       ]
     },
     {
       "stack": "electric-tanstack",
       "scenario": "blob-flow",
       "metric": null,
-      "disposition": "implement-application-path",
-      "label": "Not implemented",
-      "reason": "No standalone attachment queue is wired for this adapter; the application can sync file references and use object storage.",
-      "nextStep": "Implement one shared application-owned object-transfer queue, with each product syncing metadata. Separate product-owned versus application-owned transfer machinery; do not imply native attachment support.",
+      "disposition": "not-supported",
+      "label": "Not supported",
+      "reason": "This library has no native attachment storage and transfer API. An application-provided uploader is outside this benchmark.",
+      "nextStep": "Keep features without native support excluded; do not add application-owned substitutes.",
       "evidence": [
         "src/adapters/electric-tanstack.ts",
         "src/contracts/attachments.ts",
-        "src/attachments/run.ts"
+        "src/attachments/run.ts",
+        "src/native-support.ts"
       ]
     },
     {
       "stack": "zero",
       "scenario": "blob-flow",
       "metric": null,
-      "disposition": "implement-application-path",
-      "label": "Not implemented",
-      "reason": "No standalone attachment queue is wired for this adapter; the application can sync file references and use object storage.",
-      "nextStep": "Implement one shared application-owned object-transfer queue, with each product syncing metadata. Separate product-owned versus application-owned transfer machinery; do not imply native attachment support.",
+      "disposition": "not-supported",
+      "label": "Not supported",
+      "reason": "This library has no native attachment storage and transfer API. An application-provided uploader is outside this benchmark.",
+      "nextStep": "Keep features without native support excluded; do not add application-owned substitutes.",
       "evidence": [
         "src/adapters/zero.ts",
         "src/contracts/attachments.ts",
-        "src/attachments/run.ts"
+        "src/attachments/run.ts",
+        "src/native-support.ts"
       ]
     },
     {
       "stack": "turso",
       "scenario": "blob-flow",
       "metric": null,
-      "disposition": "implement-application-path",
-      "label": "Not implemented",
-      "reason": "No standalone attachment queue is wired for this adapter; the application can sync file references and use object storage.",
-      "nextStep": "Implement one shared application-owned object-transfer queue, with each product syncing metadata. Separate product-owned versus application-owned transfer machinery; do not imply native attachment support.",
+      "disposition": "not-supported",
+      "label": "Not supported",
+      "reason": "This library has no native attachment storage and transfer API. An application-provided uploader is outside this benchmark.",
+      "nextStep": "Keep features without native support excluded; do not add application-owned substitutes.",
       "evidence": [
         "src/adapters/turso.ts",
         "src/contracts/attachments.ts",
-        "src/attachments/run.ts"
+        "src/attachments/run.ts",
+        "src/native-support.ts"
       ]
     },
     {
@@ -200,12 +204,12 @@
       "disposition": "not-supported",
       "label": "Not supported",
       "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.",
-      "nextStep": "Keep Electric read-only; do not add a benchmark-owned write path.",
+      "nextStep": "Keep features without native support excluded; do not add application-owned substitutes.",
       "evidence": [
         "src/adapters/electric.ts",
         "src/recovery/electric-driver.ts",
         "https://electric.ax/docs/sync/guides/writes",
-        "src/electric-support.ts"
+        "src/native-support.ts"
       ]
     },
     {
@@ -319,7 +323,7 @@
       "disposition": "not-supported",
       "label": "Not supported",
       "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.",
-      "nextStep": "Keep Electric read-only; do not add a benchmark-owned write path.",
+      "nextStep": "Keep features without native support excluded; do not add application-owned substitutes.",
       "evidence": [
         "src/electric-support.ts",
         "src/adapters/electric.ts"
@@ -332,7 +336,7 @@
       "disposition": "not-supported",
       "label": "Not supported",
       "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.",
-      "nextStep": "Keep Electric read-only; do not add a benchmark-owned write path.",
+      "nextStep": "Keep features without native support excluded; do not add application-owned substitutes.",
       "evidence": [
         "src/electric-support.ts",
         "src/adapters/electric.ts"
@@ -345,7 +349,7 @@
       "disposition": "not-supported",
       "label": "Not supported",
       "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.",
-      "nextStep": "Keep Electric read-only; do not add a benchmark-owned write path.",
+      "nextStep": "Keep features without native support excluded; do not add application-owned substitutes.",
       "evidence": [
         "src/electric-support.ts",
         "src/adapters/electric.ts"
@@ -358,7 +362,7 @@
       "disposition": "not-supported",
       "label": "Not supported",
       "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.",
-      "nextStep": "Keep Electric read-only; do not add a benchmark-owned write path.",
+      "nextStep": "Keep features without native support excluded; do not add application-owned substitutes.",
       "evidence": [
         "src/electric-support.ts",
         "src/adapters/electric.ts"
@@ -371,7 +375,7 @@
       "disposition": "not-supported",
       "label": "Not supported",
       "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.",
-      "nextStep": "Keep Electric read-only; do not add a benchmark-owned write path.",
+      "nextStep": "Keep features without native support excluded; do not add application-owned substitutes.",
       "evidence": [
         "src/electric-support.ts",
         "src/adapters/electric.ts"
@@ -384,7 +388,7 @@
       "disposition": "not-supported",
       "label": "Not supported",
       "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.",
-      "nextStep": "Keep Electric read-only; do not add a benchmark-owned write path.",
+      "nextStep": "Keep features without native support excluded; do not add application-owned substitutes.",
       "evidence": [
         "src/electric-support.ts",
         "src/adapters/electric.ts"
@@ -397,7 +401,7 @@
       "disposition": "not-supported",
       "label": "Not supported",
       "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.",
-      "nextStep": "Keep Electric read-only; do not add a benchmark-owned write path.",
+      "nextStep": "Keep features without native support excluded; do not add application-owned substitutes.",
       "evidence": [
         "src/electric-support.ts",
         "src/adapters/electric.ts"
@@ -408,14 +412,6 @@
     {
       "path": "docs/investigations/tuned-publication-failures.md",
       "sha256": "1cf705cff022060e25526e0c9af5905b6c301f34e017b931f27b82ef4384c878"
-    },
-    {
-      "path": "node_modules/@powersync/common/lib/attachments/AttachmentQueue.d.ts",
-      "sha256": "6cbe3f5489c6c2a69aba39233169281847bfad6f2c4e7c3a6ce3e9016b9ce8b0"
-    },
-    {
-      "path": "node_modules/@powersync/node/lib/attachments/NodeFileSystemAdapter.d.ts",
-      "sha256": "a83a6c88c782eaff50bfee88222dc8ce328d7dff7d5b1e06c596ca408cafcacf"
     },
     {
       "path": "node_modules/@rocicorp/zero/out/zero-client/src/client/options.d.ts",
@@ -430,14 +426,6 @@
       "sha256": "2c0e501b98a0fc0dee9aa9fb14efee79d389ee894a77f93310f436cee3fc3a8a"
     },
     {
-      "path": "node_modules/jazz-tools/dist/runtime/db.d.ts",
-      "sha256": "7fff062fb1af65a2d860eb8524bebbb8f41dabeee875ae14b3db6fdbda9cf58f"
-    },
-    {
-      "path": "node_modules/jazz-tools/dist/runtime/file-storage.d.ts",
-      "sha256": "8540b45b404a84446700c3c645050e9b7c07c920c3f2dedd031ede1cbd730603"
-    },
-    {
       "path": "node_modules/jazz-tools/dist/typed-app.d.ts",
       "sha256": "cd82d97a9f1c1e9d52a44eb1e50e8bb6f6c1231365dab85eaf35dffde115db45"
     },
@@ -446,16 +434,16 @@
       "sha256": "f77dc2fd3e09888a3cf355f8ca1bfa29475e68e6ac61f1f5a9bae170fbbbc913"
     },
     {
-      "path": "results/diagnostics/final-publication/CAPABILITY-PROBE.json",
-      "sha256": "068e68629494ff25d03fa10d6a128f8e9fafc113b9e668e7dd0eab22574b0ee2"
-    },
-    {
       "path": "results/diagnostics/final-publication/TIMEOUT-REVIEW.json",
-      "sha256": "ae579f5292eb85e69b32c3448d3590ceb5eb2a605a7333481922d58da9184e35"
+      "sha256": "f963251cc2fe5712da14f9d8084d4d1337a246f2d903cb41ba3e49d3e1279070"
     },
     {
       "path": "results/reports/coverage-fixes/RESULTS.json",
       "sha256": "2b1d8c0b35bfb2155a4c41e875e08b8935e59a090d21910676118e88dd755b21"
+    },
+    {
+      "path": "results/reports/native-files/RESULTS.json",
+      "sha256": "20de1951e5aa1aa6c13667e86913bb2b37d1f6f78d7e5c78c47bdb165810301b"
     },
     {
       "path": "src/adapters/electric-tanstack-runner.ts",
@@ -463,7 +451,7 @@
     },
     {
       "path": "src/adapters/electric-tanstack.ts",
-      "sha256": "27f7147b1af461deca76852ec8fc99f7fc54b9c19d8f2dbf01fb35a9eb5c1792"
+      "sha256": "759ce50306639c684c06565bacbd8f31f1cf7ba2019c0a038a4399d6b7ac0848"
     },
     {
       "path": "src/adapters/electric.ts",
@@ -471,15 +459,23 @@
     },
     {
       "path": "src/adapters/jazz-native.ts",
-      "sha256": "ffd3bc9f45b0303a6bfada88f152bcda60760782de7bbcede544f51801389e2e"
+      "sha256": "0800f59ec9545df482d3c2d9b20b7bd3c95fdf700cf07422bacd072878ebeef2"
     },
     {
       "path": "src/adapters/turso.ts",
-      "sha256": "4d4a5f0792ea99c6e7fe7feea01d083c20d92b3d7cfe25ebb5be006aeb2a257c"
+      "sha256": "efddb3a8fd7fd1f2e66760d11bdf818267f2368e1299d9244bb526a912646263"
     },
     {
       "path": "src/adapters/zero.ts",
-      "sha256": "14ba9ab4192aa22c94299addeffe4f4f6feb4abba99764af171dc78d3037b755"
+      "sha256": "0aecaf15dbb062aeef8d600bbce2941cb21911ee3b13ae55d5897f91f5e0bc23"
+    },
+    {
+      "path": "src/attachments/native-run.ts",
+      "sha256": "3705d807598cd00322acff775d11ee51f9301125ce42123eb4b2eaa4f67d33c8"
+    },
+    {
+      "path": "src/attachments/native-worker.ts",
+      "sha256": "c9276d2ba82ee3e80134674a491fb5748993344ab4480a13ea42987c0b767553"
     },
     {
       "path": "src/attachments/run.ts",
@@ -502,12 +498,20 @@
       "sha256": "9b407a68c64d5e034ac529fc7122f6ede98f7e2693bac79e427e502b2048c180"
     },
     {
+      "path": "src/contracts/native-files.ts",
+      "sha256": "e5ddabb3507e78739765d13d61f2053f13485f5d5e36800e70b855f65b4b6cd7"
+    },
+    {
       "path": "src/contracts/screens.ts",
       "sha256": "f0156961e24bee513c27dbe1c86fd418c72ec6f422829626f59349eafdc184a7"
     },
     {
       "path": "src/electric-support.ts",
       "sha256": "cadaa78d40c8f20d072a99d1795b83b54438babcfd335e275f630540c1ec441b"
+    },
+    {
+      "path": "src/native-support.ts",
+      "sha256": "2185b429fdde98e14762bc6e02624ea41912af5c3a43af31f5d7c5be97ba64e7"
     },
     {
       "path": "src/recovery/electric-driver.ts",

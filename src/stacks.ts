@@ -220,7 +220,7 @@ export const stacks: StackSpec[] = [
       localQuery: 'native',
       deepRelationshipQuery: 'native',
       permissionChange: 'unsupported',
-      blobFlow: 'unsupported',
+      blobFlow: 'native',
     },
     notes: [
       'Uses the official PowerSync service with Postgres-backed bucket storage and a benchmark-owned Bun backend.',
@@ -283,7 +283,7 @@ export const stacks: StackSpec[] = [
       localQuery: 'emulated',
       deepRelationshipQuery: 'emulated',
       permissionChange: 'native',
-      blobFlow: 'unsupported',
+      blobFlow: 'native',
     },
     notes: [
       'Experimental lane using jazz-tools 2.0.0-alpha.53 and its official self-hosted server; results are excluded from stable headline rankings.',

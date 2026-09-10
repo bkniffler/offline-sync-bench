@@ -44,7 +44,7 @@ const previousSchema = {
       'updated_at',
     ]),
 };
-const schema = {
+const previousRelatedSchema = {
   ...previousSchema,
   related_organizations: s.table({ dataset_id: s.string(), external_id: s.string(), name: s.string() })
     .indexOnly(['dataset_id', 'external_id']),
@@ -54,10 +54,17 @@ const schema = {
     org_id: s.string(), project_external_id: s.string(), owner_id: s.string(), title: s.string(), completed: s.boolean(), server_version: s.int() })
     .indexOnly(['dataset_id', 'external_id', 'project_id', 'project_external_id', 'owner_id', 'completed']),
 };
+const schema = {
+  ...previousRelatedSchema,
+  attachment_tasks: s.table({ dataset_id: s.string(), external_id: s.string(), title: s.string() }).indexOnly(['dataset_id', 'external_id']),
+  file_parts: s.table({ data: s.bytes() }),
+  files: s.table({ name: s.string().optional(), mimeType: s.string(), partIds: s.array(s.ref('file_parts')), partSizes: s.array(s.int()) }).indexOnly(['name']),
+  task_file_links: s.table({ task_id: s.ref('attachment_tasks'), file_id: s.ref('files'), variant: s.int(), dataset_id: s.string() }).indexOnly(['dataset_id', 'variant']),
+};
 export const app = s.defineApp(schema);
-export const jazzSchemaMigration = s.defineMigration({ from: previousSchema, to: schema, createTables: { related_organizations: true, related_projects: true, related_tasks: true } });
+export const jazzSchemaMigration = s.defineMigration({ from: previousRelatedSchema, to: schema, createTables: { attachment_tasks: true, file_parts: true, files: true, task_file_links: true } });
 export const permissions = definePermissions(app, ({ policy }) => {
-  for (const table of [policy.related_organizations, policy.related_projects, policy.related_tasks]) {
+  for (const table of [policy.related_organizations, policy.related_projects, policy.related_tasks, policy.attachment_tasks, policy.file_parts, policy.files, policy.task_file_links]) {
     table.allowRead.always(); table.allowInsert.always(); table.allowUpdate.always(); table.allowDelete.always();
   }
   policy.memberships.allowRead.always();

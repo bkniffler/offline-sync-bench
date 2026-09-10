@@ -1,3 +1,4 @@
+import { noNativeAttachmentsReason } from '../native-support.ts';
 import { runFanout } from '../fanout/run.ts';
 import { runStartup } from '../startup/run.ts';
 import { runReopen } from '../recovery/reopen.ts';
@@ -98,8 +99,9 @@ export class TursoBenchmarkAdapter implements BenchmarkAdapter {
 
   async runBlobFlow() {
     return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Turso Sync does not provide a native blob transport.'],
+      implementation: 'no-native-attachment-storage',
+      coverage: 'unsupported-tested-configuration',
+      notes: [noNativeAttachmentsReason],
     });
   }
 }

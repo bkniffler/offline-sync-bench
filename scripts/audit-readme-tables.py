@@ -30,7 +30,7 @@ labels = {'Syncular JS': 'syncular', 'Syncular Rust': 'syncular-rust', 'PowerSyn
           'Zero': 'zero', 'Electric': 'electric',
           'Electric + TanStack DB': 'electric-tanstack', 'Jazz v2 (experimental)': 'jazz-v2'}
 exclusions={(e['stack'],e['scenario']):e for e in config['exclusions']}
-assert set(exclusions)=={('electric',s) for s in ['online-propagation','offline-replay','large-offline-queue','offline-restart','conflict-update-update','conflict-update-delete','connected-fanout','reconnect-storm','blob-flow']}
+assert set(exclusions)=={('electric',s) for s in ['online-propagation','offline-replay','large-offline-queue','offline-restart','conflict-update-update','conflict-update-delete','connected-fanout','reconnect-storm','blob-flow']} | {(s,'blob-flow') for s in ['turso','zero','electric-tanstack']}
 groups = {}
 selected_sources = {(c['stack'], c['scenario']): c['source'] for c in coverage['cases']}
 for source in config['sources']:
@@ -118,7 +118,7 @@ for section, (scenario, keys) in zip(sections, metrics):
                         assert 0 <= operations[(len(operations)-1)//2] < 0.005
                     expected='<0.005'
                 failed = any(r['status'] in ('failed', 'timed-out', 'invalid') for r in trials)
-                single_run = selected_sources[stack, scenario] == 'coverage-fixes'
+                single_run = selected_sources[stack, scenario] in ['coverage-fixes','native-files']
                 if single_run:
                     assert len(trials) == 1 and 'n=1' in footnotes.get(marker[1] if marker else '', '')
                 assert bool(marker) == (failed or single_run), (stack, scenario, 'Earlier failure needs a footnote')

@@ -33,6 +33,14 @@
       "manifest": "results/reports/coverage-fixes/archive/files/RESULTS.json.gz",
       "manifestSha256": "b18971ca48edb432f29b077c1e0f66197c8aa1e9ec510759e8014335e7eb4954",
       "archiveSha256": "dea254ff49bd61fbcdce7c7042f8d8316933e70ddff4274d870de68d3ccf9b9f"
+    },
+    {
+      "id": "native-files",
+      "label": "Native PowerSync and Jazz attachments (one run each)",
+      "root": "results/reports/native-files",
+      "manifest": "results/reports/native-files/archive/files/RESULTS.json.gz",
+      "manifestSha256": "c462d4c8dd901b39ca715377dc931aac6ad9da791f8918d3811cbc851717c33e",
+      "archiveSha256": "cd0ed843f14f41e3776f716558aa6fb17f40f109f13d4b8078684710e5781d51"
     }
   ],
   "findings": [
@@ -58,12 +66,12 @@
     }
   ],
   "coverage": "COVERAGE.json",
-  "coverageSha256": "0464ab48467761d3f61923eeef0694b82cee51373f0c5ef36ed404477cdf6a0b",
+  "coverageSha256": "7c63ae9435524fa628d978daee0e75ec76cc4b51dc036f20bce36ea413daf5c8",
   "coverageMarkdown": "COVERAGE.md",
-  "coverageMarkdownSha256": "d0dffccc61787dc9a88f808d4f3d26a87cb1f29af6029f122c91f41f9e9ec533",
+  "coverageMarkdownSha256": "22e3d5f20a4297d86bfae36c2fb6a17423c8fceb70313c367674ab5955229856",
   "presentation": "readme-benchmarks-v1",
   "coverageReview": "results/diagnostics/final-publication/COVERAGE-REVIEW.json",
-  "coverageReviewSha256": "c875bc419210a5034645f97bb19b1c7f61a21cd1d3d24deedcbd579a2f6d2cff",
+  "coverageReviewSha256": "8cafcfa6718a5f2dfa24d69737e65e5bd4f32ba6982766e155f0840fc7c35295",
   "exclusions": [
     {
       "stack": "electric",
@@ -118,6 +126,24 @@
       "scenario": "blob-flow",
       "label": "Not supported",
       "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
+    },
+    {
+      "stack": "turso",
+      "scenario": "blob-flow",
+      "label": "Not supported",
+      "reason": "This library has no native attachment storage and transfer API. An application-provided uploader is outside this benchmark."
+    },
+    {
+      "stack": "zero",
+      "scenario": "blob-flow",
+      "label": "Not supported",
+      "reason": "This library has no native attachment storage and transfer API. An application-provided uploader is outside this benchmark."
+    },
+    {
+      "stack": "electric-tanstack",
+      "scenario": "blob-flow",
+      "label": "Not supported",
+      "reason": "This library has no native attachment storage and transfer API. An application-provided uploader is outside this benchmark."
     }
   ]
 }

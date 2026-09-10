@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { exportJWK, generateKeyPair, SignJWT } from 'jose';
+import { calculateJwkThumbprint, exportJWK, generateKeyPair, SignJWT } from 'jose';
 import postgres from 'postgres';
 
 interface CrudBatchRequest {
@@ -20,10 +20,21 @@ const issuer = process.env.POWERSYNC_ISSUER ?? 'powersync-bench';
 const sql = postgres(databaseUrl, { max: 5 });
 
 await ensureTasksTable();
+await sql`create table if not exists task_file_links (
+  id text primary key, task_id text not null, filename text not null
+)`;
+
+await sql`do $$ begin
+  if not exists (select 1 from pg_publication_tables where pubname = 'powersync' and tablename = 'task_file_links') then
+    alter publication powersync add table public.task_file_links;
+  end if;
+end $$`;
 
 const { publicKey, privateKey } = await generateKeyPair('RS256');
 const publicJwk = await exportJWK(publicKey);
-const keyId = 'powersync-bench-key';
+// A rebuilt issuer generates a new key. Its kid must change so the sync
+// service refreshes JWKS instead of verifying against a cached previous key.
+const keyId = await calculateJwkThumbprint(publicJwk);
 
 const app = new Hono();
 
@@ -67,6 +78,15 @@ app.post('/api/data', async (c) => {
   const batch = request.batch ?? [];
 
   for (const operation of batch) {
+    if (operation.table === 'task_file_links' && operation.id) {
+      if (operation.op === 'DELETE') await sql`delete from task_file_links where id = ${operation.id}`;
+      else if (operation.op === 'PUT' && typeof operation.data?.task_id === 'string' && typeof operation.data?.filename === 'string') {
+        await sql`insert into task_file_links (id, task_id, filename)
+          values (${operation.id}, ${operation.data.task_id}, ${operation.data.filename})
+          on conflict (id) do update set task_id = excluded.task_id, filename = excluded.filename`;
+      } else return c.json({ error: 'Invalid file metadata operation' }, 400);
+      continue;
+    }
     if (operation.table !== 'tasks' || !operation.id) {
       continue;
     }

@@ -6,7 +6,7 @@ Includes Syncular JS/Rust, PowerSync, Turso, Zero, Electric, Electric + TanStack
 
 ## Latest results
 
-**Latest available measurements · Apple M4 · local services · Syncular JS/Rust 0.17.0.** Times are **milliseconds; lower is faster**. Values are medians; query/edit timings summarize each run’s p50. Starred entries are explained below each table. “Not implemented” means missing benchmark work; “No equivalent” means the tested setup lacks an equivalent path.
+**Latest available measurements · Apple M4 · local services · Syncular JS/Rust 0.17.0.** Times are **milliseconds; lower is faster**. Values are medians; query/edit timings summarize each run’s p50. Starred entries are explained below each table. “Not supported” means the library lacks the native feature required by that test. Benchmark implementation gaps are work to fix, not product limitations.
 
 Collection dates, configurations, sample sizes and ranges are in the linked details. [Methods](./docs/methodology.md) · [Missing-case review](./docs/investigations/missing-coverage.md) · [Failure explanations](./docs/investigations/tuned-publication-failures.md)
 
@@ -309,26 +309,26 @@ Transfer two 2 MiB objects linked to tasks. Measure upload, an uncached download
 | --- | ---: | ---: | ---: |
 | Syncular JS | 30.53 ms | 28.57 ms | 18.52 ms |
 | Syncular Rust | 20.08 ms \* | 47.96 ms \* | 38.90 ms \* |
-| PowerSync | Not implemented \*\* | Not implemented \*\* | Not implemented \*\* |
-| Turso | Not implemented \*\*\* | Not implemented \*\*\* | Not implemented \*\*\* |
-| Zero | Not implemented \*\*\* | Not implemented \*\*\* | Not implemented \*\*\* |
+| PowerSync | 21.06 ms \*\* | 53.15 ms \*\* | 10.91 ms \*\* |
+| Turso | Not supported \*\*\* | Not supported \*\*\* | Not supported \*\*\* |
+| Zero | Not supported \*\*\* | Not supported \*\*\* | Not supported \*\*\* |
 | Electric | Not supported \*\*\*\* | Not supported \*\*\*\* | Not supported \*\*\*\* |
-| Electric + TanStack DB | Not implemented \*\*\* | Not implemented \*\*\* | Not implemented \*\*\* |
-| Jazz v2 (experimental) | Not implemented \*\*\*\*\* | Not implemented \*\*\*\*\* | Not implemented \*\*\*\*\* |
+| Electric + TanStack DB | Not supported \*\*\* | Not supported \*\*\* | Not supported \*\*\* |
+| Jazz v2 (experimental) | 201.37 ms \*\*\*\*\* | 205.93 ms \*\*\*\*\* | 685.48 ms \*\*\*\*\* |
 
 \* One run (n=1); run-to-run variability is unknown. Early WebSocket frames are now buffered while the server session opens; upload and interrupted-download checks pass.
 
-\*\* The installed Node SDK includes an attachment queue and filesystem storage; a local 2 MiB staging/reopen probe passes.
+\*\* One run (n=1). Uses PowerSync’s experimental native attachment queue and streaming transport with MinIO. Upload excludes file staging; download retry follows an HTTP cut after 64 KiB.
 
-\*\*\* No standalone attachment queue is wired for this adapter; the application can sync file references and use object storage.
+\*\*\* This library has no native attachment storage and transfer API. An application-provided uploader is outside this benchmark.
 
 \*\*\*\* Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added.
 
-\*\*\*\*\* Jazz 2 alpha has chunked file creation/loading APIs; our adapter returns a placeholder.
+\*\*\*\*\* One run (n=1). Uses Jazz’s native 256 KiB file chunks. Upload includes chunk creation and edge persistence; retry follows a disconnect after the first chunk and reuses the native cache. These boundaries differ from the object-store clients.
 
-Download recovery retries the full object.
+Syncular and PowerSync retry object-store downloads; Jazz reads native synced chunks. The footnotes explain the different upload and retry boundaries.
 
-[Workload details](./docs/benchmarks.md#attachments) · [Syncular/Turso details](results/reports/tuned-v017-sql/results/reports/campaign-2026-09-08T22-58-56-419Z/DETAILS.md#attachments) · [PowerSync details](results/reports/powersync-maintained/results/reports/campaign-2026-09-09T22-08-38-711Z/DETAILS.md#attachments) · [Other client details](results/history/2026-09-07-withdrawn-campaign/RETAINED-RESULTS.md#blob-flow) · [Repaired case details](results/reports/coverage-fixes/results/reports/campaign-2026-09-10T07-02-43-467Z/DETAILS.md#attachments)
+[Workload details](./docs/benchmarks.md#attachments) · [Syncular JS details](results/reports/tuned-v017-sql/results/reports/campaign-2026-09-08T22-58-56-419Z/DETAILS.md#attachments) · [Syncular Rust details](results/reports/coverage-fixes/results/reports/campaign-2026-09-10T07-02-43-467Z/DETAILS.md#attachments) · [PowerSync and Jazz details](results/reports/native-files/results/reports/campaign-2026-09-10T11-43-03-468Z/DETAILS.md#attachments)
 
 ## Run a benchmark
 

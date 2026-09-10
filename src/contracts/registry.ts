@@ -2,6 +2,7 @@ import type { ScenarioId } from '../types.ts';
 
 /** A valid contract name does not certify an unrelated workload. */
 export const contractScenarios: Record<string, readonly ScenarioId[]> = {
+  'native-files-v1': ['blob-flow'],
   'attachments-v1': ['blob-flow'],
   'access-refresh-v1': ['permission-change'],
   'access-revocation-v1': ['permission-change'],

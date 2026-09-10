@@ -128,7 +128,7 @@ export function workloadLabel(scenario: string, startupCounts = [1_000, 10_000, 
     case 'bootstrap': return `Fresh clients at ${startupCounts.map(count => count.toLocaleString('en-US')).join(', ')} tasks, against restarted and warm sync services.`;
     case 'replica-reopen': return 'A fresh process reopens 2,000 persisted tasks while offline.';
     case 'permission-change': return 'Revoke one of two 500-task projects, with online and offline checks.';
-    case 'blob-flow': return 'Two 2 MiB objects, 50 tasks and four distinct client stores.';
+    case 'blob-flow': return 'Two 2 MiB objects linked to 50-task fixtures; native upload and independent fresh/retry clients.';
     case 'connected-fanout': return '2,000 tasks per connected reader; deliver one update.';
     case 'reconnect-storm': return '2,000 tasks per reader; restore connectivity after 100 updates.';
     default: return '2,000 tasks per client; the selected metric identifies the queue size or convergence milestone.';

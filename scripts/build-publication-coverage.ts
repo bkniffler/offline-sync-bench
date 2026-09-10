@@ -1,6 +1,6 @@
-import { electricWriteScenarios, electricWriteReason } from '../src/electric-support.ts';
+import { nativeFeatureExclusions } from '../src/native-support.ts';
 /** Outcome-only catalog across separately sourced campaigns. Never pools timings.
- * bun scripts/build-publication-coverage.ts SQL_MANIFEST OUTPUT_DIRECTORY [ZERO_MANIFEST] [POWERSYNC_MANIFEST] [FIXES_MANIFEST]
+ * bun scripts/build-publication-coverage.ts SQL_MANIFEST OUTPUT_DIRECTORY [ZERO_MANIFEST] [POWERSYNC_MANIFEST] [FIXES_MANIFEST] [NATIVE_FILES_MANIFEST]
  */
 import assert from 'node:assert/strict';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
@@ -10,8 +10,8 @@ import { renderPublicationCoverage } from './publication-coverage-renderer.ts';
 import { planCampaign } from '../src/campaign.ts';
 import { suites } from '../src/suites.ts';
 import { stacks } from '../src/stacks.ts';
-const [sqlPath, output, zeroPath, powerSyncPath, fixesPath] = process.argv.slice(2);
-assert(sqlPath && output, 'Supply SQL_MANIFEST OUTPUT_DIRECTORY [ZERO_MANIFEST] [POWERSYNC_MANIFEST] [FIXES_MANIFEST]');
+const [sqlPath, output, zeroPath, powerSyncPath, fixesPath, nativeFilesPath] = process.argv.slice(2);
+assert(sqlPath && output, 'Supply SQL_MANIFEST OUTPUT_DIRECTORY [ZERO_MANIFEST] [POWERSYNC_MANIFEST] [FIXES_MANIFEST] [NATIVE_FILES_MANIFEST]');
 const sha = (v: string | Uint8Array) => createHash('sha256').update(v).digest('hex');
 const historyPath='results/diagnostics/publication-index-review/RETAINED-HISTORY.json';
 const historyBytes=await readFile(historyPath);const history=JSON.parse(historyBytes.toString());
@@ -29,11 +29,11 @@ for(const c of history.cases){
 assert.equal(records.size,54);
 sources.push({id:'retained-history',path:historyPath,sha256:sha(historyBytes),sourceHash:history.sourceHash,status:history.status,archive:history.archive,archiveSha256:history.archiveSha256});
 let newAttempts=0;let currentComplete=true;const supersededCases:any[]=[];
-for(const [id,path,configPath] of [['tuned-sql',sqlPath,'campaigns/publication-tuned-sql.json'],['tuned-zero',zeroPath,'campaigns/publication-tuned-zero.json'],...(powerSyncPath ? [['powersync-maintained',powerSyncPath,'campaigns/publication-powersync-maintained.json']] : []),...(fixesPath ? [['coverage-fixes',fixesPath,'campaigns/publication-coverage-fixes.json']] : [])]){
+for(const [id,path,configPath] of [['tuned-sql',sqlPath,'campaigns/publication-tuned-sql.json'],['tuned-zero',zeroPath,'campaigns/publication-tuned-zero.json'],...(powerSyncPath ? [['powersync-maintained',powerSyncPath,'campaigns/publication-powersync-maintained.json']] : []),...(fixesPath ? [['coverage-fixes',fixesPath,'campaigns/publication-coverage-fixes.json']] : []),...(nativeFilesPath ? [['native-files',nativeFilesPath,'campaigns/publication-native-files.json']] : [])]){
  const config=JSON.parse(await readFile(configPath,'utf8'));assert(config.trials===3||(config.trials===1&&config.replication==='single-run'));
  for(const {stackId:s,scenarioId:c} of planCampaign(config).filter(a=>a.trial===1)){
   if (powerSyncPath && id === 'tuned-sql' && s === 'powersync') continue;
-  if(id==='coverage-fixes') { const previous=records.get(key(s,c));assert(previous,'Replacement requires an existing slot');supersededCases.push(previous); }
+  if(id==='coverage-fixes'||id==='native-files') { const previous=records.get(key(s,c));assert(previous,'Replacement requires an existing slot');supersededCases.push(previous); }
   else assert(!records.has(key(s,c))&&!historic(s,c),'Sources overlap');
   records.set(key(s,c),{stack:s,scenario:c,source:id,historical:false,plannedAttempts:config.trials,attempts:[]});
  }
@@ -57,7 +57,7 @@ for(const [id,path,configPath] of [['tuned-sql',sqlPath,'campaigns/publication-t
 assert.equal(records.size,112);
 const failures=new Set(['failed','invalid','timed-out']);
 for(const record of records.values()){
- if(record.stack==='electric'&&electricWriteScenarios.includes(record.scenario))record.exclusion={stack:'electric',scenario:record.scenario,label:'Not supported',reason:electricWriteReason};
+ const exclusion=nativeFeatureExclusions.find(e=>e.stack===record.stack&&e.scenario===record.scenario);if(exclusion)record.exclusion=exclusion;
  record.attempts.sort((a:any,b:any)=>a.trial-b.trial);
  record.attempted=record.attempts.length;record.failedAttempts=record.attempts.filter((a:any)=>failures.has(a.outcome)).length;
  const last=record.attempts.at(-1);record.latestOutcome=last?.outcome??'not-run';

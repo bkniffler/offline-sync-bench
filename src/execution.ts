@@ -1,3 +1,4 @@
+import { NATIVE_FILE_CONTRACT, validateNativeFiles } from './contracts/native-files.ts';
 import { ACCESS_CONTRACT, ACCESS_REFRESH_CONTRACT, validateAccessResult } from './contracts/access.ts';
 import { ATTACHMENT_CONTRACT, validateAttachmentResult } from './contracts/attachments.ts';
 import { validateSeedIsolation } from './contracts/seeding-isolation.ts';
@@ -39,6 +40,7 @@ export function validateResult(result: Pick<BenchmarkResult, 'scenarioId' | 'sta
   if (typeof contract === 'string' && Object.hasOwn(contractScenarios, contract) && !hasScenarioContract(contract, result.scenarioId)) throw new ContractError('Workload contract does not match scenario');
   if (Object.values(result.metrics).some(value => value !== null && !Number.isFinite(value))) throw new ContractError('non-finite metric');
   if (result.metadata.clientRuntime === 'chromium') { validateBrowserResult(result); return; }
+  if (contract === NATIVE_FILE_CONTRACT) { validateNativeFiles(result); return; }
   if (contract === ATTACHMENT_CONTRACT) { validateAttachmentResult(result); return; }
   if ((result.metadata.workloadContract === ACCESS_CONTRACT || result.metadata.workloadContract === ACCESS_REFRESH_CONTRACT)) { validateAccessResult(result); return; }
   if (result.metadata.workloadContract === FANOUT_CONTRACT) { validateFanoutResult(result); return; }

@@ -3,6 +3,7 @@ bucket_definitions:
   global:
     parameters: SELECT WHERE request.jwt() ->> 'bench_profile' = 'global'
     data:
+      - SELECT id, task_id, filename FROM task_file_links
       - SELECT id, name FROM organizations
       - SELECT id, org_id, name FROM projects
       - SELECT id, org_id, project_id, owner_id, title, completed, server_version, updated_at FROM tasks

@@ -2,10 +2,10 @@
   "version": 1,
   "status": "replacement-collection-complete",
   "scope": "Outcome inventory only; not a publication acceptance gate or a mixed-source performance aggregate.",
-  "currentAttempts": 177,
-  "currentPlannedAttempts": 177,
-  "supersededAttempts": 45,
-  "retainedAttempts": 210,
+  "currentAttempts": 176,
+  "currentPlannedAttempts": 176,
+  "supersededAttempts": 48,
+  "retainedAttempts": 206,
   "supersededCases": [
     {
       "stack": "zero",
@@ -341,6 +341,109 @@
           "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         }
       ]
+    },
+    {
+      "stack": "jazz-v2",
+      "scenario": "blob-flow",
+      "source": "retained-history",
+      "historical": true,
+      "plannedAttempts": null,
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "4ac247ad-fbc7-4729-b4ff-4153b4a7041c",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Jazz v2 file storage exists, but the benchmark blob-flow adapter is not implemented."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0084-jazz-v2-blob-flow.json",
+          "sha256": "01d4ae0c818700b6c38074d74a490bef61d4b6d0cd741b46ba259e969df10f9a",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0084-jazz-v2-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 2,
+          "resultId": "db42a959-358f-49ee-87f3-3f7ac2e47de4",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Jazz v2 file storage exists, but the benchmark blob-flow adapter is not implemented."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0199-jazz-v2-blob-flow.json",
+          "sha256": "519f980d49a1b5b417571c0538b6ede6e09ab353c48d5a5cfed315a18a1e6fee",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0199-jazz-v2-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 3,
+          "resultId": "6e659ccb-cf63-4261-b797-5ae65e06bab9",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Jazz v2 file storage exists, but the benchmark blob-flow adapter is not implemented."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0319-jazz-v2-blob-flow.json",
+          "sha256": "b6bf7296623517633c538550da710e5426d16d890ba7273b29f0f6d57064ee3a",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0319-jazz-v2-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "trial": 4,
+          "resultId": "e9a7e354-5bd4-458c-99d8-bc403757ce24",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Jazz v2 file storage exists, but the benchmark blob-flow adapter is not implemented."
+          },
+          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0375-jazz-v2-blob-flow.json",
+          "sha256": "efbfbbde1c0898f95e84edce49bf19e2c237dbc1935a151f6f494cedf2651a1f",
+          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0375-jazz-v2-blob-flow.json.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "stack": "powersync",
+      "scenario": "blob-flow",
+      "source": "powersync-maintained",
+      "historical": false,
+      "plannedAttempts": 3,
+      "attempts": [
+        {
+          "trial": 1,
+          "resultId": "0f8ee9a7-a115-4bfe-a8e5-162f5f1c3ff9",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Blob flow benchmarking is not implemented for PowerSync in this harness yet."
+          },
+          "resultFile": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/campaign-2026-09-09T22-08-38-711Z/0005-powersync-blob-flow.json",
+          "sha256": "b455d64ef5cdf1718adfbe967feb14fa1a5ee5c0cabcc0bc6a7cd748df64eb1d"
+        },
+        {
+          "trial": 2,
+          "resultId": "2a5daf10-130b-4742-90e7-f13f6415e3d8",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Blob flow benchmarking is not implemented for PowerSync in this harness yet."
+          },
+          "resultFile": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/campaign-2026-09-09T22-08-38-711Z/0025-powersync-blob-flow.json",
+          "sha256": "9516827be02abb9064663b836dc282ae0669b111b5ad2851c7b3b45c71c5e50b"
+        },
+        {
+          "trial": 3,
+          "resultId": "1eabb2ab-4300-46e1-8e85-ff42569ab978",
+          "outcome": "unsupported",
+          "coverage": {
+            "status": "not-implemented",
+            "reason": "Blob flow benchmarking is not implemented for PowerSync in this harness yet."
+          },
+          "resultFile": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/campaign-2026-09-09T22-08-38-711Z/0041-powersync-blob-flow.json",
+          "sha256": "684f73757336905af3c1c0d0e5da9f52b76317f8d97909ca073b727c68e963d8"
+        }
+      ]
     }
   ],
   "sources": [
@@ -391,6 +494,16 @@
       "sourceHash": "2fc51c484824652b8174015fa3b04f1796102e8c4761db1092ad38b78c32d1fc",
       "status": "complete",
       "attempts": 6,
+      "error": null
+    },
+    {
+      "id": "native-files",
+      "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/campaign-2026-09-10T11-43-03-468Z/CAMPAIGN.json",
+      "sha256": "b040b1bb9a89dbca7ddc9ae2abeee3b113d10ee35b1b878376f6b27d4456e514",
+      "campaignId": "campaign-2026-09-10T11-43-03-468Z",
+      "sourceHash": "ffe73aa8bfe7511de9ceb2274ba36c468ea7c1ce8047ea512fb24063f7dd6d18",
+      "status": "complete",
+      "attempts": 2,
       "error": null
     }
   ],
@@ -1402,10 +1515,16 @@
           "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         }
       ],
+      "exclusion": {
+        "stack": "electric-tanstack",
+        "scenario": "blob-flow",
+        "label": "Not supported",
+        "reason": "This library has no native attachment storage and transfer API. An application-provided uploader is outside this benchmark."
+      },
       "attempted": 4,
       "failedAttempts": 0,
       "latestOutcome": "unsupported",
-      "display": "not implemented"
+      "display": "Not supported"
     },
     {
       "stack": "electric-tanstack",
@@ -2266,67 +2385,26 @@
     {
       "stack": "jazz-v2",
       "scenario": "blob-flow",
-      "source": "retained-history",
-      "historical": true,
-      "plannedAttempts": null,
+      "source": "native-files",
+      "historical": false,
+      "plannedAttempts": 1,
       "attempts": [
         {
           "trial": 1,
-          "resultId": "4ac247ad-fbc7-4729-b4ff-4153b4a7041c",
-          "outcome": "unsupported",
+          "resultId": "c08100b4-0914-475e-9e5d-59ed06f8d9ac",
+          "outcome": "completed",
           "coverage": {
-            "status": "not-implemented",
-            "reason": "Jazz v2 file storage exists, but the benchmark blob-flow adapter is not implemented."
+            "status": "implemented",
+            "reason": "Adapter executed this case."
           },
-          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0084-jazz-v2-blob-flow.json",
-          "sha256": "01d4ae0c818700b6c38074d74a490bef61d4b6d0cd741b46ba259e969df10f9a",
-          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0084-jazz-v2-blob-flow.json.log",
-          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        },
-        {
-          "trial": 2,
-          "resultId": "db42a959-358f-49ee-87f3-3f7ac2e47de4",
-          "outcome": "unsupported",
-          "coverage": {
-            "status": "not-implemented",
-            "reason": "Jazz v2 file storage exists, but the benchmark blob-flow adapter is not implemented."
-          },
-          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0199-jazz-v2-blob-flow.json",
-          "sha256": "519f980d49a1b5b417571c0538b6ede6e09ab353c48d5a5cfed315a18a1e6fee",
-          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0199-jazz-v2-blob-flow.json.log",
-          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        },
-        {
-          "trial": 3,
-          "resultId": "6e659ccb-cf63-4261-b797-5ae65e06bab9",
-          "outcome": "unsupported",
-          "coverage": {
-            "status": "not-implemented",
-            "reason": "Jazz v2 file storage exists, but the benchmark blob-flow adapter is not implemented."
-          },
-          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0319-jazz-v2-blob-flow.json",
-          "sha256": "b6bf7296623517633c538550da710e5426d16d890ba7273b29f0f6d57064ee3a",
-          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0319-jazz-v2-blob-flow.json.log",
-          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        },
-        {
-          "trial": 4,
-          "resultId": "e9a7e354-5bd4-458c-99d8-bc403757ce24",
-          "outcome": "unsupported",
-          "coverage": {
-            "status": "not-implemented",
-            "reason": "Jazz v2 file storage exists, but the benchmark blob-flow adapter is not implemented."
-          },
-          "archiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0375-jazz-v2-blob-flow.json",
-          "sha256": "efbfbbde1c0898f95e84edce49bf19e2c237dbc1935a151f6f494cedf2651a1f",
-          "logArchiveMember": ".results/campaign-2026-09-07T07-13-19-779Z/0375-jazz-v2-blob-flow.json.log",
-          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          "resultFile": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/campaign-2026-09-10T11-43-03-468Z/0001-jazz-v2-blob-flow.json",
+          "sha256": "aca60f1b96d9333ed6847c150e5841e21c364772ca712d0e132949a423f91f9e"
         }
       ],
-      "attempted": 4,
+      "attempted": 1,
       "failedAttempts": 0,
-      "latestOutcome": "unsupported",
-      "display": "not implemented"
+      "latestOutcome": "completed",
+      "display": "passed"
     },
     {
       "stack": "jazz-v2",
@@ -3201,10 +3279,16 @@
           "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         }
       ],
+      "exclusion": {
+        "stack": "zero",
+        "scenario": "blob-flow",
+        "label": "Not supported",
+        "reason": "This library has no native attachment storage and transfer API. An application-provided uploader is outside this benchmark."
+      },
       "attempted": 4,
       "failedAttempts": 0,
       "latestOutcome": "unsupported",
-      "display": "not implemented"
+      "display": "Not supported"
     },
     {
       "stack": "zero",
@@ -5301,10 +5385,16 @@
           "sha256": "dfd09231bea952593d480bd1a5b9d33432b7ce472dc5232450473c45fdcc7ad7"
         }
       ],
+      "exclusion": {
+        "stack": "turso",
+        "scenario": "blob-flow",
+        "label": "Not supported",
+        "reason": "This library has no native attachment storage and transfer API. An application-provided uploader is outside this benchmark."
+      },
       "attempted": 3,
       "failedAttempts": 0,
       "latestOutcome": "unsupported",
-      "display": "not implemented"
+      "display": "Not supported"
     },
     {
       "stack": "syncular",
@@ -6091,48 +6181,26 @@
     {
       "stack": "powersync",
       "scenario": "blob-flow",
-      "source": "powersync-maintained",
+      "source": "native-files",
       "historical": false,
-      "plannedAttempts": 3,
+      "plannedAttempts": 1,
       "attempts": [
         {
           "trial": 1,
-          "resultId": "0f8ee9a7-a115-4bfe-a8e5-162f5f1c3ff9",
-          "outcome": "unsupported",
+          "resultId": "f7ea201c-d011-4762-a585-da1a9fb8d5d2",
+          "outcome": "completed",
           "coverage": {
-            "status": "not-implemented",
-            "reason": "Blob flow benchmarking is not implemented for PowerSync in this harness yet."
+            "status": "implemented",
+            "reason": "Adapter executed this case."
           },
-          "resultFile": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/campaign-2026-09-09T22-08-38-711Z/0005-powersync-blob-flow.json",
-          "sha256": "b455d64ef5cdf1718adfbe967feb14fa1a5ee5c0cabcc0bc6a7cd748df64eb1d"
-        },
-        {
-          "trial": 2,
-          "resultId": "2a5daf10-130b-4742-90e7-f13f6415e3d8",
-          "outcome": "unsupported",
-          "coverage": {
-            "status": "not-implemented",
-            "reason": "Blob flow benchmarking is not implemented for PowerSync in this harness yet."
-          },
-          "resultFile": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/campaign-2026-09-09T22-08-38-711Z/0025-powersync-blob-flow.json",
-          "sha256": "9516827be02abb9064663b836dc282ae0669b111b5ad2851c7b3b45c71c5e50b"
-        },
-        {
-          "trial": 3,
-          "resultId": "1eabb2ab-4300-46e1-8e85-ff42569ab978",
-          "outcome": "unsupported",
-          "coverage": {
-            "status": "not-implemented",
-            "reason": "Blob flow benchmarking is not implemented for PowerSync in this harness yet."
-          },
-          "resultFile": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/campaign-2026-09-09T22-08-38-711Z/0041-powersync-blob-flow.json",
-          "sha256": "684f73757336905af3c1c0d0e5da9f52b76317f8d97909ca073b727c68e963d8"
+          "resultFile": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.results/campaign-2026-09-10T11-43-03-468Z/0002-powersync-blob-flow.json",
+          "sha256": "ecd76064576b01e240effd57f6d46c160ed3162531aa66809ad2ac46c1ba4234"
         }
       ],
-      "attempted": 3,
+      "attempted": 1,
       "failedAttempts": 0,
-      "latestOutcome": "unsupported",
-      "display": "not implemented"
+      "latestOutcome": "completed",
+      "display": "passed"
     },
     {
       "stack": "powersync",

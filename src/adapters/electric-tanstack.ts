@@ -1,3 +1,4 @@
+import { noNativeAttachmentsReason } from '../native-support.ts';
 import { runConflicts } from '../recovery/conflicts.ts';
 import { runFanout } from '../fanout/run.ts';
 import { runRecovery } from '../recovery/run.ts';
@@ -102,10 +103,9 @@ export class ElectricTanStackBenchmarkAdapter implements BenchmarkAdapter {
 
   async runBlobFlow() {
     return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: [
-        'Electric + TanStack DB does not provide a native blob transport in this stack.',
-      ],
+      implementation: 'no-native-attachment-storage',
+      coverage: 'unsupported-tested-configuration',
+      notes: [noNativeAttachmentsReason],
     });
   }
 }

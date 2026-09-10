@@ -64,6 +64,12 @@ Native purge of the existing store and application cache replacement are distinc
 
 ## Attachments
 
-`blob-flow` uses 50 tasks and two deterministic 2 MiB objects. Independent writer/reader processes and fresh stores measure staging, upload, metadata acceptance and reader visibility. Validate exact metadata, object hashes and empty queues.
+`blob-flow` transfers two deterministic 2 MiB files linked to tasks. A fresh process downloads the first file into an empty native store; another process interrupts and retries the second. Full SHA-256 hashes must match. The table reports one upload, the fresh download and the successful download after connectivity returns.
 
-An upload failure must retain queued work without publishing metadata to the reader. A fresh client downloads an uncached object. Another download is interrupted after 65,536 bytes, then retried and validated after transport restoration. This establishes full-object retry, not byte-range resume or writer crash durability. Resource windows and byte counters remain distinct from completion latency. [Contract](../src/contracts/attachments.ts).
+Only native attachment features participate: Syncular JS/Rust, PowerSync’s experimental `AttachmentQueue` and Node streaming transport, and Jazz v2’s file helpers. Turso, Zero, Electric and Electric + TanStack DB are **Not supported** for this workload. Syncing a file URL does not supply a native attachment system; we do not add an application uploader to create one.
+
+PowerSync uses the same MinIO backend as Syncular, with task references synced through PowerSync. Both time upload after prepared-byte staging; PowerSync includes queue startup. Their download relay cuts the HTTP body after 64 KiB and the native client retries the object. PowerSync may retain a partial local file but must leave it unsynced until the full retry succeeds. [Object-store contract](../src/contracts/attachments.ts).
+
+Jazz uses `createFileFromBlob` with edge durability and eight default 256 KiB parts. Its upload includes chunk creation and persistence. For interruption, the harness drops the connection after the first delivered chunk and cancels the native read. A local-only read must reject incomplete data before the native file helper retries with its retained cache. This measures chunked sync recovery, including reconnect delay, rather than an HTTP retry. [Native file contract](../src/contracts/native-files.ts) · [Jazz file APIs](https://jazz.tools/docs/writing/files-and-blobs) · [PowerSync attachment APIs](https://docs.powersync.com/client-sdks/advanced/attachments).
+
+These boundaries differ, so the table is not a transport-only speed ranking. Resource windows and protocol counters are recorded separately. The older Syncular contract additionally measures retained upload failure and independent metadata visibility; those extra milestones are not claimed for the native-file adapters.

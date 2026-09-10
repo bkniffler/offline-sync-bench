@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-09-10T07:47:43.004Z",
+  "generatedAt": "2026-09-10T11:47:51.363Z",
   "scope": "Outcome inventory with source and raw-trial checks; not a performance aggregate or publication gate.",
-  "currentAttempts": 177,
-  "retainedAttempts": 210,
+  "currentAttempts": 176,
+  "retainedAttempts": 206,
   "cases": 112,
-  "coverageSha256": "0464ab48467761d3f61923eeef0694b82cee51373f0c5ef36ed404477cdf6a0b",
-  "markdownSha256": "d0dffccc61787dc9a88f808d4f3d26a87cb1f29af6029f122c91f41f9e9ec533",
-  "builderSha256": "3cb87250cf49e29ec8dec69827e84d7503d47a8fd518f963764613861161a486",
-  "rendererSha256": "f9b42c2563324c0e9265ac67b519f387d7533d31261ea84a6703645ec17d38df"
+  "coverageSha256": "7c63ae9435524fa628d978daee0e75ec76cc4b51dc036f20bce36ea413daf5c8",
+  "markdownSha256": "22e3d5f20a4297d86bfae36c2fb6a17423c8fceb70313c367674ab5955229856",
+  "builderSha256": "db0f51f700344d7f320ff3ac1c4d1d71f4d2758a53dd589e280f3bfc35837340",
+  "rendererSha256": "308c7330dfad69e13e3229049fc9d5c249f205768111d04ac03581ba453b4948"
 }

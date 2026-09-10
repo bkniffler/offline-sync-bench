@@ -1,3 +1,4 @@
+import { runNativeFiles } from '../attachments/native-run.ts';
 import { runConflicts } from '../recovery/conflicts.ts';
 import { runJazzAccess } from '../access/jazz-run.ts';
 import { runFanout } from '../fanout/run.ts';
@@ -102,10 +103,5 @@ export class JazzV2BenchmarkAdapter implements BenchmarkAdapter {
   async runPermissionChange() {
     return runJazzAccess();
   }
-  async runBlobFlow() {
-    return createUnsupportedScenarioResult({
-      implementation: 'unsupported',
-      notes: ['Jazz v2 file storage exists, but the benchmark blob-flow adapter is not implemented.'],
-    });
-  }
+  async runBlobFlow() { return runNativeFiles('jazz-v2'); }
 }

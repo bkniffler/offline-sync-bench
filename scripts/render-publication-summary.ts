@@ -1,4 +1,4 @@
-import { electricWriteScenarios, electricWriteReason } from '../src/electric-support.ts';
+import { nativeFeatureExclusions } from '../src/native-support.ts';
 /** Assemble separately published campaigns; do not combine their samples.
  * Input paths are relative to the summary configuration. Output is Markdown.
  * bun scripts/render-publication-summary.ts SUMMARY.json OUTPUT.md
@@ -18,9 +18,9 @@ const [configPath, outputPath]=process.argv.slice(2);
 assert(configPath&&outputPath,'Supply SUMMARY.json OUTPUT.md');
 const config=JSON.parse(await readFile(configPath,'utf8'));
 assert.equal(config.version,1);assert.equal(config.kind,'source-separated-publication-summary');
-assert(Array.isArray(config.sources)&&[2,3,4].includes(config.sources.length));
+assert(Array.isArray(config.sources)&&[2,3,4,5].includes(config.sources.length));
 assert(Array.isArray(config.findings)&&config.findings.length>=3&&config.findings.length<=5);
-const expectedExclusions=electricWriteScenarios.map(scenario=>({stack:'electric',scenario,label:'Not supported',reason:electricWriteReason}));
+const expectedExclusions=nativeFeatureExclusions;
 assert.deepEqual(config.exclusions,expectedExclusions,'Declare every read-only exclusion');
 const excluded=(stack:string,scenario:string)=>config.exclusions.find((e:any)=>e.stack===stack&&e.scenario===scenario);
 const base=dirname(resolve(configPath));
@@ -30,13 +30,13 @@ const escape=(s:string)=>s.replaceAll('|','\\|').replaceAll('\n',' ');
 type Source={manifest:CampaignManifest;annotations:Annotation[];root:string;label:string;links:Map<string,string>};
 const sources=new Map<string,Source>();
 for(const source of config.sources){
- assert(['tuned-sql','tuned-zero','powersync-maintained','coverage-fixes'].includes(source.id)&&!sources.has(source.id));
+ assert(['tuned-sql','tuned-zero','powersync-maintained','coverage-fixes','native-files'].includes(source.id)&&!sources.has(source.id));
  assert(typeof source.label==='string'&&source.label.trim());
  assert(typeof source.root==='string'&&!source.root.startsWith('/')&&!source.root.includes('..'));
  const bytes=await readFile(resolve(base,source.manifest));const raw=source.manifest.endsWith('.gz')?gunzipSync(bytes):bytes;
  assert.equal(sha(raw),source.manifestSha256,'Stale manifest binding');
  const manifest=JSON.parse(raw.toString()) as CampaignManifest;validateManifest(manifest);
- assert.equal(manifest.config.trials,source.id==='coverage-fixes'?1:3,'Respect the declared collection size');
+ assert.equal(manifest.config.trials,['coverage-fixes','native-files'].includes(source.id)?1:3,'Respect the declared collection size');
  if(source.id==='tuned-sql'){
   assert.deepEqual([...manifest.config.stacks].sort(),['powersync','syncular','syncular-rust','turso']);
   assert.equal(manifest.config.scenarios.length,14);
@@ -47,9 +47,9 @@ for(const source of config.sources){
    const preparations=attempt.result.metadata.fixturePreparation as any[];
    assert(preparations?.length && preparations.every(p=>p.status==='completed'&&p.policy==='replication-checkpoint-then-native-compaction-v1'));
   }
- }else if(source.id==='coverage-fixes'){
+ }else if(['coverage-fixes','native-files'].includes(source.id)){
   assert.equal(manifest.config.replication,'single-run');
-  assert.deepEqual(manifest.config,JSON.parse(await readFile(resolve(base,'campaigns/publication-coverage-fixes.json'),'utf8')));
+  assert.deepEqual(manifest.config,JSON.parse(await readFile(resolve(base,`campaigns/publication-${source.id}.json`),'utf8')));
  }else{
   assert.deepEqual(manifest.config.stacks,['zero']);
   assert.deepEqual([...manifest.config.scenarios].sort(),['deep-relationship-query','local-query']);
@@ -97,8 +97,9 @@ for(const ref of config.findings){
 const lead=selected[0].annotation;
 if (config.presentation === 'readme-benchmarks-v1') {
  const sql=sources.get('tuned-sql')!,zero=sources.get('tuned-zero')!;
- const powerSync=sources.get('powersync-maintained'), fixes=sources.get('coverage-fixes');
- const fixedCase=(stack:string,scenario:string)=>fixes?.manifest.attempts.some(a=>a.stackId===stack&&a.scenarioId===scenario);
+ const powerSync=sources.get('powersync-maintained'), fixes=sources.get('coverage-fixes'), nativeFiles=sources.get('native-files');
+ const replacementSource=(stack:string,scenario:string)=>{const id=coverage.cases.find((c:any)=>c.stack===stack&&c.scenario===scenario)?.source;return ['coverage-fixes','native-files'].includes(id)?sources.get(id):undefined;};
+ const fixedCase=(stack:string,scenario:string)=>Boolean(replacementSource(stack,scenario));
  const labels:Record<string,string>={syncular:'Syncular JS','syncular-rust':'Syncular Rust',powersync:'PowerSync',turso:'Turso',zero:'Zero'};
  const details=(s:Source,anchor:string)=>posix.join(s.root,reportDetailsPath(s.manifest.id))+'#'+anchor;
  type Section={id:string;title:string;description:string;columns:Array<[string,string]>;anchor:string;definition:string;caveat?:string;zero?:boolean;conflict?:boolean};
@@ -116,7 +117,7 @@ if (config.presentation === 'readme-benchmarks-v1') {
   {id:'connected-fanout',title:'Sending one edit to many clients',description:'With 2,000 tasks on each reader, measure one live edit reaching every connected client. The columns show time until the slowest reader is correct.',columns:[['5 readers','clients_5_all_converged_ms'],['25 readers','clients_25_all_converged_ms']],anchor:'connected-client-fanout',definition:'connected-clients-and-reconnecting-clients',caveat:'PowerSync failed setup before reader creation.'},
   {id:'reconnect-storm',title:'Many clients reconnecting together',description:'Disconnect five or 25 readers, accumulate 100 updates, then restore their connections together. Measure time until every reader has the complete correct dataset.',columns:[['5 readers','clients_5_all_converged_ms'],['25 readers','clients_25_all_converged_ms']],anchor:'reconnect-with-backlog',definition:'connected-clients-and-reconnecting-clients',caveat:'PowerSync failed setup. Retained storage and the maintenance pause affect the environment.'},
   {id:'permission-change',title:'Removing access to a project',description:'Revoke access to one of two 500-task projects. Measure removal of unauthorized rows while preserving the allowed project, both online and after reconnecting.',columns:[['Online removal','online_convergence_ms'],['Removal after reconnect','offline_reconnect_convergence_ms']],anchor:'access-revocation-native-purge',definition:'access-revocation',caveat:'Syncular uses explicit synchronization; PowerSync uses continuous synchronization. Local removal cannot erase previously copied data.'},
-  {id:'blob-flow',title:'Uploading and downloading attachments',description:'Transfer two 2 MiB objects linked to tasks. Measure upload, an uncached download and recovery after an interrupted download; verify the complete object hashes.',columns:[['Upload','initial_upload_ms'],['Fresh download','fresh_download_ms'],['Download retry','download_interruption_recovery_ms']],anchor:'attachments',definition:'attachments',caveat:'Download recovery retries the full object.'},
+  {id:'blob-flow',title:'Uploading and downloading attachments',description:'Transfer two 2 MiB objects linked to tasks. Measure upload, an uncached download and recovery after an interrupted download; verify the complete object hashes.',columns:[['Upload','initial_upload_ms'],['Fresh download','fresh_download_ms'],['Download retry','download_interruption_recovery_ms']],anchor:'attachments',definition:'attachments',caveat:'Syncular and PowerSync retry object-store downloads; Jazz reads native synced chunks. The footnotes explain the different upload and retry boundaries.'},
  ];
  if (powerSync) {
   const revised:Record<string,string>={
@@ -226,6 +227,8 @@ with tarfile.open(base/source['archive']) as archive:
   'electric/replica-reopen':'One run (n=1); run-to-run variability is unknown. Electric reopens an application-owned SQLite cache.',
   'zero/replica-reopen':'One run (n=1); run-to-run variability is unknown. Zero reopens its native SQLite store. A two-second preparation wait lets scheduled persistence finish before close; it is outside the timing.',
   'electric-tanstack/offline-restart':'One run (n=1); run-to-run variability is unknown. The native executor restores all 1,000 transactions from an application-supplied SQLite storage adapter.',
+  'powersync/blob-flow':'One run (n=1). Uses PowerSync’s experimental native attachment queue and streaming transport with MinIO. Upload excludes file staging; download retry follows an HTTP cut after 64 KiB.',
+  'jazz-v2/blob-flow':'One run (n=1). Uses Jazz’s native 256 KiB file chunks. Upload includes chunk creation and edge persistence; retry follows a disconnect after the first chunk and reuses the native cache. These boundaries differ from the object-store clients.',
   'syncular-rust/blob-flow':'One run (n=1); run-to-run variability is unknown. Early WebSocket frames are now buffered while the server session opens; upload and interrupted-download checks pass.'
  };
  const annotateRows=(scenario:string,rows:string[])=>{
@@ -258,14 +261,14 @@ with tarfile.open(base/source['archive']) as archive:
   'Compare offline-first sync stacks using the same task app. The suite measures local queries, startup, edit delivery, offline recovery, conflicts, client scaling, access changes and attachments, and checks the returned data for correctness.','',
   'Includes Syncular JS/Rust, PowerSync, Turso, Zero, Electric, Electric + TanStack DB and experimental Jazz. Results describe each tested application and its guarantees.','',
   '## Latest results','',
-  '**Latest available measurements · Apple M4 · local services · Syncular JS/Rust 0.17.0.** Times are **milliseconds; lower is faster**. Values are medians; query/edit timings summarize each run’s p50. Starred entries are explained below each table. “Not implemented” means missing benchmark work; “No equivalent” means the tested setup lacks an equivalent path.','',
+  '**Latest available measurements · Apple M4 · local services · Syncular JS/Rust 0.17.0.** Times are **milliseconds; lower is faster**. Values are medians; query/edit timings summarize each run’s p50. Starred entries are explained below each table. “Not supported” means the library lacks the native feature required by that test. Benchmark implementation gaps are work to fix, not product limitations.','',
   'Collection dates, configurations, sample sizes and ranges are in the linked details. [Methods](./docs/methodology.md) · [Missing-case review](./docs/investigations/missing-coverage.md) · [Failure explanations](./docs/investigations/tuned-publication-failures.md)',''];
  const clientOrder=['Syncular JS','Syncular Rust','PowerSync','Turso','Zero','Electric','Electric + TanStack DB','Jazz v2 (experimental)'];
  for(const section of sections){
   const tableRows:string[]=[];
   lines.push(`### ${section.title}`,'',section.description,'',`| Client | ${section.conflict?'Verified outcome | ':''}${section.columns.map(c=>c[0]).join(' | ')} |`,`| --- | ${section.conflict?'--- | ':''}${section.columns.map(()=>'---:').join(' | ')} |`);
   for(const originalSource of section.zero?[sql,zero]:[sql])for(const stack of originalSource.manifest.config.stacks){
-   const source=fixedCase(stack,section.id)?fixes!:stack==='powersync'&&powerSync?powerSync:originalSource;
+   const source=fixedCase(stack,section.id)?replacementSource(stack,section.id)!:stack==='powersync'&&powerSync?powerSync:originalSource;
    let outcome='';
    if(section.conflict){
     const attempts=attemptsFor(source,stack,section.id);
@@ -280,7 +283,7 @@ with tarfile.open(base/source['archive']) as archive:
   historicalLines.push(`## ${section.id}`,'',section.description,'',`| Client | ${section.conflict?'Verified outcome | ':''}${section.columns.map(c=>c[0]).join(' | ')} |`,`| --- | ${section.conflict?'--- | ':''}${section.columns.map(()=>'---:').join(' | ')} |`);
   const historicalTableStart=historicalLines.length;
   for(const stack of historicalStacks){
-   if(fixedCase(stack,section.id)){tableRows.push(`| ${historyLabels[stack]} | ${section.columns.map(([,metric])=>cell(fixes!,stack,section.id,metric)).join(' | ')} |`);continue;}
+   if(fixedCase(stack,section.id)){tableRows.push(`| ${historyLabels[stack]} | ${section.columns.map(([,metric])=>cell(replacementSource(stack,section.id)!,stack,section.id,metric)).join(' | ')} |`);continue;}
    const attempts=historyGroups.get(`${stack}/${section.id}`);assert(attempts);
    const latest=attempts.at(-1)!.result;
    let outcome='';
@@ -306,7 +309,11 @@ with tarfile.open(base/source['archive']) as archive:
   assert.deepEqual(tableRows.map(row=>row.split('|')[1]!.trim()),clientOrder);
   const table=annotateRows(section.id,tableRows);
   lines.push(...table.rows,'',...table.notes);
-  lines.push([section.caveat,historicalCaveats[section.id]].filter(Boolean).join(' '), '',`[Workload details](./docs/benchmarks.md#${section.definition}) · [${powerSync?'Syncular/Turso':'SQL'} details](${details(sql,section.anchor)})${powerSync?` · [PowerSync details](${details(powerSync,section.anchor)})`:''}${section.zero?` · [Zero details](${details(zero,section.anchor)})`:''} · [Other client details](${historyDetailsPath}#${section.id})${fixes&&fixes.manifest.config.scenarios.includes(section.id as any)?` · [Repaired case details](${details(fixes,section.anchor)})`:''}`,'');
+  if(nativeFiles&&section.id==='blob-flow'){
+   lines.push(section.caveat!, '', `[Workload details](./docs/benchmarks.md#attachments) · [Syncular JS details](${details(sql,section.anchor)}) · [Syncular Rust details](${details(fixes!,section.anchor)}) · [PowerSync and Jazz details](${details(nativeFiles,section.anchor)})`, '');
+   continue;
+  }
+  lines.push([section.caveat,historicalCaveats[section.id]].filter(Boolean).join(' '), '',`[Workload details](./docs/benchmarks.md#${section.definition}) · [${powerSync?'Syncular/Turso':'SQL'} details](${details(sql,section.anchor)})${powerSync?` · [PowerSync details](${details(powerSync,section.anchor)})`:''}${section.zero?` · [Zero details](${details(zero,section.anchor)})`:''} · [Other client details](${historyDetailsPath}#${section.id})${fixes&&fixes.manifest.config.scenarios.includes(section.id as any)?` · [Repaired case details](${details(fixes,section.anchor)})`:''}${nativeFiles&&section.id==='blob-flow'?` · [Native attachment details](${details(nativeFiles,section.anchor)})`:''}`,'');
  }
  lines.push('## Run a benchmark','','Install Bun and start Docker, then:','','```sh','bun install --frozen-lockfile','bun run bench:run -- --stack syncular --scenario local-query','```','','The harness resets the selected stack’s benchmark fixtures. [Running campaigns and publishing results](./docs/reporting.md) · [Benchmark definitions](./docs/benchmarks.md)','');
  await writeFile(resolve(base,historyDetailsPath),historicalLines.join('\n'));
