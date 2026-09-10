@@ -1,0 +1,8 @@
+{
+  "status": "verified",
+  "clientsBuilt": 6,
+  "artifacts": 31,
+  "readmeCells": 16,
+  "manifestSha256": "6ce3dcd25784fbcf314a8e761d55f1af0b6823f611af75ee34556ff76ec0760d",
+  "auditorSha256": "fbb1d3998dfdb379e253929c0718a40aeae8119f876c55b24f1576a730d1359f"
+}

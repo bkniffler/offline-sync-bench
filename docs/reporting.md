@@ -41,12 +41,13 @@ Optional charts use `scripts/export-finding-chart.ts` and `scripts/render-findin
 
 ## Update the README
 
-`SUMMARY.json` binds the packaged SQL, Zero, PowerSync, repaired-case and native-attachment manifests, archives and complete coverage. The coverage index selects one source per client/case; `SUMMARY.json` also declares the native-feature exclusions, which override displayed timings without rewriting archived results; the earlier PowerSync samples remain archived and are excluded from current tables. Its `readme-benchmarks-v1` presentation gives each of the 14 benchmarks a short explanation, results table, relevant caveats and links to details. It also verifies the retained September 7 archive and includes Electric, TanStack, Jazz and the other Zero cases in the comparison tables. Collection dates and provenance live in the linked details; relevant differences in guarantees stay beside the numbers. Samples stay within their source campaign. Python 3 reads the historical archive during rendering; a generated historical companion retains ranges and sample sizes.
+`SUMMARY.json` binds the packaged SQL, Zero, PowerSync, repaired-case and native-attachment manifests, archives and complete coverage. The coverage index selects one source per client/case; `SUMMARY.json` also declares the native-feature exclusions, which override displayed timings without rewriting archived results; the earlier PowerSync samples remain archived and are excluded from current tables. The `clientSize` binding adds the separately built browser-JavaScript size table. Its `readme-benchmarks-v1` presentation gives each of the 14 latency benchmarks a short explanation, results table, relevant caveats and links to details. It also verifies the retained September 7 archive and includes Electric, TanStack, Jazz and the other Zero cases in the comparison tables. Collection dates and provenance live in the linked details; relevant differences in guarantees stay beside the numbers. Samples stay within their source campaign. Python 3 reads the historical archive during rendering; a generated historical companion retains ranges and sample sizes.
 
 ```sh
 bun scripts/render-publication-summary.ts SUMMARY.json README.md
 bun scripts/audit-publication.ts
 python3 scripts/audit-readme-tables.py
+python3 scripts/audit-client-size.py
 python3 scripts/audit-publication-links.py
 ```
 

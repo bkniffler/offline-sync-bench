@@ -49,6 +49,9 @@ while queue:
             seen.add(linked)
 for source in json.loads(Path('SUMMARY.json').read_text())['sources']:
     seen.update(p.resolve() for p in Path(source['root']).rglob('*') if p.is_file())
+client_size=json.loads(Path('SUMMARY.json').read_text()).get('clientSize')
+if client_size:
+    seen.update(p.resolve() for p in Path(client_size['path']).parent.rglob('*') if p.is_file())
 for folder in ['results/diagnostics/final-publication', 'results/reports/tuned-v017-current',
                'results/reports/tuned-v017-zero-current']:
     seen.update(p.resolve() for p in Path(folder).rglob('*') if p.is_file())

@@ -1,17 +1,16 @@
-# Deployment footprint appendix
+# Client size measurement
 
-The current bundle command measures JavaScript emitted for selected import entrypoints. It does not build equivalent working offline applications, so these numbers cannot establish which product has the smallest complete client deployment.
-
-The [2026-09-09 entrypoint report](../../results/diagnostics/deployment-entrypoints-v017/BUNDLE_SIZES.md) uses the installed dependencies, including Syncular 0.17.0. All ten targets built. [Verification and archived build artifacts](../../results/diagnostics/deployment-entrypoints-v017/VERIFICATION.json) preserve exact entry sources, emitted files and gzip accounting. Two builds reproduced the same report; both ran while publication timing was paused.
+The [README table](../../README.md#client-javascript-size) compares minified and gzipped browser JavaScript for six installed client entrypoints. The [build report](../../results/client-size/README.md) preserves exact imports, SDK versions, emitted files and checksums.
 
 ```sh
-bun run bundle:size
+bun scripts/publish-client-size.ts
+python3 scripts/audit-client-size.py
 ```
 
-The command writes `.results/BUNDLE_SIZES.json` and `.results/BUNDLE_SIZES.md`. It builds minified browser-targeted ESM with splitting and no sourcemaps. The `retained-entry` profile exposes a library namespace; `named-import` references selected exports. The exact target definitions live in [the measurement source](../../src/bundle-size.ts).
+Each entrypoint exports selected public APIs so the bundler must retain them. Bun emits minified browser ESM with splitting and no sourcemaps. All emitted JavaScript chunks count; gzip totals sum each file compressed separately at level 9. One KiB is 1,024 bytes. This deterministic build does not require repeated sync benchmark rounds.
 
-Only emitted `.js` files count toward the totals. Workers, storage engines, WASM, runtime downloads and application assets can require additional files. Gzip totals add the size of each file compressed separately at level 9. The legacy `rawKb`/`gzipKb` JSON fields use a 1,024-byte divisor. Generated table headings now say KiB and state the entrypoint-only scope.
+**These are JavaScript sizes, not complete installed or downloaded client sizes.** WASM, runtime-loaded workers, storage engines and application code can add substantial bytes. Syncular needs an application-selected storage integration; PowerSync and Jazz can load additional runtime assets. The selected imports do not implement equivalent working applications. PowerSync uses its Web SDK for this build, while the latency benchmarks use Node.
 
-Entrypoint sizes remain separate from sync latency and correctness findings. A failed browser bundle indicates a problem with that tested entrypoint/configuration; it does not prove the product cannot run in a browser. Native Rust driver size answers a different deployment question and is not part of this browser bundle comparison.
+Syncular Rust and Turso use native clients in this harness. Their installed native libraries or executables would answer a different size question and are not represented by a browser-JavaScript number.
 
-A future complete-application footprint case should implement the same working screen, sync flow and storage guarantees, inventory every deployed or fetched asset, distinguish initial from deferred downloads, and validate the app before measuring it.
+A complete application-footprint comparison would need equivalent functioning applications and an inventory of every initial and deferred asset. The current table makes the narrower measurement explicit.

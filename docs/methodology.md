@@ -36,4 +36,4 @@ A confirmed explanation needs a controlled experiment or direct accounting. A su
 
 Current investigations: [index effect](./investigations/screen-index-effect.md), [PowerSync edit latency](./investigations/powersync-collaboration.md), [failed cases](./investigations/tuned-publication-failures.md), and [collection interruptions](./investigations/collection-interruptions.md). Each links to its raw evidence. Earlier investigations and the RFC are in the [documentation archive](./history/README.md).
 
-[Deployment footprint](./appendices/deployment-footprint.md) is a separate entrypoint-size appendix, not a complete application-size comparison.
+[Client JavaScript size](../README.md#client-javascript-size) is a separate build measurement. It counts minified and gzipped emitted JavaScript, with runtime assets and native binaries excluded. [Scope and exact definitions](./appendices/deployment-footprint.md).

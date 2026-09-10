@@ -73,3 +73,7 @@ PowerSync uses the same MinIO backend as Syncular, with task references synced t
 Jazz uses `createFileFromBlob` with edge durability and eight default 256 KiB parts. Its upload includes chunk creation and persistence. For interruption, the harness drops the connection after the first delivered chunk and cancels the native read. A local-only read must reject incomplete data before the native file helper retries with its retained cache. This measures chunked sync recovery, including reconnect delay, rather than an HTTP retry. [Native file contract](../src/contracts/native-files.ts) · [Jazz file APIs](https://jazz.tools/docs/writing/files-and-blobs) · [PowerSync attachment APIs](https://docs.powersync.com/client-sdks/advanced/attachments).
 
 These boundaries differ, so the table is not a transport-only speed ranking. Resource windows and protocol counters are recorded separately. The older Syncular contract additionally measures retained upload failure and independent metadata visibility; those extra milestones are not claimed for the native-file adapters.
+
+## Client JavaScript size
+
+Build browser entrypoints for the six installed JavaScript clients; export their selected APIs and count all emitted minified JavaScript chunks and gzip bytes. One KiB is 1,024 bytes. Runtime-loaded assets, WASM, application storage integrations and native binaries are excluded. [Exact imports, artifacts and versions](../results/client-size/README.md) · [Measurement scope](./appendices/deployment-footprint.md).

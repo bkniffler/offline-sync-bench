@@ -1,12 +1,13 @@
 {
   "status": "verified",
-  "sections": 14,
+  "sections": 15,
   "clientRows": 112,
+  "clientSizeRows": 8,
   "cells": 248,
   "numericalTimings": 208,
   "footnotedCells": 66,
   "currentAttempts": 176,
   "historicalAttempts": 206,
-  "readmeSha256": "ed127fc38f6bb8c9abfc6e4df9c361601e3abcb199001ac4656bf5d09862c7ec",
-  "auditorSha256": "affec4b034314f50fc0ac08f921f548bf77a8e675667d030057394871e120bee"
+  "readmeSha256": "e936063e35eba40f4583ab0ac3cb04aa20df4ddb9ad17ecbbae904aa84ae0954",
+  "auditorSha256": "dfc2b46a4f6c2d367e6b188f6961af77b96a411488b5a35f1ae6bba4d1513ed8"
 }

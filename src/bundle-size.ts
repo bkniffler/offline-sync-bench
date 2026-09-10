@@ -113,8 +113,7 @@ export const targets: BundleTarget[] = [
       "import { createCollection } from '@tanstack/db';",
       "import { electricCollectionOptions } from '@tanstack/electric-db-collection';",
       "import { startOfflineExecutor } from '@tanstack/offline-transactions';",
-      'globalThis.__offlineSyncBench = [createCollection, electricCollectionOptions, startOfflineExecutor].length;',
-      'export default globalThis.__offlineSyncBench;',
+      'export { createCollection, electricCollectionOptions, startOfflineExecutor };',
       '',
     ].join('\n'),
   },
@@ -177,8 +176,7 @@ export function resolveEntrySource(target: BundleTarget): string {
         ].join('\n')
       : [
           `import { ${(target.namedImports ?? []).join(', ')} } from '${target.importPath}';`,
-          `globalThis.__offlineSyncBench = [${(target.namedImports ?? []).join(', ')}].length;`,
-          `export default globalThis.__offlineSyncBench;`,
+          `export { ${(target.namedImports ?? []).join(', ')} };`,
           '',
         ].join('\n'))
   );

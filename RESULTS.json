@@ -4,7 +4,7 @@
   "capturedAt": "2026-09-10T11:44:46.468Z",
   "report": "README.md",
   "summary": "SUMMARY.json",
-  "summarySha256": "d458e46f28cf3025aa9ad72da229dc581bf1513454cbef50e740cf9939fdb8b1",
+  "summarySha256": "b08b17daf2ffe179d867fd862818cd828e465ce244eb5ffa1c42717d9c9259cc",
   "coverage": "COVERAGE.json",
   "coverageSha256": "7c63ae9435524fa628d978daee0e75ec76cc4b51dc036f20bce36ea413daf5c8",
   "attempts": 176,
@@ -61,7 +61,7 @@
   "withdrawnIndexSha256": "4bc5e295d3366de7e56a02954c64cd764e8ba90385e0aec48e53af536c946e5b",
   "presentation": "readme-benchmarks-v1",
   "renderer": "scripts/render-publication-summary.ts",
-  "rendererSha256": "fdf5f2dc1f7aa75254a1d0855040edd794d857d2661a2b3602ddb0805ae9a435",
+  "rendererSha256": "f8e77f9d83f5f1b1f1965e1e7240e8d46670d4a47c87d29b979e1c3384d5c221",
   "documentationHistory": "docs/history/INDEX.json",
   "historicalReport": "results/history/2026-09-07-withdrawn-campaign/RETAINED-RESULTS.md",
   "supersededAttempts": 48,
@@ -120,5 +120,10 @@
       "label": "Not supported",
       "reason": "Electric provides read-path sync only. This benchmark requires client writes; no custom write queue or uploader is added."
     }
-  ]
+  ],
+  "clientSize": {
+    "path": "results/client-size/RESULTS.json",
+    "sha256": "6ce3dcd25784fbcf314a8e761d55f1af0b6823f611af75ee34556ff76ec0760d",
+    "rendererSha256": "2a2b2f2f8531468e7c18d33af631f32a6f70804da8cbba0a5ae6a206bf2eeeb3"
+  }
 }

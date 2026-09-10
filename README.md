@@ -6,7 +6,7 @@ Includes Syncular JS/Rust, PowerSync, Turso, Zero, Electric, Electric + TanStack
 
 ## Latest results
 
-**Latest available measurements · Apple M4 · local services · Syncular JS/Rust 0.17.0.** Times are **milliseconds; lower is faster**. Values are medians; query/edit timings summarize each run’s p50. Starred entries are explained below each table. “Not supported” means the library lacks the native feature required by that test. Benchmark implementation gaps are work to fix, not product limitations.
+**Latest available measurements · Apple M4 · local services · Syncular JS/Rust 0.17.0.** Latency is shown in **milliseconds; lower is faster**. Client JavaScript sizes use **KiB**. Latency values are medians; query/edit timings summarize each run’s p50. Starred entries are explained below each table. “Not supported” means the library lacks the native feature required by that test. Benchmark implementation gaps are work to fix, not product limitations.
 
 Collection dates, configurations, sample sizes and ranges are in the linked details. [Methods](./docs/methodology.md) · [Missing-case review](./docs/investigations/missing-coverage.md) · [Failure explanations](./docs/investigations/tuned-publication-failures.md)
 
@@ -329,6 +329,25 @@ Transfer two 2 MiB objects linked to tasks. Measure upload, an uncached download
 Syncular and PowerSync retry object-store downloads; Jazz reads native synced chunks. The footnotes explain the different upload and retry boundaries.
 
 [Workload details](./docs/benchmarks.md#attachments) · [Syncular JS details](results/reports/tuned-v017-sql/results/reports/campaign-2026-09-08T22-58-56-419Z/DETAILS.md#attachments) · [Syncular Rust details](results/reports/coverage-fixes/results/reports/campaign-2026-09-10T07-02-43-467Z/DETAILS.md#attachments) · [PowerSync and Jazz details](results/reports/native-files/results/reports/campaign-2026-09-10T11-43-03-468Z/DETAILS.md#attachments)
+
+### Client JavaScript size
+
+Build a browser bundle exporting each client’s sync API. Measure all emitted JavaScript after minification and gzip compression. **JavaScript only:** additional WASM, runtime-loaded workers and storage engines are excluded. Smaller is better; 1 KiB = 1,024 bytes.
+
+| Client | Minified JS | Gzip JS |
+| --- | ---: | ---: |
+| Syncular JS | 116.89 KiB | 34.57 KiB |
+| Syncular Rust | Not applicable \* | Not applicable \* |
+| PowerSync | 525.36 KiB | 160.46 KiB |
+| Turso | Not applicable \* | Not applicable \* |
+| Zero | 302.94 KiB | 94.90 KiB |
+| Electric | 55.47 KiB | 17.42 KiB |
+| Electric + TanStack DB | 240.21 KiB | 68.42 KiB |
+| Jazz v2 (experimental) | 289.98 KiB | 83.04 KiB |
+
+\* Syncular Rust and Turso use native clients in these benchmarks, so browser JavaScript size does not apply to those tested clients. PowerSync’s size uses its Web SDK; its latency tests use Node.
+
+[Build details and exact imports](./results/client-size/README.md) · [Scope and excluded assets](./docs/appendices/deployment-footprint.md)
 
 ## Run a benchmark
 

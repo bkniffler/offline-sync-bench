@@ -71,9 +71,12 @@ assert gap_review['coverageSha256'] == sha(Path('COVERAGE.json').read_bytes())
 gap_labels = {(c['stack'], c['scenario']): c for c in gap_review['cases']}
 page = Path('README.md').read_text()
 sections = re.split(r'^### ', page, flags=re.M)[1:]
-assert len(sections) == len(metrics)
+assert len(sections) == len(metrics) + (1 if config.get('clientSize') else 0)
+latency_sections = sections[:len(metrics)]
+if config.get('clientSize'):
+    assert sections[-1].startswith('Client JavaScript size\n')
 cells = timings = footnoted_cells = 0
-for section, (scenario, keys) in zip(sections, metrics):
+for section, (scenario, keys) in zip(latency_sections, metrics):
     rows = [line for line in section.splitlines() if line.startswith('| ')][2:]
     assert [row.split('|')[1].strip() for row in rows] == list(labels)
     footnotes = dict(re.findall(r'^((?:\\\*)+) (.+)$', section, flags=re.M))
@@ -136,7 +139,7 @@ for section, (scenario, keys) in zip(sections, metrics):
                 assert not re.match(r'^\d', displayed), (stack, scenario, metric, displayed)
             cells += 1
     assert used_markers == set(footnotes), (scenario, 'Unused footnote')
-receipt = {'status': 'verified', 'sections': len(sections), 'clientRows': 112, 'cells': cells, 'numericalTimings': timings, 'footnotedCells': footnoted_cells,
+receipt = {'status': 'verified', 'sections': len(sections), 'clientRows': 112, 'clientSizeRows': 8 if config.get('clientSize') else 0, 'cells': cells, 'numericalTimings': timings, 'footnotedCells': footnoted_cells,
            'currentAttempts': coverage['currentAttempts'], 'historicalAttempts': coverage['retainedAttempts'], 'readmeSha256': sha(page.encode()), 'auditorSha256': sha(Path(__file__).read_bytes())}
 Path('results/diagnostics/final-publication/README-TABLE-AUDIT.json').write_text(json.dumps(receipt, indent=2) + '\n')
 print(json.dumps(receipt))

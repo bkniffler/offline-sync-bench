@@ -1,3 +1,4 @@
+import { renderClientSize } from './client-size-renderer.ts';
 import { nativeFeatureExclusions } from '../src/native-support.ts';
 /** Assemble separately published campaigns; do not combine their samples.
  * Input paths are relative to the summary configuration. Output is Markdown.
@@ -261,7 +262,7 @@ with tarfile.open(base/source['archive']) as archive:
   'Compare offline-first sync stacks using the same task app. The suite measures local queries, startup, edit delivery, offline recovery, conflicts, client scaling, access changes and attachments, and checks the returned data for correctness.','',
   'Includes Syncular JS/Rust, PowerSync, Turso, Zero, Electric, Electric + TanStack DB and experimental Jazz. Results describe each tested application and its guarantees.','',
   '## Latest results','',
-  '**Latest available measurements · Apple M4 · local services · Syncular JS/Rust 0.17.0.** Times are **milliseconds; lower is faster**. Values are medians; query/edit timings summarize each run’s p50. Starred entries are explained below each table. “Not supported” means the library lacks the native feature required by that test. Benchmark implementation gaps are work to fix, not product limitations.','',
+  '**Latest available measurements · Apple M4 · local services · Syncular JS/Rust 0.17.0.** Latency is shown in **milliseconds; lower is faster**. Client JavaScript sizes use **KiB**. Latency values are medians; query/edit timings summarize each run’s p50. Starred entries are explained below each table. “Not supported” means the library lacks the native feature required by that test. Benchmark implementation gaps are work to fix, not product limitations.','',
   'Collection dates, configurations, sample sizes and ranges are in the linked details. [Methods](./docs/methodology.md) · [Missing-case review](./docs/investigations/missing-coverage.md) · [Failure explanations](./docs/investigations/tuned-publication-failures.md)',''];
  const clientOrder=['Syncular JS','Syncular Rust','PowerSync','Turso','Zero','Electric','Electric + TanStack DB','Jazz v2 (experimental)'];
  for(const section of sections){
@@ -315,10 +316,11 @@ with tarfile.open(base/source['archive']) as archive:
   }
   lines.push([section.caveat,historicalCaveats[section.id]].filter(Boolean).join(' '), '',`[Workload details](./docs/benchmarks.md#${section.definition}) · [${powerSync?'Syncular/Turso':'SQL'} details](${details(sql,section.anchor)})${powerSync?` · [PowerSync details](${details(powerSync,section.anchor)})`:''}${section.zero?` · [Zero details](${details(zero,section.anchor)})`:''} · [Other client details](${historyDetailsPath}#${section.id})${fixes&&fixes.manifest.config.scenarios.includes(section.id as any)?` · [Repaired case details](${details(fixes,section.anchor)})`:''}${nativeFiles&&section.id==='blob-flow'?` · [Native attachment details](${details(nativeFiles,section.anchor)})`:''}`,'');
  }
+ if(config.clientSize)lines.push(...await renderClientSize(config.clientSize,base));
  lines.push('## Run a benchmark','','Install Bun and start Docker, then:','','```sh','bun install --frozen-lockfile','bun run bench:run -- --stack syncular --scenario local-query','```','','The harness resets the selected stack’s benchmark fixtures. [Running campaigns and publishing results](./docs/reporting.md) · [Benchmark definitions](./docs/benchmarks.md)','');
  await writeFile(resolve(base,historyDetailsPath),historicalLines.join('\n'));
  await writeFile(outputPath,lines.join('\n'));
- console.log('Rendered README with all 14 benchmark sections from validated campaign results.');
+ console.log('Rendered README with 14 latency benchmarks and the configured client-size comparison.');
 } else
 if (config.presentation === 'essential-v1' || config.presentation === 'readme-v1') {
  const sql=sources.get('tuned-sql')!,zero=sources.get('tuned-zero')!;

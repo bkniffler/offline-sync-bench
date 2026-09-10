@@ -145,5 +145,10 @@
       "label": "Not supported",
       "reason": "This library has no native attachment storage and transfer API. An application-provided uploader is outside this benchmark."
     }
-  ]
+  ],
+  "clientSize": {
+    "path": "results/client-size/RESULTS.json",
+    "sha256": "6ce3dcd25784fbcf314a8e761d55f1af0b6823f611af75ee34556ff76ec0760d",
+    "rendererSha256": "2a2b2f2f8531468e7c18d33af631f32a6f70804da8cbba0a5ae6a206bf2eeeb3"
+  }
 }
