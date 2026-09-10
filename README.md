@@ -330,6 +330,31 @@ Syncular and PowerSync retry object-store downloads; Jazz reads native synced ch
 
 [Workload details](./docs/benchmarks.md#attachments) · [Syncular JS details](results/reports/tuned-v017-sql/results/reports/campaign-2026-09-08T22-58-56-419Z/DETAILS.md#attachments) · [Syncular Rust details](results/reports/coverage-fixes/results/reports/campaign-2026-09-10T07-02-43-467Z/DETAILS.md#attachments) · [PowerSync and Jazz details](results/reports/native-files/results/reports/campaign-2026-09-10T11-43-03-468Z/DETAILS.md#attachments)
 
+### Uploading and downloading a 500 MB file
+
+Upload one 500,000,000-byte file linked to a task, then download it in a new process with an empty client cache. Upload includes native staging; download ends when complete bytes are materialized. Verify the full SHA-256 hash. One run per client (n=1), using local services; file preparation and final hash validation are outside the clock.
+
+| Client | Upload | Fresh download |
+| --- | ---: | ---: |
+| Syncular JS | 3522.82 ms | 2306.69 ms |
+| Syncular Rust | 3253.71 ms \* | 3041.53 ms \* |
+| PowerSync | 1175.71 ms \*\* | 604.40 ms \*\* |
+| Turso | Not supported \*\*\* | Not supported \*\*\* |
+| Zero | Not supported \*\*\* | Not supported \*\*\* |
+| Electric | Not supported \*\*\* | Not supported \*\*\* |
+| Electric + TanStack DB | Not supported \*\*\* | Not supported \*\*\* |
+| Jazz v2 (experimental) | 49314.22 ms \*\*\*\* | 60176.33 ms \*\*\*\* |
+
+\* Rust uses its published native blob API, which materializes bytes as hex internally. That conversion is included; the harness returns only a hash receipt over stdio.
+
+\*\* PowerSync uses its experimental native attachment queue and filesystem transport.
+
+\*\*\* These libraries have no native attachment upload/download feature; Electric is read-only.
+
+\*\*\*\* Jazz uses its default 256 KiB chunks (1,908 parts). Its native helper awaits each part insertion; the other measured clients transfer whole objects through MinIO.
+
+[Workload, cached fixture and raw results](./results/large-files/README.md)
+
 ### Client JavaScript size
 
 Build a browser bundle exporting each client’s sync API. Measure all emitted JavaScript after minification and gzip compression. **JavaScript only:** additional WASM, runtime-loaded workers and storage engines are excluded. Smaller is better; 1 KiB = 1,024 bytes.

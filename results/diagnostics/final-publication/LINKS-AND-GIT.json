@@ -1,7 +1,7 @@
 {
   "status": "verified",
   "scope": "Recursive local Markdown targets from reader entrypoints, every component-package file, final receipts and current-result redirects. All exist and none are Git-ignored. README section anchors are verified; other pages are checked for file existence. This audit does not stage, commit or push.",
-  "auditorSha256": "7ba3bf4df8a7b3bdb436d0373c1ae65852084966c0f4dd014befffdf4d610f7b",
+  "auditorSha256": "eb2aa8b37d4481f55bde83ab63ba157d756e2098f020d7bdddbd90bdc6feddb5",
   "readmeAnchors": 61,
   "files": [
     {
@@ -16,13 +16,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 25694,
-      "sha256": "e936063e35eba40f4583ab0ac3cb04aa20df4ddb9ad17ecbbae904aa84ae0954"
+      "bytes": 27204,
+      "sha256": "9f8b36360ef8c0f2cdad7c8c9209a3cf627561e11ab5fb44cb647ceb4e370936"
     },
     {
       "path": "RESULTS.json",
-      "bytes": 6092,
-      "sha256": "6f916fa9455af1d1ed6e58da5feba3a7cc8a5fce57c1b16434d1bdcb41b2f819"
+      "bytes": 6334,
+      "sha256": "775a93913d2d3635aa2a4c2fb90e0a59ab188ef75ec7fcb3b5cd4932bc35bd58"
     },
     {
       "path": "RESULTS.md",
@@ -31,8 +31,8 @@
     },
     {
       "path": "SUMMARY.json",
-      "bytes": 6344,
-      "sha256": "b08b17daf2ffe179d867fd862818cd828e465ce244eb5ffa1c42717d9c9259cc"
+      "bytes": 6586,
+      "sha256": "2bb6f55c75cf906413ef1fb9ec369388904df69de2d5f94a05058803f685b9be"
     },
     {
       "path": "campaigns/browser-smoke.json",
@@ -46,8 +46,8 @@
     },
     {
       "path": "docs/benchmarks.md",
-      "bytes": 9396,
-      "sha256": "efb5509a0862f2554f24e4f1b118f2dcd28591232cfc120f37603e65fac04bc5"
+      "bytes": 9807,
+      "sha256": "bd9b8397023850096dd28219bd886b9880888e531aa4ffb3e220e4bb7e67aaed"
     },
     {
       "path": "docs/history/INDEX.json",
@@ -96,8 +96,8 @@
     },
     {
       "path": "docs/reporting.md",
-      "bytes": 7079,
-      "sha256": "5c19bc9263ed7b7ac8f1dd0d242c2788b1dbcf31d8e7103538a90c61024935c7"
+      "bytes": 7507,
+      "sha256": "aa992ab611d5ac113891d9427bc7195c09fcd0a624dfdf1908e6e4eb487d70ad"
     },
     {
       "path": "results/client-size/README.md",
@@ -325,6 +325,11 @@
       "sha256": "8cafcfa6718a5f2dfa24d69737e65e5bd4f32ba6982766e155f0840fc7c35295"
     },
     {
+      "path": "results/diagnostics/final-publication/LARGE-FILE-AUDIT.json",
+      "bytes": 380,
+      "sha256": "657117bc80cffe6f50e26d8148dfce88d0f0b3b1b873f31185467c720afc4687"
+    },
+    {
       "path": "results/diagnostics/final-publication/LINKS-AND-GIT.json",
       "scope": "Existence and Git inclusion only; audit/receipt cycle excluded from byte hashes."
     },
@@ -351,12 +356,12 @@
     {
       "path": "results/diagnostics/final-publication/README-TABLE-AUDIT.json",
       "bytes": 384,
-      "sha256": "e32103da5b5fb872cbeacf48817c57f440e2dc90c9d87054ebf9e302a1d40962"
+      "sha256": "d8786d7e64949ff2f845e2d1ed11d1cc46199611cafbee30cd43b4612aa3e161"
     },
     {
       "path": "results/diagnostics/final-publication/RESULT-AUDIT.json",
       "bytes": 5932,
-      "sha256": "5ee3046363252465dac1648e50bca5f0de56d1063bb965be13d87ce2b01e8f2c"
+      "sha256": "b2bc082a4b6c0e9b09a9e636aa554e43fdc781ed47c0b027ad3af63a2f7a2c72"
     },
     {
       "path": "results/diagnostics/final-publication/SQL-PUBLICATION.json",
@@ -532,6 +537,36 @@
       "path": "results/history/2026-09-07-withdrawn-campaign/campaign.tar.gz",
       "bytes": 52661205,
       "sha256": "2f49ffa29712b0e8527ee2ad8d598e4ebc12526db230a88f3ae705cefb515250"
+    },
+    {
+      "path": "results/large-files/EXCLUDED-RUN.json.gz",
+      "bytes": 36083,
+      "sha256": "e1bced8d86927e0b1ef853ef29867f915ccd97823fd99acb88b550175754ee96"
+    },
+    {
+      "path": "results/large-files/README.md",
+      "bytes": 3603,
+      "sha256": "302d2122809d5fa5b8a0ff35c5f5bc50857f563b6d81488a45f38f5564100e5b"
+    },
+    {
+      "path": "results/large-files/RESULTS.json",
+      "bytes": 166584,
+      "sha256": "42f9c4a0025982397ae6142d8cd9a923709fa3fb26999c3f5e53e215ae5a1da8"
+    },
+    {
+      "path": "results/large-files/SOURCE.json",
+      "bytes": 40670,
+      "sha256": "de70cfdcbbe6e0c30dd6d35e250798c56d4da279eca6b473d2aa4a3778475e19"
+    },
+    {
+      "path": "results/large-files/SOURCE.tar.gz",
+      "bytes": 478082,
+      "sha256": "59bf4dbc3e3c4bf93c0478c72e9d79f1ba3d0ac4bdd9905f6b7a79e39787c11e"
+    },
+    {
+      "path": "results/large-files/source-files.txt",
+      "bytes": 8448,
+      "sha256": "45beef96b90bc19e8c80476d8b0d6649f80db021643497a60afcc52f19462d52"
     },
     {
       "path": "results/reports/coverage-fixes/ARCHIVE.json",
@@ -7120,18 +7155,18 @@
     },
     {
       "path": "scripts/audit-publication-links.py",
-      "bytes": 4146,
-      "sha256": "7ba3bf4df8a7b3bdb436d0373c1ae65852084966c0f4dd014befffdf4d610f7b"
+      "bytes": 4178,
+      "sha256": "eb2aa8b37d4481f55bde83ab63ba157d756e2098f020d7bdddbd90bdc6feddb5"
     },
     {
       "path": "scripts/audit-publication.ts",
-      "bytes": 9116,
-      "sha256": "3803ec5a3be395347bbe84be40a4eff66f95409aee545967f826b4e903d60102"
+      "bytes": 9490,
+      "sha256": "70804b236d3675e3d6d994a3ff1bb810bcb41093085f8cd06da03dc16a084f8b"
     },
     {
       "path": "scripts/audit-readme-tables.py",
-      "bytes": 9325,
-      "sha256": "dfc2b46a4f6c2d367e6b188f6961af77b96a411488b5a35f1ae6bba4d1513ed8"
+      "bytes": 9350,
+      "sha256": "b78ff65b27245840bc11f3a490706e9b0d937920488389e67b270bf3203025b3"
     },
     {
       "path": "scripts/diagnose-screen-index-effect.ts",

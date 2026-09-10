@@ -1,3 +1,4 @@
+import { renderLargeFiles } from './large-file-renderer.ts';
 import { renderClientSize } from './client-size-renderer.ts';
 import { nativeFeatureExclusions } from '../src/native-support.ts';
 /** Assemble separately published campaigns; do not combine their samples.
@@ -316,6 +317,7 @@ with tarfile.open(base/source['archive']) as archive:
   }
   lines.push([section.caveat,historicalCaveats[section.id]].filter(Boolean).join(' '), '',`[Workload details](./docs/benchmarks.md#${section.definition}) · [${powerSync?'Syncular/Turso':'SQL'} details](${details(sql,section.anchor)})${powerSync?` · [PowerSync details](${details(powerSync,section.anchor)})`:''}${section.zero?` · [Zero details](${details(zero,section.anchor)})`:''} · [Other client details](${historyDetailsPath}#${section.id})${fixes&&fixes.manifest.config.scenarios.includes(section.id as any)?` · [Repaired case details](${details(fixes,section.anchor)})`:''}${nativeFiles&&section.id==='blob-flow'?` · [Native attachment details](${details(nativeFiles,section.anchor)})`:''}`,'');
  }
+ if(config.largeFiles)lines.push(...await renderLargeFiles(config.largeFiles,base));
  if(config.clientSize)lines.push(...await renderClientSize(config.clientSize,base));
  lines.push('## Run a benchmark','','Install Bun and start Docker, then:','','```sh','bun install --frozen-lockfile','bun run bench:run -- --stack syncular --scenario local-query','```','','The harness resets the selected stack’s benchmark fixtures. [Running campaigns and publishing results](./docs/reporting.md) · [Benchmark definitions](./docs/benchmarks.md)','');
  await writeFile(resolve(base,historyDetailsPath),historicalLines.join('\n'));

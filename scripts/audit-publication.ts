@@ -76,9 +76,10 @@ const page=await readFile(reportPath,'utf8');
 const wordCount=page.trim().split(/\s+/).length;
 if(config.presentation==='readme-benchmarks-v1'){
  const sections=page.split(/^### /m).slice(1);
- assert.equal(sections.length,config.clientSize?15:14);
- assert.equal((page.match(/^\| Client \|/gm)??[]).length,config.clientSize?15:14);
+ assert.equal(sections.length,14 + Number(Boolean(config.clientSize)) + Number(Boolean(config.largeFiles)));
+ assert.equal((page.match(/^\| Client \|/gm)??[]).length,14 + Number(Boolean(config.clientSize)) + Number(Boolean(config.largeFiles)));
  for(const section of sections){
+  if(section.startsWith('Uploading and downloading a 500 MB file')){assert(config.largeFiles);assert(section.includes('| Upload | Fresh download |'));assert.equal((section.match(/^\| /gm)??[]).length,10);continue;}
   if(section.startsWith('Client JavaScript size')){assert(config.clientSize);assert(section.includes('| Minified JS | Gzip JS |'));assert.equal((section.match(/^\| /gm)??[]).length,10);continue;}
   const nativeAttachments=section.startsWith('Uploading and downloading attachments')&&config.sources.some((s:any)=>s.id==='native-files');
   assert(section.includes('[Workload details]('));
@@ -88,7 +89,7 @@ if(config.presentation==='readme-benchmarks-v1'){
   assert(section.includes('| Zero |'));
   if(!nativeAttachments)assert(section.includes('[Other client details]('));
  }
- assert.equal((page.match(/^\| Zero \|/gm)??[]).length,config.clientSize?15:14);
+ assert.equal((page.match(/^\| Zero \|/gm)??[]).length,14 + Number(Boolean(config.clientSize)) + Number(Boolean(config.largeFiles)));
  assert(!page.includes('‡')&&!page.includes('†'));
  assert(page.includes('## Latest results'));
  assert(!page.includes('| Attempts |')&&!page.includes('| Passed / attempted |'));

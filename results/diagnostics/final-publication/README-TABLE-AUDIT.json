@@ -1,6 +1,6 @@
 {
   "status": "verified",
-  "sections": 15,
+  "sections": 16,
   "clientRows": 112,
   "clientSizeRows": 8,
   "cells": 248,
@@ -8,6 +8,6 @@
   "footnotedCells": 66,
   "currentAttempts": 176,
   "historicalAttempts": 206,
-  "readmeSha256": "e936063e35eba40f4583ab0ac3cb04aa20df4ddb9ad17ecbbae904aa84ae0954",
-  "auditorSha256": "dfc2b46a4f6c2d367e6b188f6961af77b96a411488b5a35f1ae6bba4d1513ed8"
+  "readmeSha256": "9f8b36360ef8c0f2cdad7c8c9209a3cf627561e11ab5fb44cb647ceb4e370936",
+  "auditorSha256": "b78ff65b27245840bc11f3a490706e9b0d937920488389e67b270bf3203025b3"
 }

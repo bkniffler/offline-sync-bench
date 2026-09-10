@@ -35,6 +35,7 @@ use std::io::{BufRead, Write};
 use std::time::{Duration, Instant};
 
 use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 use syncular_client::{
     BlobDownload, BlobUploadGrant, SegmentRequest, SyncClient, Transport, TransportError,
 };
@@ -421,6 +422,36 @@ fn handle(
             let result = dispatch(transport, client, effects, method, params)?;
             transport.inner.set_signed_urls(effects.signed_urls);
             Ok(result)
+        }
+        // File-path input and a digest-only reply keep 500 MB bodies out of
+        // harness JSON/stdio. The published client's blob APIs still do the work.
+        "benchStageBlobFile" => {
+            let path = params.get("path").and_then(Value::as_str)
+                .ok_or_else(|| client_err("missing file path".to_owned()))?;
+            let bytes = std::fs::read(path).map_err(|e| client_err(e.to_string()))?;
+            let started = Instant::now();
+            let reference = need_client(client)?.upload_blob(&bytes, Some("application/octet-stream".to_owned()), None).map_err(client_err)?;
+            Ok(json!({ "ref": reference, "stageMs": started.elapsed().as_secs_f64() * 1000.0 }))
+        }
+        "benchFetchBlobDigest" => {
+            let blob = params.get("blob").and_then(Value::as_str)
+                .ok_or_else(|| client_err("missing blob reference".to_owned()))?;
+            let started = Instant::now();
+            let value = need_client(client)?.fetch_blob(transport, blob)?;
+            let download_ms = started.elapsed().as_secs_f64() * 1000.0;
+            let hex = value.pointer("/bytes/$bytes").and_then(Value::as_str)
+                .ok_or_else(|| client_err("native fetch returned no bytes".to_owned()))?;
+            if hex.len() % 2 != 0 { return Err(client_err("invalid native byte encoding".to_owned())); }
+            let mut hasher = Sha256::new();
+            for chunk in hex.as_bytes().chunks(131072) {
+                let mut decoded = Vec::with_capacity(chunk.len() / 2);
+                for pair in chunk.chunks_exact(2) {
+                    let digit = |c: u8| (c as char).to_digit(16).ok_or_else(|| client_err("invalid native hex".to_owned()));
+                    decoded.push(((digit(pair[0])? << 4) | digit(pair[1])?) as u8);
+                }
+                hasher.update(&decoded);
+            }
+            Ok(json!({ "bytes": hex.len() / 2, "sha256": format!("{:x}", hasher.finalize()), "downloadMs": download_ms }))
         }
         "waitForQuery" => wait_for_query(transport, client, params),
         "benchQuery" => bench_query(client, params),

@@ -34,7 +34,8 @@
     "stacks:jazz-v2:down": "docker compose -f stacks/jazz-v2/docker-compose.yml down -v --remove-orphans",
     "bench:campaign": "bun run src/campaign.ts",
     "test": "bun test",
-    "bench:meter-audit": "bun run src/meter-audit.ts"
+    "bench:meter-audit": "bun run src/meter-audit.ts",
+    "bench:large-files": "bun scripts/benchmark-large-files.ts"
   },
   "dependencies": {
     "@electric-sql/client": "1.5.27",

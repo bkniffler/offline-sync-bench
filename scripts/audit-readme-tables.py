@@ -71,7 +71,7 @@ assert gap_review['coverageSha256'] == sha(Path('COVERAGE.json').read_bytes())
 gap_labels = {(c['stack'], c['scenario']): c for c in gap_review['cases']}
 page = Path('README.md').read_text()
 sections = re.split(r'^### ', page, flags=re.M)[1:]
-assert len(sections) == len(metrics) + (1 if config.get('clientSize') else 0)
+assert len(sections) == len(metrics) + bool(config.get('clientSize')) + bool(config.get('largeFiles'))
 latency_sections = sections[:len(metrics)]
 if config.get('clientSize'):
     assert sections[-1].startswith('Client JavaScript size\n')

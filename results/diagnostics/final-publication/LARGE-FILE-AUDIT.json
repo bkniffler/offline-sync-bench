@@ -1,0 +1,10 @@
+{
+  "status": "verified",
+  "clientsAttempted": 4,
+  "clientsCompleted": 4,
+  "readmeCells": 16,
+  "bytesPerFile": 500000000,
+  "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+  "resultSha256": "42f9c4a0025982397ae6142d8cd9a923709fa3fb26999c3f5e53e215ae5a1da8",
+  "auditorSha256": "a797ab6831fda4e713d91a0da23e10b9aab7fa30c8d307eeb27234697a283c0d"
+}

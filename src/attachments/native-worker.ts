@@ -7,14 +7,17 @@ import { BlobTransferGate, relayBlobUrl } from './transfer-gate.ts';
 import { NetworkGate } from '../recovery/network-gate.ts';
 
 const config = JSON.parse(await readFile(process.argv[2]!, 'utf8')) as NativeFileConfig;
+const payloadBytes = config.payload?.bytes ?? attachmentBytes;
+const variants: Array<0 | 1> = config.payload ? [0] : [0, 1];
+const payload = async (variant: 0 | 1) => config.payload ? new Uint8Array(await readFile(config.payload.path)) : attachmentPayload(variant);
 const evidence: Record<string, any> = { phase: config.phase, pid: process.pid, store: config.store, storeWasAbsent: !existsSync(config.store) };
 const digest = (data: Uint8Array) => ({ bytes: data.byteLength, sha256: createHash('sha256').update(data).digest('hex') });
 const check = (data: Uint8Array, variant: number) => {
   const result = digest(data);
-  if (result.bytes !== attachmentBytes || result.sha256 !== attachmentDigests[variant]) throw new Error('Attachment full byte/hash validation failed');
+  if (result.bytes !== payloadBytes || result.sha256 !== (config.payload?.sha256 ?? attachmentDigests[variant])) throw new Error('Attachment full byte/hash validation failed');
   return result;
 };
-async function until(predicate: () => Promise<boolean>, description: string, ms = 120_000) {
+async function until(predicate: () => Promise<boolean>, description: string, ms = config.payload ? 600_000 : 120_000) {
   const deadline = performance.now() + ms;
   while (!await predicate()) {
     if (performance.now() >= deadline) throw new Error(`${description} timed out after ${ms} ms`);
@@ -62,9 +65,9 @@ async function powersync() {
     evidence.api = 'AttachmentQueue + NodeFileSystemAdapter.createTransportAdapter';
     if (config.phase === 'writer') {
       evidence.files = [];
-      for (const variant of [0, 1] as const) {
+      for (const variant of variants) {
         activeId = files[variant]!.id;
-        const bytes = attachmentPayload(variant);
+        const bytes = await payload(variant);
         const stageStart = performance.now();
         await queue.saveFile({ id: activeId, data: new Uint8Array(bytes).buffer, fileExtension: 'bin', mediaType: 'application/octet-stream',
           updateHook: async (tx, attachment) => { await tx.execute('INSERT INTO task_file_links (id, task_id, filename) VALUES (?, ?, ?)', [attachment.id, attachmentTask, attachment.filename]); },
@@ -97,7 +100,7 @@ async function powersync() {
         let partial = new Uint8Array();
         if (failed.localUri && existsSync(failed.localUri)) partial = new Uint8Array(await readFile(failed.localUri));
         evidence.interruption = { method: 'http-body-cut', gate: gate.snapshot(), failed, partial: digest(partial), errors: [...errors] };
-        if (partial.byteLength >= attachmentBytes) throw new Error('Interrupted file unexpectedly complete');
+        if (partial.byteLength >= payloadBytes) throw new Error('Interrupted file unexpectedly complete');
         gate.restore();
       }
       const started = performance.now();
@@ -127,8 +130,8 @@ async function jazz() {
       const tasks = [];
       for (let i = 0; i < 50; i++) tasks.push(await db.insert(fileApp.attachment_tasks, { dataset_id: config.datasetId, external_id: `task-${i}`, title: `Task ${i}` }).wait({ tier: 'edge' }));
       evidence.taskCount = tasks.length; evidence.files = [];
-      for (const variant of [0, 1] as const) {
-        const bytes = attachmentPayload(variant), blob = new Blob([new Uint8Array(bytes).buffer]);
+      for (const variant of variants) {
+        const bytes = await payload(variant), blob = new Blob([new Uint8Array(bytes).buffer]);
         const started = performance.now();
         const file = await db.createFileFromBlob(fileApp, blob, { tier: 'edge', name: `attachment-${variant}`, mimeType: 'application/octet-stream' });
         const uploadMs = performance.now() - started;

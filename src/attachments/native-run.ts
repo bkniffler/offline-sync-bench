@@ -81,7 +81,7 @@ export async function runNativeFiles(stackId: NativeFileStack) {
 
 /** A bind-mounted rule edit does not restart the PowerSync service. Verify the
  * deployed rule text before seeding, and reload only when configuration differs. */
-async function ensureFileReplicationRules() {
+export async function ensureFileReplicationRules() {
   const storage = postgres('postgres://bench:bench@localhost:55436/powersync_storage', { max: 1 });
   const expected = await readFile(join(benchmarkRoot, 'stacks/powersync/config/sync-config.yaml'), 'utf8');
   const matches = async () => {

@@ -96,7 +96,7 @@ const config: SyncServerConfig = {
   storage: db.storage,
   segments,
   blobs,
-  maxBlobBytes: 256 * 1024 * 1024,
+  maxBlobBytes: 1024 * 1024 * 1024,
   resolveScopes,
   realtime: hub,
   blobSignedUrls: s3PresignedBlobUrls(blobPresigner, { ttlSeconds: 900 }),

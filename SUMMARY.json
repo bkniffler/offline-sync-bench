@@ -150,5 +150,10 @@
     "path": "results/client-size/RESULTS.json",
     "sha256": "6ce3dcd25784fbcf314a8e761d55f1af0b6823f611af75ee34556ff76ec0760d",
     "rendererSha256": "2a2b2f2f8531468e7c18d33af631f32a6f70804da8cbba0a5ae6a206bf2eeeb3"
+  },
+  "largeFiles": {
+    "path": "results/large-files/RESULTS.json",
+    "sha256": "42f9c4a0025982397ae6142d8cd9a923709fa3fb26999c3f5e53e215ae5a1da8",
+    "rendererSha256": "15b7c2c870501a0a9d3f8da07678f7ae617894843f8ede51ca7a3e8b500cc602"
   }
 }

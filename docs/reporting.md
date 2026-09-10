@@ -60,3 +60,5 @@ Each package includes `ARCHIVE.json`, `RESTORE.py` and `README-ARCHIVE.md`. Foll
 Rust publication also binds a freshly built driver, Cargo sources/configuration, selected compiler and native toolchain/SDK inventory. Restoring source and a lockfile does not recreate unarchived credentials, custom environments or an entire OS image. Use the package's recorded reporting patch when regenerating from the measured checkout.
 
 Older implementation plans, detailed provenance notes and the RFC are retained in the [documentation archive](./history/README.md). They are historical evidence, not additional setup instructions.
+
+The `largeFiles` binding in `SUMMARY.json` adds the separate 500 MB attachment table. Its source archive, per-process receipts and fixture hash live in `results/large-files/`; the payload stays in gitignored `.cache/attachments/`. Collect with `bun run bench:large-files`; publish the chosen output with `bun scripts/publish-large-files.ts .results/your-run-directory`. Validate it with `python3 scripts/audit-large-files.py`.

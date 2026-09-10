@@ -77,3 +77,7 @@ These boundaries differ, so the table is not a transport-only speed ranking. Res
 ## Client JavaScript size
 
 Build browser entrypoints for the six installed JavaScript clients; export their selected APIs and count all emitted minified JavaScript chunks and gzip bytes. One KiB is 1,024 bytes. Runtime-loaded assets, WASM, application storage integrations and native binaries are excluded. [Exact imports, artifacts and versions](../results/client-size/README.md) · [Measurement scope](./appendices/deployment-footprint.md).
+
+## Large attachments
+
+Upload one 500 MB task-linked file through the native attachment API, then download it in a fresh process with an empty product cache. Include native staging in upload time and verify the complete SHA-256 hash. Run once per supported client; the existing smaller-file case covers interrupted downloads. [Results, cache preparation and exact boundaries](../results/large-files/README.md).
