@@ -1,49 +1,62 @@
-/** One deterministic build per browser entrypoint; no service or latency runs. */
+/** Build and admit functioning browser/storage configurations before publishing sizes. */
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { gzipSync, gunzipSync } from 'node:zlib';
-import { mkdir, readFile, writeFile, readdir } from 'node:fs/promises';
-import { join, basename } from 'node:path';
-import { measureAllBundles, getBundleTargetsByIds, resolveEntrySource, resolveInstalledVersion, tempRoot } from '../src/bundle-size.ts';
-const output='results/client-size';
-const sha=(b:Uint8Array|string)=>createHash('sha256').update(b).digest('hex');
-const ids=['syncular-client-root-named','powersync-minimal','zero-minimal','electric-minimal','electric-tanstack-combo','jazz-v2-minimal'];
-const targets=getBundleTargetsByIds(ids);
-await mkdir(output,{recursive:true});
-const rows=await measureAllBundles(targets);
-assert(rows.every(row=>row.status==='completed'),'Every selected entrypoint must build; inspect build errors before publishing');
-const artifacts=[];
-for(const row of rows){
- const dir=join(tempRoot,`out-${row.id}`);let rawBytes=0,gzipBytes=0,count=0;
- for(const name of await readdir(dir)){
-  if(!name.endsWith('.js'))continue;
-  const raw=await readFile(join(dir,name)),gzip=gzipSync(raw,{level:9});
-  assert.deepEqual(gunzipSync(gzip),raw);
-  const path=`artifacts/${row.id}/${name}.gz`;await mkdir(join(output,'artifacts',row.id),{recursive:true});
-  await writeFile(join(output,path),gzip);rawBytes+=raw.length;gzipBytes+=gzip.length;count++;
-  artifacts.push({target:row.id,path,bytes:raw.length,gzipBytes:gzip.length,sha256:sha(raw),gzipSha256:sha(gzip)});
+import { execFileSync } from 'node:child_process';
+import { mkdir, readFile, writeFile, rm, rename } from 'node:fs/promises';
+import { join, relative, resolve } from 'node:path';
+import { gzipSync } from 'node:zlib';
+import { assetCategory, embeddedWasm, footprintIds, footprintTotals, validateRuntimeReceipt } from '../src/client-footprint/artifacts.ts';
+import { renderClientSize } from './client-size-renderer.ts';
+const sha = (b: Uint8Array) => createHash('sha256').update(b).digest('hex');
+execFileSync(process.execPath, ['scripts/measure-browser-footprint.ts'], { stdio: 'inherit' });
+const folder = resolve('.tmp/client-footprint-publication'); await rm(folder, { recursive: true, force: true }); await mkdir(folder, { recursive: true });
+const sourceFiles = new Set(['package.json','bun.lock','scripts/publish-client-size.ts','scripts/measure-browser-footprint.ts','scripts/client-size-renderer.ts','src/browser/process.ts','src/client-footprint/artifacts.ts']);
+const clients: any[] = [];
+const archiveFile = async (path: string, bytes: Uint8Array) => {
+ const gzip = gzipSync(bytes, { level: 9 }); const archive = `${path}.gz`;
+ await mkdir(join(folder, archive, '..'), { recursive: true }); await writeFile(join(folder, archive), gzip);
+ return { archive, bytes: bytes.length, sha256: sha(bytes), gzipBytes: gzip.length, gzipSha256: sha(gzip) };
+};
+for (const id of footprintIds) {
+ const buildDirectory = resolve('.tmp/browser-footprint', id);
+ const bytes = await readFile(join(buildDirectory, 'RESULTS.json')); const receipt = JSON.parse(bytes.toString());
+ validateRuntimeReceipt(receipt);
+ for (const input of Object.keys(receipt.build.inputs)) sourceFiles.add(relative(process.cwd(), resolve(input)));
+ const evidence = await archiveFile(`evidence/${id}.json`, bytes);
+ const network = await archiveFile(`evidence/${id}-netlog.json`, await readFile(join(buildDirectory, 'NETLOG.json')));
+ const assets = [];
+ for (const asset of receipt.assets) {
+  const data = await readFile(join(buildDirectory, asset.path.slice(1)));
+  assert.equal(sha(data), asset.sha256); assert.equal(data.length, asset.bytes);
+  const captured = await archiveFile(`assets/${id}${asset.path}`, data);
+  assert.equal(captured.gzipBytes, asset.gzipBytes);
+  const buildOutput: any = Object.entries(receipt.build.outputs).find(([path]) => resolve(path) === join(buildDirectory, asset.path.slice(1)))?.[1];
+  const inputs = Object.keys(buildOutput?.inputs ?? {});
+  assets.push({ path: asset.path, type: asset.type, category: assetCategory(id, asset, inputs), ...captured, embeddedWasm: asset.type === 'javascript' ? embeddedWasm(data) : [] });
  }
- assert.deepEqual([rawBytes,gzipBytes,count],[row.rawBytes,row.gzipBytes,row.artifactCount]);
+ const wasm = assets.filter(a => a.type === 'wasm').length + assets.reduce((n, a) => n + a.embeddedWasm.length, 0);
+ if (!['zero','electric'].includes(id)) assert(wasm > 0, `${id} must include its functioning native storage WASM`);
+ clients.push({ id, status: 'completed', measuredAt: receipt.measuredAt, storage: receipt.verification[0].storage, persistent: id !== 'electric',
+  ...footprintTotals(assets), assetCount: assets.length, core: assets.filter(a => a.category === 'core').length ? footprintTotals(assets.filter(a => a.category === 'core')) : { rawBytes: 0, gzipBytes: 0 }, storageAssets: assets.filter(a => a.category === 'storage').length ? footprintTotals(assets.filter(a => a.category === 'storage')) : { rawBytes: 0, gzipBytes: 0 }, assets, evidence, network, browserVersion: receipt.browser.version.product,
+  verification: receipt.verification, omittedBuildOutputs: Object.keys(receipt.build.outputs).map(p => relative(buildDirectory, resolve(p))).filter(p => !assets.some(a => a.path === `/${p}`)) });
 }
-const inputs=[];
-for(const path of ['src/bundle-size.ts','scripts/publish-client-size.ts','package.json','bun.lock']){
- const raw=await readFile(path),archive=`inputs/${basename(path)}.gz`;
- await mkdir(join(output,'inputs'),{recursive:true});await writeFile(join(output,archive),gzipSync(raw,{level:9}));
- inputs.push({path,archive,sha256:sha(raw)});
-}
-const manifest={version:1,kind:'browser-client-javascript-size',measuredAt:new Date().toISOString(),bunVersion:Bun.version,
- scope:'Minified browser ESM for named public client exports, including emitted JS chunks. Excludes externally loaded workers, WASM, storage engines and application code. Not a complete working-client deployment.',
- settings:{target:'browser',format:'esm',minify:true,splitting:true,sourcemap:'none',gzipLevel:9,unitBytes:1024},
- versions:Object.fromEntries(await Promise.all(['@syncular/client','@electric-sql/client','@rocicorp/zero','@powersync/web','@tanstack/db','@tanstack/electric-db-collection','@tanstack/offline-transactions','jazz-tools'].map(async name=>[name,await resolveInstalledVersion(name)]))),
- entries:targets.map(t=>({id:t.id,source:resolveEntrySource(t)})),rows,artifacts,inputs};
-await writeFile(join(output,'RESULTS.json'),JSON.stringify(manifest,null,2)+'\n');
-await writeFile(join(output,'README.md'),[
- '# Client JavaScript size','',
- 'Build one minified browser entrypoint per client and count all emitted JavaScript chunks. Public exports stay exported so tree shaking cannot replace the entrypoint with an array length. Gzip uses level 9 on each file separately; 1 KiB is 1,024 bytes. This is a code-size measurement, not another latency round.','',
- '| Client | SDK version | Minified JS | Gzip JS |','| --- | --- | ---: | ---: |',
- ...rows.map(r=>`| ${r.label} | ${r.version} | ${r.rawKb!.toFixed(2)} KiB | ${r.gzipKb!.toFixed(2)} KiB |`),'',
- '**Scope:** browser JavaScript only. SDKs can fetch additional WASM, workers or storage engines; those assets are not included. PowerSync uses its browser SDK, while its latency tests use Node. Syncular Rust and Turso use native clients in this harness and are not browser-bundle measurements. Imports do not establish equivalent application functionality.','',
- '[Exact entrypoints, dependency versions, inputs and file hashes](./RESULTS.json). The adjacent `artifacts/` directory contains the actual gzip-compressed emitted JS. `inputs/` preserves the builder, publication script, package manifest and lockfile. Build once with `bun scripts/publish-client-size.ts`; verify with `python3 scripts/audit-client-size.py`.','',
- '[How these sizes differ from a full client installation](../../docs/appendices/deployment-footprint.md) · [Benchmark overview](../../README.md#client-javascript-size)','',
-].join('\n'));
-console.log(JSON.stringify(rows.map(r=>({id:r.id,minifiedKiB:r.rawKb,gzipKiB:r.gzipKb}))));
+// Preserve the exact build inputs, including dependency code, rather than import declarations alone.
+const inputs = await Promise.all([...sourceFiles].sort().map(async path => ({ path, bytes: (await readFile(path)).length, sha256: sha(await readFile(path)) })));
+await writeFile(join(folder, 'source-files.txt'), inputs.map(i => i.path).join('\n') + '\n');
+execFileSync('tar', ['--no-xattrs', '-czf', join(folder, 'SOURCE.tar.gz'), '-T', join(folder, 'source-files.txt')], { env: { ...process.env, COPYFILE_DISABLE: '1' } });
+await rm(join(folder, 'source-files.txt'));
+const sourceArchive = await readFile(join(folder, 'SOURCE.tar.gz'));
+const manifest = { version: 2, kind: 'browser-client-runtime-footprint', measuredAt: new Date().toISOString(),
+ settings: { builder: 'esbuild', esbuildVersion: (await import('esbuild')).version, target: 'es2022', format: 'esm', splitting: true, minify: true, gzipLevel: 9, unitBytes: 1024,
+  accounting: 'One copy of each requested JS/worker/WASM file, including WASM embedded in JavaScript; gzip each complete file separately. No unused backend chunks. Excludes HTML, data responses, HTTP headers, browser binaries and native-host executables.' },
+ workload: 'Storage-ready browser startup, one local task, close/reload and readback; Electric reads a real one-row shape and refetches on reload. TanStack reopens its native SQLite cache with shape reads blocked. Native SDKs and their transport code are bundled; this is not an end-to-end synchronization or full UI application measurement.',
+ source: { archive: 'SOURCE.tar.gz', sha256: sha(sourceArchive), bytes: sourceArchive.length, inputs }, clients };
+await writeFile(join(folder, 'RESULTS.json'), JSON.stringify(manifest, null, 2) + '\n');
+await writeFile(join(folder, 'README.md'), `# Browser client size\n\nThese are working storage configurations, with every requested JavaScript, worker and WASM file included. The browser performs a native write/read and reload/readback for the persistent clients. Electric reads a real shape; TanStack also verifies cached hydration with its shape endpoint blocked. The Chromium network log covers requests from pages and workers, and must agree with the served asset inventory.\n\n[Results](../../README.md#browser-client-size) · [Exact assets, byte counts and checksums](./RESULTS.json) · [Captured build inputs](./SOURCE.tar.gz) · [Scope and configurations](../../docs/appendices/deployment-footprint.md)\n\nThe total counts one copy per unique file; repeat loads and query-string variants do not multiply a shared file. Core counts SDK JavaScript and shared adapters. Storage counts separate engine loaders, storage workers and WASM; integrated storage code remains in Core. Jazz’s WASM also includes sync logic, so its Storage column is not a pure database comparison. The SQLite loader is split into a separate chunk for Syncular. Each file belongs to exactly one column. All JavaScript is minified. Gzip level 9 is applied separately to each complete file, including WASM. Embedded WASM is counted inside its containing JavaScript, never added again. HTML, server data, protocol overhead and the browser installation are excluded. This measures storage-ready startup, not a complete UI, all optional SDK features, synchronization throughput or multitab equivalence.\n\nSyncular uses SQLite WASM/OPFS; PowerSync uses one unencrypted wa-sqlite AccessHandlePoolVFS with dedicated workers and single-tab sync; Zero uses native IndexedDB; Jazz uses its persistent WASM runtime, worker and broker; TanStack uses its official browser SQLite persistence adapter and native IndexedDB outbox. Plain Electric has an in-memory read-only cache, so its smaller number does not represent an equivalent persistent offline client. Syncular Rust and Turso use native-host clients in the timing harness and have no browser number here.\n\nTanStack's packaged persistence worker embeds its SQLite WASM in JavaScript. Its persistence package is pinned to 0.2.20 and its declared wa-sqlite peer to 1.4.1; PowerSync retains its own 2.0.3 dependency. Package versions and integrity are preserved in the source archive's package manifest and lockfile. Zero receives two seconds for its native idle persistence before close; no application-written storage shim is used.\n\nRun \`bun run bundle:size\` with Docker available. Set \`BENCH_CHROMIUM\` to a Chromium executable on another machine; otherwise the existing browser-smoke configuration supplies the path. This starts/seeds only the local Electric fixture, creates fresh browser profiles, rebuilds and verifies every client, and replaces this package and the README table. There are no latency rounds. Verify the publication with \`python3 scripts/audit-client-size.py\`.\n`);
+const output = 'results/client-size'; await rm(output, { recursive: true, force: true }); await rename(folder, output);
+const binding = { path: `${output}/RESULTS.json`, sha256: sha(await readFile(`${output}/RESULTS.json`)), rendererSha256: sha(await readFile('scripts/client-size-renderer.ts')) };
+await renderClientSize(binding, process.cwd());
+const summary = JSON.parse(await readFile('SUMMARY.json', 'utf8')); summary.clientSize = binding; await writeFile('SUMMARY.json', JSON.stringify(summary, null, 2) + '\n');
+const result = JSON.parse(await readFile('RESULTS.json', 'utf8')); result.clientSize = binding; result.summarySha256 = sha(await readFile('SUMMARY.json')); result.rendererSha256 = sha(await readFile('scripts/render-publication-summary.ts')); await writeFile('RESULTS.json', JSON.stringify(result, null, 2) + '\n');
+execFileSync(process.execPath, ['scripts/render-publication-summary.ts','SUMMARY.json','README.md'], { stdio: 'inherit' });
+console.log(JSON.stringify(clients.map(c => ({ id: c.id, rawKiB: c.rawBytes / 1024, gzipKiB: c.gzipBytes / 1024 }))));

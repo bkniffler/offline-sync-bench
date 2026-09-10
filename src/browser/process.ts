@@ -44,9 +44,9 @@ export class BrowserProcess {
   #closing?: Promise<unknown>;
   readonly pid: number;
 
-  constructor(readonly executable: string, readonly profileDirectory: string) {
+  constructor(readonly executable: string, readonly profileDirectory: string, options: { netLogPath?: string } = {}) {
     if (!lstatSync(profileDirectory).isDirectory() || readdirSync(profileDirectory).length) throw new Error('Browser launch requires an empty fresh profile directory');
-    this.#child = spawn(executable, ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${profileDirectory}`, '--no-first-run', '--no-default-browser-check', '--disable-background-networking', '--enable-automation', 'about:blank'], { stdio: ['pipe', 'pipe', 'pipe'], detached: false });
+    this.#child = spawn(executable, ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${profileDirectory}`, '--no-first-run', '--no-default-browser-check', '--disable-background-networking', '--enable-automation', ...(options.netLogPath ? [`--log-net-log=${options.netLogPath}`] : []), 'about:blank'], { stdio: ['pipe', 'pipe', 'pipe'], detached: false });
     this.pid = this.#child.pid ?? 0;
     this.#child.stdout.resume();
     this.#child.stderr.on('data', data => { this.#stderr = (this.#stderr + String(data)).slice(-6000); });

@@ -80,7 +80,7 @@ if(config.presentation==='readme-benchmarks-v1'){
  assert.equal((page.match(/^\| Client \|/gm)??[]).length,14 + Number(Boolean(config.clientSize)) + Number(Boolean(config.largeFiles)));
  for(const section of sections){
   if(section.startsWith('Uploading and downloading a 500 MB file')){assert(config.largeFiles);assert(section.includes('| Upload | Fresh download |'));assert.equal((section.match(/^\| /gm)??[]).length,10);continue;}
-  if(section.startsWith('Client JavaScript size')){assert(config.clientSize);assert(section.includes('| Minified JS | Gzip JS |'));assert.equal((section.match(/^\| /gm)??[]).length,10);continue;}
+  if(section.startsWith('Browser client size')){assert(config.clientSize);assert(section.includes('| Core | Storage | Total |'));assert.equal((section.match(/^\| /gm)??[]).length,10);continue;}
   const nativeAttachments=section.startsWith('Uploading and downloading attachments')&&config.sources.some((s:any)=>s.id==='native-files');
   assert(section.includes('[Workload details]('));
   if(nativeAttachments)for(const label of ['Syncular JS details','Syncular Rust details','PowerSync and Jazz details'])assert(section.includes(`[${label}](`));

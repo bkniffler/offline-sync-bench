@@ -36,4 +36,4 @@ A confirmed explanation needs a controlled experiment or direct accounting. A su
 
 Current investigations: [index effect](./investigations/screen-index-effect.md), [PowerSync edit latency](./investigations/powersync-collaboration.md), [failed cases](./investigations/tuned-publication-failures.md), and [collection interruptions](./investigations/collection-interruptions.md). Each links to its raw evidence. Earlier investigations and the RFC are in the [documentation archive](./history/README.md).
 
-[Client JavaScript size](../README.md#client-javascript-size) is a separate build measurement. It counts minified and gzipped emitted JavaScript, with runtime assets and native binaries excluded. [Scope and exact definitions](./appendices/deployment-footprint.md).
+[Browser client size](../README.md#browser-client-size) is a separate browser measurement. It verifies native storage across reloads and counts requested JavaScript, workers and WASM, including embedded WASM. Plain Electric is labeled as a memory-only reader; native-host binaries are outside this browser comparison. [Scope and exact definitions](./appendices/deployment-footprint.md).

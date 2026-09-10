@@ -74,9 +74,9 @@ Jazz uses `createFileFromBlob` with edge durability and eight default 256 KiB pa
 
 These boundaries differ, so the table is not a transport-only speed ranking. Resource windows and protocol counters are recorded separately. The older Syncular contract additionally measures retained upload failure and independent metadata visibility; those extra milestones are not claimed for the native-file adapters.
 
-## Client JavaScript size
+## Browser client size
 
-Build browser entrypoints for the six installed JavaScript clients; export their selected APIs and count all emitted minified JavaScript chunks and gzip bytes. One KiB is 1,024 bytes. Runtime-loaded assets, WASM, application storage integrations and native binaries are excluded. [Exact imports, artifacts and versions](../results/client-size/README.md) · [Measurement scope](./appendices/deployment-footprint.md).
+Initialize real browser clients and verify one task survives a reload in their native storage. Count every requested minified JavaScript, worker and WASM file, including embedded WASM, once per file; show Core, Storage and Total as `raw/gzip KiB`. Shared adapters remain in Core; separate engine assets go in Storage. Plain Electric uses a memory-only reader and refetches after reload. These are storage-ready startup sizes, not complete application sizes. [Runtime checks and assets](../results/client-size/README.md) · [Configurations and scope](./appendices/deployment-footprint.md).
 
 ## Large attachments
 

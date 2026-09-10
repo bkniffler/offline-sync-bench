@@ -6,7 +6,7 @@ Includes Syncular JS/Rust, PowerSync, Turso, Zero, Electric, Electric + TanStack
 
 ## Latest results
 
-**Latest available measurements · Apple M4 · local services · Syncular JS/Rust 0.17.0.** Latency is shown in **milliseconds; lower is faster**. Client JavaScript sizes use **KiB**. Latency values are medians; query/edit timings summarize each run’s p50. Starred entries are explained below each table. “Not supported” means the library lacks the native feature required by that test. Benchmark implementation gaps are work to fix, not product limitations.
+**Latest available measurements · Apple M4 · local services · Syncular JS/Rust 0.17.0.** Latency is shown in **milliseconds; lower is faster**. Browser client sizes use **KiB**. Latency values are medians; query/edit timings summarize each run’s p50. Starred entries are explained below each table. “Not supported” means the library lacks the native feature required by that test. Benchmark implementation gaps are work to fix, not product limitations.
 
 Collection dates, configurations, sample sizes and ranges are in the linked details. [Methods](./docs/methodology.md) · [Missing-case review](./docs/investigations/missing-coverage.md) · [Failure explanations](./docs/investigations/tuned-publication-failures.md)
 
@@ -355,24 +355,28 @@ Upload one 500,000,000-byte file linked to a task, then download it in a new pro
 
 [Workload, cached fixture and raw results](./results/large-files/README.md)
 
-### Client JavaScript size
+### Browser client size
 
-Build a browser bundle exporting each client’s sync API. Measure all emitted JavaScript after minification and gzip compression. **JavaScript only:** additional WASM, runtime-loaded workers and storage engines are excluded. Smaller is better; 1 KiB = 1,024 bytes.
+Initialize a real browser client and verify local storage across a reload. Count the requested JavaScript, workers and WASM—including embedded WASM—once per file. JavaScript is minified; gzip totals use level 9. These are storage-ready startup sizes. Each cell shows **raw/gzip KiB**. Core includes SDK code and shared adapters; Storage includes separate engine loaders, workers and WASM. Integrated storage code stays in Core. 1 KiB = 1,024 bytes.
 
-| Client | Minified JS | Gzip JS |
-| --- | ---: | ---: |
-| Syncular JS | 116.89 KiB | 34.57 KiB |
-| Syncular Rust | Not applicable \* | Not applicable \* |
-| PowerSync | 525.36 KiB | 160.46 KiB |
-| Turso | Not applicable \* | Not applicable \* |
-| Zero | 302.94 KiB | 94.90 KiB |
-| Electric | 55.47 KiB | 17.42 KiB |
-| Electric + TanStack DB | 240.21 KiB | 68.42 KiB |
-| Jazz v2 (experimental) | 289.98 KiB | 83.04 KiB |
+| Client | Core | Storage | Total |
+| --- | ---: | ---: | ---: |
+| Syncular JS | 114.29/34.33 KiB | 1068.29/460.71 KiB | 1182.58/495.03 KiB |
+| Syncular Rust | Not applicable \* | Not applicable \* | Not applicable \* |
+| PowerSync | 118.47/36.69 KiB | 1169.69/535.67 KiB | 1288.16/572.36 KiB |
+| Turso | Not applicable \* | Not applicable \* | Not applicable \* |
+| Zero | 293.13/92.75 KiB | 0.00/0.00 KiB | 293.13/92.75 KiB |
+| Electric \*\* | 56.05/17.84 KiB | 0.00/0.00 KiB | 56.05/17.84 KiB |
+| Electric + TanStack DB | 310.42/87.09 KiB | 1540.92/680.49 KiB | 1851.34/767.58 KiB |
+| Jazz v2 (experimental) \*\*\* | 165.15/45.17 KiB | 9619.93/3020.83 KiB | 9785.07/3066.00 KiB |
 
-\* Syncular Rust and Turso use native clients in these benchmarks, so browser JavaScript size does not apply to those tested clients. PowerSync’s size uses its Web SDK; its latency tests use Node.
+\* Syncular Rust and Turso use native-host clients in this harness. PowerSync uses its Web SDK for this comparison.
 
-[Build details and exact imports](./results/client-size/README.md) · [Scope and excluded assets](./docs/appendices/deployment-footprint.md)
+\*\* Plain Electric is an in-memory, read-only client and refetches after reload; it is not an equivalent persistent offline client.
+
+\*\*\* Jazz’s WASM contains both storage and sync logic; its Storage figure is not a pure database size. TanStack includes native SQLite persistence and an IndexedDB outbox; its worker’s embedded WASM is counted once.
+
+[Browser checks and complete asset inventory](./results/client-size/README.md) · [Scope and configurations](./docs/appendices/deployment-footprint.md)
 
 ## Run a benchmark
 

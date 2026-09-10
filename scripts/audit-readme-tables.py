@@ -74,7 +74,7 @@ sections = re.split(r'^### ', page, flags=re.M)[1:]
 assert len(sections) == len(metrics) + bool(config.get('clientSize')) + bool(config.get('largeFiles'))
 latency_sections = sections[:len(metrics)]
 if config.get('clientSize'):
-    assert sections[-1].startswith('Client JavaScript size\n')
+    assert sections[-1].startswith('Browser client size\n')
 cells = timings = footnoted_cells = 0
 for section, (scenario, keys) in zip(latency_sections, metrics):
     rows = [line for line in section.splitlines() if line.startswith('| ')][2:]

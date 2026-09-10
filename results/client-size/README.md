@@ -1,18 +1,13 @@
-# Client JavaScript size
+# Browser client size
 
-Build one minified browser entrypoint per client and count all emitted JavaScript chunks. Public exports stay exported so tree shaking cannot replace the entrypoint with an array length. Gzip uses level 9 on each file separately; 1 KiB is 1,024 bytes. This is a code-size measurement, not another latency round.
+These are working storage configurations, with every requested JavaScript, worker and WASM file included. The browser performs a native write/read and reload/readback for the persistent clients. Electric reads a real shape; TanStack also verifies cached hydration with its shape endpoint blocked. The Chromium network log covers requests from pages and workers, and must agree with the served asset inventory.
 
-| Client | SDK version | Minified JS | Gzip JS |
-| --- | --- | ---: | ---: |
-| Syncular Client | 0.17.0 | 116.89 KiB | 34.57 KiB |
-| Electric Client | 1.5.27 | 55.47 KiB | 17.42 KiB |
-| Zero | 1.9.0 | 302.94 KiB | 94.90 KiB |
-| PowerSync Web | 2.3.0 | 525.36 KiB | 160.46 KiB |
-| Electric + TanStack DB | 0.8.7 | 240.21 KiB | 68.42 KiB |
-| Jazz v2 (experimental) | 2.0.0-alpha.53 | 289.98 KiB | 83.04 KiB |
+[Results](../../README.md#browser-client-size) · [Exact assets, byte counts and checksums](./RESULTS.json) · [Captured build inputs](./SOURCE.tar.gz) · [Scope and configurations](../../docs/appendices/deployment-footprint.md)
 
-**Scope:** browser JavaScript only. SDKs can fetch additional WASM, workers or storage engines; those assets are not included. PowerSync uses its browser SDK, while its latency tests use Node. Syncular Rust and Turso use native clients in this harness and are not browser-bundle measurements. Imports do not establish equivalent application functionality.
+The total counts one copy per unique file; repeat loads and query-string variants do not multiply a shared file. Core counts SDK JavaScript and shared adapters. Storage counts separate engine loaders, storage workers and WASM; integrated storage code remains in Core. Jazz’s WASM also includes sync logic, so its Storage column is not a pure database comparison. The SQLite loader is split into a separate chunk for Syncular. Each file belongs to exactly one column. All JavaScript is minified. Gzip level 9 is applied separately to each complete file, including WASM. Embedded WASM is counted inside its containing JavaScript, never added again. HTML, server data, protocol overhead and the browser installation are excluded. This measures storage-ready startup, not a complete UI, all optional SDK features, synchronization throughput or multitab equivalence.
 
-[Exact entrypoints, dependency versions, inputs and file hashes](./RESULTS.json). The adjacent `artifacts/` directory contains the actual gzip-compressed emitted JS. `inputs/` preserves the builder, publication script, package manifest and lockfile. Build once with `bun scripts/publish-client-size.ts`; verify with `python3 scripts/audit-client-size.py`.
+Syncular uses SQLite WASM/OPFS; PowerSync uses one unencrypted wa-sqlite AccessHandlePoolVFS with dedicated workers and single-tab sync; Zero uses native IndexedDB; Jazz uses its persistent WASM runtime, worker and broker; TanStack uses its official browser SQLite persistence adapter and native IndexedDB outbox. Plain Electric has an in-memory read-only cache, so its smaller number does not represent an equivalent persistent offline client. Syncular Rust and Turso use native-host clients in the timing harness and have no browser number here.
 
-[How these sizes differ from a full client installation](../../docs/appendices/deployment-footprint.md) · [Benchmark overview](../../README.md#client-javascript-size)
+TanStack's packaged persistence worker embeds its SQLite WASM in JavaScript. Its persistence package is pinned to 0.2.20 and its declared wa-sqlite peer to 1.4.1; PowerSync retains its own 2.0.3 dependency. Package versions and integrity are preserved in the source archive's package manifest and lockfile. Zero receives two seconds for its native idle persistence before close; no application-written storage shim is used.
+
+Run `bun run bundle:size` with Docker available. Set `BENCH_CHROMIUM` to a Chromium executable on another machine; otherwise the existing browser-smoke configuration supplies the path. This starts/seeds only the local Electric fixture, creates fresh browser profiles, rebuilds and verifies every client, and replaces this package and the README table. There are no latency rounds. Verify the publication with `python3 scripts/audit-client-size.py`.

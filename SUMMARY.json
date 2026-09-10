@@ -148,8 +148,8 @@
   ],
   "clientSize": {
     "path": "results/client-size/RESULTS.json",
-    "sha256": "6ce3dcd25784fbcf314a8e761d55f1af0b6823f611af75ee34556ff76ec0760d",
-    "rendererSha256": "2a2b2f2f8531468e7c18d33af631f32a6f70804da8cbba0a5ae6a206bf2eeeb3"
+    "sha256": "a540c952787eaa69e1d85b4bf8d254afeb0403cdf6d50be409971a9b1e91c5e7",
+    "rendererSha256": "bf8265caf8405e1c4d3e5beeda31649d3ae2dcde32439ae5b93369034e2bb43a"
   },
   "largeFiles": {
     "path": "results/large-files/RESULTS.json",
