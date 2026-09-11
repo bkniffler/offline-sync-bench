@@ -1,0 +1,213 @@
+{
+  "version": 1,
+  "kind": "large-native-attachments",
+  "measuredAt": "2026-09-11T07:30:48.336Z",
+  "trials": 1,
+  "fixture": {
+    "path": ".cache/attachments/500000000-2464173771ab7092.bin",
+    "bytes": 500000000,
+    "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+    "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1"
+  },
+  "plan": {
+    "stacks": [
+      "syncular",
+      "syncular-rust"
+    ],
+    "phases": [
+      "writer",
+      "fresh"
+    ],
+    "phaseTimeoutMs": 600000,
+    "stoppingRule": "One attempt per client, sequentially; preserve failures; no automatic retries."
+  },
+  "machine": {
+    "platform": "darwin",
+    "release": "27.0.0",
+    "cpu": "Apple M4",
+    "memoryBytes": 25769803776,
+    "bun": "1.4.0"
+  },
+  "source": {
+    "path": "SOURCE.json",
+    "sha256": "f536ebfdcda4c373f6d57891b982d94a27140729b30d8964e9e33f40162efe43"
+  },
+  "versions": {
+    "syncularClient": "0.18.0",
+    "syncularCore": "0.18.0"
+  },
+  "boundaries": {
+    "upload": "Native staging plus blob transfer and linked metadata acceptance",
+    "download": "Fresh product cache; native complete byte return; independent SHA-256 validation after timer",
+    "meter": "Finite binary upload bodies forwarded without harness rematerialization",
+    "rustDownloadApi": "fetch_blob_bytes; digest-only harness receipt"
+  },
+  "rows": [
+    {
+      "stackId": "syncular",
+      "status": "completed",
+      "phases": [
+        {
+          "phase": "writer",
+          "pid": 99176,
+          "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-Aeziey/writer",
+          "storeWasAbsent": true,
+          "api": "uploadBlob + sync",
+          "taskCount": 50,
+          "stageMs": 5288.064584,
+          "uploadMs": 3001.4121250000007,
+          "file": {
+            "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+            "bytes": 500000000,
+            "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+            "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+            "taskId": "org-1-project-1-task-000001",
+            "ref": {
+              "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "byteLength": 500000000,
+              "mediaType": "application/octet-stream"
+            },
+            "commitId": "700ba1ff-789b-4ffc-b14a-abfcdd23b890",
+            "applied": [
+              "700ba1ff-789b-4ffc-b14a-abfcdd23b890"
+            ]
+          },
+          "phaseElapsedMs": 8574.939792
+        },
+        {
+          "phase": "fresh",
+          "pid": 99264,
+          "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-Aeziey/fresh",
+          "storeWasAbsent": true,
+          "api": "fetchBlob",
+          "taskCount": 50,
+          "initialCacheCount": 0,
+          "link": {
+            "id": "839d8179-8328-4393-ab4c-407aaccff7f5",
+            "project_id": "org-1-project-1",
+            "task_id": "org-1-project-1-task-000001",
+            "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+            "created_at_ms": 1700000000000
+          },
+          "downloadMs": 3276.708916,
+          "complete": {
+            "bytes": 500000000,
+            "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+          },
+          "transfers": {
+            "method": "http-object-download-cut-v1",
+            "cutAfterBytes": null,
+            "attempts": [
+              {
+                "method": "GET",
+                "status": 200,
+                "contentLength": 500000000,
+                "range": null,
+                "upstreamBodyBytes": 500000000,
+                "forwardedBodyBytes": 500000000,
+                "interrupted": false,
+                "completed": true
+              }
+            ]
+          },
+          "phaseElapsedMs": 3629.384291999999
+        }
+      ],
+      "phaseTimeoutMs": 600000,
+      "startedAt": "2026-09-11T07:30:48.337Z",
+      "objectPreparation": {
+        "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+        "presentBefore": false,
+        "presentAfter": false
+      },
+      "uploadMs": 8289.476709,
+      "downloadMs": 3276.708916,
+      "finishedAt": "2026-09-11T07:31:02.768Z"
+    },
+    {
+      "stackId": "syncular-rust",
+      "status": "completed",
+      "phases": [
+        {
+          "phase": "writer",
+          "pid": 99323,
+          "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-FURB6P/writer",
+          "storeWasAbsent": true,
+          "nativePid": 99324,
+          "api": "upload_blob + sync",
+          "taskCount": 50,
+          "stageMs": 4919.796166,
+          "uploadMs": 3045.470791999999,
+          "file": {
+            "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+            "bytes": 500000000,
+            "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+            "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+            "taskId": "org-1-project-1-task-000001",
+            "ref": {
+              "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "byteLength": 500000000,
+              "mediaType": "application/octet-stream"
+            },
+            "commitId": "6b0d6e51-b75c-4054-90f6-15540500ec9e",
+            "applied": [
+              "6b0d6e51-b75c-4054-90f6-15540500ec9e"
+            ]
+          },
+          "phaseElapsedMs": 9192.700417
+        },
+        {
+          "phase": "fresh",
+          "pid": 99471,
+          "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-FURB6P/fresh",
+          "storeWasAbsent": true,
+          "nativePid": 99474,
+          "api": "fetch_blob_bytes",
+          "taskCount": 50,
+          "initialCacheCount": 0,
+          "link": {
+            "_syncular_version": 1,
+            "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+            "created_at_ms": 1700000000000,
+            "id": "ac708356-55fd-4389-bdae-293cf849ea03",
+            "project_id": "org-1-project-1",
+            "task_id": "org-1-project-1-task-000001"
+          },
+          "downloadMs": 2690.7688749999998,
+          "complete": {
+            "bytes": 500000000,
+            "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+          },
+          "transfers": {
+            "method": "http-object-download-cut-v1",
+            "cutAfterBytes": null,
+            "attempts": [
+              {
+                "method": "GET",
+                "status": 200,
+                "contentLength": 500000000,
+                "range": null,
+                "upstreamBodyBytes": 500000000,
+                "forwardedBodyBytes": 500000000,
+                "interrupted": false,
+                "completed": true
+              }
+            ]
+          },
+          "phaseElapsedMs": 3664.903957999999
+        }
+      ],
+      "phaseTimeoutMs": 600000,
+      "startedAt": "2026-09-11T07:31:02.815Z",
+      "objectPreparation": {
+        "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+        "presentBefore": false,
+        "presentAfter": false
+      },
+      "uploadMs": 7965.266957999999,
+      "downloadMs": 2690.7688749999998,
+      "finishedAt": "2026-09-11T07:31:17.859Z"
+    }
+  ],
+  "sourceUnchanged": true
+}

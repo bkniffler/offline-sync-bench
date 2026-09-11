@@ -437,21 +437,10 @@ fn handle(
             let blob = params.get("blob").and_then(Value::as_str)
                 .ok_or_else(|| client_err("missing blob reference".to_owned()))?;
             let started = Instant::now();
-            let value = need_client(client)?.fetch_blob(transport, blob)?;
+            let value = need_client(client)?.fetch_blob_bytes(transport, blob)?;
             let download_ms = started.elapsed().as_secs_f64() * 1000.0;
-            let hex = value.pointer("/bytes/$bytes").and_then(Value::as_str)
-                .ok_or_else(|| client_err("native fetch returned no bytes".to_owned()))?;
-            if hex.len() % 2 != 0 { return Err(client_err("invalid native byte encoding".to_owned())); }
-            let mut hasher = Sha256::new();
-            for chunk in hex.as_bytes().chunks(131072) {
-                let mut decoded = Vec::with_capacity(chunk.len() / 2);
-                for pair in chunk.chunks_exact(2) {
-                    let digit = |c: u8| (c as char).to_digit(16).ok_or_else(|| client_err("invalid native hex".to_owned()));
-                    decoded.push(((digit(pair[0])? << 4) | digit(pair[1])?) as u8);
-                }
-                hasher.update(&decoded);
-            }
-            Ok(json!({ "bytes": hex.len() / 2, "sha256": format!("{:x}", hasher.finalize()), "downloadMs": download_ms }))
+            let digest = Sha256::digest(&value.bytes);
+            Ok(json!({ "bytes": value.bytes.len(), "sha256": format!("{:x}", digest), "downloadMs": download_ms, "api": "fetch_blob_bytes" }))
         }
         "waitForQuery" => wait_for_query(transport, client, params),
         "benchQuery" => bench_query(client, params),

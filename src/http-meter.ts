@@ -18,20 +18,29 @@ export function createHttpMeter(
   const meteredFetchImpl = async (input: RequestInfo | URL, init?: RequestInit) => {
       requestCount += 1;
 
-      const request = new Request(input, init);
       let response: Response;
-      if (request.body && options.fixedLengthRequests) {
-        // Explicit compatibility path for transports requiring Content-Length.
-        const bytes = await request.arrayBuffer();
-        requestBytes += bytes.byteLength;
-        response = await baseFetch(new Request(request, { body: bytes }));
-      } else if (request.body) {
-        const body = request.body.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
-          transform(chunk, controller) { requestBytes += chunk.byteLength; controller.enqueue(chunk); },
-        }));
-        response = await baseFetch(new Request(request, { body, duplex: 'half' } as RequestInit));
+      const suppliedBody = init?.body;
+      if (options.fixedLengthRequests &&
+          (suppliedBody instanceof ArrayBuffer || ArrayBuffer.isView(suppliedBody))) {
+        // The product already supplies a finite binary body. Preserve it and let
+        // fetch derive Content-Length; counting must not buffer/copy it again.
+        requestBytes += suppliedBody.byteLength;
+        response = await baseFetch(input, init);
       } else {
-        response = await baseFetch(request);
+        const request = new Request(input, init);
+        if (request.body && options.fixedLengthRequests) {
+          // Explicit compatibility path for transports requiring Content-Length.
+          const bytes = await request.arrayBuffer();
+          requestBytes += bytes.byteLength;
+          response = await baseFetch(new Request(request, { body: bytes }));
+        } else if (request.body) {
+          const body = request.body.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
+            transform(chunk, controller) { requestBytes += chunk.byteLength; controller.enqueue(chunk); },
+          }));
+          response = await baseFetch(new Request(request, { body, duplex: 'half' } as RequestInit));
+        } else {
+          response = await baseFetch(request);
+        }
       }
       if (options.streamResponses !== false && response.body) {
         // Long-lived sync responses must reach the client before EOF. Count

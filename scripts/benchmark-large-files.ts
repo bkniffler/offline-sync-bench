@@ -10,7 +10,7 @@ const args = process.argv.slice(2);
 const arg = (key: string) => args.includes(key) ? args[args.indexOf(key) + 1] : undefined;
 const bytes = Number(arg('--bytes') ?? LARGE_FILE_BYTES);
 const output = resolve(arg('--output') ?? `.results/large-files-${new Date().toISOString().replaceAll(':', '-')}`);
-const selected = arg('--stack') ? [arg('--stack') as LargeFileStack] : [...largeFileStacks];
+const selected = arg('--stack') ? arg('--stack')!.split(',') as LargeFileStack[] : [...largeFileStacks];
 if (selected.some(id => !largeFileStacks.includes(id))) throw new Error('Choose a native attachment client');
 if (bytes !== LARGE_FILE_BYTES && !arg('--output')) throw new Error('Development sizes require a separate --output directory');
 await mkdir(output, { recursive: true });
@@ -26,7 +26,7 @@ const files = [...new Set([
 ])].sort();
 const inputs = await Promise.all(files.map(async path => ({ path, sha256: sha(await readFile(path)) })));
 const listPath = join(output, 'source-files.txt'); await writeFile(listPath, files.join('\n') + '\n');
-execFileSync('tar', ['-czf', join(output, 'SOURCE.tar.gz'), '-T', listPath]);
+execFileSync('tar', ['--no-xattrs', '-czf', join(output, 'SOURCE.tar.gz'), '-T', listPath], { env: { ...process.env, COPYFILE_DISABLE: '1' } });
 const source = { files: inputs, archive: 'SOURCE.tar.gz', sha256: sha(await readFile(join(output, 'SOURCE.tar.gz'))) };
 await writeFile(join(output, 'SOURCE.json'), JSON.stringify(source, null, 2) + '\n');
 const report: any = {
@@ -35,6 +35,8 @@ const report: any = {
  plan: { stacks: selected, phases: ['writer', 'fresh'], phaseTimeoutMs: 600_000, stoppingRule: 'One attempt per client, sequentially; preserve failures; no automatic retries.' },
  machine: { platform: platform(), release: release(), cpu: cpus()[0]?.model, memoryBytes: totalmem(), bun: Bun.version },
  source: { path: 'SOURCE.json', sha256: sha(await readFile(join(output, 'SOURCE.json'))) },
+ versions: { syncularClient: JSON.parse(await readFile('node_modules/@syncular/client/package.json', 'utf8')).version, syncularCore: JSON.parse(await readFile('node_modules/@syncular/core/package.json', 'utf8')).version },
+ boundaries: { upload: 'Native staging plus blob transfer and linked metadata acceptance', download: 'Fresh product cache; native complete byte return; independent SHA-256 validation after timer', meter: 'Finite binary upload bodies forwarded without harness rematerialization', rustDownloadApi: 'fetch_blob_bytes; digest-only harness receipt' },
  rows: [],
 };
 await writeFile(join(output, 'RESULTS.json'), JSON.stringify(report, null, 2) + '\n');

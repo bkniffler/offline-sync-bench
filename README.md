@@ -6,7 +6,7 @@ Includes Syncular JS/Rust, PowerSync, Turso, Zero, Electric, Electric + TanStack
 
 ## Latest results
 
-**Latest available measurements · Apple M4 · local services · Syncular JS/Rust 0.17.0.** Latency is shown in **milliseconds; lower is faster**. Browser client sizes use **KiB**. Latency values are medians; query/edit timings summarize each run’s p50. Starred entries are explained below each table. “Not supported” means the library lacks the native feature required by that test. Benchmark implementation gaps are work to fix, not product limitations.
+**Latest available measurements · Apple M4 · local services · Syncular JS/Rust 0.18.0 for the 500 MB file test; 0.17.0 for other results.** Latency is shown in **milliseconds; lower is faster**. Browser client sizes use **KiB**. Latency values are medians; query/edit timings summarize each run’s p50. Starred entries are explained below each table. “Not supported” means the library lacks the native feature required by that test. Benchmark implementation gaps are work to fix, not product limitations.
 
 Collection dates, configurations, sample sizes and ranges are in the linked details. [Methods](./docs/methodology.md) · [Missing-case review](./docs/investigations/missing-coverage.md) · [Failure explanations](./docs/investigations/tuned-publication-failures.md)
 
@@ -336,8 +336,8 @@ Upload one 500,000,000-byte file linked to a task, then download it in a new pro
 
 | Client | Upload | Fresh download |
 | --- | ---: | ---: |
-| Syncular JS | 3522.82 ms | 2306.69 ms |
-| Syncular Rust | 3253.71 ms \* | 3041.53 ms \* |
+| Syncular JS | 8289.48 ms \* | 3276.71 ms \* |
+| Syncular Rust | 7965.27 ms \* | 2690.77 ms \* |
 | PowerSync | 1175.71 ms \*\* | 604.40 ms \*\* |
 | Turso | Not supported \*\*\* | Not supported \*\*\* |
 | Zero | Not supported \*\*\* | Not supported \*\*\* |
@@ -345,9 +345,9 @@ Upload one 500,000,000-byte file linked to a task, then download it in a new pro
 | Electric + TanStack DB | Not supported \*\*\* | Not supported \*\*\* |
 | Jazz v2 (experimental) | 49314.22 ms \*\*\*\* | 60176.33 ms \*\*\*\* |
 
-\* Rust uses its published native blob API, which materializes bytes as hex internally. That conversion is included; the harness returns only a hash receipt over stdio.
+\* Syncular JS/Rust 0.18.0: upload includes metadata acceptance; JS metering no longer buffers the upload body again, and Rust uses the public fetch_blob_bytes() API without hex encoding. Other clients retain their earlier results.
 
-\*\* PowerSync uses its experimental native attachment queue and filesystem transport.
+\*\* PowerSync uses its experimental native attachment queue and filesystem transport. Its retained upload timing excludes the final metadata-acceptance wait, so it has a different stopping point from Syncular.
 
 \*\*\* These libraries have no native attachment upload/download feature; Electric is read-only.
 

@@ -83,3 +83,18 @@ test('Request inputs respect method, header and body overrides', async () => {
   expect(await response.json()).toEqual({ method: 'PUT', header: 'new', body: 'new-body' });
   expect(meter.snapshot().requestBytes).toBe(8);
 });
+
+
+test('finite binary metering forwards the original body without rematerializing it', async () => {
+  const backing = new Uint8Array([99, 1, 2, 3, 88]);
+  for (const body of [backing.buffer, backing.subarray(1, 4), new DataView(backing.buffer, 1, 3)]) {
+    let forwarded: unknown;
+    const meter = createHttpMeter((async (_input: RequestInfo | URL, init?: RequestInit) => {
+      forwarded = init?.body;
+      return new Response(null, { status: 204 });
+    }) as typeof fetch, { fixedLengthRequests: true });
+    await meter.fetch('http://localhost/blob', { method: 'PUT', body });
+    expect(forwarded).toBe(body);
+    expect(meter.snapshot()).toEqual({ requestCount: 1, requestBytes: body.byteLength, responseBytes: 0 });
+  }
+});

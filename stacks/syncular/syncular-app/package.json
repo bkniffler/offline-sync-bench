@@ -5,12 +5,12 @@
   "scripts": {
     "server": "bun src/server.ts",
     "admin": "bun src/admin.ts",
-    "typegen": "bunx @syncular/typegen@0.17.0 generate --manifest-dir ."
+    "typegen": "bunx @syncular/typegen@0.18.0 generate --manifest-dir ."
   },
   "dependencies": {
-    "@syncular/core": "0.17.0",
-    "@syncular/server": "0.17.0",
-    "@syncular/server-hono": "0.17.0",
+    "@syncular/core": "0.18.0",
+    "@syncular/server": "0.18.0",
+    "@syncular/server-hono": "0.18.0",
     "hono": "4.13.7",
     "postgres": "3.4.9"
   }

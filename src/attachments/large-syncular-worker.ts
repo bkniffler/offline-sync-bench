@@ -16,7 +16,7 @@ try {
   if (config.stackId === 'syncular') {
     const { createBenchClient, subscribeTasks, subscribeBlobEntries } = await import('../adapters/syncular.ts');
     const bench = await createBenchClient(actor, undefined, { dbPath: config.store, clientId: randomUUID(), syncBaseUrl: config.serverUrl, blobDownloadProxy: gate.proxy() });
-    close = () => bench.close();
+    close = () => bench.close(); evidence.api = config.phase === 'writer' ? 'uploadBlob + sync' : 'fetchBlob';
     subscribeTasks(bench, [attachmentProject]); subscribeBlobEntries(bench, [attachmentProject]);
     await bench.client.syncUntilIdle(1000);
     evidence.taskCount = bench.client.query('SELECT id FROM tasks').length;
@@ -44,7 +44,7 @@ try {
   } else {
     const { RustClient } = await import('../adapters/syncular-rust.ts');
     const client = await RustClient.start({ binPath: config.binPath, actorId: actor, clientId: randomUUID(), dbPath: config.store, syncBaseUrl: config.serverUrl });
-    close = () => client.close(); evidence.nativePid = client.pid;
+    close = () => client.close(); evidence.nativePid = client.pid; evidence.api = config.phase === 'writer' ? 'upload_blob + sync' : 'fetch_blob_bytes';
     await client.call('setBlobDownloadProxy', { ...gate.proxy() });
     await client.subscribe(`tasks:${attachmentProject}`, 'tasks', { project_id: [attachmentProject] });
     await client.subscribe(`blobs:${attachmentProject}`, 'task_blob_entries', { project_id: [attachmentProject] });

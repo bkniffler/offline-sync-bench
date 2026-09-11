@@ -9,11 +9,41 @@ assert sha(Path('scripts/large-file-renderer.ts').read_bytes()) == binding['rend
 data = json.loads(raw)
 assert data['kind'] == 'large-native-attachments' and data['sourceUnchanged'] and data['trials'] == 1
 fixture = data['fixture']; assert fixture['bytes'] == 500_000_000 and re.fullmatch('[0-9a-f]{64}', fixture['sha256'])
-source_raw = (root / data['source']['path']).read_bytes(); assert sha(source_raw) == data['source']['sha256']
-source = json.loads(source_raw); archive = (root / source['archive']).read_bytes(); assert sha(archive) == source['sha256']
-with tarfile.open(root / source['archive']) as tar:
-    for entry in source['files']:
-        assert sha(tar.extractfile(entry['path']).read()) == entry['sha256']
+def verify_source(report, folder):
+    source_raw = (folder / report['source']['path']).read_bytes()
+    assert sha(source_raw) == report['source']['sha256']
+    source = json.loads(source_raw)
+    archive = (folder / source['archive']).read_bytes()
+    assert sha(archive) == source['sha256']
+    with tarfile.open(folder / source['archive']) as tar:
+        for entry in source['files']:
+            assert sha(tar.extractfile(entry['path']).read()) == entry['sha256']
+        if report.get('versions', {}).get('syncularClient') == '0.18.0':
+            package = json.loads(tar.extractfile('package.json').read())
+            assert package['dependencies']['@syncular/client'] == '0.18.0'
+            driver = tar.extractfile('drivers/syncular-rust/src/main.rs').read().decode()
+            assert '?.fetch_blob_bytes(transport, blob)?' in driver and '?.fetch_blob(transport, blob)?' not in driver
+            lock = tar.extractfile('drivers/syncular-rust/Cargo.lock').read().decode()
+            for crate in ['syncular-client', 'syncular-command', 'syncular-ffi']:
+                assert f'name = "{crate}"\nversion = "0.18.0"' in lock
+
+if data.get('collections'):
+    selected = set()
+    for collection in data['collections']:
+        collection_path = root / collection['path']
+        collection_raw = collection_path.read_bytes()
+        assert sha(collection_raw) == collection['sha256']
+        report = json.loads(collection_raw)
+        assert report['sourceUnchanged'] and report['trials'] == 1
+        assert report['fixture']['sha256'] == fixture['sha256'] and report['fixture']['bytes'] == fixture['bytes']
+        verify_source(report, collection_path.parent)
+        for stack in collection['selectedStacks']:
+            assert stack not in selected
+            selected.add(stack)
+            assert next(r for r in data['rows'] if r['stackId'] == stack) == next(r for r in report['rows'] if r['stackId'] == stack)
+    assert selected == set(data['plan']['stacks'])
+else:
+    verify_source(data, root)
 labels = {'syncular':'Syncular JS','syncular-rust':'Syncular Rust','powersync':'PowerSync','turso':'Turso','zero':'Zero','electric':'Electric','electric-tanstack':'Electric + TanStack DB','jazz-v2':'Jazz v2 (experimental)'}
 assert set(data['plan']['stacks']) == {'syncular','syncular-rust','powersync','jazz-v2'}
 assert set(r['stackId'] for r in data['rows']) == set(data['plan']['stacks']) and len(data['rows']) == 4
