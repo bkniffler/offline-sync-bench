@@ -1,0 +1,1574 @@
+{
+  "kind": "syncular-blob-client-release-pairs",
+  "version": 1,
+  "baseline": "0.18.0",
+  "candidate": "0.19.0",
+  "serverVersion": "0.19.0",
+  "publicationSelection": null,
+  "source": {
+    "path": "SOURCE.json",
+    "sha256": "d838ac36dcad60f9d55837af209ba560e2d07ba6e806a861c78c7dfccb59004e"
+  },
+  "startedAt": "2026-09-11T15:18:01.510Z",
+  "fixture": {
+    "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+    "bytes": 500000000,
+    "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+    "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1"
+  },
+  "server": {
+    "core": "0.19.0",
+    "server": "0.19.0"
+  },
+  "runtime": [
+    {
+      "version": "0.18.0",
+      "cwd": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/blob-pairs/0.18.0",
+      "core": "0.18.0",
+      "package": {
+        "name": "@syncular/client",
+        "version": "0.18.0",
+        "description": "Syncular TypeScript client core — offline-first sync over SQLite (WASM/OPFS, Bun, Node)",
+        "license": "Apache-2.0",
+        "author": "Benjamin Kniffler",
+        "homepage": "https://syncular.dev",
+        "repository": {
+          "type": "git",
+          "url": "https://github.com/syncular/syncular.git",
+          "directory": "packages/web-client"
+        },
+        "bugs": {
+          "url": "https://github.com/syncular/syncular/issues"
+        },
+        "keywords": [
+          "sync",
+          "offline-first",
+          "realtime",
+          "database",
+          "typescript"
+        ],
+        "type": "module",
+        "sideEffects": false,
+        "publishConfig": {
+          "access": "public"
+        },
+        "exports": {
+          ".": {
+            "bun": "./src/index.ts",
+            "browser": "./dist/index.js",
+            "import": {
+              "types": "./dist/index.d.ts",
+              "default": "./dist/index.js"
+            }
+          },
+          "./bun": {
+            "bun": "./src/bun-database.ts",
+            "browser": "./dist/bun-database.js",
+            "import": {
+              "types": "./dist/bun-database.d.ts",
+              "default": "./dist/bun-database.js"
+            }
+          },
+          "./node": {
+            "bun": "./src/node-database.ts",
+            "browser": "./dist/node-database.js",
+            "import": {
+              "types": "./dist/node-database.d.ts",
+              "default": "./dist/node-database.js"
+            }
+          },
+          "./sqlite": {
+            "bun": "./src/sqlite-bun.ts",
+            "node": {
+              "types": "./dist/sqlite-node.d.ts",
+              "default": "./dist/sqlite-node.js"
+            },
+            "types": "./dist/sqlite-node.d.ts"
+          },
+          "./wasm": {
+            "bun": "./src/wasm-database.ts",
+            "browser": "./dist/wasm-database.js",
+            "import": {
+              "types": "./dist/wasm-database.d.ts",
+              "default": "./dist/wasm-database.js"
+            }
+          },
+          "./worker": {
+            "bun": "./src/worker-entry.ts",
+            "browser": "./dist/worker-entry.js",
+            "import": {
+              "types": "./dist/worker-entry.d.ts",
+              "default": "./dist/worker-entry.js"
+            }
+          }
+        },
+        "files": [
+          "dist",
+          "src",
+          "README.md",
+          "!src/**/*.test.ts",
+          "!src/**/*.test.tsx",
+          "!dist/**/*.test.js",
+          "!dist/**/*.test.d.ts"
+        ],
+        "scripts": {
+          "verify:node": "bun build ./test/node-database/verify-node.mjs --target=node --outfile=./.verify-node.built.mjs && node ./.verify-node.built.mjs"
+        },
+        "dependencies": {
+          "@sqlite.org/sqlite-wasm": "^3.53.0-build1",
+          "@syncular/core": "0.18.0"
+        },
+        "devDependencies": {
+          "@syncular/server": "0.18.0"
+        }
+      },
+      "lockSha256": "99eca402fecc29e75538d15b0c1d5aa931169a15c07f7baba13d0a879554500c",
+      "cargoLockSha256": "5df6b7fbcd7d17d5a1298ca9192ab61dd999238f8db044cdd4bff0f6e2ead964",
+      "binarySha256": "65fc8ae8fa49475399256f13156d4bc94b3b1f54fe8a22ff7d1d513de70bcc8b"
+    },
+    {
+      "version": "0.19.0",
+      "cwd": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/blob-pairs/0.19.0",
+      "core": "0.19.0",
+      "package": {
+        "name": "@syncular/client",
+        "version": "0.19.0",
+        "description": "Syncular TypeScript client core — offline-first sync over SQLite (WASM/OPFS, Bun, Node)",
+        "license": "Apache-2.0",
+        "author": "Benjamin Kniffler",
+        "homepage": "https://syncular.dev",
+        "repository": {
+          "type": "git",
+          "url": "https://github.com/syncular/syncular.git",
+          "directory": "packages/web-client"
+        },
+        "bugs": {
+          "url": "https://github.com/syncular/syncular/issues"
+        },
+        "keywords": [
+          "sync",
+          "offline-first",
+          "realtime",
+          "database",
+          "typescript"
+        ],
+        "type": "module",
+        "sideEffects": false,
+        "publishConfig": {
+          "access": "public"
+        },
+        "exports": {
+          ".": {
+            "bun": "./src/index.ts",
+            "browser": "./dist/index.js",
+            "import": {
+              "types": "./dist/index.d.ts",
+              "default": "./dist/index.js"
+            }
+          },
+          "./bun": {
+            "bun": "./src/bun-database.ts",
+            "browser": "./dist/bun-database.js",
+            "import": {
+              "types": "./dist/bun-database.d.ts",
+              "default": "./dist/bun-database.js"
+            }
+          },
+          "./node": {
+            "bun": "./src/node-database.ts",
+            "browser": "./dist/node-database.js",
+            "import": {
+              "types": "./dist/node-database.d.ts",
+              "default": "./dist/node-database.js"
+            }
+          },
+          "./sqlite": {
+            "bun": "./src/sqlite-bun.ts",
+            "node": {
+              "types": "./dist/sqlite-node.d.ts",
+              "default": "./dist/sqlite-node.js"
+            },
+            "types": "./dist/sqlite-node.d.ts"
+          },
+          "./wasm": {
+            "bun": "./src/wasm-database.ts",
+            "browser": "./dist/wasm-database.js",
+            "import": {
+              "types": "./dist/wasm-database.d.ts",
+              "default": "./dist/wasm-database.js"
+            }
+          },
+          "./worker": {
+            "bun": "./src/worker-entry.ts",
+            "browser": "./dist/worker-entry.js",
+            "import": {
+              "types": "./dist/worker-entry.d.ts",
+              "default": "./dist/worker-entry.js"
+            }
+          }
+        },
+        "files": [
+          "dist",
+          "src",
+          "README.md",
+          "!src/**/*.test.ts",
+          "!src/**/*.test.tsx",
+          "!dist/**/*.test.js",
+          "!dist/**/*.test.d.ts"
+        ],
+        "scripts": {
+          "verify:node": "bun build ./test/node-database/verify-node.mjs --target=node --outfile=./.verify-node.built.mjs && node ./.verify-node.built.mjs"
+        },
+        "dependencies": {
+          "@sqlite.org/sqlite-wasm": "^3.53.0-build1",
+          "@syncular/core": "0.19.0"
+        },
+        "devDependencies": {
+          "@syncular/server": "0.19.0"
+        }
+      },
+      "lockSha256": "ff488590e97b5159c5fd5020ee52100d53c3f9e3d74111b77e5036e1529b35cb",
+      "cargoLockSha256": "fcffa5d2e46e27ac19ce280af27a23670ee4310a49343d86d5601f714dbaa99a",
+      "binarySha256": "113bdf0716398ac8185cff1973fe395a26b7a1de10c3a5b4f22776f51e639865"
+    }
+  ],
+  "plan": [
+    {
+      "pair": 1,
+      "client": "syncular",
+      "version": "0.18.0"
+    },
+    {
+      "pair": 1,
+      "client": "syncular",
+      "version": "0.19.0"
+    },
+    {
+      "pair": 1,
+      "client": "syncular-rust",
+      "version": "0.19.0"
+    },
+    {
+      "pair": 1,
+      "client": "syncular-rust",
+      "version": "0.18.0"
+    },
+    {
+      "pair": 2,
+      "client": "syncular-rust",
+      "version": "0.18.0"
+    },
+    {
+      "pair": 2,
+      "client": "syncular-rust",
+      "version": "0.19.0"
+    },
+    {
+      "pair": 2,
+      "client": "syncular",
+      "version": "0.19.0"
+    },
+    {
+      "pair": 2,
+      "client": "syncular",
+      "version": "0.18.0"
+    },
+    {
+      "pair": 3,
+      "client": "syncular",
+      "version": "0.18.0"
+    },
+    {
+      "pair": 3,
+      "client": "syncular",
+      "version": "0.19.0"
+    },
+    {
+      "pair": 3,
+      "client": "syncular-rust",
+      "version": "0.19.0"
+    },
+    {
+      "pair": 3,
+      "client": "syncular-rust",
+      "version": "0.18.0"
+    }
+  ],
+  "profile": "Exact registry clients, unchanged SDK sources, corrected common HTTP meter; server fixed at the recorded serverVersion; new writer and reader processes/stores per attempt; object deleted and server task fixture reset before each attempt; OS/server caches retained; no compilation or test suite during collection. Upload includes native staging and metadata acceptance. Input read and final independent SHA-256 are outside published-style totals.",
+  "machine": {
+    "cpu": "Apple M4",
+    "bun": "1.4.0",
+    "memoryBytes": 25769803776
+  },
+  "publishedManifestSha256": "3692aae312c89f5853a987d64d738735acfc7a3f7a47f200f742e9e04b5d8774",
+  "rows": [
+    {
+      "pair": 1,
+      "client": "syncular",
+      "version": "0.18.0",
+      "before": {
+        "time": "2026-09-11T15:18:01.510Z",
+        "load": [
+          4.54833984375,
+          3.390625,
+          3.541015625
+        ],
+        "freeMemoryBytes": 77463552
+      },
+      "after": {
+        "time": "2026-09-11T15:18:10.095Z",
+        "load": [
+          4.72314453125,
+          3.4609375,
+          3.5634765625
+        ],
+        "freeMemoryBytes": 4629839872
+      },
+      "result": {
+        "stackId": "syncular",
+        "status": "completed",
+        "phases": [
+          {
+            "phase": "writer",
+            "pid": 92366,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-p7GDoK/writer",
+            "storeWasAbsent": true,
+            "api": "uploadBlob + sync",
+            "taskCount": 50,
+            "stageMs": 1329.5038749999999,
+            "uploadMs": 2158.389625,
+            "file": {
+              "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+              "taskId": "org-1-project-1-task-000001",
+              "ref": {
+                "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+                "byteLength": 500000000,
+                "mediaType": "application/octet-stream"
+              },
+              "commitId": "4ccccbb5-fb3f-4e0f-a8ad-3922ced23b7b",
+              "applied": [
+                "4ccccbb5-fb3f-4e0f-a8ad-3922ced23b7b"
+              ]
+            },
+            "phaseElapsedMs": 3787.3932499999974
+          },
+          {
+            "phase": "fresh",
+            "pid": 92431,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-p7GDoK/fresh",
+            "storeWasAbsent": true,
+            "api": "fetchBlob",
+            "taskCount": 50,
+            "initialCacheCount": 0,
+            "link": {
+              "id": "ad747db1-45cb-4fb5-a232-8f6a9a399005",
+              "project_id": "org-1-project-1",
+              "task_id": "org-1-project-1-task-000001",
+              "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+              "created_at_ms": 1700000000000
+            },
+            "downloadMs": 2301.599667,
+            "complete": {
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+            },
+            "transfers": {
+              "method": "http-object-download-cut-v1",
+              "cutAfterBytes": null,
+              "attempts": [
+                {
+                  "method": "GET",
+                  "status": 200,
+                  "contentLength": 500000000,
+                  "range": null,
+                  "upstreamBodyBytes": 500000000,
+                  "forwardedBodyBytes": 500000000,
+                  "interrupted": false,
+                  "completed": true
+                }
+              ]
+            },
+            "phaseElapsedMs": 2629.5277920000008
+          }
+        ],
+        "phaseTimeoutMs": 600000,
+        "startedAt": "2026-09-11T15:18:01.510Z",
+        "objectPreparation": {
+          "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+          "presentBefore": false,
+          "presentAfter": false
+        },
+        "uploadMs": 3487.8934999999997,
+        "downloadMs": 2301.599667,
+        "finishedAt": "2026-09-11T15:18:10.065Z"
+      }
+    },
+    {
+      "pair": 1,
+      "client": "syncular",
+      "version": "0.19.0",
+      "before": {
+        "time": "2026-09-11T15:18:10.095Z",
+        "load": [
+          4.72314453125,
+          3.4609375,
+          3.5634765625
+        ],
+        "freeMemoryBytes": 4629872640
+      },
+      "after": {
+        "time": "2026-09-11T15:18:18.047Z",
+        "load": [
+          6.888671875,
+          3.98388671875,
+          3.74853515625
+        ],
+        "freeMemoryBytes": 3992125440
+      },
+      "result": {
+        "stackId": "syncular",
+        "status": "completed",
+        "phases": [
+          {
+            "phase": "writer",
+            "pid": 92480,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-WCiYph/writer",
+            "storeWasAbsent": true,
+            "api": "uploadBlob + sync",
+            "taskCount": 50,
+            "stageMs": 1666.741792,
+            "uploadMs": 1688.666708,
+            "file": {
+              "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+              "taskId": "org-1-project-1-task-000001",
+              "ref": {
+                "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+                "byteLength": 500000000,
+                "mediaType": "application/octet-stream"
+              },
+              "commitId": "68dcf31c-ba3c-46a0-93fd-e7b815aeac60",
+              "applied": [
+                "68dcf31c-ba3c-46a0-93fd-e7b815aeac60"
+              ]
+            },
+            "phaseElapsedMs": 3600.8987080000006
+          },
+          {
+            "phase": "fresh",
+            "pid": 92589,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-WCiYph/fresh",
+            "storeWasAbsent": true,
+            "api": "fetchBlob",
+            "taskCount": 50,
+            "initialCacheCount": 0,
+            "link": {
+              "id": "f655842f-843b-453d-83f7-08894e24a721",
+              "project_id": "org-1-project-1",
+              "task_id": "org-1-project-1-task-000001",
+              "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+              "created_at_ms": 1700000000000
+            },
+            "downloadMs": 1890.0206249999999,
+            "complete": {
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+            },
+            "transfers": {
+              "method": "http-object-download-cut-v1",
+              "cutAfterBytes": null,
+              "attempts": [
+                {
+                  "method": "GET",
+                  "status": 200,
+                  "contentLength": 500000000,
+                  "range": null,
+                  "upstreamBodyBytes": 500000000,
+                  "forwardedBodyBytes": 500000000,
+                  "interrupted": false,
+                  "completed": true
+                }
+              ]
+            },
+            "phaseElapsedMs": 2208.3645830000023
+          }
+        ],
+        "phaseTimeoutMs": 600000,
+        "startedAt": "2026-09-11T15:18:10.095Z",
+        "objectPreparation": {
+          "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+          "presentBefore": false,
+          "presentAfter": false
+        },
+        "uploadMs": 3355.4085,
+        "downloadMs": 1890.0206249999999,
+        "finishedAt": "2026-09-11T15:18:18.022Z"
+      }
+    },
+    {
+      "pair": 1,
+      "client": "syncular-rust",
+      "version": "0.19.0",
+      "before": {
+        "time": "2026-09-11T15:18:18.047Z",
+        "load": [
+          6.888671875,
+          3.98388671875,
+          3.74853515625
+        ],
+        "freeMemoryBytes": 3987931136
+      },
+      "after": {
+        "time": "2026-09-11T15:18:27.613Z",
+        "load": [
+          6.4970703125,
+          3.95068359375,
+          3.73828125
+        ],
+        "freeMemoryBytes": 3157950464
+      },
+      "result": {
+        "stackId": "syncular-rust",
+        "status": "completed",
+        "phases": [
+          {
+            "phase": "writer",
+            "pid": 92630,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-C5RpNG/writer",
+            "storeWasAbsent": true,
+            "nativePid": 92631,
+            "api": "upload_blob + sync",
+            "taskCount": 50,
+            "stageMs": 1776.2210409999998,
+            "uploadMs": 1989.282291,
+            "file": {
+              "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+              "taskId": "org-1-project-1-task-000001",
+              "ref": {
+                "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+                "byteLength": 500000000,
+                "mediaType": "application/octet-stream"
+              },
+              "commitId": "dedbb059-b024-47b2-ae01-8ee29ee7fd6a",
+              "applied": [
+                "dedbb059-b024-47b2-ae01-8ee29ee7fd6a"
+              ]
+            },
+            "phaseElapsedMs": 4311.123292000004
+          },
+          {
+            "phase": "fresh",
+            "pid": 92632,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-C5RpNG/fresh",
+            "storeWasAbsent": true,
+            "nativePid": 92633,
+            "api": "fetch_blob_bytes",
+            "taskCount": 50,
+            "initialCacheCount": 0,
+            "link": {
+              "_syncular_version": 1,
+              "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+              "created_at_ms": 1700000000000,
+              "id": "06d9c24e-d2b4-4b76-8549-23afca2d084c",
+              "project_id": "org-1-project-1",
+              "task_id": "org-1-project-1-task-000001"
+            },
+            "downloadMs": 2157.137417,
+            "complete": {
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+            },
+            "transfers": {
+              "method": "http-object-download-cut-v1",
+              "cutAfterBytes": null,
+              "attempts": [
+                {
+                  "method": "GET",
+                  "status": 200,
+                  "contentLength": 500000000,
+                  "range": null,
+                  "upstreamBodyBytes": 500000000,
+                  "forwardedBodyBytes": 500000000,
+                  "interrupted": false,
+                  "completed": true
+                }
+              ]
+            },
+            "phaseElapsedMs": 3059.695749999999
+          }
+        ],
+        "phaseTimeoutMs": 600000,
+        "startedAt": "2026-09-11T15:18:18.047Z",
+        "objectPreparation": {
+          "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+          "presentBefore": false,
+          "presentAfter": false
+        },
+        "uploadMs": 3765.503332,
+        "downloadMs": 2157.137417,
+        "finishedAt": "2026-09-11T15:18:27.556Z"
+      }
+    },
+    {
+      "pair": 1,
+      "client": "syncular-rust",
+      "version": "0.18.0",
+      "before": {
+        "time": "2026-09-11T15:18:27.613Z",
+        "load": [
+          6.4970703125,
+          3.95068359375,
+          3.73828125
+        ],
+        "freeMemoryBytes": 3153756160
+      },
+      "after": {
+        "time": "2026-09-11T15:18:38.132Z",
+        "load": [
+          5.7392578125,
+          3.90380859375,
+          3.72509765625
+        ],
+        "freeMemoryBytes": 3204661248
+      },
+      "result": {
+        "stackId": "syncular-rust",
+        "status": "completed",
+        "phases": [
+          {
+            "phase": "writer",
+            "pid": 92639,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-oL6jW3/writer",
+            "storeWasAbsent": true,
+            "nativePid": 92647,
+            "api": "upload_blob + sync",
+            "taskCount": 50,
+            "stageMs": 1729.538709,
+            "uploadMs": 2221.9208750000003,
+            "file": {
+              "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+              "taskId": "org-1-project-1-task-000001",
+              "ref": {
+                "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+                "byteLength": 500000000,
+                "mediaType": "application/octet-stream"
+              },
+              "commitId": "acfbe9db-67f1-4f1a-9902-a52195159f8a",
+              "applied": [
+                "acfbe9db-67f1-4f1a-9902-a52195159f8a"
+              ]
+            },
+            "phaseElapsedMs": 4400.486375
+          },
+          {
+            "phase": "fresh",
+            "pid": 92678,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-oL6jW3/fresh",
+            "storeWasAbsent": true,
+            "nativePid": 92679,
+            "api": "fetch_blob_bytes",
+            "taskCount": 50,
+            "initialCacheCount": 0,
+            "link": {
+              "_syncular_version": 1,
+              "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+              "created_at_ms": 1700000000000,
+              "id": "4a8f8e27-e361-4a86-b983-3529e75fdca1",
+              "project_id": "org-1-project-1",
+              "task_id": "org-1-project-1-task-000001"
+            },
+            "downloadMs": 2972.7895000000003,
+            "complete": {
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+            },
+            "transfers": {
+              "method": "http-object-download-cut-v1",
+              "cutAfterBytes": null,
+              "attempts": [
+                {
+                  "method": "GET",
+                  "status": 200,
+                  "contentLength": 500000000,
+                  "range": null,
+                  "upstreamBodyBytes": 500000000,
+                  "forwardedBodyBytes": 500000000,
+                  "interrupted": false,
+                  "completed": true
+                }
+              ]
+            },
+            "phaseElapsedMs": 3911.9454160000023
+          }
+        ],
+        "phaseTimeoutMs": 600000,
+        "startedAt": "2026-09-11T15:18:27.613Z",
+        "objectPreparation": {
+          "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+          "presentBefore": false,
+          "presentAfter": false
+        },
+        "uploadMs": 3951.459584,
+        "downloadMs": 2972.7895000000003,
+        "finishedAt": "2026-09-11T15:18:38.065Z"
+      }
+    },
+    {
+      "pair": 2,
+      "client": "syncular-rust",
+      "version": "0.18.0",
+      "before": {
+        "time": "2026-09-11T15:18:38.133Z",
+        "load": [
+          5.7392578125,
+          3.90380859375,
+          3.72509765625
+        ],
+        "freeMemoryBytes": 3204661248
+      },
+      "after": {
+        "time": "2026-09-11T15:18:48.247Z",
+        "load": [
+          5.384765625,
+          3.8896484375,
+          3.72216796875
+        ],
+        "freeMemoryBytes": 3193995264
+      },
+      "result": {
+        "stackId": "syncular-rust",
+        "status": "completed",
+        "phases": [
+          {
+            "phase": "writer",
+            "pid": 92870,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-6prAhS/writer",
+            "storeWasAbsent": true,
+            "nativePid": 92871,
+            "api": "upload_blob + sync",
+            "taskCount": 50,
+            "stageMs": 1753.553333,
+            "uploadMs": 2444.6555839999996,
+            "file": {
+              "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+              "taskId": "org-1-project-1-task-000001",
+              "ref": {
+                "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+                "byteLength": 500000000,
+                "mediaType": "application/octet-stream"
+              },
+              "commitId": "3b6584a5-5e4d-4361-a5c4-1556a7609e3b",
+              "applied": [
+                "3b6584a5-5e4d-4361-a5c4-1556a7609e3b"
+              ]
+            },
+            "phaseElapsedMs": 4372.612915999998
+          },
+          {
+            "phase": "fresh",
+            "pid": 92878,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-6prAhS/fresh",
+            "storeWasAbsent": true,
+            "nativePid": 92879,
+            "api": "fetch_blob_bytes",
+            "taskCount": 50,
+            "initialCacheCount": 0,
+            "link": {
+              "_syncular_version": 1,
+              "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+              "created_at_ms": 1700000000000,
+              "id": "fa216504-eeb9-4511-9a79-b588e72688f2",
+              "project_id": "org-1-project-1",
+              "task_id": "org-1-project-1-task-000001"
+            },
+            "downloadMs": 2584.802208,
+            "complete": {
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+            },
+            "transfers": {
+              "method": "http-object-download-cut-v1",
+              "cutAfterBytes": null,
+              "attempts": [
+                {
+                  "method": "GET",
+                  "status": 200,
+                  "contentLength": 500000000,
+                  "range": null,
+                  "upstreamBodyBytes": 500000000,
+                  "forwardedBodyBytes": 500000000,
+                  "interrupted": false,
+                  "completed": true
+                }
+              ]
+            },
+            "phaseElapsedMs": 3558.993540999989
+          }
+        ],
+        "phaseTimeoutMs": 600000,
+        "startedAt": "2026-09-11T15:18:38.133Z",
+        "objectPreparation": {
+          "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+          "presentBefore": false,
+          "presentAfter": false
+        },
+        "uploadMs": 4198.208917,
+        "downloadMs": 2584.802208,
+        "finishedAt": "2026-09-11T15:18:48.191Z"
+      }
+    },
+    {
+      "pair": 2,
+      "client": "syncular-rust",
+      "version": "0.19.0",
+      "before": {
+        "time": "2026-09-11T15:18:48.247Z",
+        "load": [
+          5.384765625,
+          3.8896484375,
+          3.72216796875
+        ],
+        "freeMemoryBytes": 3193995264
+      },
+      "after": {
+        "time": "2026-09-11T15:18:57.621Z",
+        "load": [
+          5.033203125,
+          3.84130859375,
+          3.7060546875
+        ],
+        "freeMemoryBytes": 3072589824
+      },
+      "result": {
+        "stackId": "syncular-rust",
+        "status": "completed",
+        "phases": [
+          {
+            "phase": "writer",
+            "pid": 92891,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-lmNvuc/writer",
+            "storeWasAbsent": true,
+            "nativePid": 92892,
+            "api": "upload_blob + sync",
+            "taskCount": 50,
+            "stageMs": 1765.8452499999999,
+            "uploadMs": 2042.0017500000001,
+            "file": {
+              "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+              "taskId": "org-1-project-1-task-000001",
+              "ref": {
+                "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+                "byteLength": 500000000,
+                "mediaType": "application/octet-stream"
+              },
+              "commitId": "8489705a-406e-4bc0-9a5f-efa7e78ae6ec",
+              "applied": [
+                "8489705a-406e-4bc0-9a5f-efa7e78ae6ec"
+              ]
+            },
+            "phaseElapsedMs": 4031.8256660000043
+          },
+          {
+            "phase": "fresh",
+            "pid": 92893,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-lmNvuc/fresh",
+            "storeWasAbsent": true,
+            "nativePid": 92894,
+            "api": "fetch_blob_bytes",
+            "taskCount": 50,
+            "initialCacheCount": 0,
+            "link": {
+              "_syncular_version": 1,
+              "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+              "created_at_ms": 1700000000000,
+              "id": "5c7e9a9f-7ddb-4082-b01e-d965fdb72892",
+              "project_id": "org-1-project-1",
+              "task_id": "org-1-project-1-task-000001"
+            },
+            "downloadMs": 2245.9413750000003,
+            "complete": {
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+            },
+            "transfers": {
+              "method": "http-object-download-cut-v1",
+              "cutAfterBytes": null,
+              "attempts": [
+                {
+                  "method": "GET",
+                  "status": 200,
+                  "contentLength": 500000000,
+                  "range": null,
+                  "upstreamBodyBytes": 500000000,
+                  "forwardedBodyBytes": 500000000,
+                  "interrupted": false,
+                  "completed": true
+                }
+              ]
+            },
+            "phaseElapsedMs": 3162.7789170000033
+          }
+        ],
+        "phaseTimeoutMs": 600000,
+        "startedAt": "2026-09-11T15:18:48.247Z",
+        "objectPreparation": {
+          "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+          "presentBefore": false,
+          "presentAfter": false
+        },
+        "uploadMs": 3807.8469999999998,
+        "downloadMs": 2245.9413750000003,
+        "finishedAt": "2026-09-11T15:18:57.559Z"
+      }
+    },
+    {
+      "pair": 2,
+      "client": "syncular",
+      "version": "0.19.0",
+      "before": {
+        "time": "2026-09-11T15:18:57.621Z",
+        "load": [
+          5.033203125,
+          3.84130859375,
+          3.7060546875
+        ],
+        "freeMemoryBytes": 3072589824
+      },
+      "after": {
+        "time": "2026-09-11T15:19:05.474Z",
+        "load": [
+          5.2294921875,
+          3.92724609375,
+          3.73828125
+        ],
+        "freeMemoryBytes": 3627532288
+      },
+      "result": {
+        "stackId": "syncular",
+        "status": "completed",
+        "phases": [
+          {
+            "phase": "writer",
+            "pid": 92909,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-z8N0ft/writer",
+            "storeWasAbsent": true,
+            "api": "uploadBlob + sync",
+            "taskCount": 50,
+            "stageMs": 1536.0020829999999,
+            "uploadMs": 1470.2383750000001,
+            "file": {
+              "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+              "taskId": "org-1-project-1-task-000001",
+              "ref": {
+                "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+                "byteLength": 500000000,
+                "mediaType": "application/octet-stream"
+              },
+              "commitId": "481f735f-5010-42b4-83f4-530f644978be",
+              "applied": [
+                "481f735f-5010-42b4-83f4-530f644978be"
+              ]
+            },
+            "phaseElapsedMs": 3296.790292000005
+          },
+          {
+            "phase": "fresh",
+            "pid": 92910,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-z8N0ft/fresh",
+            "storeWasAbsent": true,
+            "api": "fetchBlob",
+            "taskCount": 50,
+            "initialCacheCount": 0,
+            "link": {
+              "id": "47cd0b59-db75-4e71-8ba2-13fc61d94c3d",
+              "project_id": "org-1-project-1",
+              "task_id": "org-1-project-1-task-000001",
+              "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+              "created_at_ms": 1700000000000
+            },
+            "downloadMs": 1992.5326249999998,
+            "complete": {
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+            },
+            "transfers": {
+              "method": "http-object-download-cut-v1",
+              "cutAfterBytes": null,
+              "attempts": [
+                {
+                  "method": "GET",
+                  "status": 200,
+                  "contentLength": 500000000,
+                  "range": null,
+                  "upstreamBodyBytes": 500000000,
+                  "forwardedBodyBytes": 500000000,
+                  "interrupted": false,
+                  "completed": true
+                }
+              ]
+            },
+            "phaseElapsedMs": 2299.892166999998
+          }
+        ],
+        "phaseTimeoutMs": 600000,
+        "startedAt": "2026-09-11T15:18:57.621Z",
+        "objectPreparation": {
+          "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+          "presentBefore": false,
+          "presentAfter": false
+        },
+        "uploadMs": 3006.240458,
+        "downloadMs": 1992.5326249999998,
+        "finishedAt": "2026-09-11T15:19:05.344Z"
+      }
+    },
+    {
+      "pair": 2,
+      "client": "syncular",
+      "version": "0.18.0",
+      "before": {
+        "time": "2026-09-11T15:19:05.475Z",
+        "load": [
+          5.2294921875,
+          3.92724609375,
+          3.73828125
+        ],
+        "freeMemoryBytes": 3627565056
+      },
+      "after": {
+        "time": "2026-09-11T15:19:13.488Z",
+        "load": [
+          4.72607421875,
+          3.86328125,
+          3.7177734375
+        ],
+        "freeMemoryBytes": 4732436480
+      },
+      "result": {
+        "stackId": "syncular",
+        "status": "completed",
+        "phases": [
+          {
+            "phase": "writer",
+            "pid": 92930,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-EjeOKz/writer",
+            "storeWasAbsent": true,
+            "api": "uploadBlob + sync",
+            "taskCount": 50,
+            "stageMs": 1349.542083,
+            "uploadMs": 2050.328625,
+            "file": {
+              "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+              "taskId": "org-1-project-1-task-000001",
+              "ref": {
+                "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+                "byteLength": 500000000,
+                "mediaType": "application/octet-stream"
+              },
+              "commitId": "a861f1d6-d302-49cd-ac59-9e57ab8ca4d1",
+              "applied": [
+                "a861f1d6-d302-49cd-ac59-9e57ab8ca4d1"
+              ]
+            },
+            "phaseElapsedMs": 3673.8929999999964
+          },
+          {
+            "phase": "fresh",
+            "pid": 92931,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-EjeOKz/fresh",
+            "storeWasAbsent": true,
+            "api": "fetchBlob",
+            "taskCount": 50,
+            "initialCacheCount": 0,
+            "link": {
+              "id": "347a9aa2-fd4a-4905-8673-e6733a49ae67",
+              "project_id": "org-1-project-1",
+              "task_id": "org-1-project-1-task-000001",
+              "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+              "created_at_ms": 1700000000000
+            },
+            "downloadMs": 1879.006417,
+            "complete": {
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+            },
+            "transfers": {
+              "method": "http-object-download-cut-v1",
+              "cutAfterBytes": null,
+              "attempts": [
+                {
+                  "method": "GET",
+                  "status": 200,
+                  "contentLength": 500000000,
+                  "range": null,
+                  "upstreamBodyBytes": 500000000,
+                  "forwardedBodyBytes": 500000000,
+                  "interrupted": false,
+                  "completed": true
+                }
+              ]
+            },
+            "phaseElapsedMs": 2155.6688339999964
+          }
+        ],
+        "phaseTimeoutMs": 600000,
+        "startedAt": "2026-09-11T15:19:05.475Z",
+        "objectPreparation": {
+          "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+          "presentBefore": false,
+          "presentAfter": false
+        },
+        "uploadMs": 3399.8707080000004,
+        "downloadMs": 1879.006417,
+        "finishedAt": "2026-09-11T15:19:13.425Z"
+      }
+    },
+    {
+      "pair": 3,
+      "client": "syncular",
+      "version": "0.18.0",
+      "before": {
+        "time": "2026-09-11T15:19:13.488Z",
+        "load": [
+          4.72607421875,
+          3.86328125,
+          3.7177734375
+        ],
+        "freeMemoryBytes": 4728258560
+      },
+      "after": {
+        "time": "2026-09-11T15:19:21.120Z",
+        "load": [
+          4.58740234375,
+          3.8486328125,
+          3.71337890625
+        ],
+        "freeMemoryBytes": 4704731136
+      },
+      "result": {
+        "stackId": "syncular",
+        "status": "completed",
+        "phases": [
+          {
+            "phase": "writer",
+            "pid": 92938,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-F5peX1/writer",
+            "storeWasAbsent": true,
+            "api": "uploadBlob + sync",
+            "taskCount": 50,
+            "stageMs": 1219.115208,
+            "uploadMs": 1726.6525,
+            "file": {
+              "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+              "taskId": "org-1-project-1-task-000001",
+              "ref": {
+                "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+                "byteLength": 500000000,
+                "mediaType": "application/octet-stream"
+              },
+              "commitId": "88af05b1-5abc-4696-b588-bea3064ff1f1",
+              "applied": [
+                "88af05b1-5abc-4696-b588-bea3064ff1f1"
+              ]
+            },
+            "phaseElapsedMs": 3202.9730830000044
+          },
+          {
+            "phase": "fresh",
+            "pid": 92946,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-F5peX1/fresh",
+            "storeWasAbsent": true,
+            "api": "fetchBlob",
+            "taskCount": 50,
+            "initialCacheCount": 0,
+            "link": {
+              "id": "bf6a4b23-1586-42a8-808e-efb9ab78f851",
+              "project_id": "org-1-project-1",
+              "task_id": "org-1-project-1-task-000001",
+              "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+              "created_at_ms": 1700000000000
+            },
+            "downloadMs": 1901.618416,
+            "complete": {
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+            },
+            "transfers": {
+              "method": "http-object-download-cut-v1",
+              "cutAfterBytes": null,
+              "attempts": [
+                {
+                  "method": "GET",
+                  "status": 200,
+                  "contentLength": 500000000,
+                  "range": null,
+                  "upstreamBodyBytes": 500000000,
+                  "forwardedBodyBytes": 500000000,
+                  "interrupted": false,
+                  "completed": true
+                }
+              ]
+            },
+            "phaseElapsedMs": 2200.4073329999956
+          }
+        ],
+        "phaseTimeoutMs": 600000,
+        "startedAt": "2026-09-11T15:19:13.488Z",
+        "objectPreparation": {
+          "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+          "presentBefore": false,
+          "presentAfter": false
+        },
+        "uploadMs": 2945.767708,
+        "downloadMs": 1901.618416,
+        "finishedAt": "2026-09-11T15:19:21.041Z"
+      }
+    },
+    {
+      "pair": 3,
+      "client": "syncular",
+      "version": "0.19.0",
+      "before": {
+        "time": "2026-09-11T15:19:21.121Z",
+        "load": [
+          4.58740234375,
+          3.8486328125,
+          3.71337890625
+        ],
+        "freeMemoryBytes": 4704731136
+      },
+      "after": {
+        "time": "2026-09-11T15:19:28.660Z",
+        "load": [
+          4.5029296875,
+          3.853515625,
+          3.71630859375
+        ],
+        "freeMemoryBytes": 4213964800
+      },
+      "result": {
+        "stackId": "syncular",
+        "status": "completed",
+        "phases": [
+          {
+            "phase": "writer",
+            "pid": 92950,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-D2dYZn/writer",
+            "storeWasAbsent": true,
+            "api": "uploadBlob + sync",
+            "taskCount": 50,
+            "stageMs": 1313.3253750000001,
+            "uploadMs": 1462.6971250000001,
+            "file": {
+              "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+              "taskId": "org-1-project-1-task-000001",
+              "ref": {
+                "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+                "byteLength": 500000000,
+                "mediaType": "application/octet-stream"
+              },
+              "commitId": "aacda81e-8af3-4d1d-9f8c-ad280103ed77",
+              "applied": [
+                "aacda81e-8af3-4d1d-9f8c-ad280103ed77"
+              ]
+            },
+            "phaseElapsedMs": 3085.852958000003
+          },
+          {
+            "phase": "fresh",
+            "pid": 92973,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-D2dYZn/fresh",
+            "storeWasAbsent": true,
+            "api": "fetchBlob",
+            "taskCount": 50,
+            "initialCacheCount": 0,
+            "link": {
+              "id": "cd4a81b0-e5f8-425e-8ba6-db37db03ddc7",
+              "project_id": "org-1-project-1",
+              "task_id": "org-1-project-1-task-000001",
+              "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+              "created_at_ms": 1700000000000
+            },
+            "downloadMs": 1861.013625,
+            "complete": {
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+            },
+            "transfers": {
+              "method": "http-object-download-cut-v1",
+              "cutAfterBytes": null,
+              "attempts": [
+                {
+                  "method": "GET",
+                  "status": 200,
+                  "contentLength": 500000000,
+                  "range": null,
+                  "upstreamBodyBytes": 500000000,
+                  "forwardedBodyBytes": 500000000,
+                  "interrupted": false,
+                  "completed": true
+                }
+              ]
+            },
+            "phaseElapsedMs": 2207.3423750000075
+          }
+        ],
+        "phaseTimeoutMs": 600000,
+        "startedAt": "2026-09-11T15:19:21.121Z",
+        "objectPreparation": {
+          "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+          "presentBefore": false,
+          "presentAfter": false
+        },
+        "uploadMs": 2776.0225,
+        "downloadMs": 1861.013625,
+        "finishedAt": "2026-09-11T15:19:28.567Z"
+      }
+    },
+    {
+      "pair": 3,
+      "client": "syncular-rust",
+      "version": "0.19.0",
+      "before": {
+        "time": "2026-09-11T15:19:28.661Z",
+        "load": [
+          4.5029296875,
+          3.853515625,
+          3.71630859375
+        ],
+        "freeMemoryBytes": 4214013952
+      },
+      "after": {
+        "time": "2026-09-11T15:19:37.935Z",
+        "load": [
+          4.30224609375,
+          3.822265625,
+          3.7060546875
+        ],
+        "freeMemoryBytes": 2976366592
+      },
+      "result": {
+        "stackId": "syncular-rust",
+        "status": "completed",
+        "phases": [
+          {
+            "phase": "writer",
+            "pid": 93019,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-FvhbvL/writer",
+            "storeWasAbsent": true,
+            "nativePid": 93020,
+            "api": "upload_blob + sync",
+            "taskCount": 50,
+            "stageMs": 1779.3910830000002,
+            "uploadMs": 1879.368375,
+            "file": {
+              "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+              "taskId": "org-1-project-1-task-000001",
+              "ref": {
+                "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+                "byteLength": 500000000,
+                "mediaType": "application/octet-stream"
+              },
+              "commitId": "3cab5d1b-9bf9-4236-80f7-369c383a21a4",
+              "applied": [
+                "3cab5d1b-9bf9-4236-80f7-369c383a21a4"
+              ]
+            },
+            "phaseElapsedMs": 3899.7665419999976
+          },
+          {
+            "phase": "fresh",
+            "pid": 93042,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-FvhbvL/fresh",
+            "storeWasAbsent": true,
+            "nativePid": 93043,
+            "api": "fetch_blob_bytes",
+            "taskCount": 50,
+            "initialCacheCount": 0,
+            "link": {
+              "_syncular_version": 1,
+              "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+              "created_at_ms": 1700000000000,
+              "id": "6edcf262-5684-4621-a2b2-70a437ca0522",
+              "project_id": "org-1-project-1",
+              "task_id": "org-1-project-1-task-000001"
+            },
+            "downloadMs": 2202.146375,
+            "complete": {
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+            },
+            "transfers": {
+              "method": "http-object-download-cut-v1",
+              "cutAfterBytes": null,
+              "attempts": [
+                {
+                  "method": "GET",
+                  "status": 200,
+                  "contentLength": 500000000,
+                  "range": null,
+                  "upstreamBodyBytes": 500000000,
+                  "forwardedBodyBytes": 500000000,
+                  "interrupted": false,
+                  "completed": true
+                }
+              ]
+            },
+            "phaseElapsedMs": 3149.241041000001
+          }
+        ],
+        "phaseTimeoutMs": 600000,
+        "startedAt": "2026-09-11T15:19:28.661Z",
+        "objectPreparation": {
+          "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+          "presentBefore": false,
+          "presentAfter": false
+        },
+        "uploadMs": 3658.7594580000004,
+        "downloadMs": 2202.146375,
+        "finishedAt": "2026-09-11T15:19:37.862Z"
+      }
+    },
+    {
+      "pair": 3,
+      "client": "syncular-rust",
+      "version": "0.18.0",
+      "before": {
+        "time": "2026-09-11T15:19:37.935Z",
+        "load": [
+          4.30224609375,
+          3.822265625,
+          3.7060546875
+        ],
+        "freeMemoryBytes": 2976366592
+      },
+      "after": {
+        "time": "2026-09-11T15:19:48.739Z",
+        "load": [
+          5.14599609375,
+          4.01416015625,
+          3.77490234375
+        ],
+        "freeMemoryBytes": 2922676224
+      },
+      "result": {
+        "stackId": "syncular-rust",
+        "status": "completed",
+        "phases": [
+          {
+            "phase": "writer",
+            "pid": 93065,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-p5Jy3m/writer",
+            "storeWasAbsent": true,
+            "nativePid": 93066,
+            "api": "upload_blob + sync",
+            "taskCount": 50,
+            "stageMs": 1812.196666,
+            "uploadMs": 2329.179167,
+            "file": {
+              "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+              "taskId": "org-1-project-1-task-000001",
+              "ref": {
+                "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+                "byteLength": 500000000,
+                "mediaType": "application/octet-stream"
+              },
+              "commitId": "2b110ce5-6ef9-4d0c-a7f4-b584fb5a5fd1",
+              "applied": [
+                "2b110ce5-6ef9-4d0c-a7f4-b584fb5a5fd1"
+              ]
+            },
+            "phaseElapsedMs": 4367.6180830000085
+          },
+          {
+            "phase": "fresh",
+            "pid": 93098,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-p5Jy3m/fresh",
+            "storeWasAbsent": true,
+            "nativePid": 93099,
+            "api": "fetch_blob_bytes",
+            "taskCount": 50,
+            "initialCacheCount": 0,
+            "link": {
+              "_syncular_version": 1,
+              "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+              "created_at_ms": 1700000000000,
+              "id": "87bf4c21-c1ae-4cb8-9c47-19b56cb41972",
+              "project_id": "org-1-project-1",
+              "task_id": "org-1-project-1-task-000001"
+            },
+            "downloadMs": 3032.8752090000003,
+            "complete": {
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+            },
+            "transfers": {
+              "method": "http-object-download-cut-v1",
+              "cutAfterBytes": null,
+              "attempts": [
+                {
+                  "method": "GET",
+                  "status": 200,
+                  "contentLength": 500000000,
+                  "range": null,
+                  "upstreamBodyBytes": 500000000,
+                  "forwardedBodyBytes": 500000000,
+                  "interrupted": false,
+                  "completed": true
+                }
+              ]
+            },
+            "phaseElapsedMs": 4205.655583999993
+          }
+        ],
+        "phaseTimeoutMs": 600000,
+        "startedAt": "2026-09-11T15:19:37.935Z",
+        "objectPreparation": {
+          "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+          "presentBefore": false,
+          "presentAfter": false
+        },
+        "uploadMs": 4141.375833,
+        "downloadMs": 3032.8752090000003,
+        "finishedAt": "2026-09-11T15:19:48.663Z"
+      }
+    }
+  ],
+  "sourceUnchanged": true,
+  "finishedAt": "2026-09-11T15:19:48.901Z"
+}

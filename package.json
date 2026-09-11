@@ -42,8 +42,8 @@
     "@powersync/node": "1.0.0",
     "@powersync/web": "2.3.0",
     "@rocicorp/zero": "1.9.0",
-    "@syncular/client": "0.18.0",
-    "@syncular/core": "0.18.0",
+    "@syncular/client": "0.19.0",
+    "@syncular/core": "0.19.0",
     "@tanstack/browser-db-sqlite-persistence": "0.2.20",
     "@tanstack/db": "0.8.7",
     "@tanstack/electric-db-collection": "0.4.7",
@@ -61,8 +61,8 @@
   },
   "devDependencies": {
     "@journeyapps/wa-sqlite": "1.4.1",
-    "@syncular/server": "0.18.0",
-    "@syncular/server-hono": "0.18.0",
+    "@syncular/server": "0.19.0",
+    "@syncular/server-hono": "0.19.0",
     "@types/bun": "1.4.1",
     "typescript": "7.0.2"
   }

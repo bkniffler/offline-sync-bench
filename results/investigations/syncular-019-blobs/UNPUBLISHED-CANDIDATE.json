@@ -1,0 +1,425 @@
+{
+  "version": 1,
+  "kind": "large-native-attachments",
+  "measuredAt": "2026-09-11T15:11:00.093Z",
+  "trials": 1,
+  "fixture": {
+    "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+    "bytes": 500000000,
+    "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+    "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1"
+  },
+  "plan": {
+    "stacks": [
+      "syncular",
+      "syncular-rust"
+    ],
+    "phases": [
+      "writer",
+      "fresh"
+    ],
+    "phaseTimeoutMs": 600000,
+    "stoppingRule": "First candidate attempt per client (pair 1), fixed before collection; no retries or selection by speed."
+  },
+  "machine": {
+    "cpu": "Apple M4",
+    "bun": "1.4.0",
+    "memoryBytes": 25769803776
+  },
+  "versions": {
+    "syncularClient": "0.19.0",
+    "syncularCore": "0.19.0"
+  },
+  "runtime": [
+    {
+      "version": "0.17.0",
+      "cwd": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/blob-pairs/0.17.0",
+      "core": "0.17.0",
+      "package": {
+        "name": "@syncular/client",
+        "version": "0.17.0",
+        "description": "Syncular TypeScript client core — offline-first sync over SQLite (WASM/OPFS, Bun, Node)",
+        "license": "Apache-2.0",
+        "author": "Benjamin Kniffler",
+        "homepage": "https://syncular.dev",
+        "repository": {
+          "type": "git",
+          "url": "https://github.com/syncular/syncular.git",
+          "directory": "packages/web-client"
+        },
+        "bugs": {
+          "url": "https://github.com/syncular/syncular/issues"
+        },
+        "keywords": [
+          "sync",
+          "offline-first",
+          "realtime",
+          "database",
+          "typescript"
+        ],
+        "type": "module",
+        "sideEffects": false,
+        "publishConfig": {
+          "access": "public"
+        },
+        "exports": {
+          ".": {
+            "bun": "./src/index.ts",
+            "browser": "./dist/index.js",
+            "import": {
+              "types": "./dist/index.d.ts",
+              "default": "./dist/index.js"
+            }
+          },
+          "./bun": {
+            "bun": "./src/bun-database.ts",
+            "browser": "./dist/bun-database.js",
+            "import": {
+              "types": "./dist/bun-database.d.ts",
+              "default": "./dist/bun-database.js"
+            }
+          },
+          "./node": {
+            "bun": "./src/node-database.ts",
+            "browser": "./dist/node-database.js",
+            "import": {
+              "types": "./dist/node-database.d.ts",
+              "default": "./dist/node-database.js"
+            }
+          },
+          "./sqlite": {
+            "bun": "./src/sqlite-bun.ts",
+            "node": {
+              "types": "./dist/sqlite-node.d.ts",
+              "default": "./dist/sqlite-node.js"
+            },
+            "types": "./dist/sqlite-node.d.ts"
+          },
+          "./wasm": {
+            "bun": "./src/wasm-database.ts",
+            "browser": "./dist/wasm-database.js",
+            "import": {
+              "types": "./dist/wasm-database.d.ts",
+              "default": "./dist/wasm-database.js"
+            }
+          },
+          "./worker": {
+            "bun": "./src/worker-entry.ts",
+            "browser": "./dist/worker-entry.js",
+            "import": {
+              "types": "./dist/worker-entry.d.ts",
+              "default": "./dist/worker-entry.js"
+            }
+          }
+        },
+        "files": [
+          "dist",
+          "src",
+          "README.md",
+          "!src/**/*.test.ts",
+          "!src/**/*.test.tsx",
+          "!dist/**/*.test.js",
+          "!dist/**/*.test.d.ts"
+        ],
+        "scripts": {
+          "verify:node": "bun build ./test/node-database/verify-node.mjs --target=node --outfile=./.verify-node.built.mjs && node ./.verify-node.built.mjs"
+        },
+        "dependencies": {
+          "@sqlite.org/sqlite-wasm": "^3.53.0-build1",
+          "@syncular/core": "0.17.0"
+        },
+        "devDependencies": {
+          "@syncular/server": "0.17.0"
+        }
+      },
+      "lockSha256": "53c3e2aebab03eedc031086cfe3f01c67bf86c24374bba7c5a609123020c59d0",
+      "cargoLockSha256": "97a38283fe55ce4a8d4efafb522cf16f826ad1f9e13c34ac18b769c6c7ed8f96",
+      "binarySha256": "545cd6b89d44a198b3e6521b518116a8e8d18e7045d04d4004873d2029beef7f"
+    },
+    {
+      "version": "0.19.0",
+      "cwd": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/blob-pairs/0.19.0",
+      "core": "0.19.0",
+      "package": {
+        "name": "@syncular/client",
+        "version": "0.19.0",
+        "description": "Syncular TypeScript client core — offline-first sync over SQLite (WASM/OPFS, Bun, Node)",
+        "license": "Apache-2.0",
+        "author": "Benjamin Kniffler",
+        "homepage": "https://syncular.dev",
+        "repository": {
+          "type": "git",
+          "url": "https://github.com/syncular/syncular.git",
+          "directory": "packages/web-client"
+        },
+        "bugs": {
+          "url": "https://github.com/syncular/syncular/issues"
+        },
+        "keywords": [
+          "sync",
+          "offline-first",
+          "realtime",
+          "database",
+          "typescript"
+        ],
+        "type": "module",
+        "sideEffects": false,
+        "publishConfig": {
+          "access": "public"
+        },
+        "exports": {
+          ".": {
+            "bun": "./src/index.ts",
+            "browser": "./dist/index.js",
+            "import": {
+              "types": "./dist/index.d.ts",
+              "default": "./dist/index.js"
+            }
+          },
+          "./bun": {
+            "bun": "./src/bun-database.ts",
+            "browser": "./dist/bun-database.js",
+            "import": {
+              "types": "./dist/bun-database.d.ts",
+              "default": "./dist/bun-database.js"
+            }
+          },
+          "./node": {
+            "bun": "./src/node-database.ts",
+            "browser": "./dist/node-database.js",
+            "import": {
+              "types": "./dist/node-database.d.ts",
+              "default": "./dist/node-database.js"
+            }
+          },
+          "./sqlite": {
+            "bun": "./src/sqlite-bun.ts",
+            "node": {
+              "types": "./dist/sqlite-node.d.ts",
+              "default": "./dist/sqlite-node.js"
+            },
+            "types": "./dist/sqlite-node.d.ts"
+          },
+          "./wasm": {
+            "bun": "./src/wasm-database.ts",
+            "browser": "./dist/wasm-database.js",
+            "import": {
+              "types": "./dist/wasm-database.d.ts",
+              "default": "./dist/wasm-database.js"
+            }
+          },
+          "./worker": {
+            "bun": "./src/worker-entry.ts",
+            "browser": "./dist/worker-entry.js",
+            "import": {
+              "types": "./dist/worker-entry.d.ts",
+              "default": "./dist/worker-entry.js"
+            }
+          }
+        },
+        "files": [
+          "dist",
+          "src",
+          "README.md",
+          "!src/**/*.test.ts",
+          "!src/**/*.test.tsx",
+          "!dist/**/*.test.js",
+          "!dist/**/*.test.d.ts"
+        ],
+        "scripts": {
+          "verify:node": "bun build ./test/node-database/verify-node.mjs --target=node --outfile=./.verify-node.built.mjs && node ./.verify-node.built.mjs"
+        },
+        "dependencies": {
+          "@sqlite.org/sqlite-wasm": "^3.53.0-build1",
+          "@syncular/core": "0.19.0"
+        },
+        "devDependencies": {
+          "@syncular/server": "0.19.0"
+        }
+      },
+      "lockSha256": "ff488590e97b5159c5fd5020ee52100d53c3f9e3d74111b77e5036e1529b35cb",
+      "cargoLockSha256": "fcffa5d2e46e27ac19ce280af27a23670ee4310a49343d86d5601f714dbaa99a",
+      "binarySha256": "113bdf0716398ac8185cff1973fe395a26b7a1de10c3a5b4f22776f51e639865"
+    }
+  ],
+  "server": {
+    "core": "0.19.0",
+    "server": "0.19.0"
+  },
+  "source": {
+    "path": "SOURCE.json",
+    "sha256": "dd9e40c84e6d419202b6df3abdbafe41fb06b9ff19a0bd31f2d4f2a21a4f1d68"
+  },
+  "sourceUnchanged": true,
+  "comparison": {
+    "repositoryPath": "results/investigations/syncular-019-blobs/PAIRS.json",
+    "sha256": "64047ce2a980170b7c35f71a50d8fd5a10402febd8d5291ae637b868cd758c18"
+  },
+  "rows": [
+    {
+      "stackId": "syncular",
+      "status": "completed",
+      "phases": [
+        {
+          "phase": "writer",
+          "pid": 91374,
+          "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-QlOS5W/writer",
+          "storeWasAbsent": true,
+          "api": "uploadBlob + sync",
+          "taskCount": 50,
+          "stageMs": 1542.31125,
+          "uploadMs": 1479.7668330000001,
+          "file": {
+            "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+            "bytes": 500000000,
+            "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+            "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+            "taskId": "org-1-project-1-task-000001",
+            "ref": {
+              "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "byteLength": 500000000,
+              "mediaType": "application/octet-stream"
+            },
+            "commitId": "3457c8b7-75be-4283-8fb4-1e5e7e7c3d2e",
+            "applied": [
+              "3457c8b7-75be-4283-8fb4-1e5e7e7c3d2e"
+            ]
+          },
+          "phaseElapsedMs": 3324.0674579999995
+        },
+        {
+          "phase": "fresh",
+          "pid": 91395,
+          "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-QlOS5W/fresh",
+          "storeWasAbsent": true,
+          "api": "fetchBlob",
+          "taskCount": 50,
+          "initialCacheCount": 0,
+          "link": {
+            "id": "7608dded-575c-442f-abf5-aa57f5675368",
+            "project_id": "org-1-project-1",
+            "task_id": "org-1-project-1-task-000001",
+            "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+            "created_at_ms": 1700000000000
+          },
+          "downloadMs": 1959.0225839999998,
+          "complete": {
+            "bytes": 500000000,
+            "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+          },
+          "transfers": {
+            "method": "http-object-download-cut-v1",
+            "cutAfterBytes": null,
+            "attempts": [
+              {
+                "method": "GET",
+                "status": 200,
+                "contentLength": 500000000,
+                "range": null,
+                "upstreamBodyBytes": 500000000,
+                "forwardedBodyBytes": 500000000,
+                "interrupted": false,
+                "completed": true
+              }
+            ]
+          },
+          "phaseElapsedMs": 2270.7942919999987
+        }
+      ],
+      "phaseTimeoutMs": 600000,
+      "startedAt": "2026-09-11T15:11:09.105Z",
+      "objectPreparation": {
+        "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+        "presentBefore": false,
+        "presentAfter": false
+      },
+      "uploadMs": 3022.0780830000003,
+      "downloadMs": 1959.0225839999998,
+      "finishedAt": "2026-09-11T15:11:16.873Z"
+    },
+    {
+      "stackId": "syncular-rust",
+      "status": "completed",
+      "phases": [
+        {
+          "phase": "writer",
+          "pid": 91402,
+          "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-zmqFXo/writer",
+          "storeWasAbsent": true,
+          "nativePid": 91403,
+          "api": "upload_blob + sync",
+          "taskCount": 50,
+          "stageMs": 2164.010542,
+          "uploadMs": 2047.3069580000006,
+          "file": {
+            "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+            "bytes": 500000000,
+            "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+            "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+            "taskId": "org-1-project-1-task-000001",
+            "ref": {
+              "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "byteLength": 500000000,
+              "mediaType": "application/octet-stream"
+            },
+            "commitId": "caa6ec00-6613-4de7-add4-d1d0e3c86beb",
+            "applied": [
+              "caa6ec00-6613-4de7-add4-d1d0e3c86beb"
+            ]
+          },
+          "phaseElapsedMs": 4766.058000000001
+        },
+        {
+          "phase": "fresh",
+          "pid": 91411,
+          "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-zmqFXo/fresh",
+          "storeWasAbsent": true,
+          "nativePid": 91412,
+          "api": "fetch_blob_bytes",
+          "taskCount": 50,
+          "initialCacheCount": 0,
+          "link": {
+            "_syncular_version": 1,
+            "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+            "created_at_ms": 1700000000000,
+            "id": "7f6f768e-5d0e-4bd0-8465-fa8a1a47b932",
+            "project_id": "org-1-project-1",
+            "task_id": "org-1-project-1-task-000001"
+          },
+          "downloadMs": 2584.243834,
+          "complete": {
+            "bytes": 500000000,
+            "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+          },
+          "transfers": {
+            "method": "http-object-download-cut-v1",
+            "cutAfterBytes": null,
+            "attempts": [
+              {
+                "method": "GET",
+                "status": 200,
+                "contentLength": 500000000,
+                "range": null,
+                "upstreamBodyBytes": 500000000,
+                "forwardedBodyBytes": 500000000,
+                "interrupted": false,
+                "completed": true
+              }
+            ]
+          },
+          "phaseElapsedMs": 3517.3948340000024
+        }
+      ],
+      "phaseTimeoutMs": 600000,
+      "startedAt": "2026-09-11T15:11:16.949Z",
+      "objectPreparation": {
+        "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+        "presentBefore": false,
+        "presentAfter": false
+      },
+      "uploadMs": 4211.317500000001,
+      "downloadMs": 2584.243834,
+      "finishedAt": "2026-09-11T15:11:27.410Z"
+    }
+  ]
+}

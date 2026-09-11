@@ -9,8 +9,8 @@
         "@powersync/node": "1.0.0",
         "@powersync/web": "2.3.0",
         "@rocicorp/zero": "1.9.0",
-        "@syncular/client": "0.18.0",
-        "@syncular/core": "0.18.0",
+        "@syncular/client": "0.19.0",
+        "@syncular/core": "0.19.0",
         "@tanstack/browser-db-sqlite-persistence": "0.2.20",
         "@tanstack/db": "0.8.7",
         "@tanstack/electric-db-collection": "0.4.7",
@@ -28,8 +28,8 @@
       },
       "devDependencies": {
         "@journeyapps/wa-sqlite": "1.4.1",
-        "@syncular/server": "0.18.0",
-        "@syncular/server-hono": "0.18.0",
+        "@syncular/server": "0.19.0",
+        "@syncular/server-hono": "0.19.0",
         "@types/bun": "1.4.1",
         "typescript": "7.0.2",
       },
@@ -398,13 +398,13 @@
 
     "@standard-schema/spec": ["@standard-schema/spec@1.1.0", "", {}, "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="],
 
-    "@syncular/client": ["@syncular/client@0.18.0", "", { "dependencies": { "@sqlite.org/sqlite-wasm": "^3.53.0-build1", "@syncular/core": "0.18.0" } }, "sha512-F67n4Ura0A6JgddNOdZdQ1jqNVnRbLuQcxVVY6CiINLrtF3y+MUoeSz9boO461w3MrVddrXc2mtl2+AtFL2RUQ=="],
+    "@syncular/client": ["@syncular/client@0.19.0", "", { "dependencies": { "@sqlite.org/sqlite-wasm": "^3.53.0-build1", "@syncular/core": "0.19.0" } }, "sha512-0C3uEfrKm3HzoIfegRNoipbB+RFxQNbMxIP/5Kt4zYQgPtikqAIEFQenSVGfIuu1O0y+M8S3B5JVRVjk5WgFWg=="],
 
-    "@syncular/core": ["@syncular/core@0.18.0", "", {}, "sha512-M1+hsFktVYiyilYBgUL/np37l4Lwf0hMD02flDKiSCB6M880RAd9uXsNp0C2K8I3owrqFRRaV5q5JclHio1gYA=="],
+    "@syncular/core": ["@syncular/core@0.19.0", "", {}, "sha512-ueCTjgZ3K7hnt5YUD+paMT9zU7WIta017X2gi9lPSUVG1OcQAmxoQe5Kf3WVORuvsOS07yFSzP+YtrOLReMr/Q=="],
 
-    "@syncular/server": ["@syncular/server@0.18.0", "", { "dependencies": { "@syncular/core": "0.18.0" } }, "sha512-lEA0Uv9iIr83nmxuZFzD0K4TrNVwynnMXfMNBsX6oA/5vWZ0gFqq2YRSpH0FdfBkZpwy8tvYgAs9Mo12FvpPkg=="],
+    "@syncular/server": ["@syncular/server@0.19.0", "", { "dependencies": { "@syncular/core": "0.19.0" } }, "sha512-52h/cJGH1xqT+MlA8DmAHNKJwSsEn7b6QnqL+lzggbZJ/RFN64YFv1W06/QrL5YIOYaXltz2AkZuLexFE6h1Hg=="],
 
-    "@syncular/server-hono": ["@syncular/server-hono@0.18.0", "", { "dependencies": { "@syncular/server": "0.18.0", "hono": "^4.12.34" } }, "sha512-qKFOZrAQ8qS/J2gziO0AjkxxoCE9M7f4a32H7c1GO8e6/o8ddSh5WYF4CeO/fcFK+Tw4PcT6LGIkd+KgUJgCqg=="],
+    "@syncular/server-hono": ["@syncular/server-hono@0.19.0", "", { "dependencies": { "@syncular/server": "0.19.0", "hono": "^4.12.34" } }, "sha512-ijvK+LiSa5pOQnmAHddKerf3l1VZLzMTFDV7SkEuPAZEIXYtcv6jJGa0YCH+aHEkQTocpA8holCa49FTppP5/g=="],
 
     "@tanstack/browser-db-sqlite-persistence": ["@tanstack/browser-db-sqlite-persistence@0.2.20", "", { "dependencies": { "@tanstack/db-sqlite-persistence-core": "0.2.20" }, "peerDependencies": { "@journeyapps/wa-sqlite": "^1.4.1", "typescript": ">=4.7" } }, "sha512-o/urAbFgwfKVu3ELeGA6lMhJL1FkZw6soR/9+XnlxnvgQHdVKJyttRv14esD7mL4ofWAmcRrl2HU1KHF/ChECQ=="],
 

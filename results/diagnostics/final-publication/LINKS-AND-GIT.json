@@ -342,7 +342,7 @@
     {
       "path": "results/diagnostics/final-publication/LARGE-FILE-AUDIT.json",
       "bytes": 380,
-      "sha256": "eec48eea30e7202e5a8a8f13b7376bc10b9a322d13a68fc1a4719e4fecd3b5cc"
+      "sha256": "ef51a8d0dbb7915275b9fcedf49c85cb1e5dea7b2bbfda49be33b0448c32f400"
     },
     {
       "path": "results/diagnostics/final-publication/LINKS-AND-GIT.json",

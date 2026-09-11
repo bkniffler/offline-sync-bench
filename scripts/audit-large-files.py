@@ -18,14 +18,32 @@ def verify_source(report, folder):
     with tarfile.open(folder / source['archive']) as tar:
         for entry in source['files']:
             assert sha(tar.extractfile(entry['path']).read()) == entry['sha256']
-        if report.get('versions', {}).get('syncularClient') == '0.18.0':
+        version = report.get('versions', {}).get('syncularClient')
+        if version in ['0.18.0', '0.19.0']:
             package = json.loads(tar.extractfile('package.json').read())
-            assert package['dependencies']['@syncular/client'] == '0.18.0'
+            assert package['dependencies']['@syncular/client'] == version
             driver = tar.extractfile('drivers/syncular-rust/src/main.rs').read().decode()
             assert '?.fetch_blob_bytes(transport, blob)?' in driver and '?.fetch_blob(transport, blob)?' not in driver
             lock = tar.extractfile('drivers/syncular-rust/Cargo.lock').read().decode()
             for crate in ['syncular-client', 'syncular-command', 'syncular-ffi']:
-                assert f'name = "{crate}"\nversion = "0.18.0"' in lock
+                assert f'name = "{crate}"\nversion = "{version}"' in lock
+            if version == '0.19.0':
+                assert report['server'] == {'core': version, 'server': version}
+                compare_raw = Path(report['comparison']['repositoryPath']).read_bytes()
+                assert sha(compare_raw) == report['comparison']['sha256']
+                paired = json.loads(compare_raw)
+                assert paired['source'] == report['source'] and paired['sourceUnchanged']
+                assert paired['candidate'] == version and paired['serverVersion'] == version
+                assert paired['publicationSelection'].startswith('First candidate attempt per client (pair 1)')
+                assert len(paired['rows']) == 12
+                assert [(r['pair'],r['client'],r['version']) for r in paired['rows']] == [(r['pair'],r['client'],r['version']) for r in paired['plan']]
+                baseline = paired.get('baseline', '0.17.0')
+                assert baseline in ['0.17.0','0.18.0']
+                for client in ['syncular','syncular-rust']:
+                    for release in [baseline,version]:
+                        assert {r['pair'] for r in paired['rows'] if r['client']==client and r['version']==release} == {1,2,3}
+                    first = next(r['result'] for r in paired['rows'] if r['client']==client and r['version']==version and r['pair']==1)
+                    assert next(r for r in report['rows'] if r['stackId']==client) == first
 
 if data.get('collections'):
     selected = set()

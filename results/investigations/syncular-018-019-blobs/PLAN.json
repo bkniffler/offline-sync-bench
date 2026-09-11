@@ -1,0 +1,305 @@
+{
+  "kind": "syncular-blob-client-release-pairs",
+  "version": 1,
+  "baseline": "0.18.0",
+  "candidate": "0.19.0",
+  "serverVersion": "0.19.0",
+  "publicationSelection": null,
+  "source": {
+    "path": "SOURCE.json",
+    "sha256": "d838ac36dcad60f9d55837af209ba560e2d07ba6e806a861c78c7dfccb59004e"
+  },
+  "startedAt": "2026-09-11T15:18:01.510Z",
+  "fixture": {
+    "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+    "bytes": 500000000,
+    "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+    "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1"
+  },
+  "server": {
+    "core": "0.19.0",
+    "server": "0.19.0"
+  },
+  "runtime": [
+    {
+      "version": "0.18.0",
+      "cwd": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/blob-pairs/0.18.0",
+      "core": "0.18.0",
+      "package": {
+        "name": "@syncular/client",
+        "version": "0.18.0",
+        "description": "Syncular TypeScript client core — offline-first sync over SQLite (WASM/OPFS, Bun, Node)",
+        "license": "Apache-2.0",
+        "author": "Benjamin Kniffler",
+        "homepage": "https://syncular.dev",
+        "repository": {
+          "type": "git",
+          "url": "https://github.com/syncular/syncular.git",
+          "directory": "packages/web-client"
+        },
+        "bugs": {
+          "url": "https://github.com/syncular/syncular/issues"
+        },
+        "keywords": [
+          "sync",
+          "offline-first",
+          "realtime",
+          "database",
+          "typescript"
+        ],
+        "type": "module",
+        "sideEffects": false,
+        "publishConfig": {
+          "access": "public"
+        },
+        "exports": {
+          ".": {
+            "bun": "./src/index.ts",
+            "browser": "./dist/index.js",
+            "import": {
+              "types": "./dist/index.d.ts",
+              "default": "./dist/index.js"
+            }
+          },
+          "./bun": {
+            "bun": "./src/bun-database.ts",
+            "browser": "./dist/bun-database.js",
+            "import": {
+              "types": "./dist/bun-database.d.ts",
+              "default": "./dist/bun-database.js"
+            }
+          },
+          "./node": {
+            "bun": "./src/node-database.ts",
+            "browser": "./dist/node-database.js",
+            "import": {
+              "types": "./dist/node-database.d.ts",
+              "default": "./dist/node-database.js"
+            }
+          },
+          "./sqlite": {
+            "bun": "./src/sqlite-bun.ts",
+            "node": {
+              "types": "./dist/sqlite-node.d.ts",
+              "default": "./dist/sqlite-node.js"
+            },
+            "types": "./dist/sqlite-node.d.ts"
+          },
+          "./wasm": {
+            "bun": "./src/wasm-database.ts",
+            "browser": "./dist/wasm-database.js",
+            "import": {
+              "types": "./dist/wasm-database.d.ts",
+              "default": "./dist/wasm-database.js"
+            }
+          },
+          "./worker": {
+            "bun": "./src/worker-entry.ts",
+            "browser": "./dist/worker-entry.js",
+            "import": {
+              "types": "./dist/worker-entry.d.ts",
+              "default": "./dist/worker-entry.js"
+            }
+          }
+        },
+        "files": [
+          "dist",
+          "src",
+          "README.md",
+          "!src/**/*.test.ts",
+          "!src/**/*.test.tsx",
+          "!dist/**/*.test.js",
+          "!dist/**/*.test.d.ts"
+        ],
+        "scripts": {
+          "verify:node": "bun build ./test/node-database/verify-node.mjs --target=node --outfile=./.verify-node.built.mjs && node ./.verify-node.built.mjs"
+        },
+        "dependencies": {
+          "@sqlite.org/sqlite-wasm": "^3.53.0-build1",
+          "@syncular/core": "0.18.0"
+        },
+        "devDependencies": {
+          "@syncular/server": "0.18.0"
+        }
+      },
+      "lockSha256": "99eca402fecc29e75538d15b0c1d5aa931169a15c07f7baba13d0a879554500c",
+      "cargoLockSha256": "5df6b7fbcd7d17d5a1298ca9192ab61dd999238f8db044cdd4bff0f6e2ead964",
+      "binarySha256": "65fc8ae8fa49475399256f13156d4bc94b3b1f54fe8a22ff7d1d513de70bcc8b"
+    },
+    {
+      "version": "0.19.0",
+      "cwd": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/blob-pairs/0.19.0",
+      "core": "0.19.0",
+      "package": {
+        "name": "@syncular/client",
+        "version": "0.19.0",
+        "description": "Syncular TypeScript client core — offline-first sync over SQLite (WASM/OPFS, Bun, Node)",
+        "license": "Apache-2.0",
+        "author": "Benjamin Kniffler",
+        "homepage": "https://syncular.dev",
+        "repository": {
+          "type": "git",
+          "url": "https://github.com/syncular/syncular.git",
+          "directory": "packages/web-client"
+        },
+        "bugs": {
+          "url": "https://github.com/syncular/syncular/issues"
+        },
+        "keywords": [
+          "sync",
+          "offline-first",
+          "realtime",
+          "database",
+          "typescript"
+        ],
+        "type": "module",
+        "sideEffects": false,
+        "publishConfig": {
+          "access": "public"
+        },
+        "exports": {
+          ".": {
+            "bun": "./src/index.ts",
+            "browser": "./dist/index.js",
+            "import": {
+              "types": "./dist/index.d.ts",
+              "default": "./dist/index.js"
+            }
+          },
+          "./bun": {
+            "bun": "./src/bun-database.ts",
+            "browser": "./dist/bun-database.js",
+            "import": {
+              "types": "./dist/bun-database.d.ts",
+              "default": "./dist/bun-database.js"
+            }
+          },
+          "./node": {
+            "bun": "./src/node-database.ts",
+            "browser": "./dist/node-database.js",
+            "import": {
+              "types": "./dist/node-database.d.ts",
+              "default": "./dist/node-database.js"
+            }
+          },
+          "./sqlite": {
+            "bun": "./src/sqlite-bun.ts",
+            "node": {
+              "types": "./dist/sqlite-node.d.ts",
+              "default": "./dist/sqlite-node.js"
+            },
+            "types": "./dist/sqlite-node.d.ts"
+          },
+          "./wasm": {
+            "bun": "./src/wasm-database.ts",
+            "browser": "./dist/wasm-database.js",
+            "import": {
+              "types": "./dist/wasm-database.d.ts",
+              "default": "./dist/wasm-database.js"
+            }
+          },
+          "./worker": {
+            "bun": "./src/worker-entry.ts",
+            "browser": "./dist/worker-entry.js",
+            "import": {
+              "types": "./dist/worker-entry.d.ts",
+              "default": "./dist/worker-entry.js"
+            }
+          }
+        },
+        "files": [
+          "dist",
+          "src",
+          "README.md",
+          "!src/**/*.test.ts",
+          "!src/**/*.test.tsx",
+          "!dist/**/*.test.js",
+          "!dist/**/*.test.d.ts"
+        ],
+        "scripts": {
+          "verify:node": "bun build ./test/node-database/verify-node.mjs --target=node --outfile=./.verify-node.built.mjs && node ./.verify-node.built.mjs"
+        },
+        "dependencies": {
+          "@sqlite.org/sqlite-wasm": "^3.53.0-build1",
+          "@syncular/core": "0.19.0"
+        },
+        "devDependencies": {
+          "@syncular/server": "0.19.0"
+        }
+      },
+      "lockSha256": "ff488590e97b5159c5fd5020ee52100d53c3f9e3d74111b77e5036e1529b35cb",
+      "cargoLockSha256": "fcffa5d2e46e27ac19ce280af27a23670ee4310a49343d86d5601f714dbaa99a",
+      "binarySha256": "113bdf0716398ac8185cff1973fe395a26b7a1de10c3a5b4f22776f51e639865"
+    }
+  ],
+  "plan": [
+    {
+      "pair": 1,
+      "client": "syncular",
+      "version": "0.18.0"
+    },
+    {
+      "pair": 1,
+      "client": "syncular",
+      "version": "0.19.0"
+    },
+    {
+      "pair": 1,
+      "client": "syncular-rust",
+      "version": "0.19.0"
+    },
+    {
+      "pair": 1,
+      "client": "syncular-rust",
+      "version": "0.18.0"
+    },
+    {
+      "pair": 2,
+      "client": "syncular-rust",
+      "version": "0.18.0"
+    },
+    {
+      "pair": 2,
+      "client": "syncular-rust",
+      "version": "0.19.0"
+    },
+    {
+      "pair": 2,
+      "client": "syncular",
+      "version": "0.19.0"
+    },
+    {
+      "pair": 2,
+      "client": "syncular",
+      "version": "0.18.0"
+    },
+    {
+      "pair": 3,
+      "client": "syncular",
+      "version": "0.18.0"
+    },
+    {
+      "pair": 3,
+      "client": "syncular",
+      "version": "0.19.0"
+    },
+    {
+      "pair": 3,
+      "client": "syncular-rust",
+      "version": "0.19.0"
+    },
+    {
+      "pair": 3,
+      "client": "syncular-rust",
+      "version": "0.18.0"
+    }
+  ],
+  "profile": "Exact registry clients, unchanged SDK sources, corrected common HTTP meter; server fixed at the recorded serverVersion; new writer and reader processes/stores per attempt; object deleted and server task fixture reset before each attempt; OS/server caches retained; no compilation or test suite during collection. Upload includes native staging and metadata acceptance. Input read and final independent SHA-256 are outside published-style totals.",
+  "machine": {
+    "cpu": "Apple M4",
+    "bun": "1.4.0",
+    "memoryBytes": 25769803776
+  },
+  "publishedManifestSha256": "3692aae312c89f5853a987d64d738735acfc7a3f7a47f200f742e9e04b5d8774",
+  "rows": []
+}

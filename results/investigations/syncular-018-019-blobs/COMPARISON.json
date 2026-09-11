@@ -1,0 +1,85 @@
+{
+  "baseline": "0.18.0",
+  "candidate": "0.19.0",
+  "pairs": 3,
+  "effects": [
+    {
+      "client": "syncular",
+      "metric": "uploadMs",
+      "baselineMedianMs": 3399.8707080000004,
+      "candidateMedianMs": 3006.240458,
+      "medianChangePercent": -11.57780056382074,
+      "pairedGeometricChangePercent": -7.105644136242151,
+      "pairChangesPercent": [
+        -3.798424464508443,
+        -11.57780056382074,
+        -5.762341936840865
+      ]
+    },
+    {
+      "client": "syncular",
+      "metric": "postStage",
+      "baselineMedianMs": 2050.328625,
+      "candidateMedianMs": 1470.2383750000001,
+      "medianChangePercent": -28.29254993208711,
+      "pairedGeometricChangePercent": -21.96143396698892,
+      "pairChangesPercent": [
+        -21.76265636006288,
+        -28.29254993208711,
+        -15.28711625529745
+      ]
+    },
+    {
+      "client": "syncular",
+      "metric": "downloadMs",
+      "baselineMedianMs": 1901.618416,
+      "candidateMedianMs": 1890.0206249999999,
+      "medianChangePercent": -0.6098905491458084,
+      "pairedGeometricChangePercent": -5.191624659878713,
+      "pairChangesPercent": [
+        -17.88230368213727,
+        6.041821197250319,
+        -2.1352754400333906
+      ]
+    },
+    {
+      "client": "syncular-rust",
+      "metric": "uploadMs",
+      "baselineMedianMs": 4141.375833,
+      "candidateMedianMs": 3765.503332,
+      "medianChangePercent": -9.07602970985899,
+      "pairedGeometricChangePercent": -8.597785881660657,
+      "pairChangesPercent": [
+        -4.706014272623782,
+        -9.29829660023087,
+        -11.653527582653467
+      ]
+    },
+    {
+      "client": "syncular-rust",
+      "metric": "postStage",
+      "baselineMedianMs": 2329.179167,
+      "candidateMedianMs": 1989.282291,
+      "medianChangePercent": -14.592989702796865,
+      "pairedGeometricChangePercent": -15.497071963547393,
+      "pairChangesPercent": [
+        -10.470156098605454,
+        -16.470779631917242,
+        -19.311987603742796
+      ]
+    },
+    {
+      "client": "syncular-rust",
+      "metric": "downloadMs",
+      "baselineMedianMs": 2972.7895000000003,
+      "candidateMedianMs": 2202.146375,
+      "medianChangePercent": -25.923232203289214,
+      "pairedGeometricChangePercent": -22.928798099494262,
+      "pairChangesPercent": [
+        -27.43726331783668,
+        -13.109739381652519,
+        -27.390801689922096
+      ]
+    }
+  ]
+}
