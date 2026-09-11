@@ -1,0 +1,1776 @@
+{
+  "kind": "syncular-blob-instrumented-diagnostics",
+  "version": 1,
+  "startedAt": "2026-09-11T10:00:20.614Z",
+  "fixture": {
+    "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+    "bytes": 500000000,
+    "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+    "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1"
+  },
+  "server": {
+    "core": "0.18.0",
+    "server": "0.18.0"
+  },
+  "runtime": [
+    {
+      "version": "0.17.0",
+      "cwd": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/blob-pairs-diagnostics/0.17.0",
+      "package": {
+        "name": "@syncular/client",
+        "version": "0.17.0",
+        "description": "Syncular TypeScript client core — offline-first sync over SQLite (WASM/OPFS, Bun, Node)",
+        "license": "Apache-2.0",
+        "author": "Benjamin Kniffler",
+        "homepage": "https://syncular.dev",
+        "repository": {
+          "type": "git",
+          "url": "https://github.com/syncular/syncular.git",
+          "directory": "packages/web-client"
+        },
+        "bugs": {
+          "url": "https://github.com/syncular/syncular/issues"
+        },
+        "keywords": [
+          "sync",
+          "offline-first",
+          "realtime",
+          "database",
+          "typescript"
+        ],
+        "type": "module",
+        "sideEffects": false,
+        "publishConfig": {
+          "access": "public"
+        },
+        "exports": {
+          ".": {
+            "bun": "./src/index.ts",
+            "browser": "./dist/index.js",
+            "import": {
+              "types": "./dist/index.d.ts",
+              "default": "./dist/index.js"
+            }
+          },
+          "./bun": {
+            "bun": "./src/bun-database.ts",
+            "browser": "./dist/bun-database.js",
+            "import": {
+              "types": "./dist/bun-database.d.ts",
+              "default": "./dist/bun-database.js"
+            }
+          },
+          "./node": {
+            "bun": "./src/node-database.ts",
+            "browser": "./dist/node-database.js",
+            "import": {
+              "types": "./dist/node-database.d.ts",
+              "default": "./dist/node-database.js"
+            }
+          },
+          "./sqlite": {
+            "bun": "./src/sqlite-bun.ts",
+            "node": {
+              "types": "./dist/sqlite-node.d.ts",
+              "default": "./dist/sqlite-node.js"
+            },
+            "types": "./dist/sqlite-node.d.ts"
+          },
+          "./wasm": {
+            "bun": "./src/wasm-database.ts",
+            "browser": "./dist/wasm-database.js",
+            "import": {
+              "types": "./dist/wasm-database.d.ts",
+              "default": "./dist/wasm-database.js"
+            }
+          },
+          "./worker": {
+            "bun": "./src/worker-entry.ts",
+            "browser": "./dist/worker-entry.js",
+            "import": {
+              "types": "./dist/worker-entry.d.ts",
+              "default": "./dist/worker-entry.js"
+            }
+          }
+        },
+        "files": [
+          "dist",
+          "src",
+          "README.md",
+          "!src/**/*.test.ts",
+          "!src/**/*.test.tsx",
+          "!dist/**/*.test.js",
+          "!dist/**/*.test.d.ts"
+        ],
+        "scripts": {
+          "verify:node": "bun build ./test/node-database/verify-node.mjs --target=node --outfile=./.verify-node.built.mjs && node ./.verify-node.built.mjs"
+        },
+        "dependencies": {
+          "@sqlite.org/sqlite-wasm": "^3.53.0-build1",
+          "@syncular/core": "0.17.0"
+        },
+        "devDependencies": {
+          "@syncular/server": "0.17.0"
+        }
+      },
+      "lockSha256": "53c3e2aebab03eedc031086cfe3f01c67bf86c24374bba7c5a609123020c59d0",
+      "cargoLockSha256": "54fe882fbb1dacb5397bd665078bc96f7d59dbf1ce3623ba2d6a201aa5f32eb4",
+      "binarySha256": "5f34a670ceebf7aa0def1bd564fd7d1ed45e05f6f018a25d074679126eb69f70"
+    },
+    {
+      "version": "0.18.0",
+      "cwd": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/blob-pairs-diagnostics/0.18.0",
+      "package": {
+        "name": "@syncular/client",
+        "version": "0.18.0",
+        "description": "Syncular TypeScript client core — offline-first sync over SQLite (WASM/OPFS, Bun, Node)",
+        "license": "Apache-2.0",
+        "author": "Benjamin Kniffler",
+        "homepage": "https://syncular.dev",
+        "repository": {
+          "type": "git",
+          "url": "https://github.com/syncular/syncular.git",
+          "directory": "packages/web-client"
+        },
+        "bugs": {
+          "url": "https://github.com/syncular/syncular/issues"
+        },
+        "keywords": [
+          "sync",
+          "offline-first",
+          "realtime",
+          "database",
+          "typescript"
+        ],
+        "type": "module",
+        "sideEffects": false,
+        "publishConfig": {
+          "access": "public"
+        },
+        "exports": {
+          ".": {
+            "bun": "./src/index.ts",
+            "browser": "./dist/index.js",
+            "import": {
+              "types": "./dist/index.d.ts",
+              "default": "./dist/index.js"
+            }
+          },
+          "./bun": {
+            "bun": "./src/bun-database.ts",
+            "browser": "./dist/bun-database.js",
+            "import": {
+              "types": "./dist/bun-database.d.ts",
+              "default": "./dist/bun-database.js"
+            }
+          },
+          "./node": {
+            "bun": "./src/node-database.ts",
+            "browser": "./dist/node-database.js",
+            "import": {
+              "types": "./dist/node-database.d.ts",
+              "default": "./dist/node-database.js"
+            }
+          },
+          "./sqlite": {
+            "bun": "./src/sqlite-bun.ts",
+            "node": {
+              "types": "./dist/sqlite-node.d.ts",
+              "default": "./dist/sqlite-node.js"
+            },
+            "types": "./dist/sqlite-node.d.ts"
+          },
+          "./wasm": {
+            "bun": "./src/wasm-database.ts",
+            "browser": "./dist/wasm-database.js",
+            "import": {
+              "types": "./dist/wasm-database.d.ts",
+              "default": "./dist/wasm-database.js"
+            }
+          },
+          "./worker": {
+            "bun": "./src/worker-entry.ts",
+            "browser": "./dist/worker-entry.js",
+            "import": {
+              "types": "./dist/worker-entry.d.ts",
+              "default": "./dist/worker-entry.js"
+            }
+          }
+        },
+        "files": [
+          "dist",
+          "src",
+          "README.md",
+          "!src/**/*.test.ts",
+          "!src/**/*.test.tsx",
+          "!dist/**/*.test.js",
+          "!dist/**/*.test.d.ts"
+        ],
+        "scripts": {
+          "verify:node": "bun build ./test/node-database/verify-node.mjs --target=node --outfile=./.verify-node.built.mjs && node ./.verify-node.built.mjs"
+        },
+        "dependencies": {
+          "@sqlite.org/sqlite-wasm": "^3.53.0-build1",
+          "@syncular/core": "0.18.0"
+        },
+        "devDependencies": {
+          "@syncular/server": "0.18.0"
+        }
+      },
+      "lockSha256": "99eca402fecc29e75538d15b0c1d5aa931169a15c07f7baba13d0a879554500c",
+      "cargoLockSha256": "57d229ecb62634600b10f11454bb58aab3e5aadddcdec9f4a4ce76c1e717f2a0",
+      "binarySha256": "87dd96148964ee56aec063317cf493f02cf4e35cbfa43e51c0895bb47ab2b5df"
+    }
+  ],
+  "plan": [
+    {
+      "pair": 1,
+      "client": "syncular",
+      "version": "0.17.0"
+    },
+    {
+      "pair": 1,
+      "client": "syncular",
+      "version": "0.18.0"
+    },
+    {
+      "pair": 1,
+      "client": "syncular-rust",
+      "version": "0.18.0"
+    },
+    {
+      "pair": 1,
+      "client": "syncular-rust",
+      "version": "0.17.0"
+    }
+  ],
+  "profile": "Separate diagnostic runs: released JS with runtime database, crypto, full-body-slice and transport observers; native timer-only source patch plus shipped bench-internals feature. Nested spans overlap. These are NOT the unmodified-release comparison and must not replace it. See archived probes, source patch and Cargo locks.",
+  "machine": {
+    "cpu": "Apple M4",
+    "bun": "1.4.0",
+    "memoryBytes": 25769803776
+  },
+  "publishedManifestSha256": "3692aae312c89f5853a987d64d738735acfc7a3f7a47f200f742e9e04b5d8774",
+  "rows": [
+    {
+      "pair": 1,
+      "client": "syncular",
+      "version": "0.17.0",
+      "before": {
+        "time": "2026-09-11T10:00:20.616Z",
+        "load": [
+          17.13525390625,
+          9.51123046875,
+          6.60595703125
+        ],
+        "freeMemoryBytes": 807862272
+      },
+      "after": {
+        "time": "2026-09-11T10:00:34.871Z",
+        "load": [
+          16.27783203125,
+          9.57666015625,
+          6.66259765625
+        ],
+        "freeMemoryBytes": 3971203072
+      },
+      "result": {
+        "stackId": "syncular",
+        "status": "completed",
+        "phases": [
+          {
+            "phase": "writer",
+            "pid": 19750,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-olYDwW/writer",
+            "storeWasAbsent": true,
+            "api": "uploadBlob + sync",
+            "taskCount": 50,
+            "profile": {
+              "input": [
+                {
+                  "label": "inputReadAndCopy",
+                  "ms": 588.472708,
+                  "processCpuMs": 220.826
+                }
+              ],
+              "stage": [
+                {
+                  "label": "fullBodySlice",
+                  "ms": 489.6640829999999,
+                  "processCpuMs": 204.285
+                },
+                {
+                  "label": "sha256",
+                  "ms": 726.029916,
+                  "processCpuMs": 583.425
+                },
+                {
+                  "label": "sql.control BEGIN",
+                  "ms": 0.07112499999993815,
+                  "processCpuMs": 0.068
+                },
+                {
+                  "label": "sql.exec INSERT INTO _syncular_blobs( blob_id, bytes, byte_length, media_type, refcount, created_at_ms, last_used_ms) VALUES (?,?,?,?,0,?,?) ON CONFLICT(blob_id) DO UPDATE SET last_used_ms = excluded.last_used_ms",
+                  "ms": 1257.554625,
+                  "processCpuMs": 896.359
+                },
+                {
+                  "label": "sql.exec INSERT OR IGNORE INTO _syncular_blob_uploads(blob_id, media_type, created_at_ms) VALUES (?,?,?)",
+                  "ms": 0.12341599999990649,
+                  "processCpuMs": 0.122
+                },
+                {
+                  "label": "sql.control COMMIT",
+                  "ms": 1839.0560419999997,
+                  "processCpuMs": 646.945
+                }
+              ],
+              "upload": [
+                {
+                  "label": "sql.control BEGIN",
+                  "ms": 0.015707999999904132,
+                  "processCpuMs": 0.013
+                },
+                {
+                  "label": "sql.query SELECT value FROM _syncular_meta WHERE key = ?",
+                  "ms": 0.03600000000005821,
+                  "processCpuMs": 0.034
+                },
+                {
+                  "label": "sql.exec INSERT OR REPLACE INTO _syncular_meta(key, value) VALUES (?, ?)",
+                  "ms": 0.015082999999322055,
+                  "processCpuMs": 0.014
+                },
+                {
+                  "label": "sql.query SELECT COUNT(*) AS count FROM _syncular_outbox",
+                  "ms": 0.003500000000713044,
+                  "processCpuMs": 0.003
+                },
+                {
+                  "label": "sql.control COMMIT",
+                  "ms": 0.11483300000054442,
+                  "processCpuMs": 0.102
+                },
+                {
+                  "label": "sql.query SELECT value FROM _syncular_meta WHERE key = ?",
+                  "ms": 0.011666999999761174,
+                  "processCpuMs": 0.011
+                },
+                {
+                  "label": "sql.query SELECT blob_id, media_type FROM _syncular_blob_uploads ORDER BY created_at_ms",
+                  "ms": 0.06454200000007404,
+                  "processCpuMs": 0.064
+                },
+                {
+                  "label": "sql.query SELECT bytes, byte_length, media_type FROM _syncular_blobs WHERE blob_id = ?",
+                  "ms": 313.81366700000035,
+                  "processCpuMs": 228.226
+                },
+                {
+                  "label": "blob.uploadGrant",
+                  "ms": 107.77487500000007,
+                  "processCpuMs": 2.892
+                },
+                {
+                  "label": "fullBodySlice",
+                  "ms": 184.05854199999976,
+                  "processCpuMs": 104.497
+                },
+                {
+                  "label": "blob.uploadToUrl",
+                  "ms": 1982.1422910000001,
+                  "processCpuMs": 510.907
+                },
+                {
+                  "label": "sql.exec DELETE FROM _syncular_blob_uploads WHERE blob_id = ?",
+                  "ms": 0.734958000000006,
+                  "processCpuMs": 0.717
+                },
+                {
+                  "label": "sql.query SELECT COUNT(*) AS count, MAX(seq) AS last_seq FROM _syncular_outbox",
+                  "ms": 0.07987499999944703,
+                  "processCpuMs": 0.078
+                },
+                {
+                  "label": "sql.query SELECT seq, client_commit_id, created_at_ms, operations FROM _syncular_outbox WHERE seq > ? AND seq <= ? ORDER BY seq ASC LIMIT 32",
+                  "ms": 0.1130830000001879,
+                  "processCpuMs": 0.112
+                },
+                {
+                  "label": "sql.query SELECT * FROM _syncular_subscriptions ORDER BY rowid ASC",
+                  "ms": 0.025292000000263215,
+                  "processCpuMs": 0.024
+                },
+                {
+                  "label": "metadata.sync",
+                  "ms": 30.90270799999962,
+                  "processCpuMs": 0.875
+                },
+                {
+                  "label": "sql.query SELECT value FROM _syncular_meta WHERE key = ?",
+                  "ms": 0.07224999999925785,
+                  "processCpuMs": 0.076
+                },
+                {
+                  "label": "sql.query SELECT COUNT(*) AS count FROM _syncular_outbox",
+                  "ms": 0.011375000000043656,
+                  "processCpuMs": 0.011
+                },
+                {
+                  "label": "sql.control BEGIN",
+                  "ms": 0.007458000000042375,
+                  "processCpuMs": 0.007
+                },
+                {
+                  "label": "sql.query SELECT 1 FROM _syncular_outbox WHERE client_commit_id = ? LIMIT 1",
+                  "ms": 0.05008400000042457,
+                  "processCpuMs": 0.055
+                },
+                {
+                  "label": "sql.exec INSERT INTO _syncular_commit_outcomes( client_commit_id, status, recorded_at_ms, results, operations, resolution ) VALUES (?, ?, ?, ?, ?, 'active')",
+                  "ms": 0.11558400000012625,
+                  "processCpuMs": 0.159
+                },
+                {
+                  "label": "sql.query SELECT seq, client_commit_id, status, recorded_at_ms, results, operations, resolution, resolved_at_ms, replacement_client_commit_id FROM _syncular_commit_outcomes WHERE client_commit_id = ?",
+                  "ms": 0.024457999999867752,
+                  "processCpuMs": 0.024
+                },
+                {
+                  "label": "sql.exec DELETE FROM _syncular_outbox_before_images WHERE client_commit_id = ?",
+                  "ms": 0.018250000000080036,
+                  "processCpuMs": 0.017
+                },
+                {
+                  "label": "sql.exec DELETE FROM _syncular_outbox WHERE client_commit_id = ?",
+                  "ms": 0.00574999999935244,
+                  "processCpuMs": 0.006
+                },
+                {
+                  "label": "sql.query SELECT COUNT(*) AS count FROM _syncular_commit_outcomes",
+                  "ms": 0.013042000000496046,
+                  "processCpuMs": 0.012
+                },
+                {
+                  "label": "sql.query SELECT value FROM _syncular_meta WHERE key = ?",
+                  "ms": 0.011416999999710242,
+                  "processCpuMs": 0.01
+                },
+                {
+                  "label": "sql.exec INSERT OR REPLACE INTO _syncular_meta(key, value) VALUES (?, ?)",
+                  "ms": 0.00408400000014808,
+                  "processCpuMs": 0.004
+                },
+                {
+                  "label": "sql.control COMMIT",
+                  "ms": 0.21479199999976117,
+                  "processCpuMs": 0.17
+                },
+                {
+                  "label": "sql.query SELECT base, unit, sub_id FROM _syncular_windows WHERE sub_id = ? LIMIT 1",
+                  "ms": 0.030249999999796273,
+                  "processCpuMs": 0.029
+                },
+                {
+                  "label": "sql.control BEGIN",
+                  "ms": 0.003582999999707681,
+                  "processCpuMs": 0.003
+                },
+                {
+                  "label": "sql.exec INSERT OR REPLACE INTO _syncular_subscriptions( id, tbl, requested_scopes, params, cursor, bootstrap_state, effective_scopes, status, reason_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                  "ms": 0.027458000000478933,
+                  "processCpuMs": 0.027
+                },
+                {
+                  "label": "sql.control COMMIT",
+                  "ms": 0.05845899999985704,
+                  "processCpuMs": 0.039
+                },
+                {
+                  "label": "sql.control BEGIN",
+                  "ms": 0.004582999999911408,
+                  "processCpuMs": 0.004
+                },
+                {
+                  "label": "sql.query SELECT \"project_id\" FROM \"task_blob_entries\" WHERE \"id\" = ?",
+                  "ms": 0.015583000000333413,
+                  "processCpuMs": 0.016
+                },
+                {
+                  "label": "sql.exec INSERT INTO \"task_blob_entries\" (\"id\", \"project_id\", \"task_id\", \"blob\", \"created_at_ms\", \"_sync_version\") VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (\"id\") DO UPDATE SET \"project_id\"=excluded.\"project_id\", \"task_id\"=excluded.\"task_id\", \"blob\"=excluded.\"blob\", \"created_at_ms\"=excluded.\"created_at_ms\", \"_sync_version\"=excluded.\"_sync_version\"",
+                  "ms": 0.011292000000139524,
+                  "processCpuMs": 0.01
+                },
+                {
+                  "label": "sql.query SELECT value FROM _syncular_meta WHERE key = ?",
+                  "ms": 0.003374999999323336,
+                  "processCpuMs": 0.002
+                },
+                {
+                  "label": "sql.exec INSERT OR REPLACE INTO _syncular_meta(key, value) VALUES (?, ?)",
+                  "ms": 0.0029999999997016857,
+                  "processCpuMs": 0.003
+                },
+                {
+                  "label": "sql.control COMMIT",
+                  "ms": 0.059874999999919964,
+                  "processCpuMs": 0.111
+                },
+                {
+                  "label": "sql.query SELECT base, unit, sub_id FROM _syncular_windows WHERE sub_id = ? LIMIT 1",
+                  "ms": 0.006624999999985448,
+                  "processCpuMs": 0.006
+                },
+                {
+                  "label": "sql.control BEGIN",
+                  "ms": 0.00204200000007404,
+                  "processCpuMs": 0.002
+                },
+                {
+                  "label": "sql.exec INSERT OR REPLACE INTO _syncular_subscriptions( id, tbl, requested_scopes, params, cursor, bootstrap_state, effective_scopes, status, reason_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                  "ms": 0.006332999999358435,
+                  "processCpuMs": 0.006
+                },
+                {
+                  "label": "sql.control COMMIT",
+                  "ms": 0.035750000000007276,
+                  "processCpuMs": 0.096
+                },
+                {
+                  "label": "sql.query SELECT seq, client_commit_id, created_at_ms, operations FROM _syncular_outbox ORDER BY seq ASC",
+                  "ms": 0.021708000000216998,
+                  "processCpuMs": 0.039
+                },
+                {
+                  "label": "sql.query SELECT \"blob\" AS v FROM \"task_blob_entries\" WHERE \"blob\" IS NOT NULL",
+                  "ms": 0.01224999999976717,
+                  "processCpuMs": 0.012
+                },
+                {
+                  "label": "sql.control BEGIN",
+                  "ms": 0.002124999999978172,
+                  "processCpuMs": 0.002
+                },
+                {
+                  "label": "sql.exec UPDATE _syncular_blobs SET refcount = 0",
+                  "ms": 317.3387499999999,
+                  "processCpuMs": 326.852
+                },
+                {
+                  "label": "sql.exec UPDATE _syncular_blobs SET refcount = ? WHERE blob_id = ?",
+                  "ms": 315.4682920000005,
+                  "processCpuMs": 263.213
+                },
+                {
+                  "label": "sql.control COMMIT",
+                  "ms": 0.19187499999952706,
+                  "processCpuMs": 0.169
+                },
+                {
+                  "label": "sql.query SELECT * FROM _syncular_subscriptions ORDER BY rowid ASC",
+                  "ms": 0.0406250000005457,
+                  "processCpuMs": 0.04
+                },
+                {
+                  "label": "sql.query SELECT sub_id, tbl, effective_scopes FROM _syncular_window_pending_evict",
+                  "ms": 0.04958299999998417,
+                  "processCpuMs": 0.05
+                }
+              ]
+            },
+            "stageMs": 4322.351166,
+            "uploadMs": 3072.9752499999995,
+            "file": {
+              "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+              "taskId": "org-1-project-1-task-000001",
+              "ref": {
+                "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+                "byteLength": 500000000,
+                "mediaType": "application/octet-stream"
+              },
+              "commitId": "8af62c49-dd69-4a3c-8fa4-52083a552d46",
+              "applied": [
+                "8af62c49-dd69-4a3c-8fa4-52083a552d46"
+              ]
+            },
+            "phaseElapsedMs": 8262.788125000001
+          },
+          {
+            "phase": "fresh",
+            "pid": 19785,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-olYDwW/fresh",
+            "storeWasAbsent": true,
+            "api": "fetchBlob",
+            "taskCount": 50,
+            "profile": {
+              "download": [
+                {
+                  "label": "sql.query SELECT bytes, byte_length, media_type FROM _syncular_blobs WHERE blob_id = ?",
+                  "ms": 0.02108400000000188,
+                  "processCpuMs": 0.017
+                },
+                {
+                  "label": "blob.download",
+                  "ms": 6.904624999999996,
+                  "processCpuMs": 0.773
+                },
+                {
+                  "label": "blob.fetchUrl",
+                  "ms": 503.15749999999997,
+                  "processCpuMs": 606.866
+                },
+                {
+                  "label": "fullBodySlice",
+                  "ms": 42.019000000000005,
+                  "processCpuMs": 41.535
+                },
+                {
+                  "label": "sha256",
+                  "ms": 237.1171250000001,
+                  "processCpuMs": 246.735
+                },
+                {
+                  "label": "sql.exec INSERT INTO _syncular_blobs( blob_id, bytes, byte_length, media_type, refcount, created_at_ms, last_used_ms) VALUES (?,?,?,?,0,?,?) ON CONFLICT(blob_id) DO UPDATE SET last_used_ms = excluded.last_used_ms",
+                  "ms": 1610.621,
+                  "processCpuMs": 1249.773
+                },
+                {
+                  "label": "sql.query SELECT \"blob\" AS v FROM \"task_blob_entries\" WHERE \"blob\" IS NOT NULL",
+                  "ms": 0.12408300000015515,
+                  "processCpuMs": 0.123
+                },
+                {
+                  "label": "sql.control BEGIN",
+                  "ms": 0.013875000000098225,
+                  "processCpuMs": 0.013
+                },
+                {
+                  "label": "sql.exec UPDATE _syncular_blobs SET refcount = 0",
+                  "ms": 303.8580830000001,
+                  "processCpuMs": 290.723
+                },
+                {
+                  "label": "sql.exec UPDATE _syncular_blobs SET refcount = ? WHERE blob_id = ?",
+                  "ms": 280.1669999999999,
+                  "processCpuMs": 248.196
+                },
+                {
+                  "label": "sql.control COMMIT",
+                  "ms": 28.92308299999968,
+                  "processCpuMs": 25.705
+                },
+                {
+                  "label": "sql.query SELECT bytes, byte_length, media_type FROM _syncular_blobs WHERE blob_id = ?",
+                  "ms": 183.86374999999998,
+                  "processCpuMs": 138.272
+                }
+              ]
+            },
+            "initialCacheCount": 0,
+            "link": {
+              "id": "a91f499b-b4f1-44d8-a979-17e957b2a0f6",
+              "project_id": "org-1-project-1",
+              "task_id": "org-1-project-1-task-000001",
+              "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+              "created_at_ms": 1700000000000
+            },
+            "downloadMs": 3198.064958,
+            "complete": {
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+            },
+            "transfers": {
+              "method": "http-object-download-cut-v1",
+              "cutAfterBytes": null,
+              "attempts": [
+                {
+                  "method": "GET",
+                  "status": 200,
+                  "contentLength": 500000000,
+                  "range": null,
+                  "upstreamBodyBytes": 500000000,
+                  "forwardedBodyBytes": 500000000,
+                  "interrupted": false,
+                  "completed": true
+                }
+              ]
+            },
+            "phaseElapsedMs": 3699.2220419999994
+          }
+        ],
+        "phaseTimeoutMs": 600000,
+        "startedAt": "2026-09-11T10:00:20.617Z",
+        "objectPreparation": {
+          "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+          "presentBefore": false,
+          "presentAfter": false
+        },
+        "uploadMs": 7395.326416,
+        "downloadMs": 3198.064958,
+        "finishedAt": "2026-09-11T10:00:34.813Z"
+      }
+    },
+    {
+      "pair": 1,
+      "client": "syncular",
+      "version": "0.18.0",
+      "before": {
+        "time": "2026-09-11T10:00:34.872Z",
+        "load": [
+          16.27783203125,
+          9.57666015625,
+          6.66259765625
+        ],
+        "freeMemoryBytes": 3971203072
+      },
+      "after": {
+        "time": "2026-09-11T10:00:44.066Z",
+        "load": [
+          15.09765625,
+          9.54150390625,
+          6.68408203125
+        ],
+        "freeMemoryBytes": 4591058944
+      },
+      "result": {
+        "stackId": "syncular",
+        "status": "completed",
+        "phases": [
+          {
+            "phase": "writer",
+            "pid": 19797,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-pra3F2/writer",
+            "storeWasAbsent": true,
+            "api": "uploadBlob + sync",
+            "taskCount": 50,
+            "profile": {
+              "input": [
+                {
+                  "label": "inputReadAndCopy",
+                  "ms": 192.10429200000002,
+                  "processCpuMs": 114.985
+                }
+              ],
+              "stage": [
+                {
+                  "label": "fullBodySlice",
+                  "ms": 49.26604099999997,
+                  "processCpuMs": 50.347
+                },
+                {
+                  "label": "sha256",
+                  "ms": 376.572709,
+                  "processCpuMs": 324.118
+                },
+                {
+                  "label": "sql.control BEGIN",
+                  "ms": 0.02366699999993216,
+                  "processCpuMs": 0.022
+                },
+                {
+                  "label": "sql.exec INSERT INTO _syncular_blobs( blob_id, bytes, byte_length, media_type, refcount, created_at_ms, last_used_ms) VALUES (?,?,?,?,0,?,?) ON CONFLICT(blob_id) DO UPDATE SET last_used_ms = excluded.last_used_ms",
+                  "ms": 701.3847499999999,
+                  "processCpuMs": 608.261
+                },
+                {
+                  "label": "sql.exec INSERT OR IGNORE INTO _syncular_blob_uploads(blob_id, media_type, created_at_ms) VALUES (?,?,?)",
+                  "ms": 0.07320800000002237,
+                  "processCpuMs": 0.071
+                },
+                {
+                  "label": "sql.control COMMIT",
+                  "ms": 644.4277080000002,
+                  "processCpuMs": 527.266
+                }
+              ],
+              "upload": [
+                {
+                  "label": "sql.control BEGIN",
+                  "ms": 0.01645799999960218,
+                  "processCpuMs": 0.014
+                },
+                {
+                  "label": "sql.query SELECT value FROM _syncular_meta WHERE key = ?",
+                  "ms": 0.036291999999775726,
+                  "processCpuMs": 0.037
+                },
+                {
+                  "label": "sql.exec INSERT OR REPLACE INTO _syncular_meta(key, value) VALUES (?, ?)",
+                  "ms": 0.012541999999939435,
+                  "processCpuMs": 0.012
+                },
+                {
+                  "label": "sql.query SELECT COUNT(*) AS count FROM _syncular_outbox",
+                  "ms": 0.003624999999829015,
+                  "processCpuMs": 0.003
+                },
+                {
+                  "label": "sql.control COMMIT",
+                  "ms": 0.1230000000000473,
+                  "processCpuMs": 0.106
+                },
+                {
+                  "label": "sql.query SELECT value FROM _syncular_meta WHERE key = ?",
+                  "ms": 0.012999999999919964,
+                  "processCpuMs": 0.012
+                },
+                {
+                  "label": "sql.query SELECT blob_id, media_type FROM ( SELECT blob_id, media_type, created_at_ms FROM _syncular_blob_uploads UNION ALL SELECT DISTINCT r.blob_id, b.media_type, 9223372036854775807 AS created_at_ms FROM _syncular_blob_commit_refs r LEFT JOIN _syncular_blobs b ON b.blob_id = r.blob_id WHERE NOT EXISTS (SELECT 1 FROM _syncular_blob_uploads u WHERE u.blob_id = r.blob_id) ) ORDER BY created_at_ms, blob_id",
+                  "ms": 0.14895900000010442,
+                  "processCpuMs": 0.189
+                },
+                {
+                  "label": "sql.query SELECT bytes, byte_length, media_type FROM _syncular_blobs WHERE blob_id = ?",
+                  "ms": 140.58083299999998,
+                  "processCpuMs": 136.36
+                },
+                {
+                  "label": "sha256",
+                  "ms": 209.28829199999973,
+                  "processCpuMs": 212.058
+                },
+                {
+                  "label": "blob.uploadGrant",
+                  "ms": 13.593249999999898,
+                  "processCpuMs": 9.19
+                },
+                {
+                  "label": "fullBodySlice",
+                  "ms": 42.47737499999994,
+                  "processCpuMs": 35.809
+                },
+                {
+                  "label": "blob.uploadToUrl",
+                  "ms": 1396.2630419999996,
+                  "processCpuMs": 165.304
+                },
+                {
+                  "label": "sql.exec DELETE FROM _syncular_blob_uploads WHERE blob_id = ?",
+                  "ms": 0.2013329999999769,
+                  "processCpuMs": 0.194
+                },
+                {
+                  "label": "sql.query SELECT COUNT(*) AS count, MAX(seq) AS last_seq FROM _syncular_outbox",
+                  "ms": 0.04658400000016627,
+                  "processCpuMs": 0.045
+                },
+                {
+                  "label": "sql.query SELECT seq, client_commit_id, created_at_ms, operations FROM _syncular_outbox WHERE seq > ? AND seq <= ? ORDER BY seq ASC LIMIT 32",
+                  "ms": 0.06150000000025102,
+                  "processCpuMs": 0.061
+                },
+                {
+                  "label": "sql.query SELECT * FROM _syncular_subscriptions ORDER BY rowid ASC",
+                  "ms": 0.0198339999997188,
+                  "processCpuMs": 0.018
+                },
+                {
+                  "label": "metadata.sync",
+                  "ms": 25.601624999999785,
+                  "processCpuMs": 7.37
+                },
+                {
+                  "label": "sql.query SELECT value FROM _syncular_meta WHERE key = ?",
+                  "ms": 0.06554199999982302,
+                  "processCpuMs": 0.068
+                },
+                {
+                  "label": "sql.query SELECT COUNT(*) AS count FROM _syncular_outbox",
+                  "ms": 0.009125000000040018,
+                  "processCpuMs": 0.008
+                },
+                {
+                  "label": "sql.control BEGIN",
+                  "ms": 0.010749999999916326,
+                  "processCpuMs": 0.011
+                },
+                {
+                  "label": "sql.query SELECT 1 FROM _syncular_outbox WHERE client_commit_id = ? LIMIT 1",
+                  "ms": 0.04070799999999508,
+                  "processCpuMs": 0.04
+                },
+                {
+                  "label": "sql.exec INSERT INTO _syncular_commit_outcomes( client_commit_id, status, recorded_at_ms, results, operations, resolution ) VALUES (?, ?, ?, ?, ?, 'active')",
+                  "ms": 0.07395799999994779,
+                  "processCpuMs": 0.098
+                },
+                {
+                  "label": "sql.query SELECT seq, client_commit_id, status, recorded_at_ms, results, operations, resolution, resolved_at_ms, replacement_client_commit_id FROM _syncular_commit_outcomes WHERE client_commit_id = ?",
+                  "ms": 0.022041000000172062,
+                  "processCpuMs": 0.02
+                },
+                {
+                  "label": "sql.exec DELETE FROM _syncular_outbox_before_images WHERE client_commit_id = ?",
+                  "ms": 0.014916999999968539,
+                  "processCpuMs": 0.015
+                },
+                {
+                  "label": "sql.exec DELETE FROM _syncular_outbox WHERE client_commit_id = ?",
+                  "ms": 0.040666000000328495,
+                  "processCpuMs": 0.04
+                },
+                {
+                  "label": "sql.query SELECT COUNT(*) AS count FROM _syncular_commit_outcomes",
+                  "ms": 0.011625000000094587,
+                  "processCpuMs": 0.011
+                },
+                {
+                  "label": "sql.query SELECT value FROM _syncular_meta WHERE key = ?",
+                  "ms": 0.009958999999980733,
+                  "processCpuMs": 0.009
+                },
+                {
+                  "label": "sql.exec INSERT OR REPLACE INTO _syncular_meta(key, value) VALUES (?, ?)",
+                  "ms": 0.003666999999950349,
+                  "processCpuMs": 0.004
+                },
+                {
+                  "label": "sql.control COMMIT",
+                  "ms": 0.15058399999998073,
+                  "processCpuMs": 0.125
+                },
+                {
+                  "label": "sql.query SELECT base, unit, sub_id FROM _syncular_windows WHERE sub_id = ? LIMIT 1",
+                  "ms": 0.029875000000174623,
+                  "processCpuMs": 0.032
+                },
+                {
+                  "label": "sql.control BEGIN",
+                  "ms": 0.0029580000000350992,
+                  "processCpuMs": 0.003
+                },
+                {
+                  "label": "sql.exec INSERT OR REPLACE INTO _syncular_subscriptions( id, tbl, requested_scopes, params, cursor, bootstrap_state, effective_scopes, status, reason_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                  "ms": 0.020833999999922526,
+                  "processCpuMs": 0.02
+                },
+                {
+                  "label": "sql.control COMMIT",
+                  "ms": 0.04208299999982046,
+                  "processCpuMs": 0.071
+                },
+                {
+                  "label": "sql.control BEGIN",
+                  "ms": 0.0036660000000665605,
+                  "processCpuMs": 0.003
+                },
+                {
+                  "label": "sql.query SELECT \"project_id\" FROM \"task_blob_entries\" WHERE \"id\" = ?",
+                  "ms": 0.014000000000123691,
+                  "processCpuMs": 0.013
+                },
+                {
+                  "label": "sql.exec INSERT INTO \"task_blob_entries\" (\"id\", \"project_id\", \"task_id\", \"blob\", \"created_at_ms\", \"_sync_version\") VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (\"id\") DO UPDATE SET \"project_id\"=excluded.\"project_id\", \"task_id\"=excluded.\"task_id\", \"blob\"=excluded.\"blob\", \"created_at_ms\"=excluded.\"created_at_ms\", \"_sync_version\"=excluded.\"_sync_version\"",
+                  "ms": 0.007665999999971973,
+                  "processCpuMs": 0.007
+                },
+                {
+                  "label": "sql.query SELECT value FROM _syncular_meta WHERE key = ?",
+                  "ms": 0.003208000000086031,
+                  "processCpuMs": 0.002
+                },
+                {
+                  "label": "sql.exec INSERT OR REPLACE INTO _syncular_meta(key, value) VALUES (?, ?)",
+                  "ms": 0.0032919999998739513,
+                  "processCpuMs": 0.003
+                },
+                {
+                  "label": "sql.control COMMIT",
+                  "ms": 0.08424999999988358,
+                  "processCpuMs": 0.071
+                },
+                {
+                  "label": "sql.query SELECT base, unit, sub_id FROM _syncular_windows WHERE sub_id = ? LIMIT 1",
+                  "ms": 0.006208999999671505,
+                  "processCpuMs": 0.005
+                },
+                {
+                  "label": "sql.control BEGIN",
+                  "ms": 0.0019999999999527063,
+                  "processCpuMs": 0.003
+                },
+                {
+                  "label": "sql.exec INSERT OR REPLACE INTO _syncular_subscriptions( id, tbl, requested_scopes, params, cursor, bootstrap_state, effective_scopes, status, reason_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                  "ms": 0.011457999999947788,
+                  "processCpuMs": 0.011
+                },
+                {
+                  "label": "sql.control COMMIT",
+                  "ms": 0.03779099999974278,
+                  "processCpuMs": 0.027
+                },
+                {
+                  "label": "sql.query SELECT seq, client_commit_id, created_at_ms, operations FROM _syncular_outbox ORDER BY seq ASC",
+                  "ms": 0.014541999999892141,
+                  "processCpuMs": 0.014
+                },
+                {
+                  "label": "sql.query SELECT \"blob\" AS v FROM \"task_blob_entries\" WHERE \"blob\" IS NOT NULL",
+                  "ms": 0.010209000000031665,
+                  "processCpuMs": 0.009
+                },
+                {
+                  "label": "sql.control BEGIN",
+                  "ms": 0.002250000000003638,
+                  "processCpuMs": 0.002
+                },
+                {
+                  "label": "sql.exec UPDATE _syncular_blobs SET refcount = 0",
+                  "ms": 204.83562500000016,
+                  "processCpuMs": 204.952
+                },
+                {
+                  "label": "sql.exec UPDATE _syncular_blobs SET refcount = ? WHERE blob_id = ?",
+                  "ms": 183.8227079999997,
+                  "processCpuMs": 182.32
+                },
+                {
+                  "label": "sql.control COMMIT",
+                  "ms": 0.18908300000020972,
+                  "processCpuMs": 0.135
+                },
+                {
+                  "label": "sql.query SELECT * FROM _syncular_subscriptions ORDER BY rowid ASC",
+                  "ms": 0.02954200000021956,
+                  "processCpuMs": 0.028
+                },
+                {
+                  "label": "sql.query SELECT sub_id, tbl, effective_scopes FROM _syncular_window_pending_evict",
+                  "ms": 0.03433299999960582,
+                  "processCpuMs": 0.033
+                }
+              ]
+            },
+            "stageMs": 1772.565875,
+            "uploadMs": 2177.817083,
+            "file": {
+              "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+              "taskId": "org-1-project-1-task-000001",
+              "ref": {
+                "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+                "byteLength": 500000000,
+                "mediaType": "application/octet-stream"
+              },
+              "commitId": "6226c01c-5f6b-45b2-8155-a80f85e695ae",
+              "applied": [
+                "6226c01c-5f6b-45b2-8155-a80f85e695ae"
+              ]
+            },
+            "phaseElapsedMs": 4378.141250000001
+          },
+          {
+            "phase": "fresh",
+            "pid": 19833,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-pra3F2/fresh",
+            "storeWasAbsent": true,
+            "api": "fetchBlob",
+            "taskCount": 50,
+            "profile": {
+              "download": [
+                {
+                  "label": "sql.query SELECT bytes, byte_length, media_type FROM _syncular_blobs WHERE blob_id = ?",
+                  "ms": 0.01654099999998948,
+                  "processCpuMs": 0.014
+                },
+                {
+                  "label": "blob.download",
+                  "ms": 7.579875000000001,
+                  "processCpuMs": 0.327
+                },
+                {
+                  "label": "blob.fetchUrl",
+                  "ms": 352.174666,
+                  "processCpuMs": 476.566
+                },
+                {
+                  "label": "sha256",
+                  "ms": 195.892791,
+                  "processCpuMs": 208.202
+                },
+                {
+                  "label": "sql.exec INSERT INTO _syncular_blobs( blob_id, bytes, byte_length, media_type, refcount, created_at_ms, last_used_ms) VALUES (?,?,?,?,0,?,?) ON CONFLICT(blob_id) DO UPDATE SET last_used_ms = excluded.last_used_ms",
+                  "ms": 1179.477625,
+                  "processCpuMs": 1065.518
+                },
+                {
+                  "label": "sql.query SELECT count(*) AS n FROM \"task_blob_entries\" WHERE CASE WHEN typeof(\"blob\") = 'text' AND json_valid(\"blob\") THEN json_extract(\"blob\", '$.blobId') END = ?",
+                  "ms": 0.12433299999997871,
+                  "processCpuMs": 0.123
+                },
+                {
+                  "label": "sql.exec UPDATE _syncular_blobs SET refcount = ? WHERE blob_id = ?",
+                  "ms": 337.60474999999997,
+                  "processCpuMs": 321.639
+                },
+                {
+                  "label": "sql.query SELECT bytes, byte_length, media_type FROM _syncular_blobs WHERE blob_id = ?",
+                  "ms": 111.19291599999997,
+                  "processCpuMs": 110.778
+                }
+              ]
+            },
+            "initialCacheCount": 0,
+            "link": {
+              "id": "24d75446-f848-4b34-b290-7709d3c0bf30",
+              "project_id": "org-1-project-1",
+              "task_id": "org-1-project-1-task-000001",
+              "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+              "created_at_ms": 1700000000000
+            },
+            "downloadMs": 2184.642417,
+            "complete": {
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+            },
+            "transfers": {
+              "method": "http-object-download-cut-v1",
+              "cutAfterBytes": null,
+              "attempts": [
+                {
+                  "method": "GET",
+                  "status": 200,
+                  "contentLength": 500000000,
+                  "range": null,
+                  "upstreamBodyBytes": 500000000,
+                  "forwardedBodyBytes": 500000000,
+                  "interrupted": false,
+                  "completed": true
+                }
+              ]
+            },
+            "phaseElapsedMs": 2523.0495420000007
+          }
+        ],
+        "phaseTimeoutMs": 600000,
+        "startedAt": "2026-09-11T10:00:34.873Z",
+        "objectPreparation": {
+          "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+          "presentBefore": false,
+          "presentAfter": false
+        },
+        "uploadMs": 3950.382958,
+        "downloadMs": 2184.642417,
+        "finishedAt": "2026-09-11T10:00:43.987Z"
+      }
+    },
+    {
+      "pair": 1,
+      "client": "syncular-rust",
+      "version": "0.18.0",
+      "before": {
+        "time": "2026-09-11T10:00:44.067Z",
+        "load": [
+          15.09765625,
+          9.54150390625,
+          6.68408203125
+        ],
+        "freeMemoryBytes": 4591075328
+      },
+      "after": {
+        "time": "2026-09-11T10:00:55.315Z",
+        "load": [
+          13.390625,
+          9.3583984375,
+          6.65185546875
+        ],
+        "freeMemoryBytes": 3138994176
+      },
+      "result": {
+        "stackId": "syncular-rust",
+        "status": "completed",
+        "phases": [
+          {
+            "phase": "writer",
+            "pid": 19841,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-5clpas/writer",
+            "storeWasAbsent": true,
+            "nativePid": 19842,
+            "api": "upload_blob + sync",
+            "taskCount": 50,
+            "profile": {
+              "stage": {
+                "builtin": {
+                  "measurements": {},
+                  "scope": "Per-client inclusive phases since enable/reset; nested phases overlap. CPU covers the calling thread, excluding transport I/O threads. Counts include failed calls. Units count attempted pending operations only.",
+                  "version": 1
+                },
+                "spans": [
+                  {
+                    "label": "inputRead",
+                    "ms": 82.96125,
+                    "threadCpuMs": 54.393584
+                  },
+                  {
+                    "label": "sha256",
+                    "ms": 888.634958,
+                    "threadCpuMs": 884.922291
+                  },
+                  {
+                    "label": "stageCommit",
+                    "ms": 361.591958,
+                    "threadCpuMs": 323.006167
+                  },
+                  {
+                    "label": "stageStorage",
+                    "ms": 1042.03325,
+                    "threadCpuMs": 955.680959
+                  }
+                ]
+              },
+              "upload": {
+                "builtin": {
+                  "measurements": {
+                    "blobReconcile": {
+                      "calls": 1,
+                      "elapsedNs": 350264166,
+                      "threadCpuNs": 349355125,
+                      "units": 0
+                    },
+                    "commitApply": {
+                      "calls": 1,
+                      "elapsedNs": 1390042,
+                      "threadCpuNs": 1365708,
+                      "units": 0
+                    },
+                    "cursorPersist": {
+                      "calls": 2,
+                      "elapsedNs": 228084,
+                      "threadCpuNs": 204708,
+                      "units": 0
+                    },
+                    "observationCommit": {
+                      "calls": 4,
+                      "elapsedNs": 923042,
+                      "threadCpuNs": 789833,
+                      "units": 0
+                    },
+                    "observationPrepare": {
+                      "calls": 1,
+                      "elapsedNs": 32000,
+                      "threadCpuNs": 32125,
+                      "units": 0
+                    },
+                    "outboxEncode": {
+                      "calls": 1,
+                      "elapsedNs": 8334,
+                      "threadCpuNs": 8417,
+                      "units": 0
+                    },
+                    "overlayRebuild": {
+                      "calls": 1,
+                      "elapsedNs": 858417,
+                      "threadCpuNs": 858791,
+                      "units": 0
+                    },
+                    "requestEncode": {
+                      "calls": 1,
+                      "elapsedNs": 19792,
+                      "threadCpuNs": 19875,
+                      "units": 0
+                    },
+                    "requestPrepare": {
+                      "calls": 1,
+                      "elapsedNs": 69542,
+                      "threadCpuNs": 69000,
+                      "units": 0
+                    },
+                    "responseApply": {
+                      "calls": 1,
+                      "elapsedNs": 352417541,
+                      "threadCpuNs": 351374584,
+                      "units": 0
+                    },
+                    "responseDecode": {
+                      "calls": 1,
+                      "elapsedNs": 7583,
+                      "threadCpuNs": 7666,
+                      "units": 0
+                    },
+                    "rowDecode": {
+                      "calls": 1,
+                      "elapsedNs": 6583,
+                      "threadCpuNs": 6584,
+                      "units": 0
+                    },
+                    "rowWrite": {
+                      "calls": 1,
+                      "elapsedNs": 40042,
+                      "threadCpuNs": 40083,
+                      "units": 0
+                    }
+                  },
+                  "scope": "Per-client inclusive phases since enable/reset; nested phases overlap. CPU covers the calling thread, excluding transport I/O threads. Counts include failed calls. Units count attempted pending operations only.",
+                  "version": 1
+                },
+                "spans": [
+                  {
+                    "label": "pendingBodyRead",
+                    "ms": 86.95483399999999,
+                    "threadCpuMs": 86.887375
+                  },
+                  {
+                    "label": "sha256",
+                    "ms": 890.344292,
+                    "threadCpuMs": 879.402709
+                  },
+                  {
+                    "label": "transport.blob_upload_grant",
+                    "ms": 23.267875,
+                    "threadCpuMs": 0.223458
+                  },
+                  {
+                    "label": "transport.blob_put_url",
+                    "ms": 1143.061375,
+                    "threadCpuMs": 78.798625
+                  },
+                  {
+                    "label": "transport.sync",
+                    "ms": 12.975833000000002,
+                    "threadCpuMs": 0.246667
+                  }
+                ]
+              }
+            },
+            "stageMs": 1930.6733330000002,
+            "uploadMs": 2523.670917,
+            "file": {
+              "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+              "taskId": "org-1-project-1-task-000001",
+              "ref": {
+                "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+                "byteLength": 500000000,
+                "mediaType": "application/octet-stream"
+              },
+              "commitId": "e6b30f69-a798-402d-af84-0d728ab7397b",
+              "applied": [
+                "e6b30f69-a798-402d-af84-0d728ab7397b"
+              ]
+            },
+            "phaseElapsedMs": 5278.05775
+          },
+          {
+            "phase": "fresh",
+            "pid": 19881,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-5clpas/fresh",
+            "storeWasAbsent": true,
+            "nativePid": 19882,
+            "api": "fetch_blob_bytes",
+            "taskCount": 50,
+            "profile": {
+              "download": {
+                "builtin": {
+                  "measurements": {
+                    "blobCacheInsert": {
+                      "calls": 1,
+                      "elapsedNs": 1339243750,
+                      "threadCpuNs": 1230598916,
+                      "units": 0
+                    },
+                    "blobCacheRead": {
+                      "calls": 2,
+                      "elapsedNs": 251096251,
+                      "threadCpuNs": 250554583,
+                      "units": 0
+                    },
+                    "blobDownload": {
+                      "calls": 1,
+                      "elapsedNs": 287184250,
+                      "threadCpuNs": 139829542,
+                      "units": 0
+                    },
+                    "blobReconcile": {
+                      "calls": 1,
+                      "elapsedNs": 239491666,
+                      "threadCpuNs": 232069125,
+                      "units": 0
+                    },
+                    "blobValidate": {
+                      "calls": 1,
+                      "elapsedNs": 874344541,
+                      "threadCpuNs": 872871875,
+                      "units": 0
+                    }
+                  },
+                  "scope": "Per-client inclusive phases since enable/reset; nested phases overlap. CPU covers the calling thread, excluding transport I/O threads. Counts include failed calls. Units count attempted pending operations only.",
+                  "version": 1
+                },
+                "spans": [
+                  {
+                    "label": "transport.blob_download",
+                    "ms": 4.285584,
+                    "threadCpuMs": 0.132584
+                  },
+                  {
+                    "label": "transport.fetch_blob_url",
+                    "ms": 282.893125,
+                    "threadCpuMs": 139.69225
+                  },
+                  {
+                    "label": "sha256",
+                    "ms": 874.341583,
+                    "threadCpuMs": 872.86925
+                  }
+                ]
+              }
+            },
+            "initialCacheCount": 0,
+            "link": {
+              "_syncular_version": 1,
+              "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+              "created_at_ms": 1700000000000,
+              "id": "60341cf8-154a-4267-bd12-8e965f87ee36",
+              "project_id": "org-1-project-1",
+              "task_id": "org-1-project-1-task-000001"
+            },
+            "downloadMs": 2751.891333,
+            "complete": {
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+            },
+            "transfers": {
+              "method": "http-object-download-cut-v1",
+              "cutAfterBytes": null,
+              "attempts": [
+                {
+                  "method": "GET",
+                  "status": 200,
+                  "contentLength": 500000000,
+                  "range": null,
+                  "upstreamBodyBytes": 500000000,
+                  "forwardedBodyBytes": 500000000,
+                  "interrupted": false,
+                  "completed": true
+                }
+              ]
+            },
+            "phaseElapsedMs": 3783.263667000003
+          }
+        ],
+        "phaseTimeoutMs": 600000,
+        "startedAt": "2026-09-11T10:00:44.067Z",
+        "objectPreparation": {
+          "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+          "presentBefore": false,
+          "presentAfter": false
+        },
+        "uploadMs": 4454.34425,
+        "downloadMs": 2751.891333,
+        "finishedAt": "2026-09-11T10:00:55.245Z"
+      }
+    },
+    {
+      "pair": 1,
+      "client": "syncular-rust",
+      "version": "0.17.0",
+      "before": {
+        "time": "2026-09-11T10:00:55.316Z",
+        "load": [
+          13.390625,
+          9.3583984375,
+          6.65185546875
+        ],
+        "freeMemoryBytes": 3139076096
+      },
+      "after": {
+        "time": "2026-09-11T10:01:07.666Z",
+        "load": [
+          11.80810546875,
+          9.20849609375,
+          6.64599609375
+        ],
+        "freeMemoryBytes": 4177362944
+      },
+      "result": {
+        "stackId": "syncular-rust",
+        "status": "completed",
+        "phases": [
+          {
+            "phase": "writer",
+            "pid": 19890,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-0IP8mh/writer",
+            "storeWasAbsent": true,
+            "nativePid": 19891,
+            "api": "upload_blob + sync",
+            "taskCount": 50,
+            "profile": {
+              "stage": {
+                "builtin": {
+                  "measurements": {},
+                  "scope": "Per-client inclusive phases since enable/reset; nested phases overlap. CPU covers the calling thread, excluding transport I/O threads. Counts include failed calls. Units count attempted pending operations only.",
+                  "version": 1
+                },
+                "spans": [
+                  {
+                    "label": "inputRead",
+                    "ms": 79.691209,
+                    "threadCpuMs": 79.662458
+                  },
+                  {
+                    "label": "sha256",
+                    "ms": 902.3100830000001,
+                    "threadCpuMs": 897.979916
+                  },
+                  {
+                    "label": "stageStorage",
+                    "ms": 1155.472708,
+                    "threadCpuMs": 956.40725
+                  }
+                ]
+              },
+              "upload": {
+                "builtin": {
+                  "measurements": {
+                    "blobReconcile": {
+                      "calls": 1,
+                      "elapsedNs": 369815167,
+                      "threadCpuNs": 367405375,
+                      "units": 0
+                    },
+                    "commitApply": {
+                      "calls": 1,
+                      "elapsedNs": 1305833,
+                      "threadCpuNs": 1283250,
+                      "units": 0
+                    },
+                    "cursorPersist": {
+                      "calls": 2,
+                      "elapsedNs": 215958,
+                      "threadCpuNs": 193334,
+                      "units": 0
+                    },
+                    "observationCommit": {
+                      "calls": 4,
+                      "elapsedNs": 764250,
+                      "threadCpuNs": 712375,
+                      "units": 0
+                    },
+                    "observationPrepare": {
+                      "calls": 1,
+                      "elapsedNs": 33250,
+                      "threadCpuNs": 33416,
+                      "units": 0
+                    },
+                    "outboxEncode": {
+                      "calls": 1,
+                      "elapsedNs": 12416,
+                      "threadCpuNs": 12375,
+                      "units": 0
+                    },
+                    "overlayRebuild": {
+                      "calls": 1,
+                      "elapsedNs": 773334,
+                      "threadCpuNs": 773875,
+                      "units": 0
+                    },
+                    "requestEncode": {
+                      "calls": 1,
+                      "elapsedNs": 9916,
+                      "threadCpuNs": 9958,
+                      "units": 0
+                    },
+                    "requestPrepare": {
+                      "calls": 1,
+                      "elapsedNs": 47417,
+                      "threadCpuNs": 47292,
+                      "units": 0
+                    },
+                    "responseApply": {
+                      "calls": 1,
+                      "elapsedNs": 371724750,
+                      "threadCpuNs": 369262417,
+                      "units": 0
+                    },
+                    "responseDecode": {
+                      "calls": 1,
+                      "elapsedNs": 16792,
+                      "threadCpuNs": 16917,
+                      "units": 0
+                    },
+                    "rowDecode": {
+                      "calls": 1,
+                      "elapsedNs": 32333,
+                      "threadCpuNs": 32458,
+                      "units": 0
+                    },
+                    "rowWrite": {
+                      "calls": 1,
+                      "elapsedNs": 41625,
+                      "threadCpuNs": 41667,
+                      "units": 0
+                    }
+                  },
+                  "scope": "Per-client inclusive phases since enable/reset; nested phases overlap. CPU covers the calling thread, excluding transport I/O threads. Counts include failed calls. Units count attempted pending operations only.",
+                  "version": 1
+                },
+                "spans": [
+                  {
+                    "label": "pendingBodyRead",
+                    "ms": 108.379584,
+                    "threadCpuMs": 106.504917
+                  },
+                  {
+                    "label": "transport.blob_upload_grant",
+                    "ms": 10.961500000000001,
+                    "threadCpuMs": 0.227958
+                  },
+                  {
+                    "label": "transport.blob_put_url",
+                    "ms": 1097.057709,
+                    "threadCpuMs": 74.962083
+                  },
+                  {
+                    "label": "transport.sync",
+                    "ms": 12.299125,
+                    "threadCpuMs": 0.293458
+                  }
+                ]
+              }
+            },
+            "stageMs": 2057.795791,
+            "uploadMs": 1600.8939590000005,
+            "file": {
+              "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.cache/attachments/500000000-2464173771ab7092.bin",
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+              "source": "generated:aes-256-ctr/offline-sync-bench-large-file-v1",
+              "taskId": "org-1-project-1-task-000001",
+              "ref": {
+                "blobId": "sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+                "byteLength": 500000000,
+                "mediaType": "application/octet-stream"
+              },
+              "commitId": "59f28c02-e06c-4b3e-844a-49f3b3bd1ae8",
+              "applied": [
+                "59f28c02-e06c-4b3e-844a-49f3b3bd1ae8"
+              ]
+            },
+            "phaseElapsedMs": 4221.673957999999
+          },
+          {
+            "phase": "fresh",
+            "pid": 19910,
+            "store": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/large-file-0IP8mh/fresh",
+            "storeWasAbsent": true,
+            "nativePid": 19911,
+            "api": "fetch_blob",
+            "taskCount": 50,
+            "profile": {
+              "download": {
+                "builtin": {
+                  "measurements": {
+                    "blobCacheInsert": {
+                      "calls": 1,
+                      "elapsedNs": 1623082625,
+                      "threadCpuNs": 1517434416,
+                      "units": 0
+                    },
+                    "blobCacheRead": {
+                      "calls": 2,
+                      "elapsedNs": 710326500,
+                      "threadCpuNs": 702616500,
+                      "units": 0
+                    },
+                    "blobDownload": {
+                      "calls": 1,
+                      "elapsedNs": 300834500,
+                      "threadCpuNs": 143233083,
+                      "units": 0
+                    },
+                    "blobEncode": {
+                      "calls": 1,
+                      "elapsedNs": 447178917,
+                      "threadCpuNs": 443464417,
+                      "units": 0
+                    },
+                    "blobReconcile": {
+                      "calls": 1,
+                      "elapsedNs": 392300458,
+                      "threadCpuNs": 384473459,
+                      "units": 0
+                    },
+                    "blobValidate": {
+                      "calls": 1,
+                      "elapsedNs": 894222250,
+                      "threadCpuNs": 891205041,
+                      "units": 0
+                    }
+                  },
+                  "scope": "Per-client inclusive phases since enable/reset; nested phases overlap. CPU covers the calling thread, excluding transport I/O threads. Counts include failed calls. Units count attempted pending operations only.",
+                  "version": 1
+                },
+                "spans": [
+                  {
+                    "label": "transport.blob_download",
+                    "ms": 8.153959,
+                    "threadCpuMs": 0.154792
+                  },
+                  {
+                    "label": "transport.fetch_blob_url",
+                    "ms": 292.673708,
+                    "threadCpuMs": 143.073042
+                  },
+                  {
+                    "label": "sha256",
+                    "ms": 894.2179169999999,
+                    "threadCpuMs": 891.201209
+                  }
+                ]
+              }
+            },
+            "initialCacheCount": 0,
+            "link": {
+              "_syncular_version": 1,
+              "blob": "{\"blobId\":\"sha256:f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84\",\"byteLength\":500000000,\"mediaType\":\"application/octet-stream\"}",
+              "created_at_ms": 1700000000000,
+              "id": "98181d5f-3cf6-4063-8980-515447f1a8ce",
+              "project_id": "org-1-project-1",
+              "task_id": "org-1-project-1-task-000001"
+            },
+            "downloadMs": 3528.479875,
+            "complete": {
+              "bytes": 500000000,
+              "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+            },
+            "transfers": {
+              "method": "http-object-download-cut-v1",
+              "cutAfterBytes": null,
+              "attempts": [
+                {
+                  "method": "GET",
+                  "status": 200,
+                  "contentLength": 500000000,
+                  "range": null,
+                  "upstreamBodyBytes": 500000000,
+                  "forwardedBodyBytes": 500000000,
+                  "interrupted": false,
+                  "completed": true
+                }
+              ]
+            },
+            "phaseElapsedMs": 5879.065499999997
+          }
+        ],
+        "phaseTimeoutMs": 600000,
+        "startedAt": "2026-09-11T10:00:55.316Z",
+        "objectPreparation": {
+          "key": "blob/bench/sha256/f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
+          "presentBefore": false,
+          "presentAfter": false
+        },
+        "uploadMs": 3658.6897500000005,
+        "downloadMs": 3528.479875,
+        "finishedAt": "2026-09-11T10:01:07.595Z"
+      }
+    }
+  ],
+  "finishedAt": "2026-09-11T10:01:07.666Z"
+}

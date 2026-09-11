@@ -1,0 +1,60 @@
+{
+  "kind": "isolated-sha256-feature-comparison",
+  "finishedAt": "2026-09-11T10:03:01.520895+00:00",
+  "scope": "Same sha2 0.10.9 algorithm/crate/input, default vs asm feature; file input outside timer, complete expected digest asserted on every run. Not an SDK or end-to-end benchmark.",
+  "binaries": {
+    "soft": {
+      "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/blob-pairs-hash-soft/release/syncular-sha256-probe",
+      "sha256": "53258e90ed461833602899b7d00b5b66651da949b2056a7f4607ced7ee467658"
+    },
+    "accelerated": {
+      "path": "/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/blob-pairs-hash-accelerated/release/syncular-sha256-probe",
+      "sha256": "ac4301d20b53e34f4e67e77f2579e342111df1788439316b153f33b402d86285"
+    }
+  },
+  "lockSha256": "35af6b201b6fd62dd8095cb4b6c5f93432f9a7352a491a4d92da20057b9ae82d",
+  "rows": [
+    {
+      "pair": 1,
+      "variant": "soft",
+      "accelerated": false,
+      "ms": 876.770625,
+      "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+    },
+    {
+      "pair": 1,
+      "variant": "accelerated",
+      "accelerated": true,
+      "ms": 206.64833299999998,
+      "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+    },
+    {
+      "pair": 2,
+      "variant": "accelerated",
+      "accelerated": true,
+      "ms": 193.573959,
+      "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+    },
+    {
+      "pair": 2,
+      "variant": "soft",
+      "accelerated": false,
+      "ms": 880.85625,
+      "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+    },
+    {
+      "pair": 3,
+      "variant": "soft",
+      "accelerated": false,
+      "ms": 869.747916,
+      "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+    },
+    {
+      "pair": 3,
+      "variant": "accelerated",
+      "accelerated": true,
+      "ms": 184.015875,
+      "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84"
+    }
+  ]
+}

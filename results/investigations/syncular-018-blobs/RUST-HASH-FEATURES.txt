@@ -1,0 +1,20 @@
+sha2 v0.10.9
+├── sha2 feature "default"
+│   ├── syncular-bench v0.1.0 (/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/blob-pairs/0.18.0/drivers/syncular-rust)
+│   │   └── syncular-bench feature "default" (command-line)
+│   └── syncular-client v0.18.0
+│       ├── syncular-client feature "default"
+│       │   ├── syncular-bench v0.1.0 (/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/blob-pairs/0.18.0/drivers/syncular-rust) (*)
+│       │   ├── syncular-command v0.18.0
+│       │   │   └── syncular-command feature "default"
+│       │   │       ├── syncular-bench v0.1.0 (/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/blob-pairs/0.18.0/drivers/syncular-rust) (*)
+│       │   │       └── syncular-ffi v0.18.0
+│       │   │           ├── syncular-ffi feature "default"
+│       │   │           │   └── syncular-bench v0.1.0 (/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/blob-pairs/0.18.0/drivers/syncular-rust) (*)
+│       │   │           └── syncular-ffi feature "native-transport"
+│       │   │               └── syncular-bench v0.1.0 (/Users/bkniffler/GitHub/sync/offline-sync-bench/.tmp/blob-pairs/0.18.0/drivers/syncular-rust) (*)
+│       │   └── syncular-ffi v0.18.0 (*)
+│       └── syncular-client feature "native-transport"
+│           └── syncular-ffi feature "native-transport" (*)
+└── sha2 feature "std"
+    └── sha2 feature "default" (*)

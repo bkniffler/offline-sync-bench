@@ -1,0 +1,14 @@
+{
+  "tests": {
+    "passed": 337,
+    "failed": 0,
+    "files": 67
+  },
+  "repositoryTypecheck": "passed",
+  "collectorTypecheck": "passed",
+  "primaryTransfersVerified": 12,
+  "diagnosticTransfersVerified": 4,
+  "hashesVerified": 6,
+  "archiveEntriesVerified": 1618,
+  "publishedManifestUnchanged": true
+}

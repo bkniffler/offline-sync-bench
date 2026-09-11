@@ -1,0 +1,13 @@
+[workspace]
+
+[package]
+name = "syncular-sha256-probe"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[features]
+accelerated = ["sha2/asm"]
+
+[dependencies]
+sha2 = "=0.10.9"

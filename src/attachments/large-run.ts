@@ -50,7 +50,7 @@ export function validateLargeFileResult(result: any, payload: FileFixture) {
 async function phase(config: any, directory: string) {
   const native = ['powersync', 'jazz-v2'].includes(config.stackId);
   const configPath = join(directory, `${config.phase}.json`); await writeFile(configPath, JSON.stringify(config));
-  const child = spawn(native ? 'node' : process.execPath, [native ? 'src/attachments/native-worker.ts' : 'src/attachments/large-syncular-worker.ts', configPath], { cwd: benchmarkRoot, stdio: ['pipe', 'pipe', 'pipe'], detached: true });
+  const child = spawn(native ? 'node' : process.execPath, [config.workerPath ?? (native ? 'src/attachments/native-worker.ts' : 'src/attachments/large-syncular-worker.ts'), configPath], { cwd: config.workerCwd ?? benchmarkRoot, stdio: ['pipe', 'pipe', 'pipe'], detached: true });
   let stdout = '', stderr = '', timedOut = false;
   const started = performance.now();
   child.stdout.on('data', chunk => { stdout += chunk; if (native && stdout.includes('"evidence"')) child.stdin.end('exit\n'); });
@@ -69,14 +69,14 @@ async function phase(config: any, directory: string) {
   return result;
 }
 
-export async function runLargeFile(stackId: LargeFileStack, payload: FileFixture) {
+export async function runLargeFile(stackId: LargeFileStack, payload: FileFixture, options: { workerPath?: string; workerCwd?: string; binPath?: string; servicesReady?: boolean } = {}) {
   const result: any = { stackId, status: 'running', phases: [], phaseTimeoutMs, startedAt: new Date().toISOString() };
   await mkdir(tempRoot, { recursive: true }); const directory = await mkdtemp(join(tempRoot, 'large-file-'));
   const datasetId = randomUUID(); let storage: S3Client | undefined; let objectKey: string | undefined;
   try {
-    await ensureStackUp(stackId);
+    if (!options.servicesReady) await ensureStackUp(stackId);
     if (stackId !== 'jazz-v2') {
-      await ensureStackUp('syncular');
+      if (!options.servicesReady) await ensureStackUp('syncular');
       if (stackId === 'powersync') await ensureFileReplicationRules();
       await seedStack(stackId, attachmentSeed);
       storage = new S3Client({ endpoint: 'http://localhost:3230', region: 'us-east-1', bucket: 'syncular-blobs', accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin' });
@@ -85,10 +85,10 @@ export async function runLargeFile(stackId: LargeFileStack, payload: FileFixture
       assert.equal(await storage.exists(objectKey), false);
       result.objectPreparation = { key: objectKey, presentBefore, presentAfter: false };
     }
-    const binPath = stackId === 'syncular-rust' ? await (await import('../adapters/syncular-rust.ts')).ensureBenchBinary() : undefined;
+    const binPath = options.binPath ?? (stackId === 'syncular-rust' ? await (await import('../adapters/syncular-rust.ts')).ensureBenchBinary() : undefined);
     const stack = getStack(stackId);
     for (const name of ['writer', 'fresh']) {
-      const config = { stackId, phase: name, payload, datasetId, binPath, store: join(directory, name), serverUrl: stack.syncBaseUrl, appUrl: stack.appBaseUrl, variant: 0,
+      const config = { workerPath: options.workerPath, workerCwd: options.workerCwd, stackId, phase: name, payload, datasetId, binPath, store: join(directory, name), serverUrl: stack.syncBaseUrl, appUrl: stack.appBaseUrl, variant: 0,
         objects: storage ? [{ id: datasetId, key: objectKey, put: storage.presign(objectKey!, { method: 'PUT', expiresIn: 3600 }), get: storage.presign(objectKey!, { method: 'GET', expiresIn: 3600 }) }] : [] };
       const output = await phase(config, directory); result.phases.push(output.evidence);
       if (output.status !== 'completed') { Object.assign(result, { status: output.status, error: output.error, failedPhase: name }); return result; }
