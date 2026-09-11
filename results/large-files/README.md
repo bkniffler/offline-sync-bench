@@ -1,30 +1,34 @@
 # Uploading and downloading a 500 MB file
 
-One file, 500,000,000 bytes (500 MB), linked to a task in a 50-task fixture. Each native attachment client runs once, sequentially, against local services. The download opens a new process and empty product store; it must retrieve and verify the complete file. OS and server caches are retained. This does not measure internet bandwidth or interrupted-transfer recovery; the smaller attachment benchmark covers retry behavior.
+Transfer one 500,000,000-byte file linked to a task in a 50-task fixture. Download it in a new process with an empty client cache and verify the complete SHA-256 hash. All services are local; OS and server caches are retained. This measures neither internet bandwidth nor interrupted-transfer recovery, which the smaller attachment benchmark covers.
 
-[Numbers in the main README](../../README.md#uploading-and-downloading-a-500-mb-file) · [Raw timing and byte receipts](./RESULTS.json)
+[Numbers in the main README](../../README.md#uploading-and-downloading-a-500-mb-file) · [Publication manifest](RESULTS.json) · [Controlled comparison and raw samples](../investigations/syncular-018-019-blobs/README.md)
 
-Syncular JS and Rust use released **0.18.0** packages in the September 11 rerun. PowerSync and Jazz retain their September 10 results. Each displayed row is bound to its original collection and source archive in [RESULTS.json](./RESULTS.json); samples are never pooled. Other benchmark tables and the browser-size table still describe their earlier versions.
+**Syncular JS and Rust 0.19.0 report medians of all three runs per client (n=3)** from the September 11 controlled alternating comparison against released 0.18.0, with the same 0.19.0 server. Each pair uses fresh writer/reader processes and stores, a reset task fixture and a removed remote object. All 12 attempts, including the baseline, passed byte/hash and metadata checks. Upload is the median of the three complete staging-plus-transfer durations, not a sum of separate phase medians. Download is independently the median of the three fresh-download durations. No favorable n=1 run was selected; no samples from the separate 0.17 comparison are pooled into these rows.
 
-Upload sums native staging and transfer durations, excluding reading the prepared source file. Syncular stages into its native SQLite blob cache and waits for the task-linked commit to be accepted. PowerSync uses its experimental attachment queue and filesystem transport; its retained clock stops before the final metadata-acceptance wait. Jazz creates native 256 KiB parts and waits for edge durability. These endpoints differ, so the table is not a transport-only ranking.
+**PowerSync and Jazz retain their September 10 single runs (n=1).** They were not rerun or included in the controlled pairs. Their run-to-run variability is unknown. Other benchmark tables and browser-size measurements retain their earlier versions.
 
-The new Syncular JS run forwards finite upload bodies without the benchmark meter buffering them again. Rust calls the public `fetch_blob_bytes()` API and returns only a byte count and digest through the harness; no hex encoding of the payload is involved. Both clients still use their native SQLite attachment cache. Downloads use a new process and empty cache, include materializing all bytes, and receive independent full SHA-256 validation after the timer. Syncular and PowerSync use MinIO. Jazz uses 1,908 default-sized parts, which its native helper inserts sequentially. One run does not establish variability or isolate a release-only speedup from the corrected harness.
+Upload includes native staging but excludes reading the prepared source file. Syncular uses its native SQLite attachment cache and waits for the linked metadata commit to be accepted. **PowerSync's retained upload ends before the final metadata-acceptance wait**, so its endpoint differs from Syncular's. It uses its experimental attachment queue and filesystem transport. Jazz creates 1,908 native 256 KiB parts and waits for edge durability. This is not a transport-only ranking.
 
-The September 11 run recorded slower uploads for both Syncular clients, concentrated in local staging. Both completed without SDK errors or hash failures. The cause of the slowdown is unconfirmed; these separate single runs do not establish a release regression. The confirmed Rust harness incompatibility was the removed `fetch_blob()` method, replaced here with `fetch_blob_bytes()` without restoring the removed private switch.
+JS metering forwards the original finite upload body. Rust calls the public `fetch_blob_bytes()` API and sends only a byte count and digest through the harness. Both use the released SQLite blob implementation; no SDK patch, custom filesystem layer or accelerated-hash flag was introduced. Fresh download includes materializing complete bytes and native cache writes; independent final hash verification is outside the timer. Syncular and PowerSync use MinIO.
 
-## Cached fixture
+## Fixture and reproduction
+
+`.cache/attachments/` is gitignored. The default file is deterministic high-entropy data generated once; every run verifies its length and SHA-256 before timing. An optional `--url` downloads a demo file only if it is absent, rejects interrupted or wrong-sized downloads, and records the source and hash. File preparation is outside the clock.
 
 ```sh
-bun run bench:large-files
-# Optional: download a demo file instead of generating the default fixture.
-# The URL must return exactly 500,000,000 bytes.
-bun run bench:large-files --url https://example.com/demo-500mb.bin --output .tmp/demo-file-results
+# Ordinary collection: one attempt per selected client, preserved in a new output directory.
+bun run bench:large-files --stack syncular,syncular-rust
+
+# Reproduce the published three-pair design using this revision's exact pins.
+BLOB_PAIR_BASELINE=0.18.0 python3 scripts/blob-pairs/prepare.py
+BLOB_PAIR_BASELINE=0.18.0 bun scripts/blob-pairs/run.ts .results/new-018-019-pairs
+
+# Publish the already archived controlled collection; recompute both medians from all samples.
+bun scripts/publish-large-files.ts --controlled results/investigations/syncular-018-019-blobs/PAIRS.json
+python3 scripts/audit-large-files.py
 ```
 
-`.cache/attachments/` is gitignored. The default is deterministic high-entropy data generated once, so the benchmark needs no public download host and does not benefit from compressing repeated zero bytes. A supplied URL is downloaded only when its fixture is absent. Interrupted or wrong-sized downloads are rejected. Every run verifies the cached byte count and SHA-256; cache corruption fails before measurement. File preparation and this check are never timed. The manifest records the exact source and hash.
+Every complete client phase has a 600,000 ms deadline including setup and validation. Failed attempts remain in raw collections; the median publisher rejects incomplete or failed paired collections. Libraries without a native attachment feature are marked **Not supported**. Temporary client stores and the declared MinIO object are removed after each attempt; the payload and client databases are not committed.
 
-By default, each run writes a new timestamped directory under gitignored `.results/`. Existing result directories are never overwritten. Choose a new `--output` directory for subsequent runs, or `--bytes 1048576 --output .tmp/large-file-smoke` for development. The published run uses 500 MB, one attempt per supported client, and a 600,000 ms deadline for each complete client phase (including setup and validation). Failures remain in the raw results and receive a short explanation in the table. Clients without a native attachment feature are marked **Not supported**.
-
-The [collection manifest](./RESULTS.json) links each selected run to its captured source hashes and archive. The payload and temporary native client databases are not committed. An [excluded validation collection](./EXCLUDED-RUN.json.gz) overlapped the full test suite; none of its timings are used in the table. Each run removes its temporary client stores and declared MinIO object; Jazz retains its server-side native file history. Run `python3 scripts/audit-large-files.py` to verify the published table and receipts.
-
-To rerun only Syncular, use `bun run bench:large-files --stack syncular,syncular-rust`. To publish a selected collection, run `bun scripts/publish-large-files.ts .results/your-run-directory`. This replaces only the selected client rows, retains other clients with their original provenance, binds the hashes into `SUMMARY.json` and rebuilds the README table.
+The publication manifest records the sampling design per client, binds original collection/source hashes and the aggregation code, and retains PowerSync/Jazz's original receipts unchanged. The TypeScript validator and independent Python audit recompute the medians and verify all paired receipts. The earlier [excluded validation collection](EXCLUDED-RUN.json.gz), which overlapped tests, remains excluded. Publication was authorized after the controlled collection completed and uses every candidate sample; the raw pre-collection plan is unchanged.

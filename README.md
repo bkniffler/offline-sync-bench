@@ -6,7 +6,7 @@ Includes Syncular JS/Rust, PowerSync, Turso, Zero, Electric, Electric + TanStack
 
 ## Latest results
 
-**Latest available measurements · Apple M4 · local services · Syncular JS/Rust 0.18.0 for the 500 MB file test; 0.17.0 for other results.** Latency is shown in **milliseconds; lower is faster**. Browser client sizes use **KiB**. Latency values are medians; query/edit timings summarize each run’s p50. Starred entries are explained below each table. “Not supported” means the library lacks the native feature required by that test. Benchmark implementation gaps are work to fix, not product limitations.
+**Latest available measurements · Apple M4 · local services · Syncular JS/Rust 0.19.0 for the 500 MB file test; 0.17.0 for other results.** Latency is shown in **milliseconds; lower is faster**. Browser client sizes use **KiB**. Latency values are medians unless marked n=1; query/edit timings summarize each run’s p50. Starred entries are explained below each table. “Not supported” means the library lacks the native feature required by that test. Benchmark implementation gaps are work to fix, not product limitations.
 
 Collection dates, configurations, sample sizes and ranges are in the linked details. [Methods](./docs/methodology.md) · [Missing-case review](./docs/investigations/missing-coverage.md) · [Failure explanations](./docs/investigations/tuned-publication-failures.md)
 
@@ -332,12 +332,12 @@ Syncular and PowerSync retry object-store downloads; Jazz reads native synced ch
 
 ### Uploading and downloading a 500 MB file
 
-Upload one 500,000,000-byte file linked to a task, then download it in a new process with an empty client cache. Upload includes native staging; download ends when complete bytes are materialized. Verify the full SHA-256 hash. One run per client (n=1), using local services; file preparation and final hash validation are outside the clock.
+Upload one 500,000,000-byte file linked to a task, then download it in a new process with an empty client cache. Upload includes native staging; download ends when complete bytes are materialized. Verify the full SHA-256 hash. Syncular reports medians of three controlled runs (n=3); PowerSync and Jazz retain single runs (n=1). All use local services; file preparation and final hash validation are outside the clock.
 
 | Client | Upload | Fresh download |
 | --- | ---: | ---: |
-| Syncular JS | 8289.48 ms \* | 3276.71 ms \* |
-| Syncular Rust | 7965.27 ms \* | 2690.77 ms \* |
+| Syncular JS | 3006.24 ms \* | 1890.02 ms \* |
+| Syncular Rust | 3765.50 ms \* | 2202.15 ms \* |
 | PowerSync | 1175.71 ms \*\* | 604.40 ms \*\* |
 | Turso | Not supported \*\*\* | Not supported \*\*\* |
 | Zero | Not supported \*\*\* | Not supported \*\*\* |
@@ -345,13 +345,13 @@ Upload one 500,000,000-byte file linked to a task, then download it in a new pro
 | Electric + TanStack DB | Not supported \*\*\* | Not supported \*\*\* |
 | Jazz v2 (experimental) | 49314.22 ms \*\*\*\* | 60176.33 ms \*\*\*\* |
 
-\* Syncular JS/Rust 0.18.0: upload includes metadata acceptance; JS metering no longer buffers the upload body again, and Rust uses the public fetch_blob_bytes() API without hex encoding. Other clients retain their earlier results.
+\* Syncular JS/Rust 0.19.0: medians of all three runs per client (n=3), collected in controlled alternating pairs against 0.18.0 under the same 0.19.0 server. Upload includes staging, transfer and metadata acceptance.
 
-\*\* PowerSync uses its experimental native attachment queue and filesystem transport. Its retained upload timing excludes the final metadata-acceptance wait, so it has a different stopping point from Syncular.
+\*\* PowerSync uses its experimental native attachment queue and filesystem transport. Its retained single run (n=1) excludes the final metadata-acceptance wait, so it has a different stopping point from Syncular.
 
 \*\*\* These libraries have no native attachment upload/download feature; Electric is read-only.
 
-\*\*\*\* Jazz uses its default 256 KiB chunks (1,908 parts). Its native helper awaits each part insertion; the other measured clients transfer whole objects through MinIO.
+\*\*\*\* Jazz retains a single run (n=1) using its default 256 KiB chunks (1,908 parts). Its native helper awaits each part insertion; the other measured clients transfer whole objects through MinIO.
 
 [Workload, cached fixture and raw results](./results/large-files/README.md)
 

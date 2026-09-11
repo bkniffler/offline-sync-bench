@@ -3,8 +3,15 @@
   "clientsAttempted": 4,
   "clientsCompleted": 4,
   "readmeCells": 16,
+  "rawReceiptsVerified": 14,
+  "sampleCounts": {
+    "syncular": 3,
+    "syncular-rust": 3,
+    "powersync": 1,
+    "jazz-v2": 1
+  },
   "bytesPerFile": 500000000,
   "sha256": "f8f21b7fff2ba4c46e755ac9e80e874c31a95e40b19ce21046bfa4ceac01db84",
-  "resultSha256": "3692aae312c89f5853a987d64d738735acfc7a3f7a47f200f742e9e04b5d8774",
-  "auditorSha256": "82b7e556808bac5553282d3b909628fa761489aa9c3219b9c3da19382bb6bd47"
+  "resultSha256": "50c4e13e67e3c18241ced6b3df66717c0717b7c916b69dc619daf116e8734d8d",
+  "auditorSha256": "9148d68d55e79fcb0d2ecbd8397d490b07b629ec5c5fe6de90c6d1903f7424af"
 }
