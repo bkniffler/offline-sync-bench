@@ -4,7 +4,7 @@
   "capturedAt": "2026-09-10T11:44:46.468Z",
   "report": "README.md",
   "summary": "SUMMARY.json",
-  "summarySha256": "2482edfc3923a2550b3abaa3873ddb56959486feca9766a40a89525c8dbcdff7",
+  "summarySha256": "8e4c0d8453d4aa5053a7d11120007907d53c1207374b2d2812eb3bc3e53049b7",
   "coverage": "COVERAGE.json",
   "coverageSha256": "7c63ae9435524fa628d978daee0e75ec76cc4b51dc036f20bce36ea413daf5c8",
   "attempts": 176,
@@ -61,7 +61,7 @@
   "withdrawnIndexSha256": "4bc5e295d3366de7e56a02954c64cd764e8ba90385e0aec48e53af536c946e5b",
   "presentation": "readme-benchmarks-v1",
   "renderer": "scripts/render-publication-summary.ts",
-  "rendererSha256": "21e6c0c5b87d0b01f5514c007fad6756f7f94f434eadfa5e3256c7e98b016a02",
+  "rendererSha256": "a16d92d6c9c8d29396f51bf8bfa46e2c43ec7133f959616c4dcb0385b730e780",
   "documentationHistory": "docs/history/INDEX.json",
   "historicalReport": "results/history/2026-09-07-withdrawn-campaign/RETAINED-RESULTS.md",
   "supersededAttempts": 48,
@@ -130,5 +130,10 @@
     "path": "results/large-files/RESULTS.json",
     "sha256": "50c4e13e67e3c18241ced6b3df66717c0717b7c916b69dc619daf116e8734d8d",
     "rendererSha256": "6317eb3da69ad2bf58a4b6c1d8930674b76e445683f4be4755de57e571c49c77"
+  },
+  "syncResponsiveness": {
+    "path": "results/sync-responsiveness/RESULTS.json",
+    "sha256": "c08735c11a60f15072e82b584cbf875b9eea1d39c17f7f259e9916cbd45c96b2",
+    "rendererSha256": "15fbedce529f451f9067176f3c001d8e77bc483130448463779d4bdef4e086ae"
   }
 }

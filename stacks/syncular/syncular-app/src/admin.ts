@@ -227,6 +227,42 @@ app.post('/admin/write', async (c) => {
   });
 });
 
+/**
+ * Retitle the highest-id tasks as one large server-side change set. Engine
+ * commits use the seed batch size; the response returns after all commits.
+ */
+app.post('/admin/bulk-retitle', async (c) => {
+  const request = await c.req.json<{ prefix?: string; count?: number }>();
+  if (!request.prefix || !Number.isSafeInteger(request.count) || request.count! < 1) {
+    return c.json({ ok: false, error: 'PREFIX_AND_COUNT_REQUIRED' }, 400);
+  }
+  const rows = await db.query<TaskRow>(
+    `${TASK_SELECT} WHERE _sync_partition = $1 ORDER BY id DESC LIMIT $2`,
+    [PARTITION, request.count],
+  );
+  const now = Date.now();
+  const writes: EngineWrite[] = rows.map((row) => ({
+    table: 'tasks',
+    op: 'upsert',
+    values: {
+      id: row.id,
+      org_id: row.org_id,
+      project_id: row.project_id,
+      owner_id: row.owner_id,
+      title: `${request.prefix}${row.id}`,
+      completed: row.completed,
+      server_version: Number(row.server_version) + 1,
+      updated_at_ms: now,
+    },
+  }));
+  let commits = 0;
+  for (let i = 0; i < writes.length; i += SEED_COMMIT_BATCH) {
+    await commitWrites(db, writes.slice(i, i + SEED_COMMIT_BATCH));
+    commits += 1;
+  }
+  return c.json({ ok: true, stackId, updated: rows.length, commits });
+});
+
 app.post('/admin/revoke-membership', async (c) => {
   const request = await c.req.json<{ actorId?: string; projectId?: string }>();
   if (!request.actorId || !request.projectId) {

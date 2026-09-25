@@ -71,10 +71,12 @@ assert gap_review['coverageSha256'] == sha(Path('COVERAGE.json').read_bytes())
 gap_labels = {(c['stack'], c['scenario']): c for c in gap_review['cases']}
 page = Path('README.md').read_text()
 sections = re.split(r'^### ', page, flags=re.M)[1:]
-assert len(sections) == len(metrics) + bool(config.get('clientSize')) + bool(config.get('largeFiles'))
+assert len(sections) == len(metrics) + bool(config.get('clientSize')) + bool(config.get('largeFiles')) + bool(config.get('syncResponsiveness'))
 latency_sections = sections[:len(metrics)]
 if config.get('clientSize'):
-    assert sections[-1].startswith('Browser client size\n')
+    assert sections[-1 - bool(config.get('syncResponsiveness'))].startswith('Browser client size\n')
+if config.get('syncResponsiveness'):
+    assert sections[-1].startswith('Staying responsive while syncing\n')
 cells = timings = footnoted_cells = 0
 for section, (scenario, keys) in zip(latency_sections, metrics):
     rows = [line for line in section.splitlines() if line.startswith('| ')][2:]

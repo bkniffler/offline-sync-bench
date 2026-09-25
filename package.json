@@ -35,7 +35,8 @@
     "bench:campaign": "bun run src/campaign.ts",
     "test": "bun test",
     "bench:meter-audit": "bun run src/meter-audit.ts",
-    "bench:large-files": "bun scripts/benchmark-large-files.ts"
+    "bench:large-files": "bun scripts/benchmark-large-files.ts",
+    "bench:responsiveness": "bun scripts/benchmark-sync-responsiveness.ts"
   },
   "dependencies": {
     "@electric-sql/client": "1.5.27",

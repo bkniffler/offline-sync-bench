@@ -1,5 +1,6 @@
 import { renderLargeFiles } from './large-file-renderer.ts';
 import { renderClientSize } from './client-size-renderer.ts';
+import { renderSyncResponsiveness } from './sync-responsiveness-renderer.ts';
 import { nativeFeatureExclusions } from '../src/native-support.ts';
 /** Assemble separately published campaigns; do not combine their samples.
  * Input paths are relative to the summary configuration. Output is Markdown.
@@ -319,6 +320,7 @@ with tarfile.open(base/source['archive']) as archive:
  }
  if(config.largeFiles)lines.push(...await renderLargeFiles(config.largeFiles,base));
  if(config.clientSize)lines.push(...await renderClientSize(config.clientSize,base));
+ if(config.syncResponsiveness)lines.push(...await renderSyncResponsiveness(config.syncResponsiveness,base));
  lines.push('## Run a benchmark','','Install Bun and start Docker, then:','','```sh','bun install --frozen-lockfile','bun run bench:run -- --stack syncular --scenario local-query','```','','The harness resets the selected stack’s benchmark fixtures. [Running campaigns and publishing results](./docs/reporting.md) · [Benchmark definitions](./docs/benchmarks.md)','');
  await writeFile(resolve(base,historyDetailsPath),historicalLines.join('\n'));
  await writeFile(outputPath,lines.join('\n'));

@@ -378,6 +378,40 @@ Initialize a real browser client and verify local storage across a reload. Count
 
 [Browser checks and complete asset inventory](./results/client-size/README.md) · [Scope and configurations](./docs/appendices/deployment-footprint.md)
 
+### Staying responsive while syncing
+
+A browser page keeps working while its client syncs. The controller types a key every 100 ms and the page refreshes a 50-row task list four times a second. The client first downloads 100,000 tasks into an empty store (**initial sync**). The page then closes, the server commits 20,000 task updates, and the reloaded page reopens the same store and catches up (**catch-up**). Plain Electric keeps no local store, so its catch-up downloads every task again. **Keystroke p95** is the 95th-percentile time from a key event to the next frame; a responsive page stays under one frame (16.7 ms). **Main thread blocked** is the long-animation-frame blocking time as a share of the phase. Medians of 3 trials per client, each in a fresh Chromium profile.
+
+| Client | Initial sync | Keystroke p95 | Main thread blocked | Longest frame | Catch-up | Keystroke p95 | Main thread blocked |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Syncular JS | 413 ms | 9.10 ms | 0.0% | 0.00 ms | 1128 ms | 16.5 ms | 0.0% |
+| Syncular Rust | Not applicable \* | Not applicable \* | Not applicable \* | Not applicable \* | Not applicable \* | Not applicable \* | Not applicable \* |
+| PowerSync | 6553 ms | 15.7 ms | 0.0% | 0.00 ms | 2475 ms | 15.2 ms | 0.0% |
+| Turso | Not applicable \* | Not applicable \* | Not applicable \* | Not applicable \* | Not applicable \* | Not applicable \* | Not applicable \* |
+| Zero | 1962 ms | 432 ms | 24% | 530 ms | 3104 ms | 339 ms | 17% |
+| Electric | 854 ms | 94.2 ms | 25% | 120 ms | 839 ms | 84.6 ms | 22% |
+| Electric + TanStack DB | 1858 ms | 642 ms | 63% | 738 ms | 2554 ms | 808 ms | 71% |
+| Jazz v2 (experimental) | Not measured \*\* | Not measured \*\* | Not measured \*\* | Not measured \*\* | Not measured \*\* | Not measured \*\* | Not measured \*\* |
+
+\* Syncular Rust and Turso use native-host clients in this harness; there is no browser client to measure.
+
+\*\* Jazz has no browser adapter for this case yet; its native 100,000-task startup did not complete within 90 seconds.
+
+**On a slower device.** The same trials with every Chromium process except the GPU at background CPU priority. DevTools CPU throttling is not used because it does not slow workers. The slowdown column is the measured cost of a fixed loop on the main thread and in a worker, relative to default priority.
+
+| Client | Slowdown (main/worker) | Initial sync | Keystroke p95 | Catch-up | Keystroke p95 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Syncular JS | 3.7×/4.6× | 1381 ms | 15.4 ms | 3807 ms | 15.7 ms |
+| Syncular Rust | Not applicable \* | Not applicable \* | Not applicable \* | Not applicable \* | Not applicable \* |
+| PowerSync | 4.1×/3.8× | 21822 ms | 15.4 ms | 10239 ms | 14.9 ms |
+| Turso | Not applicable \* | Not applicable \* | Not applicable \* | Not applicable \* | Not applicable \* |
+| Zero | 3.5×/4.2× | 3030 ms | 1509 ms | 4992 ms | 1634 ms |
+| Electric | 3.7×/4.4× | 2551 ms | 444 ms | 3055 ms | 426 ms |
+| Electric + TanStack DB | 4.7×/5.3× | 6714 ms | 3291 ms | 9853 ms | 2926 ms |
+| Jazz v2 (experimental) | Not measured \*\* | Not measured \*\* | Not measured \*\* | Not measured \*\* | Not measured \*\* |
+
+[Workload, conditions and raw trials](./results/sync-responsiveness/README.md) · [Definition](./docs/benchmarks.md#sync-responsiveness)
+
 ## Run a benchmark
 
 Install Bun and start Docker, then:
